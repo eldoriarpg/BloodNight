@@ -10,6 +10,7 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -50,6 +51,20 @@ public class NightSelection implements ConfigurationSerializable {
                 BloodNight.getInstance().getLogger().log(Level.WARNING, "Could not parse " + s + " to moon phase.");
             }
         }
+    }
+
+    public NightSelection() {
+        nightSelectionType = NightSelectionType.RANDOM;
+        probability = 20;
+        phases = new HashMap<>();
+        phases.put(0, 0);
+        phases.put(1, 10);
+        phases.put(2, 30);
+        phases.put(3, 60);
+        phases.put(4, 100);
+        phases.put(5, 60);
+        phases.put(6, 30);
+        phases.put(7, 10);
     }
 
     public int getPhaseProbability(int phase) {

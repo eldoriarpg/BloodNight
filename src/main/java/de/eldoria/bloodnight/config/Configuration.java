@@ -26,10 +26,22 @@ public class Configuration {
     public void reload() {
         FileConfiguration config = plugin.getConfig();
 
+        if (!config.contains("version")) {
+            init();
+        }
+
         version = config.getInt("version");
         generalSettings = (GeneralSettings) config.get("generalSettings");
         nightSelection = (NightSelection) config.get("nightSelection");
         nightSettings = (NightSettings) config.get("nightSettings");
+    }
+
+    private void init() {
+        version = 1;
+        generalSettings = new GeneralSettings();
+        nightSelection = new NightSelection();
+        nightSettings = new NightSettings();
+        safeConfig();
     }
 
     /**

@@ -18,7 +18,11 @@ public class GeneralSettings implements ConfigurationSerializable {
 
     public GeneralSettings(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
-        language = map.getValue("language");
+        language = map.getValueOrDefault("language", "en_US");
+    }
+
+    public GeneralSettings() {
+        language = "en_US";
     }
 
     @Override

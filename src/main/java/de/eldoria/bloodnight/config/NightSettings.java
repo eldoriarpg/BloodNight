@@ -1,12 +1,15 @@
 package de.eldoria.bloodnight.config;
 
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
+import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -57,6 +60,31 @@ public class NightSettings implements ConfigurationSerializable {
      * List of worlds where blood night is active.
      */
     private List<String> worlds;
+
+    public NightSettings() {
+        monsterDamageMultiplier = 2;
+        playerDamageMultiplier = 0.5;
+        experienceMultiplier = 3;
+        dropMultiplier = 2;
+        forcePhantoms = true;
+        skippable = false;
+        nightBegin = 14000;
+        nightEnd = 23000;
+        worlds = new ArrayList<>(Collections.singletonList("world"));
+    }
+
+    public NightSettings(Map<String, Object> objectMap) {
+        TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
+        monsterDamageMultiplier = map.getValue("monsterDamageMultiplier");
+        playerDamageMultiplier = map.getValue("playerDamageMultiplier");
+        experienceMultiplier = map.getValue("experienceMultiplier");
+        dropMultiplier = map.getValue("dropMultiplier");
+        forcePhantoms = map.getValue("forcePhantoms");
+        skippable = map.getValue("skippable");
+        nightBegin = map.getValue("nightBegin");
+        nightEnd = map.getValue("nightEnd");
+        worlds = map.getValue("worlds");
+    }
 
     @Override
     public @NotNull Map<String, Object> serialize() {
