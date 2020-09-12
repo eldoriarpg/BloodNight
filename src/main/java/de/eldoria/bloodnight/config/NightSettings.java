@@ -75,15 +75,15 @@ public class NightSettings implements ConfigurationSerializable {
 
     public NightSettings(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
-        monsterDamageMultiplier = map.getValue("monsterDamageMultiplier");
-        playerDamageMultiplier = map.getValue("playerDamageMultiplier");
-        experienceMultiplier = map.getValue("experienceMultiplier");
-        dropMultiplier = map.getValue("dropMultiplier");
-        forcePhantoms = map.getValue("forcePhantoms");
-        skippable = map.getValue("skippable");
-        nightBegin = map.getValue("nightBegin");
-        nightEnd = map.getValue("nightEnd");
-        worlds = map.getValue("worlds");
+        monsterDamageMultiplier = map.getValueOrDefault("monsterDamageMultiplier", 2d);
+        playerDamageMultiplier = map.getValueOrDefault("playerDamageMultiplier", 0.5);
+        experienceMultiplier = map.getValueOrDefault("experienceMultiplier", 3d);
+        dropMultiplier = map.getValueOrDefault("dropMultiplier", 2d);
+        forcePhantoms = map.getValueOrDefault("forcePhantoms", true);
+        skippable = map.getValueOrDefault("skippable", false);
+        nightBegin = map.getValueOrDefault("nightBegin", 13000);
+        nightEnd = map.getValueOrDefault("nightEnd", 23000);
+        worlds = map.getValueOrDefault("worlds", new ArrayList<>(Collections.singletonList("world")));
     }
 
     @Override
@@ -91,6 +91,8 @@ public class NightSettings implements ConfigurationSerializable {
         return SerializationUtil.newBuilder()
                 .add("monsterDamageMultiplier", monsterDamageMultiplier)
                 .add("playerDamageMultiplier", playerDamageMultiplier)
+                .add("experienceMultiplier", experienceMultiplier)
+                .add("dropMultiplier", dropMultiplier)
                 .add("forcePhantoms", forcePhantoms)
                 .add("skippable", skippable)
                 .add("nightBegin", nightBegin)

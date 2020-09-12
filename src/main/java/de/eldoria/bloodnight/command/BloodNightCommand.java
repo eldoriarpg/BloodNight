@@ -35,12 +35,12 @@ public class BloodNightCommand implements TabExecutor {
     private final MessageSender messageSender;
 
     public BloodNightCommand(Configuration configuration, Localizer localizer, Plugin plugin,
-                             NightListener nightListener, MessageSender messageSender) {
+                             NightListener nightListener) {
         this.configuration = configuration;
         this.localizer = localizer;
         this.plugin = plugin;
         this.nightListener = nightListener;
-        this.messageSender = messageSender;
+        this.messageSender = MessageSender.get(plugin);
     }
 
     @Override

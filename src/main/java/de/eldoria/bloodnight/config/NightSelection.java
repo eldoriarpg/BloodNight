@@ -30,7 +30,7 @@ public class NightSelection implements ConfigurationSerializable {
     private int probability;
 
 
-    private Map<Integer, Integer> phases;
+    private Map<Integer, Integer> phases = new HashMap<>();
 
     public NightSelection(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);

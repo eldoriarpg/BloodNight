@@ -32,7 +32,6 @@ public class BloodNight extends JavaPlugin {
     private NightListener nightListener;
     private Localizer localizer;
     private Configuration configuration;
-    private MessageSender messageSender;
 
     @SuppressWarnings("StaticVariableUsedBeforeInitialization")
     @NotNull
@@ -44,22 +43,25 @@ public class BloodNight extends JavaPlugin {
     public void onEnable() {
         instance = this;
         logger = getLogger();
+        registerSerialization();
         configuration = new Configuration(this);
 
         localizer = new Localizer(this, configuration.getGeneralSettings().getLanguage(), "messages",
                 "messages", Locale.US, "de_DE", "en_US");
         MessageSender.create(this, "§4[BN] ", '2', 'c');
         registerListener();
-        registerCommand("bloodnight", new BloodNightCommand(configuration, localizer, this, nightListener, messageSender));
-        registerSerialization();
+        registerCommand("bloodnight", new BloodNightCommand(configuration, localizer, this, nightListener));
+
+        logger().info("BloodNight enabled!");
     }
 
     private void registerListener() {
         PluginManager pm = Bukkit.getPluginManager();
 
+        MessageSender messageSender = MessageSender.get(this);
         nightListener = new NightListener(configuration);
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, nightListener, 10, 5);
-        pm.registerEvents(new MessageListener(localizer, nightListener, MessageSender.get(this)), this);
+        pm.registerEvents(new MessageListener(localizer, nightListener , messageSender), this);
         pm.registerEvents(nightListener, this);
         pm.registerEvents(new DamageListener(nightListener, configuration), this);
         pm.registerEvents(new BedListener(configuration, nightListener, localizer, messageSender), this);
@@ -74,7 +76,9 @@ public class BloodNight extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        nightListener.shutdown();
+        if (nightListener != null) {
+            nightListener.shutdown();
+        }
         super.onDisable();
     }
 
