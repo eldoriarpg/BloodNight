@@ -37,6 +37,10 @@
                             <pattern>org.bstats.bukkit</pattern>
                             <shadedPattern>de.eldoria.bloodnight.bstats</shadedPattern>
                         </relocation>
+                        <relocation>
+                            <pattern>de.eldoria.eldoutilities</pattern>
+                            <shadedPattern>de.eldoria.bloodnight.eldoutilities</shadedPattern>
+                        </relocation>
                     </relocations>
                 </configuration>
                 <executions>
