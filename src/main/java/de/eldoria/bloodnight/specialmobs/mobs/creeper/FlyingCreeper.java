@@ -1,5 +1,6 @@
 package de.eldoria.bloodnight.specialmobs.mobs.creeper;
 
+import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
 import org.bukkit.entity.Bat;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.EntityType;
@@ -7,7 +8,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public class FlyingCreeper extends AbstractCreeper {
@@ -24,8 +24,8 @@ public class FlyingCreeper extends AbstractCreeper {
 
     @Override
     public void tick() {
-        bat.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 60, 1, false, false));
-        bat.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60, 4, false, false));
+        SpecialMobUtil.addPotionEffect(bat,PotionEffectType.INVISIBILITY, 1, false);
+        SpecialMobUtil.addPotionEffect(bat,PotionEffectType.SPEED, 4, false);
     }
 
     @Override

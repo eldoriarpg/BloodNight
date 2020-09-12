@@ -1,8 +1,8 @@
 package de.eldoria.bloodnight.specialmobs.mobs.creeper;
 
+import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
 import org.bukkit.entity.Creeper;
 import org.bukkit.event.entity.ExplosionPrimeEvent;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public class SpeedCreeper extends AbstractCreeper {
@@ -14,7 +14,7 @@ public class SpeedCreeper extends AbstractCreeper {
 
     @Override
     public void tick() {
-        getCreeper().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60, 4, true, true));
+        SpecialMobUtil.addPotionEffect(getCreeper(), PotionEffectType.SPEED, 4, true);
     }
 
     @Override

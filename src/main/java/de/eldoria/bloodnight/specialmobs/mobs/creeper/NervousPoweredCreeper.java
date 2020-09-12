@@ -1,7 +1,8 @@
 package de.eldoria.bloodnight.specialmobs.mobs.creeper;
 
+import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
+import org.bukkit.Particle;
 import org.bukkit.entity.Creeper;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public class NervousPoweredCreeper extends AbstractCreeper {
@@ -13,7 +14,8 @@ public class NervousPoweredCreeper extends AbstractCreeper {
 
     @Override
     public void tick() {
-        getCreeper().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60, 2, false, false));
+        SpecialMobUtil.addPotionEffect(getCreeper(), PotionEffectType.SPEED, 2, false);
+        SpecialMobUtil.spawnParticlesAround(getCreeper(), Particle.REDSTONE, 10);
     }
 
     @Override

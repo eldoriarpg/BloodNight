@@ -1,5 +1,6 @@
 package de.eldoria.bloodnight.specialmobs.mobs.creeper;
 
+import org.bukkit.Particle;
 import org.bukkit.entity.Creeper;
 import org.bukkit.event.entity.EntityDamageEvent;
 
@@ -12,6 +13,11 @@ public class UnstableCreeper extends AbstractCreeper {
         setExplosionRadius(10);
         setPowered(true);
         setMaxFuseTicks(100);
+    }
+
+    @Override
+    public void tick() {
+        getCreeper().getWorld().spawnParticle(Particle.WHITE_ASH,getCreeper().getLocation(), 10);
     }
 
     @Override

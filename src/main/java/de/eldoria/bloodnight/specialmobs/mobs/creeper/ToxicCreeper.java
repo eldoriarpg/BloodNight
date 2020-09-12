@@ -1,6 +1,7 @@
 package de.eldoria.bloodnight.specialmobs.mobs.creeper;
 
 import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
+import org.bukkit.Particle;
 import org.bukkit.entity.Creeper;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.potion.PotionEffect;
@@ -13,10 +14,14 @@ public class ToxicCreeper extends AbstractCreeper {
     }
 
     @Override
+    public void tick() {
+        SpecialMobUtil.spawnParticlesAround(getCreeper(), Particle.SNEEZE, 10);
+    }
+
+    @Override
     public void onSpawn() {
         setMaxFuseTicks(20);
     }
-
 
 
     @Override
