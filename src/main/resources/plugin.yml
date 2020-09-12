@@ -1,0 +1,15 @@
+name: ${project.name}
+description: ${project.description}
+author: Hadde
+version: ${project.version}
+main: de.eldoria.bloodnight.BloodNight
+website: www.spigotmc.org/resources/80805/
+api-version: 1.13
+depend: [ProtocolLib]
+
+commands:
+  bloodnight:
+    description: lul
+    usage: ""
+    aliases:
+      - bnight
