@@ -18,6 +18,7 @@ import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.plugin.PluginManager;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -237,6 +238,10 @@ public class NightListener implements Listener, Runnable {
                 .forEach(observedWorlds::add);
         timeState.clear();
         bloodWorlds.clear();
+    }
+
+    public Set<World> getBloodWorlds() {
+        return Collections.unmodifiableSet(bloodWorlds);
     }
 
     @Getter
