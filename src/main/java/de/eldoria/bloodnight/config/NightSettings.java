@@ -8,9 +8,6 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -28,7 +25,7 @@ public class NightSettings implements ConfigurationSerializable {
     private double playerDamageMultiplier;
 
     /**
-     * The modifier which will be muliplied with the droppes exp of a monster.
+     * The modifier which will be muliplied with the dropped exp of a monster.
      */
     private double experienceMultiplier;
 
@@ -38,7 +35,7 @@ public class NightSettings implements ConfigurationSerializable {
     private double dropMultiplier;
 
     /**
-     * sleep time will be set for every player when the nights starts and will be reset to earlier value when the night ends
+     * Sleep time will be set for every player when the nights starts and will be reset to earlier value when the night ends
      */
     private boolean forcePhantoms;
 
@@ -56,34 +53,33 @@ public class NightSettings implements ConfigurationSerializable {
      */
     private int nightEnd;
 
-    /**
-     * List of worlds where blood night is active.
-     */
-    private List<String> worlds;
+    private boolean overrideNightDuration;
+
+    private int nightDuration = 600;
 
     public NightSettings() {
         monsterDamageMultiplier = 2;
         playerDamageMultiplier = 0.5;
-        experienceMultiplier = 3;
+        experienceMultiplier = 4;
         dropMultiplier = 2;
         forcePhantoms = true;
         skippable = false;
         nightBegin = 14000;
         nightEnd = 23000;
-        worlds = new ArrayList<>(Collections.singletonList("world"));
     }
 
     public NightSettings(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
         monsterDamageMultiplier = map.getValueOrDefault("monsterDamageMultiplier", 2d);
         playerDamageMultiplier = map.getValueOrDefault("playerDamageMultiplier", 0.5);
-        experienceMultiplier = map.getValueOrDefault("experienceMultiplier", 3d);
+        experienceMultiplier = map.getValueOrDefault("experienceMultiplier", 4d);
         dropMultiplier = map.getValueOrDefault("dropMultiplier", 2d);
         forcePhantoms = map.getValueOrDefault("forcePhantoms", true);
         skippable = map.getValueOrDefault("skippable", false);
         nightBegin = map.getValueOrDefault("nightBegin", 13000);
         nightEnd = map.getValueOrDefault("nightEnd", 23000);
-        worlds = map.getValueOrDefault("worlds", new ArrayList<>(Collections.singletonList("world")));
+        overrideNightDuration = map.getValueOrDefault("overrideNightDuration", false);
+        nightDuration = map.getValueOrDefault("nightEnd", 600);
     }
 
     @Override
@@ -97,7 +93,8 @@ public class NightSettings implements ConfigurationSerializable {
                 .add("skippable", skippable)
                 .add("nightBegin", nightBegin)
                 .add("nightEnd", nightEnd)
-                .add("worlds", worlds)
+                .add("overrideNightDuration", overrideNightDuration)
+                .add("nightDuration", nightDuration)
                 .build();
     }
 }

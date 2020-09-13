@@ -59,11 +59,11 @@ public class NightSelection implements ConfigurationSerializable {
         phases = new HashMap<>();
         phases.put(0, 0);
         phases.put(1, 10);
-        phases.put(2, 30);
-        phases.put(3, 60);
+        phases.put(2, 20);
+        phases.put(3, 40);
         phases.put(4, 100);
-        phases.put(5, 60);
-        phases.put(6, 30);
+        phases.put(5, 40);
+        phases.put(6, 20);
         phases.put(7, 10);
     }
 
