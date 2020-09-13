@@ -45,6 +45,10 @@ public enum SpecialMobType {
      */
     INVISIBLE_ZOMBIE(EntityType.ZOMBIE),
     /**
+     * A zombie with a full armor.
+     */
+    ARMORED_ZOMBIE(EntityType.ZOMBIE),
+    /**
      * A witch throwing fireballs instead of potions.
      */
     FIRE_WIZARD(EntityType.WITCH),
@@ -80,7 +84,7 @@ public enum SpecialMobType {
     /**
      * A slime which explodes in a cloud of poison when killed.
      */
-    POISINOUS_SLIME(EntityType.SLIME),
+    TOXIC_SLIME(EntityType.SLIME),
     /**
      * A phantom with invisibility and glowing effect.
      */
@@ -88,7 +92,15 @@ public enum SpecialMobType {
     /**
      * Applies a slowness effect on hit.
      */
-    FEARFULL_PHANTOM(EntityType.PHANTOM);
+    FEARFULL_PHANTOM(EntityType.PHANTOM),
+    /**
+     * Phantom with a blaze on top.
+     */
+    FIRE_PHANTOM(EntityType.PHANTOM),
+    /**
+     * A spider with a blaze.
+     */
+    BLAZE_RIDER(EntityType.SPIDER);
 
     private final EntityType type;
 
