@@ -44,7 +44,7 @@ public interface SpecialMob {
     }
 
     /**
-     * Called when the entity launches a projectile.
+     * Called when the a projectile of the entity hit something.
      */
     default void onProjectileHit(ProjectileHitEvent event) {
     }
@@ -61,20 +61,54 @@ public interface SpecialMob {
     default void onKill(EntityDeathEvent event) {
     }
 
+    /**
+     * Called when a entitz starts to explode
+     *
+     * @param event
+     */
     default void onExplosionPrimeEvent(ExplosionPrimeEvent event) {
     }
+
+    /**
+     * Called when a entity exploded
+     *
+     * @param event
+     */
     default void onExplosionEvent(EntityExplodeEvent event) {
     }
 
+    /**
+     * Called when a entity changes its target
+     *
+     * @param event
+     */
     default void onTargetEvent(EntityTargetEvent event) {
 
     }
 
-    default void onDamage(EntityDamageEvent event){
+    /**
+     * Called when the entity takes damage
+     *
+     * @param event
+     */
+    default void onDamage(EntityDamageEvent event) {
 
     }
 
-    default void onDamageByEntity(EntityDamageByEntityEvent event){
+    /**
+     * Called when the entity takes damage from another entity
+     *
+     * @param event
+     */
+    default void onDamageByEntity(EntityDamageByEntityEvent event) {
+
+    }
+
+    /**
+     * Called when the entity damages another entity
+     * @param event
+     */
+    default void onHit(EntityDamageByEntityEvent event){
 
     }
 }
