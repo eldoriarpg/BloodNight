@@ -26,8 +26,12 @@ public final class SpecialMobUtil {
     private SpecialMobUtil() {
     }
 
-    public static void spawnPotionAt(Location location, PotionEffect potionEffect) {
-        ItemStack potion = new ItemStack(Material.LINGERING_POTION);
+    public static void spawnLingeringPotionAt(Location location, PotionEffect potionEffect) {
+        spawnPotionAt(location, potionEffect, Material.LINGERING_POTION);
+    }
+
+    public static void spawnPotionAt(Location location, PotionEffect potionEffect, Material potionType) {
+        ItemStack potion = new ItemStack(potionType);
         PotionMeta potionMeta = (PotionMeta) potion.getItemMeta();
         potionMeta.addCustomEffect(potionEffect, false);
         potion.setItemMeta(potionMeta);
@@ -70,5 +74,19 @@ public final class SpecialMobUtil {
                     .multiply(speed);
             source.launchProjectile(projectile, vel);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends Entity> T spawnAndMount(Entity carrier, EntityType mount) {
+        T mountedEntity = (T) carrier.getLocation().getWorld().spawnEntity(carrier.getLocation(), mount);
+        carrier.addPassenger(mountedEntity);
+        return mountedEntity;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends Entity> T spawnAndMount(EntityType carrier, Entity mount) {
+        T mountedEntity = (T) mount.getLocation().getWorld().spawnEntity(mount.getLocation(), carrier);
+        mount.addPassenger(mountedEntity);
+        return mountedEntity;
     }
 }
