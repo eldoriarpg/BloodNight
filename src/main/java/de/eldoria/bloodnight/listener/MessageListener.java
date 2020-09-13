@@ -25,17 +25,19 @@ public class MessageListener implements Listener {
 
     @EventHandler
     public void onBloodNightEnd(BloodNightEndEvent event) {
+        String message = localizer.getMessage("notify.nightEnd",
+                Replacement.create("%WORLD%", event.getWorld().getName()).addFormatting('6'));
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-            messageSender.sendMessage(player, localizer.getMessage("notify.nightEnd",
-                    Replacement.create("%WORLD%", event.getWorld().getName()).addFormatting('6')));
+            messageSender.sendMessage(player, message);
         }
     }
 
     @EventHandler
     public void onBloodNightStart(BloodNightBeginEvent event) {
+        String message = localizer.getMessage("notify.nightStart",
+                Replacement.create("%WORLD%", event.getWorld().getName()).addFormatting('6'));
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-            messageSender.sendMessage(player, localizer.getMessage("notify.nightStart",
-                    Replacement.create("%WORLD%", event.getWorld().getName()).addFormatting('6')));
+            messageSender.sendMessage(player, message);
         }
     }
 
