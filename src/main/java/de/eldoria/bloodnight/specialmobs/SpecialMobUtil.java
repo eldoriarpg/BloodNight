@@ -1,5 +1,6 @@
 package de.eldoria.bloodnight.specialmobs;
 
+import de.eldoria.bloodnight.util.VectorUtil;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -7,6 +8,8 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
+import org.bukkit.entity.Projectile;
 import org.bukkit.entity.ThrownPotion;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
@@ -53,6 +56,19 @@ public final class SpecialMobUtil {
                                     RAND.nextDouble(-3, 3),
                                     RAND.nextDouble(-3, 3)),
                     1);
+        }
+    }
+
+    public static void launchProjectileOnTarget(Mob source, Class<? extends Projectile> projectile, double speed) {
+        launchProjectileOnTarget(source, source.getTarget(), projectile, speed);
+    }
+
+    public static void launchProjectileOnTarget(Mob source, Entity target, Class<? extends Projectile> projectile, double speed) {
+        if (target != null) {
+            Vector vel = VectorUtil.getDirectionVector(source.getLocation(), target.getLocation())
+                    .normalize()
+                    .multiply(speed);
+            source.launchProjectile(projectile, vel);
         }
     }
 }
