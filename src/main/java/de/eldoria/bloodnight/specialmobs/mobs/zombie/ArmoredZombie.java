@@ -6,7 +6,7 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 
 public class ArmoredZombie extends AbstractZombie {
-    protected ArmoredZombie(Zombie zombie) {
+    public ArmoredZombie(Zombie zombie) {
         super(zombie);
         EntityEquipment equipment = zombie.getEquipment();
         equipment.setHelmet(new ItemStack(Material.DIAMOND_HELMET));

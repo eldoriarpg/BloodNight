@@ -13,7 +13,7 @@ import java.time.Instant;
 public class InvisibleZombie extends AbstractZombie {
     private Instant lastDamage = Instant.now();
 
-    protected InvisibleZombie(Zombie zombie) {
+    public InvisibleZombie(Zombie zombie) {
         super(zombie);
 
         EntityEquipment equipment = zombie.getEquipment();

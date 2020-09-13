@@ -10,7 +10,7 @@ import org.bukkit.potion.PotionEffectType;
 
 public class PhantomSoul extends AbstractPhantom {
 
-    protected PhantomSoul(Phantom phantom) {
+    public PhantomSoul(Phantom phantom) {
         super(phantom);
     }
 

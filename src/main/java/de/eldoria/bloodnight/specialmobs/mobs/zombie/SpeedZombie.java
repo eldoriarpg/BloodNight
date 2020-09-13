@@ -5,9 +5,8 @@ import org.bukkit.entity.Zombie;
 import org.bukkit.potion.PotionEffectType;
 
 public class SpeedZombie extends AbstractZombie {
-    protected SpeedZombie(Zombie zombie) {
+    public SpeedZombie(Zombie zombie) {
         super(zombie);
-        tick();
     }
 
     @Override

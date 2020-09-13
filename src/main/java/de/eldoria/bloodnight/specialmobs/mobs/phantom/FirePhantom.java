@@ -10,7 +10,7 @@ public class FirePhantom extends AbstractPhantom {
 
     private final Blaze blaze;
 
-    protected FirePhantom(Phantom phantom) {
+    public FirePhantom(Phantom phantom) {
         super(phantom);
         blaze = SpecialMobUtil.spawnAndMount(getPhantom(), EntityType.BLAZE);
     }

@@ -6,8 +6,8 @@ import org.bukkit.entity.Witch;
 import org.bukkit.entity.WitherSkull;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 
-public class WhiterWizard extends AbstractWitch {
-    public WhiterWizard(Witch witch) {
+public class WitherWizard extends AbstractWitch {
+    public WitherWizard(Witch witch) {
         super(witch);
     }
 

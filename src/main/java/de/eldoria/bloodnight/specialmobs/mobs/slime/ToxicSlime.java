@@ -7,7 +7,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public class ToxicSlime extends AbstractSlime {
-    protected ToxicSlime(Slime slime) {
+    public ToxicSlime(Slime slime) {
         super(slime);
     }
 

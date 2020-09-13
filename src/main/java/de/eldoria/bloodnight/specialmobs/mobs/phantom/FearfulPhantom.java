@@ -9,7 +9,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public class FearfulPhantom extends AbstractPhantom {
-    protected FearfulPhantom(Phantom phantom) {
+    public FearfulPhantom(Phantom phantom) {
         super(phantom);
     }
 
