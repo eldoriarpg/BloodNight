@@ -6,7 +6,7 @@ import lombok.Getter;
 import org.bukkit.Particle;
 import org.bukkit.entity.Witch;
 
-public class AbstractWitch implements SpecialMob {
+public abstract class AbstractWitch implements SpecialMob {
     @Getter
     private final Witch witch;
 

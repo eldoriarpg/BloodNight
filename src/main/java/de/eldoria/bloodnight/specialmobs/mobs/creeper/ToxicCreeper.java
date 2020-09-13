@@ -26,6 +26,6 @@ public class ToxicCreeper extends AbstractCreeper {
 
     @Override
     public void onExplosionEvent(EntityExplodeEvent event) {
-        SpecialMobUtil.spawnPotionAt(event.getLocation(), new PotionEffect(PotionEffectType.POISON, 5, 2, true, true));
+        SpecialMobUtil.spawnLingeringPotionAt(event.getLocation(), new PotionEffect(PotionEffectType.POISON, 5, 2, true, true));
     }
 }

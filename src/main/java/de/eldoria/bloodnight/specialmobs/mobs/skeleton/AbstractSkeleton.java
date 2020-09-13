@@ -6,7 +6,7 @@ import lombok.Getter;
 import org.bukkit.Particle;
 import org.bukkit.entity.Skeleton;
 
-public class AbstractSkeleton implements SpecialMob {
+public abstract class AbstractSkeleton implements SpecialMob {
     @Getter
     private final Skeleton skeleton;
 

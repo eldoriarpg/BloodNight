@@ -26,7 +26,6 @@ public class MagicSkeleton extends AbstractSkeleton {
 
     public MagicSkeleton(Skeleton skeleton) {
         super(skeleton);
-        tick();
     }
 
     @Override

@@ -9,7 +9,6 @@ public class SpeedCreeper extends AbstractCreeper {
     public SpeedCreeper(Creeper creeper) {
         super(creeper);
         setMaxFuseTicks(10);
-        tick();
     }
 
     @Override

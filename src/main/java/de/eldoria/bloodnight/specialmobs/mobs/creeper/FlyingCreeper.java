@@ -12,14 +12,12 @@ import org.bukkit.potion.PotionEffectType;
 
 public class FlyingCreeper extends AbstractCreeper {
 
-    private Bat bat;
+    private final Bat bat;
 
     public FlyingCreeper(Creeper creeper) {
         super(creeper);
-        bat = (Bat) creeper.getLocation().getWorld().spawnEntity(creeper.getLocation(), EntityType.BAT);
-        bat.addPassenger(creeper);
+        bat = SpecialMobUtil.spawnAndMount(EntityType.BAT, getCreeper());
         bat.setInvulnerable(true);
-        tick();
     }
 
     @Override
