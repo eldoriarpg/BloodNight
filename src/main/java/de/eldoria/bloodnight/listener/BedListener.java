@@ -1,6 +1,7 @@
 package de.eldoria.bloodnight.listener;
 
 import de.eldoria.bloodnight.config.Configuration;
+import de.eldoria.bloodnight.config.NightSettings;
 import de.eldoria.eldoutilities.localization.Localizer;
 import de.eldoria.eldoutilities.messages.MessageSender;
 import org.bukkit.event.Listener;
@@ -21,7 +22,8 @@ public class BedListener implements Listener {
 
     public void onBedEnter(PlayerBedEnterEvent event) {
         if (!nightListener.isBloodNightActive(event.getPlayer().getWorld())) return;
-        if (configuration.getNightSettings().isSkippable()) return;
+        NightSettings nightSettings = configuration.getWorldSettings(event.getPlayer().getWorld()).getNightSettings();
+        if (nightSettings.isSkippable()) return;
         messageSender.sendMessage(event.getPlayer(), localizer.getMessage("notify.youCantSleep"));
         event.setCancelled(true);
     }

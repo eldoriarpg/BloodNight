@@ -3,6 +3,7 @@ package de.eldoria.bloodnight.listener;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import de.eldoria.bloodnight.config.Configuration;
+import de.eldoria.bloodnight.config.NightSettings;
 import de.eldoria.bloodnight.listener.util.ListenerUtil;
 import de.eldoria.bloodnight.listener.util.ProjectileSender;
 import org.bukkit.entity.Boss;
@@ -71,9 +72,11 @@ public class LootListener implements Listener {
 
         if (!nightListener.isBloodNightActive(entity.getWorld())) return;
 
-        event.setDroppedExp((int) (event.getDroppedExp() * configuration.getNightSettings().getExperienceMultiplier()));
+        NightSettings nightSettings = configuration.getWorldSettings(entity.getWorld()).getNightSettings();
+
+        event.setDroppedExp((int) (event.getDroppedExp() * nightSettings.getExperienceMultiplier()));
         for (ItemStack drop : event.getDrops()) {
-            drop.setAmount((int) (drop.getAmount() * configuration.getNightSettings().getDropMultiplier()));
+            drop.setAmount((int) (drop.getAmount() * nightSettings.getDropMultiplier()));
         }
     }
 }

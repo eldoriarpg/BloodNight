@@ -1,6 +1,7 @@
 package de.eldoria.bloodnight.listener;
 
 import de.eldoria.bloodnight.config.Configuration;
+import de.eldoria.bloodnight.config.NightSettings;
 import de.eldoria.bloodnight.listener.util.ListenerUtil;
 import de.eldoria.bloodnight.listener.util.ProjectileSender;
 import org.bukkit.entity.Boss;
@@ -31,13 +32,15 @@ public class DamageListener implements Listener {
         Entity damager = sender.isEntity() ? sender.getEntity() : event.getDamager();
         Entity oponent = event.getEntity();
 
+        NightSettings settings = configuration.getWorldSettings(oponent.getLocation().getWorld().getName()).getNightSettings();
+
         // Check if opponent a monster or boss. We want also to recude non player damage.
         if (oponent instanceof Monster || oponent instanceof Boss) {
             // the damager is a player. Multiply damage by player multiplier
-            event.setDamage(event.getDamage() * configuration.getNightSettings().getPlayerDamageMultiplier());
+            event.setDamage(event.getDamage() * settings.getPlayerDamageMultiplier());
         } else if (oponent.getType() == EntityType.PLAYER
                 && (damager instanceof Monster || damager instanceof Boss)) {
-            event.setDamage(event.getDamage() * configuration.getNightSettings().getMonsterDamageMultiplier());
+            event.setDamage(event.getDamage() * settings.getMonsterDamageMultiplier());
         }
     }
 }
