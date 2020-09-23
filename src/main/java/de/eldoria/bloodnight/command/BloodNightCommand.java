@@ -1,19 +1,25 @@
 package de.eldoria.bloodnight.command;
 
 import de.eldoria.bloodnight.config.Configuration;
+import de.eldoria.bloodnight.config.WorldSettings;
+import de.eldoria.bloodnight.core.mobfactory.MobFactory;
+import de.eldoria.bloodnight.core.mobfactory.SpecialMobRegistry;
+import de.eldoria.bloodnight.listener.MobModifier;
 import de.eldoria.bloodnight.listener.NightListener;
+import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
 import de.eldoria.bloodnight.util.Permissions;
 import de.eldoria.eldoutilities.localization.Localizer;
 import de.eldoria.eldoutilities.localization.Replacement;
 import de.eldoria.eldoutilities.messages.MessageSender;
 import de.eldoria.eldoutilities.utils.ArrayUtil;
-import de.eldoria.eldoutilities.utils.Parser;
-import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -24,7 +30,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.OptionalInt;
 import java.util.stream.Collectors;
 
 public class BloodNightCommand implements TabExecutor {
@@ -33,14 +38,16 @@ public class BloodNightCommand implements TabExecutor {
     private final Plugin plugin;
     private final NightListener nightListener;
     private final MessageSender messageSender;
+    private final MobModifier mobModifier;
 
     public BloodNightCommand(Configuration configuration, Localizer localizer, Plugin plugin,
-                             NightListener nightListener) {
+                             NightListener nightListener, MobModifier mobModifier) {
         this.configuration = configuration;
         this.localizer = localizer;
         this.plugin = plugin;
         this.nightListener = nightListener;
         this.messageSender = MessageSender.get(plugin);
+        this.mobModifier = mobModifier;
     }
 
     @Override
@@ -84,6 +91,46 @@ public class BloodNightCommand implements TabExecutor {
             return true;
         }
 
+        // Enable, disable Worlds. Register, unregister Worlds
+        // Calls addWorld, removeWorld, enableBloodNight <world>, disableBloodNight <world>
+        if ("manageWorlds".equalsIgnoreCase(cmd)) {
+            if (denyAccess(player, Permissions.ADMIN)) {
+                return true;
+            }
+        }
+
+        // Show Current world settings. Shows NightSettings and NightSelection and active special mobs
+        if ("worldInfo".equalsIgnoreCase(cmd)) {
+
+        }
+
+        if ("spawnMob".equalsIgnoreCase(cmd)) {
+            if (player == null) return true;
+            if (nightListener.isBloodNightActive(player.getWorld())) {
+                Block targetBlock = player.getTargetBlock(null, 100);
+                if (targetBlock.getType() == Material.AIR) {
+                    messageSender.sendError(player, "No Block in sight.");
+                    return true;
+                }
+
+                Optional<MobFactory> mobFactoryByName = SpecialMobRegistry.getMobFactoryByName(args[1]);
+
+                if (!mobFactoryByName.isPresent()) {
+                    messageSender.sendError(player, "Invalid mob type");
+                    return true;
+                }
+
+                MobFactory mobFactory = mobFactoryByName.get();
+
+                Entity entity = SpecialMobUtil.spawnAndTagEntity(targetBlock.getLocation().add(0, 1, 0), mobFactory.getEntityType());
+                mobModifier.wrapMob(entity, mobFactory);
+            } else {
+                messageSender.sendError(player, "no blood night active");
+            }
+
+            return true;
+        }
+
         if ("addWorld".equalsIgnoreCase(cmd)) {
             if (denyAccess(player, Permissions.ADMIN)) {
                 return true;
@@ -98,22 +145,22 @@ public class BloodNightCommand implements TabExecutor {
 
             if (world == null) {
                 messageSender.sendError(player, localizer.getMessage("error.invalidWorld",
-                        Replacement.create("%WORLD%", arguments[0]).addFormatting('6')));
+                        Replacement.create("WORLD", arguments[0]).addFormatting('6')));
                 return true;
             }
 
-            if (configuration.getNightSettings().getWorlds().contains(world.getName())) {
+            if (configuration.getWorldSettings(world.getName()) != null) {
                 messageSender.sendMessage(player, localizer.getMessage("addWorld.alreadyRegistered",
-                        Replacement.create("%WORLD%", world.getName()).addFormatting('6')));
+                        Replacement.create("WORLD", world.getName()).addFormatting('6')));
                 return true;
             }
 
             nightListener.registerWorld(world);
-            configuration.getNightSettings().getWorlds().add(world.getName());
+            configuration.addWorldSettings(world);
             configuration.safeConfig();
 
             messageSender.sendMessage(player, localizer.getMessage("addWorld.added",
-                    Replacement.create("%WORLD%", world.getName()).addFormatting('6')));
+                    Replacement.create("WORLD", world.getName()).addFormatting('6')));
             return true;
         }
 
@@ -127,167 +174,34 @@ public class BloodNightCommand implements TabExecutor {
                 return true;
             }
 
-            World world = Bukkit.getWorld(arguments[0]);
+            WorldSettings worldSettings = configuration.getWorldSettings(arguments[0]);
 
-            if (world == null) {
+            if (worldSettings == null) {
                 messageSender.sendError(player, localizer.getMessage("error.invalidWorld",
-                        Replacement.create("%WORLD%", arguments[0]).addFormatting('6')));
+                        Replacement.create("WORLD", arguments[0]).addFormatting('6')));
                 return true;
             }
+
+            World world = Bukkit.getWorld(worldSettings.getWorldName());
 
             boolean removed = nightListener.unregisterWorld(world);
 
-            if (removed) {
-                messageSender.sendError(player, localizer.getMessage("removeWorld.notRegistered",
-                        Replacement.create("%WORLD%", world.getName()).addFormatting('6')));
-            } else {
-                messageSender.sendMessage(player, localizer.getMessage("removeWorld.removed",
-                        Replacement.create("%WORLD%", world.getName()).addFormatting('6')));
-            }
+            messageSender.sendMessage(player, localizer.getMessage("removeWorld.removed",
+                    Replacement.create("WORLD", worldSettings.getWorldName()).addFormatting('6')));
+
             configuration.safeConfig();
             return true;
         }
 
-        if ("setLanguage".equalsIgnoreCase(cmd)) {
-            if (denyAccess(player, Permissions.ADMIN)) {
-                return true;
-            }
+        // cancels a active blood night. cancel <world>
+        if ("cancel".equalsIgnoreCase(cmd)) {
 
-            if (argumentsInvalid(player, arguments, 1,
-                    "<" + localizer.getMessage("syntax.languageCode") + ">")) {
-                return true;
-            }
-
-            boolean contains = ArrayUtils.contains(localizer.getIncludedLocales(), arguments[0]);
-            if (contains) {
-                messageSender.sendError(player, localizer.getMessage("setLanguage.notValid"));
-            } else {
-                localizer.setLocale(arguments[0]);
-                messageSender.sendError(player, localizer.getMessage("setLanguage.setLanguage",
-                        Replacement.create("%LANG%", arguments[0]).addFormatting('6')));
-            }
-            configuration.safeConfig();
-            return true;
         }
 
-        if ("forcePhantoms".equalsIgnoreCase(cmd)) {
-            if (denyAccess(player, Permissions.ADMIN)) {
-                return true;
-            }
+        // force a world to activate a blood night
+        // only when its night in this world.
+        if ("force".equalsIgnoreCase(cmd)) {
 
-            if (argumentsInvalid(player, arguments, 1,
-                    "<" + localizer.getMessage("syntax.boolean") + ">")) {
-                return true;
-            }
-
-            Optional<Boolean> aBoolean = Parser.parseBoolean(arguments[0]);
-
-            if (!aBoolean.isPresent()) {
-                messageSender.sendError(player, localizer.getMessage("error.invalidBoolean"));
-                return true;
-            } else {
-                configuration.getNightSettings().setForcePhantoms(aBoolean.get());
-            }
-
-            if (aBoolean.get()) {
-                messageSender.sendMessage(player, localizer.getMessage("forcePhantoms.true"));
-            } else {
-                messageSender.sendMessage(player, localizer.getMessage("forcePhantoms.false"));
-            }
-            configuration.safeConfig();
-            return true;
-        }
-        if ("setSkippable".equalsIgnoreCase(cmd)) {
-            if (denyAccess(player, Permissions.ADMIN)) {
-                return true;
-            }
-
-            if (argumentsInvalid(player, arguments, 1,
-                    "<" + localizer.getMessage(("syntax.boolean")) + ">")) {
-                return true;
-            }
-
-            Optional<Boolean> aBoolean = Parser.parseBoolean(arguments[0]);
-
-            if (!aBoolean.isPresent()) {
-                messageSender.sendError(player, localizer.getMessage("error.invalidBoolean"));
-                return true;
-            }
-
-            configuration.getNightSettings().setSkippable(aBoolean.get());
-
-            if (aBoolean.get()) {
-                messageSender.sendMessage(player, localizer.getMessage("setSkippable.true"));
-            } else {
-                messageSender.sendMessage(player, localizer.getMessage("setSkippable.false"));
-            }
-            configuration.safeConfig();
-            return true;
-        }
-
-        if ("setNightBegin".equalsIgnoreCase(cmd)) {
-            if (denyAccess(player, Permissions.ADMIN)) {
-                return true;
-            }
-
-            if (argumentsInvalid(player, arguments, 1,
-                    "<0-23999>")) {
-                return true;
-            }
-
-            OptionalInt optionalInt = Parser.parseInt(arguments[0]);
-
-            if (!optionalInt.isPresent()) {
-                messageSender.sendError(player, localizer.getMessage("error.invalidNumber"));
-                return true;
-            }
-
-            int asInt = optionalInt.getAsInt();
-
-            if (asInt > 23999 || asInt < 0) {
-                messageSender.sendError(player, localizer.getMessage("error.outOfRange",
-                        Replacement.create("%MIN%", 0),
-                        Replacement.create("%MAX%", 23999)));
-                return true;
-            }
-
-            messageSender.sendMessage(player, localizer.getMessage("setNightBegin.set", Replacement.create("%VALUE%", asInt)));
-
-            configuration.getNightSettings().setNightBegin(asInt);
-            configuration.safeConfig();
-            return true;
-        }
-        if ("setNightEnd".equalsIgnoreCase(cmd)) {
-            if (denyAccess(player, Permissions.ADMIN)) {
-                return true;
-            }
-
-            if (argumentsInvalid(player, arguments, 1,
-                    "<0-23999>")) {
-                return true;
-            }
-
-            OptionalInt optionalInt = Parser.parseInt(arguments[0]);
-
-            if (!optionalInt.isPresent()) {
-                messageSender.sendError(player, "error.invalidNumber");
-                return true;
-            }
-
-            int asInt = optionalInt.getAsInt();
-
-            if (asInt > 23999 || asInt < 0) {
-                messageSender.sendError(player, localizer.getMessage("error.outOfRange",
-                        Replacement.create("%MIN%", 0),
-                        Replacement.create("%MAX%", 23999)));
-                return true;
-            }
-
-            messageSender.sendMessage(player, localizer.getMessage("setNightEnd.set", Replacement.create("%VALUE%", asInt)));
-
-            configuration.getNightSettings().setNightEnd(asInt);
-            configuration.safeConfig();
-            return true;
         }
 
         if ("reload".equalsIgnoreCase(cmd)) {
@@ -295,6 +209,7 @@ public class BloodNightCommand implements TabExecutor {
             nightListener.reload();
             messageSender.sendMessage(player, localizer.getMessage("reload.success"));
         }
+
         return true;
     }
 
@@ -340,7 +255,7 @@ public class BloodNightCommand implements TabExecutor {
         if ("removeWorld".equalsIgnoreCase(cmd)) {
             if (args.length == 2) {
                 return ArrayUtil.
-                        startingWithInArray(args[1], configuration.getNightSettings().getWorlds().toArray(new String[0]))
+                        startingWithInArray(args[1], configuration.getWorldSettings().keySet().toArray(new String[0]))
                         .collect(Collectors.toList());
             }
         }
@@ -369,6 +284,13 @@ public class BloodNightCommand implements TabExecutor {
         if ("setNightEnd".equalsIgnoreCase(cmd)) {
             if (args.length == 2) {
                 return Collections.singletonList("0-23999");
+            }
+        }
+        if ("spawnMob".equalsIgnoreCase(cmd)) {
+            if (args.length == 2) {
+                return ArrayUtil.startingWithInArray(args[1], SpecialMobRegistry.getRegisteredMobs().stream()
+                        .map(MobFactory::getMobName).toArray(String[]::new))
+                        .collect(Collectors.toList());
             }
         }
         return Collections.emptyList();
