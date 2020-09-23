@@ -1,6 +1,6 @@
 package de.eldoria.bloodnight.listener;
 
-import de.eldoria.bloodnight.BloodNight;
+import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.config.NightSettings;
 import de.eldoria.bloodnight.config.WorldSettings;
