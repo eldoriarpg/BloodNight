@@ -17,8 +17,6 @@ public interface SpecialMob {
     default void onSpawn() {
     }
 
-    ;
-
     /**
      * Called at a fixed amount of ticks while the blood night is active.
      */
@@ -83,7 +81,6 @@ public interface SpecialMob {
      * @param event
      */
     default void onTargetEvent(EntityTargetEvent event) {
-
     }
 
     /**
@@ -92,7 +89,6 @@ public interface SpecialMob {
      * @param event
      */
     default void onDamage(EntityDamageEvent event) {
-
     }
 
     /**
@@ -101,14 +97,13 @@ public interface SpecialMob {
      * @param event
      */
     default void onDamageByEntity(EntityDamageByEntityEvent event) {
-
     }
 
     /**
      * Called when the entity damages another entity
+     *
      * @param event
      */
-    default void onHit(EntityDamageByEntityEvent event){
-
+    default void onHit(EntityDamageByEntityEvent event) {
     }
 }
