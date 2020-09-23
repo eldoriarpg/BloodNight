@@ -1,6 +1,7 @@
 package de.eldoria.bloodnight.config;
 
-import de.eldoria.bloodnight.specialmobs.SpecialMobType;
+import de.eldoria.bloodnight.core.mobfactory.MobFactory;
+import de.eldoria.bloodnight.core.mobfactory.SpecialMobRegistry;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
 import lombok.Getter;
@@ -9,7 +10,7 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 
 @Getter
@@ -18,20 +19,20 @@ import java.util.Map;
 public class MobSettings implements ConfigurationSerializable {
 
     private final int spawnPercentage;
-    private Map<SpecialMobType, MobSetting> mobTypes = new EnumMap<>(SpecialMobType.class);
+    private Map<String, MobSetting> mobTypes = new HashMap<>();
 
     public MobSettings(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
         spawnPercentage = map.getValueOrDefault("spawnPercentage", 80);
-        for (SpecialMobType value : SpecialMobType.values()) {
-            mobTypes.put(value, map.getValueOrDefault(value.toString(), new MobSetting()));
+        for (MobFactory value : SpecialMobRegistry.getRegisteredMobs()) {
+            mobTypes.put(value.getMobName(), map.getValueOrDefault(value.getMobName(), new MobSetting()));
         }
     }
 
     public MobSettings() {
         spawnPercentage = 80;
-        for (SpecialMobType value : SpecialMobType.values()) {
-            mobTypes.put(value, new MobSetting());
+        for (MobFactory value : SpecialMobRegistry.getRegisteredMobs()) {
+            mobTypes.put(value.getMobName(), new MobSetting());
         }
     }
 
@@ -39,13 +40,13 @@ public class MobSettings implements ConfigurationSerializable {
     public @NotNull Map<String, Object> serialize() {
         SerializationUtil.Builder builder = SerializationUtil.newBuilder();
         builder.add("spawnPercentage", spawnPercentage);
-        for (Map.Entry<SpecialMobType, MobSetting> entry : mobTypes.entrySet()) {
-            builder.add(entry.getKey().toString(), entry.getValue());
+        for (Map.Entry<String, MobSetting> entry : mobTypes.entrySet()) {
+            builder.add(entry.getKey(), entry.getValue());
         }
         return builder.build();
     }
 
-    public boolean isActive(SpecialMobType mobType) {
-        return mobTypes.get(mobType).isActive();
+    public boolean isActive(String mobName) {
+        return mobTypes.get(mobName).isActive();
     }
 }

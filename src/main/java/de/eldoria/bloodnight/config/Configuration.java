@@ -1,6 +1,6 @@
 package de.eldoria.bloodnight.config;
 
-import de.eldoria.bloodnight.BloodNight;
+import de.eldoria.bloodnight.core.BloodNight;
 import lombok.Getter;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
