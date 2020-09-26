@@ -1,9 +1,9 @@
 package de.eldoria.bloodnight.listener;
 
-import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.config.NightSettings;
 import de.eldoria.bloodnight.config.WorldSettings;
+import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.events.BloodNightBeginEvent;
 import de.eldoria.bloodnight.events.BloodNightEndEvent;
 import lombok.Getter;
@@ -36,7 +36,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class NightListener implements Listener, Runnable {
+public class NightManager implements Listener, Runnable {
 
     private final Configuration configuration;
     /**
@@ -44,7 +44,7 @@ public class NightListener implements Listener, Runnable {
      */
     private final Map<String, Boolean> timeState = new HashMap<>();
     /**
-     * A set containing all world where a blood night is acctive.
+     * A set containing all world where a blood night is active.
      */
     private final Map<World, BloodNightData> bloodWorlds = new HashMap<>();
     /**
@@ -52,12 +52,14 @@ public class NightListener implements Listener, Runnable {
      */
     private final Set<World> observedWorlds = new HashSet<>();
 
+    private final Set<World> forceNight = new HashSet<>();
+
     private final Map<UUID, ConsistencyCache> playerConsistencyMap = new HashMap<>();
 
     private final PluginManager pluginManager = Bukkit.getPluginManager();
     private final ThreadLocalRandom rand = ThreadLocalRandom.current();
 
-    public NightListener(Configuration configuration) {
+    public NightManager(Configuration configuration) {
         this.configuration = configuration;
         reload();
     }
@@ -98,7 +100,7 @@ public class NightListener implements Listener, Runnable {
      */
     @Override
     public void run() {
-       for (World observedWorld : observedWorlds) {
+        for (World observedWorld : observedWorlds) {
             calcualteWorldState(observedWorld);
         }
     }
@@ -137,22 +139,36 @@ public class NightListener implements Listener, Runnable {
     private void initializeBloodNight(World world) {
         int val = rand.nextInt(101);
         WorldSettings settings = configuration.getWorldSettings(world.getName());
-        switch (settings.getNightSelection().getNightSelectionType()) {
-            case RANDOM:
-                if (settings.getNightSelection().getProbability() > val) return;
-                break;
-            case MOON_PHASE:
-                int moonPhase = getMoonPhase(world);
-                if (!settings.getNightSelection().getPhases().containsKey(moonPhase)) return;
-                if (settings.getNightSelection().getPhases().get(moonPhase) > val) return;
-                break;
+
+        if (!settings.isEnabled()) {
+            BloodNight.logger().info("Blood night in world " + world.getName() + " is not enabled. Will not initialize.");
+            return;
+        }
+
+        // skip the calculation if a night should be forced.
+        if (!forceNight.remove(world)) {
+            switch (settings.getNightSelection().getNightSelectionType()) {
+                case RANDOM:
+                    if (settings.getNightSelection().getProbability() > val) return;
+                    break;
+                case MOON_PHASE:
+                    int moonPhase = getMoonPhase(world);
+                    if (!settings.getNightSelection().getPhases().containsKey(moonPhase)) return;
+                    if (settings.getNightSelection().getPhases().get(moonPhase) > val) return;
+                    break;
+            }
+        }
+
+        if (!settings.isEnabled()) {
+            BloodNight.logger().info("Blood night in world " + world.getName() + " is not enabled. Will not initialize.");
+            return;
         }
 
         BloodNight.logger().info("BloodNight in " + world.getName() + " activated.");
 
         // A new blood night has begun.
         pluginManager.callEvent(new BloodNightBeginEvent(world));
-        BossBar bossBar = Bukkit.createBossBar("§c§lBlood Night", BarColor.RED, BarStyle.SOLID, BarFlag.DARKEN_SKY);
+        BossBar bossBar = Bukkit.createBossBar("§c§lBlood Night", BarColor.RED, BarStyle.SOLID, BarFlag.CREATE_FOG, BarFlag.DARKEN_SKY);
         BloodNightData bloodNightData = new BloodNightData(bossBar);
         bloodWorlds.put(world, bloodNightData);
 
@@ -189,7 +205,7 @@ public class NightListener implements Listener, Runnable {
             consistencyCache.revert(player);
         }
         bloodNightData.getBossBar().removePlayer(player);
-        player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 5 *20, 1, false, true));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 5 * 20, 1, false, true));
     }
 
     // <--- Player state consistency ---> //
@@ -261,12 +277,37 @@ public class NightListener implements Listener, Runnable {
         return observedWorlds.remove(world);
     }
 
+    public boolean isWorldRegistered(World world) {
+        return observedWorlds.contains(world);
+    }
+
+    public void forceNight(World world) {
+        forceNight.add(world);
+        if (isNight(world)) {
+            initializeBloodNight(world);
+        }
+    }
+
+    public void cancelNight(World world) {
+        resolveBloodNight(world);
+    }
+
     public void shutdown() {
+        BloodNight.logger().info("Shutting down night manager.");
+
+        BloodNight.logger().info("Apply consistency cache.");
         for (Map.Entry<UUID, ConsistencyCache> entry : playerConsistencyMap.entrySet()) {
             Player player = Bukkit.getPlayer(entry.getKey());
             if (player == null) continue;
             entry.getValue().revert(player);
         }
+
+        BloodNight.logger().info("Resolving blood nights.");
+        for (World world : bloodWorlds.keySet()) {
+            resolveBloodNight(world);
+        }
+
+        BloodNight.logger().info("Night manager shutdown successful.");
     }
 
     public void reload() {
@@ -284,6 +325,10 @@ public class NightListener implements Listener, Runnable {
 
     public Set<World> getBloodWorlds() {
         return Collections.unmodifiableSet(bloodWorlds.keySet());
+    }
+
+    public Set<World> getObservedWorlds() {
+        return observedWorlds;
     }
 
     @Getter
