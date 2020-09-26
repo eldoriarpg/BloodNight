@@ -9,8 +9,8 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-public class FearfullEnderman extends AbstractEnderman {
-    public FearfullEnderman(Enderman enderman) {
+public class FearfulEnderman extends AbstractEnderman {
+    public FearfulEnderman(Enderman enderman) {
         super(enderman);
     }
 

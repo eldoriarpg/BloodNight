@@ -17,7 +17,7 @@ public class UnstableCreeper extends AbstractCreeper {
 
     @Override
     public void tick() {
-        getCreeper().getWorld().spawnParticle(Particle.WHITE_ASH,getCreeper().getLocation(), 10);
+        getCreeper().getWorld().spawnParticle(Particle.FLASH, getCreeper().getLocation(), 1);
     }
 
     @Override

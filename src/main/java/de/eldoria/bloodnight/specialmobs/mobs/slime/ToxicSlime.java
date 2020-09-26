@@ -14,6 +14,6 @@ public class ToxicSlime extends AbstractSlime {
     @Override
     public void onDeath(EntityDeathEvent event) {
         SpecialMobUtil.spawnLingeringPotionAt(event.getEntity().getLocation(),
-                new PotionEffect(PotionEffectType.POISON, 5, 2, true, true));
+                new PotionEffect(PotionEffectType.POISON, 5 * 20, 2, true, true));
     }
 }

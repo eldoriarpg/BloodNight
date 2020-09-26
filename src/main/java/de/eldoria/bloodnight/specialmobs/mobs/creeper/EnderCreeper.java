@@ -1,6 +1,8 @@
 package de.eldoria.bloodnight.specialmobs.mobs.creeper;
 
 import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
+import de.eldoria.bloodnight.specialmobs.effects.ParticleCloud;
+import org.bukkit.Color;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -17,14 +19,19 @@ import java.util.concurrent.ThreadLocalRandom;
 public class EnderCreeper extends AbstractCreeper {
     private Instant lastTeleport = Instant.now();
     private ThreadLocalRandom rand = ThreadLocalRandom.current();
+    private final ParticleCloud cloud;
 
     public EnderCreeper(Creeper creeper) {
         super(creeper);
+        cloud = ParticleCloud.builder(creeper)
+                .ofColor(Color.PURPLE)
+                .withParticle(Particle.REVERSE_PORTAL)
+                .build();
     }
 
     @Override
     public void tick() {
-        SpecialMobUtil.spawnParticlesAround(getCreeper(), Particle.PORTAL, 10);
+        cloud.tick();
         teleportToTarget();
     }
 
@@ -64,7 +71,7 @@ public class EnderCreeper extends AbstractCreeper {
             getCreeper().teleport(loc.add(vector));
             lastTeleport = Instant.now();
             SpecialMobUtil.spawnParticlesAround(loc, Particle.PORTAL, 10);
-            getCreeper().playEffect(EntityEffect.TELEPORT_ENDER);
+            getCreeper().playEffect(EntityEffect.ENTITY_POOF);
         }
     }
 }
