@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -48,5 +49,14 @@ public class MobSettings implements ConfigurationSerializable {
 
     public boolean isActive(String mobName) {
         return mobTypes.get(mobName).isActive();
+    }
+
+    public Optional<MobSetting> getMobByName(String string) {
+        for (Map.Entry<String, MobSetting> entry : mobTypes.entrySet()) {
+            if (string.equalsIgnoreCase(entry.getKey())) {
+                return Optional.ofNullable(entry.getValue());
+            }
+        }
+        return Optional.empty();
     }
 }

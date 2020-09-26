@@ -8,14 +8,13 @@ import de.eldoria.bloodnight.config.MobSettings;
 import de.eldoria.bloodnight.config.NightSelection;
 import de.eldoria.bloodnight.config.NightSettings;
 import de.eldoria.bloodnight.config.WorldSettings;
-import de.eldoria.bloodnight.core.mobfactory.MobFactory;
 import de.eldoria.bloodnight.core.mobfactory.SpecialMobRegistry;
 import de.eldoria.bloodnight.listener.BedListener;
 import de.eldoria.bloodnight.listener.DamageListener;
 import de.eldoria.bloodnight.listener.LootListener;
 import de.eldoria.bloodnight.listener.MessageListener;
 import de.eldoria.bloodnight.listener.MobModifier;
-import de.eldoria.bloodnight.listener.NightListener;
+import de.eldoria.bloodnight.listener.NightManager;
 import de.eldoria.bloodnight.specialmobs.mobs.creeper.EnderCreeper;
 import de.eldoria.bloodnight.specialmobs.mobs.creeper.FlyingCreeper;
 import de.eldoria.bloodnight.specialmobs.mobs.creeper.NervousPoweredCreeper;
@@ -68,7 +67,8 @@ public class BloodNight extends JavaPlugin {
     @Getter
     private static BloodNight instance;
     private static Logger logger;
-    private NightListener nightListener;
+    private NightManager nightManager;
+    private MobModifier mobModifier;
     private Localizer localizer;
     private Configuration configuration;
 
@@ -84,6 +84,10 @@ public class BloodNight extends JavaPlugin {
 
     private boolean initialized = false;
 
+    public static Localizer localizer() {
+        return localizer();
+    }
+
 
     @Override
     public void onEnable() {
@@ -91,13 +95,14 @@ public class BloodNight extends JavaPlugin {
             instance = this;
             logger = getLogger();
             registerSerialization();
+            registerMobs();
             configuration = new Configuration(this);
 
             localizer = new Localizer(this, configuration.getGeneralSettings().getLanguage(), "messages",
                     "messages", Locale.US, "de_DE", "en_US");
             MessageSender.create(this, "§4[BN] ", '2', 'c');
             registerListener();
-            registerCommand("bloodnight", new BloodNightCommand(configuration, localizer, this, nightListener));
+            registerCommand("bloodnight", new BloodNightCommand(configuration, localizer, this, nightManager, mobModifier));
         }
 
         onReload();
@@ -112,21 +117,21 @@ public class BloodNight extends JavaPlugin {
 
     public void onReload() {
         localizer.setLocale(configuration.getGeneralSettings().getLanguage());
-        nightListener.reload();
+        nightManager.reload();
     }
 
     private void registerListener() {
         PluginManager pm = Bukkit.getPluginManager();
 
         MessageSender messageSender = MessageSender.get(this);
-        nightListener = new NightListener(configuration);
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, nightListener, 100, 5);
-        pm.registerEvents(new MessageListener(localizer, nightListener, messageSender), this);
-        pm.registerEvents(nightListener, this);
-        pm.registerEvents(new DamageListener(nightListener, configuration), this);
-        pm.registerEvents(new BedListener(configuration, nightListener, localizer, messageSender), this);
-        pm.registerEvents(new LootListener(nightListener, configuration), this);
-        MobModifier mobModifier = new MobModifier(nightListener, configuration);
+        nightManager = new NightManager(configuration);
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, nightManager, 100, 5);
+        pm.registerEvents(new MessageListener(localizer, nightManager, messageSender), this);
+        pm.registerEvents(nightManager, this);
+        pm.registerEvents(new DamageListener(nightManager, configuration), this);
+        pm.registerEvents(new BedListener(configuration, nightManager, localizer, messageSender), this);
+        pm.registerEvents(new LootListener(nightManager, configuration), this);
+        mobModifier = new MobModifier(nightManager, configuration);
         pm.registerEvents(mobModifier, this);
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, mobModifier, 100, 5);
     }
@@ -142,10 +147,10 @@ public class BloodNight extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        if (nightListener != null) {
-            nightListener.shutdown();
+        if (nightManager != null) {
+            nightManager.shutdown();
         }
-        super.onDisable();
+        logger().info("Blood Night disabled!");
     }
 
     private void registerCommand(String command, TabExecutor executor) {
@@ -159,42 +164,42 @@ public class BloodNight extends JavaPlugin {
 
     private void registerMobs() {
         // Creeper
-        SpecialMobRegistry.registerMob(EntityType.CREEPER,  "Ender Creeper", e -> new EnderCreeper((Creeper) e));
-        SpecialMobRegistry.registerMob(EntityType.CREEPER,  "Flying Creeper", e -> new FlyingCreeper((Creeper) e));
-        SpecialMobRegistry.registerMob(EntityType.CREEPER,  "Nervous Powered Creeper", e -> new NervousPoweredCreeper((Creeper) e));
-        SpecialMobRegistry.registerMob(EntityType.CREEPER,  "Speed Creeper", e -> new SpeedCreeper((Creeper) e));
-        SpecialMobRegistry.registerMob(EntityType.CREEPER,  "Toxic Creeper", e -> new ToxicCreeper((Creeper) e));
-        SpecialMobRegistry.registerMob(EntityType.CREEPER,  "Unstable Creeper", e -> new UnstableCreeper((Creeper) e));
+        SpecialMobRegistry.registerMob(EntityType.CREEPER, "Ender Creeper", e -> new EnderCreeper((Creeper) e));
+        SpecialMobRegistry.registerMob(EntityType.CREEPER, "Flying Creeper", e -> new FlyingCreeper((Creeper) e));
+        SpecialMobRegistry.registerMob(EntityType.CREEPER, "Nervous Powered Creeper", e -> new NervousPoweredCreeper((Creeper) e));
+        SpecialMobRegistry.registerMob(EntityType.CREEPER, "Speed Creeper", e -> new SpeedCreeper((Creeper) e));
+        SpecialMobRegistry.registerMob(EntityType.CREEPER, "Toxic Creeper", e -> new ToxicCreeper((Creeper) e));
+        SpecialMobRegistry.registerMob(EntityType.CREEPER, "Unstable Creeper", e -> new UnstableCreeper((Creeper) e));
 
         // Enderman
-        SpecialMobRegistry.registerMob(EntityType.ENDERMAN,  "Fearful Enderman", e -> new FearfulEnderman((Enderman) e));
-        SpecialMobRegistry.registerMob(EntityType.ENDERMAN,  "Toxic Enderman", e -> new ToxicEnderman((Enderman) e));
+        SpecialMobRegistry.registerMob(EntityType.ENDERMAN, "Fearful Enderman", e -> new FearfulEnderman((Enderman) e));
+        SpecialMobRegistry.registerMob(EntityType.ENDERMAN, "Toxic Enderman", e -> new ToxicEnderman((Enderman) e));
 
         // Phantom
-        SpecialMobRegistry.registerMob(EntityType.PHANTOM,  "Fearful Phantom", e -> new FearfulPhantom((Phantom) e));
-        SpecialMobRegistry.registerMob(EntityType.PHANTOM,  "Fire Phantom", e -> new FirePhantom((Phantom) e));
-        SpecialMobRegistry.registerMob(EntityType.PHANTOM,  "Phantom Soul", e -> new PhantomSoul((Phantom) e));
+        SpecialMobRegistry.registerMob(EntityType.PHANTOM, "Fearful Phantom", e -> new FearfulPhantom((Phantom) e));
+        SpecialMobRegistry.registerMob(EntityType.PHANTOM, "Fire Phantom", e -> new FirePhantom((Phantom) e));
+        SpecialMobRegistry.registerMob(EntityType.PHANTOM, "Phantom Soul", e -> new PhantomSoul((Phantom) e));
 
         // Rider
-        SpecialMobRegistry.registerMob(EntityType.SPIDER,  "Blaze Rider", e -> new BlazeRider((Spider) e));
-        SpecialMobRegistry.registerMob(EntityType.SPIDER,  "Speed Skeleton Rider", e -> new SpeedSkeletonRider((Spider) e));
-        SpecialMobRegistry.registerMob(EntityType.SPIDER,  "Wither Skeleton Rider", e -> new WitherSkeletonRider((Spider) e));
+        SpecialMobRegistry.registerMob(EntityType.SPIDER, "Blaze Rider", e -> new BlazeRider((Spider) e));
+        SpecialMobRegistry.registerMob(EntityType.SPIDER, "Speed Skeleton Rider", e -> new SpeedSkeletonRider((Spider) e));
+        SpecialMobRegistry.registerMob(EntityType.SPIDER, "Wither Skeleton Rider", e -> new WitherSkeletonRider((Spider) e));
 
         // Skeleton
-        SpecialMobRegistry.registerMob(EntityType.SKELETON,  "Invisible Skeleton", e -> new InvisibleSkeleton((Skeleton) e));
-        SpecialMobRegistry.registerMob(EntityType.SKELETON,  "Magic Skeleton", e -> new MagicSkeleton((Skeleton) e));
+        SpecialMobRegistry.registerMob(EntityType.SKELETON, "Invisible Skeleton", e -> new InvisibleSkeleton((Skeleton) e));
+        SpecialMobRegistry.registerMob(EntityType.SKELETON, "Magic Skeleton", e -> new MagicSkeleton((Skeleton) e));
 
         // Slime
-        SpecialMobRegistry.registerMob(EntityType.SLIME,  "Toxic Slime", e -> new ToxicSlime((Slime) e));
+        SpecialMobRegistry.registerMob(EntityType.SLIME, "Toxic Slime", e -> new ToxicSlime((Slime) e));
 
         // Witch
-        SpecialMobRegistry.registerMob(EntityType.WITCH,  "Fire Wizard", e -> new FireWizard((Witch) e));
-        SpecialMobRegistry.registerMob(EntityType.WITCH,  "Thunder Wizard", e -> new ThunderWizard((Witch) e));
-        SpecialMobRegistry.registerMob(EntityType.WITCH,  "Wither Wizard", e -> new WitherWizard((Witch) e));
+        SpecialMobRegistry.registerMob(EntityType.WITCH, "Fire Wizard", e -> new FireWizard((Witch) e));
+        SpecialMobRegistry.registerMob(EntityType.WITCH, "Thunder Wizard", e -> new ThunderWizard((Witch) e));
+        SpecialMobRegistry.registerMob(EntityType.WITCH, "Wither Wizard", e -> new WitherWizard((Witch) e));
 
         // Zombie
-        SpecialMobRegistry.registerMob(EntityType.ZOMBIE,  "Armored Zombie", e -> new ArmoredZombie((Zombie) e));
-        SpecialMobRegistry.registerMob(EntityType.ZOMBIE,  "Invisible Zombie", e -> new InvisibleZombie((Zombie) e));
-        SpecialMobRegistry.registerMob(EntityType.ZOMBIE,  "Speed Zombie", e -> new SpeedZombie((Zombie) e));
+        SpecialMobRegistry.registerMob(EntityType.ZOMBIE, "Armored Zombie", e -> new ArmoredZombie((Zombie) e));
+        SpecialMobRegistry.registerMob(EntityType.ZOMBIE, "Invisible Zombie", e -> new InvisibleZombie((Zombie) e));
+        SpecialMobRegistry.registerMob(EntityType.ZOMBIE, "Speed Zombie", e -> new SpeedZombie((Zombie) e));
     }
 }

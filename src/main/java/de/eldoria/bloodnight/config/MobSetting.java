@@ -5,6 +5,7 @@ import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
 import de.eldoria.eldoutilities.utils.Parser;
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Material;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
@@ -22,8 +23,10 @@ import java.util.stream.Collectors;
 @Getter
 @SerializableAs("bloodNightMobSetting")
 public class MobSetting implements ConfigurationSerializable {
-    private final boolean active;
-    private final int dropAmount;
+    @Setter
+    private boolean active;
+    @Setter
+    private int dropAmount;
     private final boolean blockNaturalDrops;
     private final List<Drop> drops = new ArrayList<>();
     private final int totalWeight;

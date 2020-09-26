@@ -31,10 +31,11 @@ public class Configuration {
     }
 
     public WorldSettings getWorldSettings(String key) {
-        return worldSettings.get(key);
+        return worldSettings.computeIfAbsent(key, WorldSettings::new);
     }
+
     public WorldSettings getWorldSettings(World key) {
-        return worldSettings.get(key.getName());
+        return getWorldSettings(key.getName());
     }
 
     public void addWorldSettings(World world) {
@@ -60,6 +61,8 @@ public class Configuration {
         for (WorldSettings settings : worldList) {
             worldSettings.put(settings.getWorldName(), settings);
         }
+
+        safeConfig();
     }
 
     private void init() {
@@ -71,8 +74,6 @@ public class Configuration {
         worldSettings.put("world", new WorldSettings("world"));
         BloodNight.logger().info("Added default settings for world \"world\"");
         BloodNight.logger().info("Config initialized");
-
-        safeConfig();
     }
 
     /**

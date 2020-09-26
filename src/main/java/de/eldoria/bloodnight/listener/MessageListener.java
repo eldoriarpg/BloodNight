@@ -14,12 +14,12 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 public class MessageListener implements Listener {
     private final Localizer localizer;
-    private final NightListener nightListener;
+    private final NightManager nightManager;
     private final MessageSender messageSender;
 
-    public MessageListener(Localizer localizer, NightListener nightListener, MessageSender messageSender) {
+    public MessageListener(Localizer localizer, NightManager nightManager, MessageSender messageSender) {
         this.localizer = localizer;
-        this.nightListener = nightListener;
+        this.nightManager = nightManager;
         this.messageSender = messageSender;
     }
 
@@ -43,14 +43,14 @@ public class MessageListener implements Listener {
 
     @EventHandler
     public void onPlayerWorldChange(PlayerChangedWorldEvent event) {
-        if (nightListener.isBloodNightActive(event.getFrom())) {
-            if (nightListener.isBloodNightActive(event.getPlayer().getWorld())) {
+        if (nightManager.isBloodNightActive(event.getFrom())) {
+            if (nightManager.isBloodNightActive(event.getPlayer().getWorld())) {
                 // no action needs to be taken
                 return;
             }
             messageSender.sendMessage(event.getPlayer(), localizer.getMessage("notify.bloodNightJoined"));
         } else {
-            if (nightListener.isBloodNightActive(event.getPlayer().getWorld())) {
+            if (nightManager.isBloodNightActive(event.getPlayer().getWorld())) {
                 messageSender.sendMessage(event.getPlayer(), localizer.getMessage("notify.bloodNightLeft"));
             }
         }
@@ -58,7 +58,7 @@ public class MessageListener implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        if (nightListener.isBloodNightActive(event.getPlayer().getWorld())) {
+        if (nightManager.isBloodNightActive(event.getPlayer().getWorld())) {
             messageSender.sendMessage(event.getPlayer(), localizer.getMessage("notify.bloodNightJoined"));
         }
     }

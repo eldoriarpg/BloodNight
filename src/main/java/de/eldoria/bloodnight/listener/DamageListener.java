@@ -13,18 +13,18 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 public class DamageListener implements Listener {
 
-    private final NightListener nightListener;
+    private final NightManager nightManager;
     private final Configuration configuration;
 
-    public DamageListener(NightListener nightListener, Configuration configuration) {
-        this.nightListener = nightListener;
+    public DamageListener(NightManager nightManager, Configuration configuration) {
+        this.nightManager = nightManager;
         this.configuration = configuration;
     }
 
 
     void onPlayerDamage(EntityDamageByEntityEvent event) {
         // If no blood night is active in this world we dont care at all.
-        if (!nightListener.isBloodNightActive(event.getDamager().getWorld())) return;
+        if (!nightManager.isBloodNightActive(event.getDamager().getWorld())) return;
 
         // Check if the entity is a projectile.
         ProjectileSender sender = ListenerUtil.getProjectileSource(event.getDamager());

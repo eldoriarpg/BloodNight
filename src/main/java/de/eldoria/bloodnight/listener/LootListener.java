@@ -21,18 +21,18 @@ import java.util.concurrent.TimeUnit;
 
 public class LootListener implements Listener {
     private final Cache<Integer, Player> lastDamage = CacheBuilder.newBuilder().expireAfterAccess(10L, TimeUnit.MINUTES).build();
-    private final NightListener nightListener;
+    private final NightManager nightManager;
     private final Configuration configuration;
 
-    public LootListener(NightListener nightListener, Configuration configuration) {
-        this.nightListener = nightListener;
+    public LootListener(NightManager nightManager, Configuration configuration) {
+        this.nightManager = nightManager;
         this.configuration = configuration;
     }
 
     @EventHandler
     public void onEntityDamage(EntityDamageByEntityEvent event) {
 
-        if (!nightListener.isBloodNightActive(event.getDamager().getWorld())) return;
+        if (!nightManager.isBloodNightActive(event.getDamager().getWorld())) return;
 
         Entity damager = event.getDamager();
         Entity entity = event.getEntity();
@@ -70,7 +70,7 @@ public class LootListener implements Listener {
         if (!(entity instanceof Monster || entity instanceof Boss)) return;
 
 
-        if (!nightListener.isBloodNightActive(entity.getWorld())) return;
+        if (!nightManager.isBloodNightActive(entity.getWorld())) return;
 
         NightSettings nightSettings = configuration.getWorldSettings(entity.getWorld()).getNightSettings();
 

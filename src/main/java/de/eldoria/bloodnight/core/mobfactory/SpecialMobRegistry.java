@@ -1,5 +1,6 @@
 package de.eldoria.bloodnight.core.mobfactory;
 
+import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.specialmobs.SpecialMob;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -32,6 +33,7 @@ public final class SpecialMobRegistry {
         Class<? extends Entity> mob = ENTITY_MAPPINGS.computeIfAbsent(entity.getType().getEntityClass(), k -> {
             for (Class<? extends Entity> clazz : MOB_GROUPS.keySet()) {
                 if (clazz.isAssignableFrom(k)) {
+                    BloodNight.logger().info(clazz.getSimpleName() + " is assignable to " + k.getSimpleName());
                     return clazz;
                 }
             }

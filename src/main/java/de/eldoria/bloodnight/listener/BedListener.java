@@ -9,19 +9,19 @@ import org.bukkit.event.player.PlayerBedEnterEvent;
 
 public class BedListener implements Listener {
     private final Configuration configuration;
-    private final NightListener nightListener;
+    private final NightManager nightManager;
     private final Localizer localizer;
     private final MessageSender messageSender;
 
-    public BedListener(Configuration configuration, NightListener nightListener, Localizer localizer, MessageSender messageSender) {
+    public BedListener(Configuration configuration, NightManager nightManager, Localizer localizer, MessageSender messageSender) {
         this.configuration = configuration;
-        this.nightListener = nightListener;
+        this.nightManager = nightManager;
         this.localizer = localizer;
         this.messageSender = messageSender;
     }
 
     public void onBedEnter(PlayerBedEnterEvent event) {
-        if (!nightListener.isBloodNightActive(event.getPlayer().getWorld())) return;
+        if (!nightManager.isBloodNightActive(event.getPlayer().getWorld())) return;
         NightSettings nightSettings = configuration.getWorldSettings(event.getPlayer().getWorld()).getNightSettings();
         if (nightSettings.isSkippable()) return;
         messageSender.sendMessage(event.getPlayer(), localizer.getMessage("notify.youCantSleep"));

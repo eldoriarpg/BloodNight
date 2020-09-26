@@ -32,6 +32,7 @@ public class WorldSettings implements ConfigurationSerializable {
 
     public WorldSettings(String world) {
         this.worldName = world;
+        enabled = false;
         nightSelection = new NightSelection();
         nightSettings = new NightSettings();
         mobSettings = new MobSettings();
