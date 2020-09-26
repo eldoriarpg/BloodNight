@@ -8,6 +8,7 @@ import de.eldoria.bloodnight.events.BloodNightBeginEvent;
 import de.eldoria.bloodnight.events.BloodNightEndEvent;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.GameRule;
 import org.bukkit.Statistic;
 import org.bukkit.World;
 import org.bukkit.boss.BarColor;
@@ -103,6 +104,21 @@ public class NightManager implements Listener, Runnable {
         for (World observedWorld : observedWorlds) {
             calcualteWorldState(observedWorld);
         }
+
+        for (Map.Entry<World, BloodNightData> entry : bloodWorlds.entrySet()) {
+            WorldSettings settings = configuration.getWorldSettings(entry.getKey().getName());
+            NightSettings ns = settings.getNightSettings();
+            if (ns.isOverrideNightDuration()) {
+                int nightDurationTicks = ns.getNightDuration() * 20;
+                long normalNightDuration = getDiff(ns.getNightBegin(), ns.getNightEnd());
+
+                double calcTicks = nightDurationTicks / (double) normalNightDuration;
+
+                // This scheduler is called every 5 ticks.
+                // TODO make scheduler tick modular
+                entry.getKey().setFullTime(entry.getKey().getFullTime() + Math.round(calcTicks * 5));
+            }
+        }
     }
 
     private void calcualteWorldState(World world) {
@@ -172,6 +188,10 @@ public class NightManager implements Listener, Runnable {
         BloodNightData bloodNightData = new BloodNightData(bossBar);
         bloodWorlds.put(world, bloodNightData);
 
+        if (settings.getNightSettings().isOverrideNightDuration()) {
+            world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
+        }
+
         for (Player player : world.getPlayers()) {
             enableBloodNightForPlayer(player, bloodNightData);
         }
@@ -181,6 +201,12 @@ public class NightManager implements Listener, Runnable {
     private void resolveBloodNight(World world) {
 
         BloodNight.logger().info("BloodNight in " + world.getName() + " resolved.");
+
+        WorldSettings settings = configuration.getWorldSettings(world.getName());
+
+        if (settings.getNightSettings().isOverrideNightDuration()) {
+            world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, true);
+        }
 
         pluginManager.callEvent(new BloodNightEndEvent(world));
         BloodNightData bloodNightData = bloodWorlds.remove(world);
