@@ -1,5 +1,6 @@
 package de.eldoria.bloodnight.command.bloodnight;
 
+import de.eldoria.bloodnight.command.util.CommandUtil;
 import de.eldoria.bloodnight.command.util.KyoriColors;
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.config.NightSettings;
@@ -140,7 +141,7 @@ public class ManageNight extends EldoCommand {
 
     private void sendNightSettings(CommandSender sender, WorldSettings worldSettings) {
         NightSettings nightSettings = worldSettings.getNightSettings();
-        String cmd = "/bloodnight manageNight " + worldSettings.getWorldName() + " " ;
+        String cmd = "/bloodnight manageNight " + worldSettings.getWorldName() + " ";
         TextComponent.Builder builder = TextComponent.builder()
                 .append(TextComponent.newline())
                 .append(TextComponent.builder("=====<| ", KyoriColors.YELLOW))
@@ -148,19 +149,12 @@ public class ManageNight extends EldoCommand {
                 .append(TextComponent.builder(" |>=====", KyoriColors.YELLOW))
                 .append(TextComponent.newline())
                 // World state
-                .append(TextComponent.builder("Active: ", KyoriColors.AQUA))
-                .append(
-                        TextComponent.builder("enabled",
-                                worldSettings.isEnabled() ? KyoriColors.GREEN : KyoriColors.DARK_GRAY)
-                                .clickEvent(
-                                        ClickEvent.runCommand(cmd + "enable true"))
-                )
-                .append(" ")
-                .append(
-                        TextComponent.builder("disabled",
-                                !worldSettings.isEnabled() ? KyoriColors.RED : KyoriColors.DARK_GRAY)
-                                .clickEvent(
-                                        ClickEvent.runCommand(cmd + "enable false")))
+                .append(CommandUtil.getBooleanField(
+                        worldSettings.isEnabled(),
+                        cmd + "enable {bool}",
+                        "Active",
+                        "enabled",
+                        "disabled"))
                 .append(TextComponent.newline())
                 // Monster damage
                 .append(TextComponent.builder("Monster Damage: ", KyoriColors.AQUA))

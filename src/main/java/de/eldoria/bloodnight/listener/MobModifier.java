@@ -25,8 +25,11 @@ import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.world.ChunkLoadEvent;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -35,21 +38,27 @@ import java.util.function.Consumer;
 
 public class MobModifier implements Listener, Runnable {
     private final Map<String, WorldMobs> mobRegistry = new HashMap<>();
-    private final NightListener nightListener;
+    private final NightManager nightManager;
     private final Configuration configuration;
     private final ThreadLocalRandom random = ThreadLocalRandom.current();
     private final Map<String, WorldMobFactory> worldFucktories = new HashMap<>();
 
-    public MobModifier(NightListener nightListener, Configuration configuration) {
-        this.nightListener = nightListener;
+    private final List<Runnable> executeLater = new ArrayList<>();
+    private final List<Runnable> executeNow = new ArrayList<>();
+
+    public MobModifier(NightManager nightManager, Configuration configuration) {
+        this.nightManager = nightManager;
         this.configuration = configuration;
     }
 
     @EventHandler
     public void onMobspawn(EntitySpawnEvent event) {
-        if (!nightListener.isBloodNightActive(event.getEntity().getWorld())) return;
+        if (!nightManager.isBloodNightActive(event.getEntity().getWorld())) return;
         // This is most likely a mounted special mob. We wont change this.
-        if (SpecialMobUtil.isSpecialMob(event.getEntity())) return;
+        if (SpecialMobUtil.isSpecialMob(event.getEntity())) {
+            BloodNight.logger().info("Will skip special mob");
+            return;
+        }
 
         World world = event.getLocation().getWorld();
 
@@ -57,13 +66,20 @@ public class MobModifier implements Listener, Runnable {
 
         Optional<MobFactory> mobFactory = getWorldMobFactory(world).getRandomFactory(event.getEntity());
 
-        if (!mobFactory.isPresent()) return;
+        if (!mobFactory.isPresent()) {
+            BloodNight.logger().info("No mob factory found for " + event.getEntity().getClass().getSimpleName());
+            return;
+        }
 
-        wrapMob(event.getEntity(), mobFactory.get());
+        executeLater.add(() -> wrapMob(event.getEntity(), mobFactory.get()));
+
+        //wrapMob(event.getEntity(), mobFactory.get());
     }
 
     public void wrapMob(Entity entity, MobFactory mobFactory) {
         if (!(entity instanceof LivingEntity)) return;
+
+        if (SpecialMobUtil.isSpecialMob(entity)) return;
 
         SpecialMob specialMob = mobFactory.wrap((LivingEntity) entity);
 
@@ -83,9 +99,14 @@ public class MobModifier implements Listener, Runnable {
     @Override
     public void run() {
         // TODO: Probably split ping into ticks to reduce computation in one tick.
-        for (World bloodWorld : nightListener.getBloodWorlds()) {
+        for (World bloodWorld : nightManager.getBloodWorlds()) {
             getWorldMobs(bloodWorld).invokeAll(SpecialMob::tick);
         }
+
+        executeNow.forEach(Runnable::run);
+        executeNow.clear();
+        executeNow.addAll(executeLater);
+        executeLater.clear();
     }
 
     @EventHandler
@@ -149,6 +170,19 @@ public class MobModifier implements Listener, Runnable {
     @EventHandler
     public void onHit(EntityDamageByEntityEvent event) {
         getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(event.getDamager(), m -> m.onHit(event));
+    }
+
+    //@EventHandler
+    private void onChunkUnload(ChunkLoadEvent event) {
+        WorldMobs worldMobs = getWorldMobs(event.getWorld());
+        if (!nightManager.isBloodNightActive(event.getWorld())) {
+            for (Entity entity : event.getChunk().getEntities()) {
+                SpecialMob remove = worldMobs.remove(entity.getUniqueId());
+                if (remove != null) {
+                    remove.onEnd();
+                }
+            }
+        }
     }
 
     @NonNull

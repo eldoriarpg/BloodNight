@@ -1,7 +1,9 @@
 package de.eldoria.bloodnight.core;
 
 import de.eldoria.bloodnight.command.BloodNightCommand;
+import de.eldoria.bloodnight.command.InventoryListener;
 import de.eldoria.bloodnight.config.Configuration;
+import de.eldoria.bloodnight.config.Drop;
 import de.eldoria.bloodnight.config.GeneralSettings;
 import de.eldoria.bloodnight.config.MobSetting;
 import de.eldoria.bloodnight.config.MobSettings;
@@ -71,6 +73,7 @@ public class BloodNight extends JavaPlugin {
     private MobModifier mobModifier;
     private Localizer localizer;
     private Configuration configuration;
+    private InventoryListener inventoryListener;
 
     @SuppressWarnings("StaticVariableUsedBeforeInitialization")
     @NotNull
@@ -85,7 +88,7 @@ public class BloodNight extends JavaPlugin {
     private boolean initialized = false;
 
     public static Localizer localizer() {
-        return localizer();
+        return instance.localizer;
     }
 
 
@@ -102,7 +105,8 @@ public class BloodNight extends JavaPlugin {
                     "messages", Locale.US, "de_DE", "en_US");
             MessageSender.create(this, "§4[BN] ", '2', 'c');
             registerListener();
-            registerCommand("bloodnight", new BloodNightCommand(configuration, localizer, this, nightManager, mobModifier));
+            registerCommand("bloodnight",
+                    new BloodNightCommand(configuration, localizer, this, nightManager, mobModifier, inventoryListener));
         }
 
         onReload();
@@ -132,6 +136,8 @@ public class BloodNight extends JavaPlugin {
         pm.registerEvents(new BedListener(configuration, nightManager, localizer, messageSender), this);
         pm.registerEvents(new LootListener(nightManager, configuration), this);
         mobModifier = new MobModifier(nightManager, configuration);
+        inventoryListener = new InventoryListener(configuration);
+        pm.registerEvents(inventoryListener, this);
         pm.registerEvents(mobModifier, this);
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, mobModifier, 100, 5);
     }
@@ -143,6 +149,7 @@ public class BloodNight extends JavaPlugin {
         ConfigurationSerialization.registerClass(MobSettings.class);
         ConfigurationSerialization.registerClass(MobSetting.class);
         ConfigurationSerialization.registerClass(WorldSettings.class);
+        ConfigurationSerialization.registerClass(Drop.class);
     }
 
     @Override

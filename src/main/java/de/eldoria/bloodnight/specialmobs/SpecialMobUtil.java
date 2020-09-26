@@ -104,22 +104,25 @@ public final class SpecialMobUtil {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends Entity> T spawnAndMount(Entity carrier, EntityType mount) {
-        T mountedEntity = spawnAndTagEntity(carrier.getLocation(), mount);
-        carrier.addPassenger(mountedEntity);
-        return mountedEntity;
+    public static <T extends Entity> T spawnAndMount(Entity carrier, EntityType riderType) {
+        T rider = spawnAndTagEntity(carrier.getLocation(), riderType);
+        assert rider == null;
+        carrier.addPassenger(rider);
+        return rider;
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends Entity> T spawnAndMount(EntityType carrier, Entity mount) {
-        T mountedEntity = spawnAndTagEntity(mount.getLocation(), carrier);
-        mount.addPassenger(mountedEntity);
-        return mountedEntity;
+    public static <T extends Entity> T spawnAndMount(EntityType carrierType, Entity rider) {
+        T carrier = spawnAndTagEntity(rider.getLocation(), carrierType);
+        assert carrier == null;
+        carrier.addPassenger(rider);
+        return carrier;
     }
 
     @SuppressWarnings("unchecked")
     public static <T extends Entity> T spawnAndTagEntity(Location location, EntityType entityType) {
         Entity entity = location.getWorld().spawnEntity(location, entityType);
+        assert entity == null;
         tagEntity(entity);
         return (T) entity;
     }
@@ -127,7 +130,7 @@ public final class SpecialMobUtil {
     public static void tagEntity(Entity entity) {
         PersistentDataContainer dataContainer = entity.getPersistentDataContainer();
         dataContainer.set(BloodNight.getNamespacedKey("specialMob"), PersistentDataType.BYTE, (byte) 1);
-        if(entity instanceof LivingEntity){
+        if (entity instanceof LivingEntity) {
             ((LivingEntity) entity).setRemoveWhenFarAway(true);
         }
         entity.setPersistent(false);

@@ -6,7 +6,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -30,12 +29,14 @@ public class WorldMobFactory {
 
         MobGroup group = mobGroup.get();
 
-        Map<String, MobSetting> mobTypes = settings.getMobSettings().getMobTypes();
-        List<MobFactory> allowedMobs = group.getFactories().stream().filter(f -> {
-            MobSetting setting = mobTypes.get(f.getMobName());
-            if (setting == null) return false;
-            return setting.isActive();
-        }).collect(Collectors.toList());
+        List<MobSetting> mobTypes = settings.getMobSettings().getMobTypes();
+        List<MobFactory> allowedMobs = group.getFactories().stream()
+                .filter(f -> mobTypes.stream()
+                        .filter(d -> d.getMobName().equalsIgnoreCase(f.getMobName()))
+                        .findFirst()
+                        .map(MobSetting::isActive)
+                        .orElse(false))
+                .collect(Collectors.toList());
 
         if (allowedMobs.isEmpty()) return Optional.empty();
 
