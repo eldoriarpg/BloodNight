@@ -56,8 +56,8 @@ public class Configuration {
         }
 
         version = config.getInt("version");
-        generalSettings = (GeneralSettings) config.get("generalSettings");
-        List<WorldSettings> worldList = (List<WorldSettings>) config.get("worldSettings", Collections.emptyList());
+        generalSettings = (GeneralSettings) config.get("generalSettings", new GeneralSettings());
+        List<WorldSettings> worldList = (List<WorldSettings>) config.get("worldSettings", new ArrayList<>());
         for (WorldSettings settings : worldList) {
             worldSettings.put(settings.getWorldName(), settings);
         }

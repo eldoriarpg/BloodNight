@@ -8,6 +8,7 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -52,6 +53,13 @@ public class NightSettings implements ConfigurationSerializable {
      * Tick when a night stops to be a night.
      */
     private int nightEnd;
+
+    // TODO implement
+    private boolean boosBar;
+    private boolean applyEffect;
+
+    private List<String> startCommands;
+    private List<String> endCommands;
 
     private boolean overrideNightDuration;
 

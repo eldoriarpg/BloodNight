@@ -8,53 +8,106 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Getter
 @Setter
 @SerializableAs("bloodNightMobSettings")
 public class MobSettings implements ConfigurationSerializable {
 
-    private final int spawnPercentage;
-    private Map<String, MobSetting> mobTypes = new HashMap<>();
+    /**
+     * The conversion rate of mobs. Higher numer -> more special mobs.
+     */
+    private int spawnPercentage;
+    /**
+     * The general drops during blood night.
+     */
+    private List<Drop> defaultDrops;
+
+    /**
+     * If true drops will be added to vanilla drops.
+     * If false vanilla drops will be removed.
+     */
+    private boolean naturalDrops;
+
+    private int dropAmount;
+    /**
+     * List of mob type settings.
+     */
+    private List<MobSetting> mobTypes = new ArrayList<>();
 
     public MobSettings(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
         spawnPercentage = map.getValueOrDefault("spawnPercentage", 80);
+        this.defaultDrops = (List<Drop>) map.getOrDefault("drops", new ArrayList<>());
+        dropAmount = map.getValueOrDefault("dropAmount", 2);
+        mobTypes = map.getValueOrDefault("mobTypes", new ArrayList<>());
+
         for (MobFactory value : SpecialMobRegistry.getRegisteredMobs()) {
-            mobTypes.put(value.getMobName(), map.getValueOrDefault(value.getMobName(), new MobSetting()));
+            if (mobTypes.contains(new MobSetting(value.getMobName()))) continue;
+            mobTypes.add(new MobSetting(value.getMobName()));
         }
     }
 
     public MobSettings() {
         spawnPercentage = 80;
+        defaultDrops = new ArrayList<>();
+        dropAmount = 2;
         for (MobFactory value : SpecialMobRegistry.getRegisteredMobs()) {
-            mobTypes.put(value.getMobName(), new MobSetting());
+            mobTypes.add(new MobSetting(value.getMobName()));
         }
     }
 
     @Override
     public @NotNull Map<String, Object> serialize() {
-        SerializationUtil.Builder builder = SerializationUtil.newBuilder();
-        builder.add("spawnPercentage", spawnPercentage);
-        for (Map.Entry<String, MobSetting> entry : mobTypes.entrySet()) {
-            builder.add(entry.getKey(), entry.getValue());
-        }
-        return builder.build();
+        return SerializationUtil.newBuilder()
+                .add("spawnPercentage", spawnPercentage)
+                .add("drops", defaultDrops)
+                .add("dropAmount", dropAmount)
+                .add("mobTypes", mobTypes)
+                .build();
     }
 
     public boolean isActive(String mobName) {
-        return mobTypes.get(mobName).isActive();
+        return getMobByName(mobName).map(MobSetting::isActive).orElse(false);
+    }
+
+    public List<ItemStack> getDrops(MobSetting mobSetting) {
+        List<Drop> totalDrops = new ArrayList<>(mobSetting.getDrops());
+        if (!mobSetting.isOverrideDefaultDrops()) {
+            totalDrops.addAll(defaultDrops);
+        }
+
+        int totalWeight = totalDrops.stream().mapToInt(Drop::getWeight).sum();
+
+        ThreadLocalRandom current = ThreadLocalRandom.current();
+
+        List<ItemStack> result = new ArrayList<>();
+
+        int currentWeight = 0;
+        for (int i = 0; i < mobSetting.getOverridenDropAmount(dropAmount); i++) {
+            int goal = current.nextInt(totalWeight + 1);
+            for (Drop drop : defaultDrops) {
+                currentWeight += drop.getWeight();
+                if (currentWeight < goal) continue;
+                result.add(new ItemStack(drop.getItem().clone()));
+                break;
+            }
+        }
+        return result;
     }
 
     public Optional<MobSetting> getMobByName(String string) {
-        for (Map.Entry<String, MobSetting> entry : mobTypes.entrySet()) {
-            if (string.equalsIgnoreCase(entry.getKey())) {
-                return Optional.ofNullable(entry.getValue());
+        for (MobSetting entry : mobTypes) {
+            if (string.equalsIgnoreCase(entry.getMobName())) {
+                return Optional.of(entry);
             }
         }
         return Optional.empty();

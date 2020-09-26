@@ -1,123 +1,88 @@
 package de.eldoria.bloodnight.config;
 
-import de.eldoria.bloodnight.core.BloodNight;
+import com.google.common.base.Objects;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
-import de.eldoria.eldoutilities.utils.Parser;
 import lombok.Getter;
 import lombok.Setter;
-import org.bukkit.Material;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.OptionalInt;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 
 @Getter
 @SerializableAs("bloodNightMobSetting")
 public class MobSetting implements ConfigurationSerializable {
+    /**
+     * plugin name of the mob
+     */
+    private final String mobName;
+    /**
+     * Indicates if this mob can be spawned
+     */
     @Setter
     private boolean active;
+    /**
+     * Amount of drops.
+     */
     @Setter
     private int dropAmount;
-    private final boolean blockNaturalDrops;
-    private final List<Drop> drops = new ArrayList<>();
-    private final int totalWeight;
+    /**
+     * If this is true only drops from mobs are choosen and default drops will not drop.
+     * if false the drops will be added to default drops.
+     */
+    @Getter
+    @Setter
+    private boolean overrideDefaultDrops;
+    @Getter
+    @Setter
+    private List<Drop> drops = new ArrayList<>();
 
     public MobSetting(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
+        mobName = map.getValue("mobName");
+        assert mobName == null;
         active = map.getValueOrDefault("active", true);
-        dropAmount = map.getValueOrDefault("dropAmount", 0);
-        blockNaturalDrops = map.getValueOrDefault("blockNaturalDrops", false);
-        List<String> drops = (List<String>) map.getOrDefault("drops", Collections.emptyList());
-        for (String drop : drops) {
-            String[] split = drop.split(",");
-            Material material;
-            int amount = 1;
-            int weight = 1;
-            if (split.length == 0) continue;
-
-            material = Material.getMaterial(split[0].toUpperCase());
-            if (material == null) {
-                BloodNight.logger().warning("Could not parse drop " + drop + ". Invalid material.");
-                continue;
-            }
-
-            if (split.length > 1) {
-                OptionalInt optionalInt = Parser.parseInt(split[1]);
-                if (!optionalInt.isPresent()) {
-                    BloodNight.logger().warning("Could not parse drop " + drop + ". Invalid amount.");
-                    continue;
-                }
-                amount = optionalInt.getAsInt();
-            }
-
-            if (split.length > 2) {
-                OptionalInt optionalInt = Parser.parseInt(split[2]);
-                if (!optionalInt.isPresent()) {
-                    BloodNight.logger().warning("Could not parse drop " + drop + ". Invalid weight.");
-                    continue;
-                }
-                weight = optionalInt.getAsInt();
-            }
-
-            this.drops.add(new Drop(material, amount, weight));
-        }
-        totalWeight = this.drops.stream().mapToInt(Drop::getWeight).sum();
+        dropAmount = map.getValueOrDefault("dropAmount", -1);
+        overrideDefaultDrops = map.getValueOrDefault("overrideDefaultDrops", false);
+        List<Drop> drops = (List<Drop>) map.getOrDefault("drops", Collections.emptyList());
     }
 
-    public MobSetting() {
+    public MobSetting(String mobName) {
+        this.mobName = mobName;
         active = true;
-        dropAmount = 0;
-        blockNaturalDrops = false;
-        totalWeight = 0;
+        dropAmount = -1;
+        overrideDefaultDrops = false;
     }
 
-    public List<ItemStack> getDrops() {
-        List<ItemStack> result = new ArrayList<>();
-        ThreadLocalRandom current = ThreadLocalRandom.current();
-        int currentWeight = 0;
-        for (int i = 0; i < dropAmount; i++) {
-            int goal = current.nextInt(totalWeight + 1);
-            for (Drop drop : drops) {
-                currentWeight += drop.getWeight();
-                if (currentWeight < goal) continue;
-                result.add(new ItemStack(drop.getMaterial(), drop.getAmount()));
-                break;
-            }
-        }
-        return result;
+    public int getOverridenDropAmount(int dropAmount) {
+        return this.dropAmount == -1 ? dropAmount : this.dropAmount;
     }
 
     @Override
     public @NotNull Map<String, Object> serialize() {
         return SerializationUtil.newBuilder()
+                .add("mobName", mobName)
                 .add("active", active)
                 .add("dropAmount", dropAmount)
-                .add("drops", drops.stream()
-                        .map(d -> d.material + "," + d.amount + "," + d.weight)
-                        .collect(Collectors.toList()))
+                .add("drops", drops)
                 .build();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MobSetting that = (MobSetting) o;
+        return Objects.equal(mobName, that.mobName);
+    }
 
-    @Getter
-    private static class Drop {
-        private final Material material;
-        private final int amount;
-        private final int weight;
-
-        public Drop(Material material, int amount, int weight) {
-            this.material = material;
-            this.amount = amount;
-            this.weight = weight;
-        }
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(mobName);
     }
 }
