@@ -67,9 +67,13 @@ public final class CommandUtil {
     }
 
     public static <T> TextComponent getPage(Collection<T> content, int page, Function<T, TextComponent> mapping, String title, String pageCommand) {
-        Collection<T> slice = getSlice(content, page, 18);
+        return getPage(content, page, 18, 1, mapping, title, pageCommand);
+    }
+
+    public static <T> TextComponent getPage(Collection<T> content, int page, int elementsPerPage, int elementSize, Function<T, TextComponent> mapping, String title, String pageCommand) {
+        Collection<T> elements = getSlice(content, page, elementsPerPage);
         TextComponent.Builder builder = TextComponent.builder();
-        for (int i = slice.size(); i < 18; i++) {
+        for (int i = elements.size() * elementSize; i < 18; i++) {
             builder.append(TextComponent.newline());
 
         }
@@ -77,14 +81,41 @@ public final class CommandUtil {
         builder.append(TextComponent.builder("=====<| ").color(KyoriColors.YELLOW))
                 .append(TextComponent.builder(title).color(KyoriColors.AQUA))
                 .append(TextComponent.builder(" |>=====").color(KyoriColors.YELLOW));
-        for (T t : slice) {
+        for (T t : elements) {
             builder.append(TextComponent.newline())
                     .append(mapping.apply(t));
         }
+
         return builder.append(TextComponent.newline())
                 .append(
                         CommandUtil.getPageFooter(page,
-                                CommandUtil.pageCount(content, 18),
+                                CommandUtil.pageCount(content, elementsPerPage),
                                 pageCommand)).build();
+    }
+
+    public static TextComponent getHeader(String title) {
+        return TextComponent.builder()
+                .append(TextComponent.builder("=====<| ").color(KyoriColors.YELLOW))
+                .append(TextComponent.builder(title).color(KyoriColors.AQUA))
+                .append(TextComponent.builder(" |>=====").color(KyoriColors.YELLOW)).build();
+    }
+
+    public static TextComponent getBooleanField(boolean currValue, String cmd, String field, String postive, String negative) {
+        return TextComponent.builder()
+                .append(TextComponent.builder(field + ": ", KyoriColors.AQUA))
+                .append(
+                        TextComponent.builder(postive,
+                                currValue ? KyoriColors.GREEN : KyoriColors.DARK_GRAY)
+                                .clickEvent(
+                                        ClickEvent.runCommand(cmd.replace("{bool}", "true")))
+                )
+                .append(" ")
+                .append(
+                        TextComponent.builder(negative,
+                                !currValue ? KyoriColors.RED : KyoriColors.DARK_GRAY)
+                                .clickEvent(
+                                        ClickEvent.runCommand(cmd.replace("{bool}", "false"))))
+                .build();
+
     }
 }
