@@ -16,26 +16,25 @@ import java.util.Map;
 public class WorldSettings implements ConfigurationSerializable {
 
     private String worldName;
-    private boolean enabled;
-    private NightSelection nightSelection;
-    private NightSettings nightSettings;
-    private MobSettings mobSettings;
+    private boolean enabled = false;
+    private BossBarSettings bossBarSettings = new BossBarSettings();
+    private NightSelection nightSelection = new NightSelection();
+    private NightSettings nightSettings = new NightSettings();
+    private MobSettings mobSettings = new MobSettings();
 
     public WorldSettings(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
         worldName = map.getValue("world");
-        enabled = map.getValue("enabled");
-        nightSelection = map.getValue("nightSelection");
-        nightSettings = map.getValue("nightSettings");
-        mobSettings = map.getValue("mobSettings");
+        assert worldName == null : "World is null. This should not happen";
+        enabled = map.getValueOrDefault("enabled", enabled);
+        bossBarSettings = map.getValueOrDefault("bossBar", bossBarSettings);
+        nightSelection = map.getValueOrDefault("nightSelection", nightSelection);
+        nightSettings = map.getValueOrDefault("nightSettings", nightSettings);
+        mobSettings = map.getValueOrDefault("mobSettings", mobSettings);
     }
 
     public WorldSettings(String world) {
         this.worldName = world;
-        enabled = false;
-        nightSelection = new NightSelection();
-        nightSettings = new NightSettings();
-        mobSettings = new MobSettings();
     }
 
     @Override
@@ -43,6 +42,7 @@ public class WorldSettings implements ConfigurationSerializable {
         return SerializationUtil.newBuilder()
                 .add("world", worldName)
                 .add("enabled", enabled)
+                .add("bossBar", bossBarSettings)
                 .add("nightSelection", nightSelection)
                 .add("nightSettings", nightSettings)
                 .add("mobSettings", mobSettings)

@@ -2,6 +2,7 @@ package de.eldoria.bloodnight.core;
 
 import de.eldoria.bloodnight.command.BloodNightCommand;
 import de.eldoria.bloodnight.command.InventoryListener;
+import de.eldoria.bloodnight.config.BossBarSettings;
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.config.Drop;
 import de.eldoria.bloodnight.config.GeneralSettings;
@@ -11,12 +12,9 @@ import de.eldoria.bloodnight.config.NightSelection;
 import de.eldoria.bloodnight.config.NightSettings;
 import de.eldoria.bloodnight.config.WorldSettings;
 import de.eldoria.bloodnight.core.mobfactory.SpecialMobRegistry;
-import de.eldoria.bloodnight.listener.BedListener;
-import de.eldoria.bloodnight.listener.DamageListener;
-import de.eldoria.bloodnight.listener.LootListener;
-import de.eldoria.bloodnight.listener.MessageListener;
-import de.eldoria.bloodnight.listener.MobModifier;
-import de.eldoria.bloodnight.listener.NightManager;
+import de.eldoria.bloodnight.core.manager.NotificationManager;
+import de.eldoria.bloodnight.core.manager.MobManager;
+import de.eldoria.bloodnight.core.manager.NightManager;
 import de.eldoria.bloodnight.specialmobs.mobs.creeper.EnderCreeper;
 import de.eldoria.bloodnight.specialmobs.mobs.creeper.FlyingCreeper;
 import de.eldoria.bloodnight.specialmobs.mobs.creeper.NervousPoweredCreeper;
@@ -70,7 +68,7 @@ public class BloodNight extends JavaPlugin {
     private static BloodNight instance;
     private static Logger logger;
     private NightManager nightManager;
-    private MobModifier mobModifier;
+    private MobManager mobManager;
     private Localizer localizer;
     private Configuration configuration;
     private InventoryListener inventoryListener;
@@ -106,7 +104,7 @@ public class BloodNight extends JavaPlugin {
             MessageSender.create(this, "§4[BN] ", '2', 'c');
             registerListener();
             registerCommand("bloodnight",
-                    new BloodNightCommand(configuration, localizer, this, nightManager, mobModifier, inventoryListener));
+                    new BloodNightCommand(configuration, localizer, this, nightManager, mobManager, inventoryListener));
         }
 
         onReload();
@@ -130,16 +128,13 @@ public class BloodNight extends JavaPlugin {
         MessageSender messageSender = MessageSender.get(this);
         nightManager = new NightManager(configuration);
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, nightManager, 100, 5);
-        pm.registerEvents(new MessageListener(localizer, nightManager, messageSender), this);
+        pm.registerEvents(new NotificationManager(nightManager, messageSender), this);
         pm.registerEvents(nightManager, this);
-        pm.registerEvents(new DamageListener(nightManager, configuration), this);
-        pm.registerEvents(new BedListener(configuration, nightManager, localizer, messageSender), this);
-        pm.registerEvents(new LootListener(nightManager, configuration), this);
-        mobModifier = new MobModifier(nightManager, configuration);
+        mobManager = new MobManager(nightManager, configuration);
         inventoryListener = new InventoryListener(configuration);
         pm.registerEvents(inventoryListener, this);
-        pm.registerEvents(mobModifier, this);
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, mobModifier, 100, 5);
+        pm.registerEvents(mobManager, this);
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, mobManager, 100, 5);
     }
 
     private void registerSerialization() {
@@ -150,6 +145,7 @@ public class BloodNight extends JavaPlugin {
         ConfigurationSerialization.registerClass(MobSetting.class);
         ConfigurationSerialization.registerClass(WorldSettings.class);
         ConfigurationSerialization.registerClass(Drop.class);
+        ConfigurationSerialization.registerClass(BossBarSettings.class);
     }
 
     @Override
