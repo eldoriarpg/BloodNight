@@ -18,76 +18,64 @@ public class NightSettings implements ConfigurationSerializable {
     /**
      * The modifier which will be multiplied with monster damage when dealing damage to players.
      */
-    private double monsterDamageMultiplier;
+    private double monsterDamageMultiplier = 2;
 
     /**
      * The modifier which will be multiplied with player damage when dealing damage to monsters.
      */
-    private double playerDamageMultiplier;
+    private double playerDamageMultiplier = 0.5;
 
     /**
      * The modifier which will be muliplied with the dropped exp of a monster.
      */
-    private double experienceMultiplier;
+    private double experienceMultiplier = 4;
 
     /**
      * The modifier which will be multiplied with the dropped item amount.
      */
-    private double dropMultiplier;
+    private double dropMultiplier = 2;
 
     /**
      * Sleep time will be set for every player when the nights starts and will be reset to earlier value when the night ends
      */
-    private boolean forcePhantoms;
+    private boolean forcePhantoms = true;
 
     /**
      * If false a blood night can not be skipped by sleeping in a bed.
      */
-    private boolean skippable;
+    private boolean skippable = false;
     /**
      * Tick when a night starts to be a night.
      */
-    private int nightBegin;
+    private int nightBegin= 14000;
 
     /**
      * Tick when a night stops to be a night.
      */
-    private int nightEnd;
-
-    // TODO implement
-    private boolean boosBar;
-    private boolean applyEffect;
+    private int nightEnd = 23000;
 
     private List<String> startCommands;
     private List<String> endCommands;
 
-    private boolean overrideNightDuration;
+    private boolean overrideNightDuration = false;
 
     private int nightDuration = 600;
 
     public NightSettings() {
-        monsterDamageMultiplier = 2;
-        playerDamageMultiplier = 0.5;
-        experienceMultiplier = 4;
-        dropMultiplier = 2;
-        forcePhantoms = true;
-        skippable = false;
-        nightBegin = 14000;
-        nightEnd = 23000;
     }
 
     public NightSettings(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
-        monsterDamageMultiplier = map.getValueOrDefault("monsterDamageMultiplier", 2d);
-        playerDamageMultiplier = map.getValueOrDefault("playerDamageMultiplier", 0.5);
-        experienceMultiplier = map.getValueOrDefault("experienceMultiplier", 4d);
-        dropMultiplier = map.getValueOrDefault("dropMultiplier", 2d);
-        forcePhantoms = map.getValueOrDefault("forcePhantoms", true);
-        skippable = map.getValueOrDefault("skippable", false);
-        nightBegin = map.getValueOrDefault("nightBegin", 13000);
-        nightEnd = map.getValueOrDefault("nightEnd", 23000);
-        overrideNightDuration = map.getValueOrDefault("overrideNightDuration", false);
-        nightDuration = map.getValueOrDefault("nightEnd", 600);
+        monsterDamageMultiplier = map.getValueOrDefault("monsterDamageMultiplier", monsterDamageMultiplier);
+        playerDamageMultiplier = map.getValueOrDefault("playerDamageMultiplier", playerDamageMultiplier);
+        experienceMultiplier = map.getValueOrDefault("experienceMultiplier", experienceMultiplier);
+        dropMultiplier = map.getValueOrDefault("dropMultiplier", dropMultiplier);
+        forcePhantoms = map.getValueOrDefault("forcePhantoms", forcePhantoms);
+        skippable = map.getValueOrDefault("skippable", skippable);
+        nightBegin = map.getValueOrDefault("nightBegin", nightBegin);
+        nightEnd = map.getValueOrDefault("nightEnd", nightEnd);
+        overrideNightDuration = map.getValueOrDefault("overrideNightDuration", overrideNightDuration);
+        nightDuration = map.getValueOrDefault("nightEnd", nightDuration);
     }
 
     @Override

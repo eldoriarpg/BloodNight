@@ -25,19 +25,19 @@ public class MobSetting implements ConfigurationSerializable {
      * Indicates if this mob can be spawned
      */
     @Setter
-    private boolean active;
+    private boolean active = true;
     /**
      * Amount of drops.
      */
     @Setter
-    private int dropAmount;
+    private int dropAmount = -1;
     /**
      * If this is true only drops from mobs are choosen and default drops will not drop.
      * if false the drops will be added to default drops.
      */
     @Getter
     @Setter
-    private boolean overrideDefaultDrops;
+    private boolean overrideDefaultDrops = false;
     @Getter
     @Setter
     private List<Drop> drops = new ArrayList<>();
@@ -45,18 +45,15 @@ public class MobSetting implements ConfigurationSerializable {
     public MobSetting(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
         mobName = map.getValue("mobName");
-        assert mobName == null;
-        active = map.getValueOrDefault("active", true);
-        dropAmount = map.getValueOrDefault("dropAmount", -1);
-        overrideDefaultDrops = map.getValueOrDefault("overrideDefaultDrops", false);
-        List<Drop> drops = (List<Drop>) map.getOrDefault("drops", Collections.emptyList());
+        assert mobName == null : "Mob name is null. This is not allowed";
+        active = map.getValueOrDefault("active", active);
+        dropAmount = map.getValueOrDefault("dropAmount", dropAmount);
+        overrideDefaultDrops = map.getValueOrDefault("overrideDefaultDrops", overrideDefaultDrops);
+        drops = map.getValueOrDefault("drops", drops);
     }
 
     public MobSetting(String mobName) {
         this.mobName = mobName;
-        active = true;
-        dropAmount = -1;
-        overrideDefaultDrops = false;
     }
 
     public int getOverridenDropAmount(int dropAmount) {

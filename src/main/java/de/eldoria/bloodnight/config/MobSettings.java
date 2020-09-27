@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -25,31 +26,35 @@ public class MobSettings implements ConfigurationSerializable {
     /**
      * The conversion rate of mobs. Higher numer -> more special mobs.
      */
-    private int spawnPercentage;
+    private int spawnPercentage = 80;
     /**
      * The general drops during blood night.
      */
-    private List<Drop> defaultDrops;
+    private List<Drop> defaultDrops = new ArrayList<>();
 
     /**
      * If true drops will be added to vanilla drops.
      * If false vanilla drops will be removed.
      */
-    private boolean naturalDrops;
+    private boolean naturalDrops = true;
 
-    private int dropAmount;
+    private int dropAmount = 2;
     /**
      * List of mob type settings.
      */
-    private List<MobSetting> mobTypes = new ArrayList<>();
+    private List<MobSetting> mobTypes = SpecialMobRegistry.getRegisteredMobs().stream()
+            .map(m -> new MobSetting(m.getMobName()))
+            .collect(Collectors.toList());
 
     public MobSettings(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
-        spawnPercentage = map.getValueOrDefault("spawnPercentage", 80);
-        this.defaultDrops = (List<Drop>) map.getOrDefault("drops", new ArrayList<>());
-        dropAmount = map.getValueOrDefault("dropAmount", 2);
-        mobTypes = map.getValueOrDefault("mobTypes", new ArrayList<>());
+        spawnPercentage = map.getValueOrDefault("spawnPercentage", spawnPercentage);
+        defaultDrops = map.getValueOrDefault("drops", defaultDrops);
+        naturalDrops = map.getValueOrDefault("naturalDrops", naturalDrops);
+        dropAmount = map.getValueOrDefault("dropAmount", dropAmount);
+        mobTypes = map.getValueOrDefault("mobTypes", mobTypes);
 
+        // add not present mobs
         for (MobFactory value : SpecialMobRegistry.getRegisteredMobs()) {
             if (mobTypes.contains(new MobSetting(value.getMobName()))) continue;
             mobTypes.add(new MobSetting(value.getMobName()));
@@ -57,12 +62,6 @@ public class MobSettings implements ConfigurationSerializable {
     }
 
     public MobSettings() {
-        spawnPercentage = 80;
-        defaultDrops = new ArrayList<>();
-        dropAmount = 2;
-        for (MobFactory value : SpecialMobRegistry.getRegisteredMobs()) {
-            mobTypes.add(new MobSetting(value.getMobName()));
-        }
     }
 
     @Override
@@ -70,6 +69,7 @@ public class MobSettings implements ConfigurationSerializable {
         return SerializationUtil.newBuilder()
                 .add("spawnPercentage", spawnPercentage)
                 .add("drops", defaultDrops)
+                .add("naturalDrops", naturalDrops)
                 .add("dropAmount", dropAmount)
                 .add("mobTypes", mobTypes)
                 .build();

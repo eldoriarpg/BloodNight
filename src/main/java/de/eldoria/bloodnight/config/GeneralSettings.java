@@ -40,5 +40,4 @@ public class GeneralSettings implements ConfigurationSerializable {
                 .add("joinWorldWarning", joinWorldWarning)
                 .build();
     }
-
 }

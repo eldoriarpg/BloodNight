@@ -1,5 +1,7 @@
 package de.eldoria.bloodnight.config;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
@@ -21,16 +23,25 @@ import java.util.stream.Collectors;
 @SerializableAs("bloodNightNightSelection")
 public class NightSelection implements ConfigurationSerializable {
 
-    private NightSelectionType nightSelectionType;
+    private NightSelectionType nightSelectionType = NightSelectionType.RANDOM;
 
     /**
      * Probability that a night becomes a blood night.
      * In percent 0-100.
      */
-    private int probability;
+    private int probability = 20;
 
 
-    private Map<Integer, Integer> phases = new HashMap<>();
+    private Map<Integer, Integer> phases = new HashMap<Integer, Integer>() {{
+        put(0, 0);
+        put(1, 10);
+        put(2, 20);
+        put(3, 40);
+        put(4, 100);
+        put(5, 40);
+        put(6, 20);
+        put(7, 10);
+    }};
 
     public NightSelection(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
@@ -54,17 +65,6 @@ public class NightSelection implements ConfigurationSerializable {
     }
 
     public NightSelection() {
-        nightSelectionType = NightSelectionType.RANDOM;
-        probability = 20;
-        phases = new HashMap<>();
-        phases.put(0, 0);
-        phases.put(1, 10);
-        phases.put(2, 20);
-        phases.put(3, 40);
-        phases.put(4, 100);
-        phases.put(5, 40);
-        phases.put(6, 20);
-        phases.put(7, 10);
     }
 
     public int getPhaseProbability(int phase) {
