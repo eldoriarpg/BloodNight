@@ -1,18 +1,26 @@
-package de.eldoria.bloodnight.listener;
+package de.eldoria.bloodnight.core.manager;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.config.MobSettings;
+import de.eldoria.bloodnight.config.NightSettings;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.core.mobfactory.MobFactory;
 import de.eldoria.bloodnight.core.mobfactory.WorldMobFactory;
-import de.eldoria.bloodnight.events.BloodNightEndEvent;
+import de.eldoria.bloodnight.core.events.BloodNightEndEvent;
+import de.eldoria.bloodnight.listener.util.ListenerUtil;
+import de.eldoria.bloodnight.listener.util.ProjectileSender;
 import de.eldoria.bloodnight.specialmobs.SpecialMob;
 import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
 import lombok.NonNull;
 import org.bukkit.World;
+import org.bukkit.entity.Boss;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Monster;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -26,6 +34,7 @@ import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,9 +43,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-public class MobModifier implements Listener, Runnable {
+public class MobManager implements Listener, Runnable {
     private final Map<String, WorldMobs> mobRegistry = new HashMap<>();
     private final NightManager nightManager;
     private final Configuration configuration;
@@ -46,7 +56,7 @@ public class MobModifier implements Listener, Runnable {
     private final List<Runnable> executeLater = new ArrayList<>();
     private final List<Runnable> executeNow = new ArrayList<>();
 
-    public MobModifier(NightManager nightManager, Configuration configuration) {
+    public MobManager(NightManager nightManager, Configuration configuration) {
         this.nightManager = nightManager;
         this.configuration = configuration;
     }
@@ -172,8 +182,84 @@ public class MobModifier implements Listener, Runnable {
         getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(event.getDamager(), m -> m.onHit(event));
     }
 
-    //@EventHandler
-    private void onChunkUnload(ChunkLoadEvent event) {
+    @EventHandler
+    public void onPlayerDamage(EntityDamageByEntityEvent event) {
+        // If no blood night is active in this world we dont care at all.
+        if (!nightManager.isBloodNightActive(event.getDamager().getWorld())) return;
+
+        // Check if the entity is a projectile.
+        ProjectileSender sender = ListenerUtil.getProjectileSource(event.getDamager());
+
+        Entity damager = sender.isEntity() ? sender.getEntity() : event.getDamager();
+        Entity oponent = event.getEntity();
+
+        NightSettings settings = configuration.getWorldSettings(oponent.getLocation().getWorld().getName()).getNightSettings();
+
+        // Check if opponent a monster or boss. We want also to recude non player damage.
+        if (oponent instanceof Monster || oponent instanceof Boss) {
+            // the damager is a player. Multiply damage by player multiplier
+            event.setDamage(event.getDamage() * settings.getPlayerDamageMultiplier());
+        } else if (oponent.getType() == EntityType.PLAYER
+                && (damager instanceof Monster || damager instanceof Boss)) {
+            event.setDamage(event.getDamage() * settings.getMonsterDamageMultiplier());
+        }
+    }
+
+    private final Cache<Integer, Player> lastDamage = CacheBuilder.newBuilder().expireAfterAccess(10L, TimeUnit.MINUTES).build();
+
+    @EventHandler
+    public void onEntityDamage(EntityDamageByEntityEvent event) {
+
+        if (!nightManager.isBloodNightActive(event.getDamager().getWorld())) return;
+
+        Entity damager = event.getDamager();
+        Entity entity = event.getEntity();
+
+        // We just care about monsters and boss monsters
+        if (!(entity instanceof Monster || entity instanceof Boss)) return;
+
+        int entityId = entity.getEntityId();
+
+        // Register player on entity
+        if (damager instanceof Player) {
+            lastDamage.put(entityId, (Player) damager);
+            return;
+        }
+
+        ProjectileSender sender = ListenerUtil.getProjectileSource(damager);
+        if (sender.isEntity() && sender.getEntity() instanceof Player) {
+            lastDamage.put(entityId, (Player) sender.getEntity());
+            return;
+        }
+
+        lastDamage.invalidate(entityId);
+    }
+
+    @EventHandler
+    public void onEntityKill(EntityDeathEvent event) {
+        LivingEntity entity = event.getEntity();
+        Player player = lastDamage.getIfPresent(entity.getEntityId());
+        lastDamage.invalidate(entity.getEntityId());
+
+        if (player == null) {
+            return;
+        }
+
+        if (!(entity instanceof Monster || entity instanceof Boss)) return;
+
+
+        if (!nightManager.isBloodNightActive(entity.getWorld())) return;
+
+        NightSettings nightSettings = configuration.getWorldSettings(entity.getWorld()).getNightSettings();
+
+        event.setDroppedExp((int) (event.getDroppedExp() * nightSettings.getExperienceMultiplier()));
+        for (ItemStack drop : event.getDrops()) {
+            drop.setAmount((int) (drop.getAmount() * nightSettings.getDropMultiplier()));
+        }
+    }
+
+    @EventHandler
+    private void onChunkLoad(ChunkLoadEvent event) {
         WorldMobs worldMobs = getWorldMobs(event.getWorld());
         if (!nightManager.isBloodNightActive(event.getWorld())) {
             for (Entity entity : event.getChunk().getEntities()) {
