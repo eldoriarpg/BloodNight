@@ -1,4 +1,4 @@
-package de.eldoria.bloodnight.events;
+package de.eldoria.bloodnight.core.events;
 
 import lombok.Getter;
 import org.bukkit.World;
