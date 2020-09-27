@@ -17,9 +17,9 @@ import java.time.Instant;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class EnderCreeper extends AbstractCreeper {
-    private Instant lastTeleport = Instant.now();
-    private ThreadLocalRandom rand = ThreadLocalRandom.current();
     private final ParticleCloud cloud;
+    private Instant lastTeleport = Instant.now();
+    private final ThreadLocalRandom rand = ThreadLocalRandom.current();
 
     public EnderCreeper(Creeper creeper) {
         super(creeper);

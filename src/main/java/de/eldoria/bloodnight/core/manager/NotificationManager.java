@@ -64,7 +64,6 @@ public class NotificationManager implements Listener {
         for (Player player : players) {
             messageSender.sendMessage(player, message);
         }
-
     }
 
     @EventHandler

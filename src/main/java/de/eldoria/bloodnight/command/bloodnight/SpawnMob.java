@@ -1,9 +1,9 @@
 package de.eldoria.bloodnight.command.bloodnight;
 
+import de.eldoria.bloodnight.core.manager.MobManager;
+import de.eldoria.bloodnight.core.manager.NightManager;
 import de.eldoria.bloodnight.core.mobfactory.MobFactory;
 import de.eldoria.bloodnight.core.mobfactory.SpecialMobRegistry;
-import de.eldoria.bloodnight.listener.MobModifier;
-import de.eldoria.bloodnight.listener.NightManager;
 import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
 import de.eldoria.eldoutilities.localization.Localizer;
 import de.eldoria.eldoutilities.messages.MessageSender;
@@ -25,12 +25,12 @@ import java.util.stream.Collectors;
 
 public class SpawnMob extends EldoCommand {
     private final NightManager nightManager;
-    private final MobModifier mobModifier;
+    private final MobManager mobManager;
 
-    public SpawnMob(Localizer localizer, MessageSender messageSender, NightManager nightManager, MobModifier mobModifier) {
+    public SpawnMob(Localizer localizer, MessageSender messageSender, NightManager nightManager, MobManager mobManager) {
         super(localizer, messageSender);
         this.nightManager = nightManager;
-        this.mobModifier = mobModifier;
+        this.mobManager = mobManager;
     }
 
     @Override
@@ -63,7 +63,7 @@ public class SpawnMob extends EldoCommand {
             MobFactory mobFactory = mobFactoryByName.get();
 
             Entity entity = SpecialMobUtil.spawnAndTagEntity(targetBlock.getLocation().add(0, 1, 0), mobFactory.getEntityType());
-            mobModifier.wrapMob(entity, mobFactory);
+            mobManager.wrapMob(entity, mobFactory);
         } else {
             messageSender().sendError(player, "no blood night active");
         }

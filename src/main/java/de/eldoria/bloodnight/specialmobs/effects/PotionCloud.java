@@ -23,6 +23,7 @@ public class PotionCloud extends ParticleCloud {
         targetEntity.addPassenger(entity);
         return new PotionCloud.Builder(entity);
     }
+
     public static Builder builder(Location loc) {
         AreaEffectCloud entity = (AreaEffectCloud) loc.getWorld().spawnEntity(loc, EntityType.AREA_EFFECT_CLOUD);
         return new PotionCloud.Builder(entity);

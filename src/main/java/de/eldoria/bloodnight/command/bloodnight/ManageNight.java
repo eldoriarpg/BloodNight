@@ -129,7 +129,7 @@ public class ManageNight extends EldoCommand {
                 nightSettings.setNightEnd(optionalInt.getAsInt());
             }
             if ("nightDuration".equalsIgnoreCase(cmd)) {
-                nightSettings.setDropMultiplier(optionalInt.getAsInt());
+                nightSettings.setNightDuration(optionalInt.getAsInt());
             }
             configuration.safeConfig();
             sendNightSettings(sender, worldSettings);
@@ -240,7 +240,7 @@ public class ManageNight extends EldoCommand {
             //night duration
             builder.append(TextComponent.newline())
                     .append(TextComponent.builder("Night duration: ", KyoriColors.AQUA))
-                    .append(TextComponent.builder(nightSettings.getNightEnd() + "x ", KyoriColors.GOLD))
+                    .append(TextComponent.builder(nightSettings.getNightDuration() + "x ", KyoriColors.GOLD))
                     .append(TextComponent.builder("[change]", KyoriColors.GREEN)
                             .clickEvent(ClickEvent.suggestCommand(cmd + "nightDuration ")));
         }

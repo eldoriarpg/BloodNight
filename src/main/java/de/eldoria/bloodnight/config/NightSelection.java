@@ -1,7 +1,5 @@
 package de.eldoria.bloodnight.config;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;

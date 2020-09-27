@@ -35,30 +35,6 @@ class Drop implements ConfigurationSerializable {
         this.weight = weight;
     }
 
-    @Override
-    public @NotNull Map<String, Object> serialize() {
-        return SerializationUtil.newBuilder()
-                .add("item", item)
-                .add("weight", weight)
-                .build();
-    }
-
-    public ItemStack getItem() {
-        ItemStack newItem = item.clone();
-        setWeight(newItem, weight);
-        return newItem;
-    }
-
-    public ItemStack getItemWithLoreWeight() {
-        ItemMeta itemMeta = item.hasItemMeta() ? item.getItemMeta() : Bukkit.getItemFactory().getItemMeta(item.getType());
-        List<String> lore = itemMeta.hasLore() ? itemMeta.getLore() : new ArrayList<>();
-        lore.add("§6Weight: " + getWeight());
-        itemMeta.setLore(lore);
-        ItemStack newItem = item.clone();
-        newItem.setItemMeta(itemMeta);
-        return newItem;
-    }
-
     public static Drop fromItemStack(ItemStack itemStack) {
         if (itemStack == null) return null;
         return new Drop(removeWeight(itemStack), getWeightFromItemStack(itemStack));
@@ -133,5 +109,29 @@ class Drop implements ConfigurationSerializable {
 
     private static String getWeightString(int weight) {
         return "§6" + BloodNight.localizer().getMessage("drops.weight") + ": " + weight;
+    }
+
+    @Override
+    public @NotNull Map<String, Object> serialize() {
+        return SerializationUtil.newBuilder()
+                .add("item", item)
+                .add("weight", weight)
+                .build();
+    }
+
+    public ItemStack getItem() {
+        ItemStack newItem = item.clone();
+        setWeight(newItem, weight);
+        return newItem;
+    }
+
+    public ItemStack getItemWithLoreWeight() {
+        ItemMeta itemMeta = item.hasItemMeta() ? item.getItemMeta() : Bukkit.getItemFactory().getItemMeta(item.getType());
+        List<String> lore = itemMeta.hasLore() ? itemMeta.getLore() : new ArrayList<>();
+        lore.add("§6Weight: " + getWeight());
+        itemMeta.setLore(lore);
+        ItemStack newItem = item.clone();
+        newItem.setItemMeta(itemMeta);
+        return newItem;
     }
 }

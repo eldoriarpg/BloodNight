@@ -6,9 +6,9 @@ import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.config.MobSettings;
 import de.eldoria.bloodnight.config.NightSettings;
 import de.eldoria.bloodnight.core.BloodNight;
+import de.eldoria.bloodnight.core.events.BloodNightEndEvent;
 import de.eldoria.bloodnight.core.mobfactory.MobFactory;
 import de.eldoria.bloodnight.core.mobfactory.WorldMobFactory;
-import de.eldoria.bloodnight.core.events.BloodNightEndEvent;
 import de.eldoria.bloodnight.listener.util.ListenerUtil;
 import de.eldoria.bloodnight.listener.util.ProjectileSender;
 import de.eldoria.bloodnight.specialmobs.SpecialMob;
@@ -55,6 +55,7 @@ public class MobManager implements Listener, Runnable {
 
     private final List<Runnable> executeLater = new ArrayList<>();
     private final List<Runnable> executeNow = new ArrayList<>();
+    private final Cache<Integer, Player> lastDamage = CacheBuilder.newBuilder().expireAfterAccess(10L, TimeUnit.MINUTES).build();
 
     public MobManager(NightManager nightManager, Configuration configuration) {
         this.nightManager = nightManager;
@@ -204,8 +205,6 @@ public class MobManager implements Listener, Runnable {
             event.setDamage(event.getDamage() * settings.getMonsterDamageMultiplier());
         }
     }
-
-    private final Cache<Integer, Player> lastDamage = CacheBuilder.newBuilder().expireAfterAccess(10L, TimeUnit.MINUTES).build();
 
     @EventHandler
     public void onEntityDamage(EntityDamageByEntityEvent event) {

@@ -47,7 +47,7 @@ public class NightSettings implements ConfigurationSerializable {
     /**
      * Tick when a night starts to be a night.
      */
-    private int nightBegin= 14000;
+    private int nightBegin = 14000;
 
     /**
      * Tick when a night stops to be a night.

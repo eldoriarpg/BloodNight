@@ -22,6 +22,6 @@ public class ToxicEnderman extends AbstractEnderman {
     @Override
     public void onTeleport(EntityTeleportEvent event) {
         Location from = event.getFrom();
-        SpecialMobUtil.spawnLingeringPotionAt(from, new PotionEffect(PotionEffectType.POISON, 5*20, 1, true, true));
+        SpecialMobUtil.spawnLingeringPotionAt(from, new PotionEffect(PotionEffectType.POISON, 5 * 20, 1, true, true));
     }
 }

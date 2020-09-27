@@ -22,8 +22,8 @@ public class FlyingCreeper extends AbstractCreeper {
 
     @Override
     public void tick() {
-        SpecialMobUtil.addPotionEffect(bat,PotionEffectType.INVISIBILITY, 1, false);
-        SpecialMobUtil.addPotionEffect(bat,PotionEffectType.SPEED, 4, false);
+        SpecialMobUtil.addPotionEffect(bat, PotionEffectType.INVISIBILITY, 1, false);
+        SpecialMobUtil.addPotionEffect(bat, PotionEffectType.SPEED, 4, false);
     }
 
     @Override

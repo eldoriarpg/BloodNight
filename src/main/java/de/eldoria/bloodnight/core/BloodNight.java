@@ -11,10 +11,10 @@ import de.eldoria.bloodnight.config.MobSettings;
 import de.eldoria.bloodnight.config.NightSelection;
 import de.eldoria.bloodnight.config.NightSettings;
 import de.eldoria.bloodnight.config.WorldSettings;
-import de.eldoria.bloodnight.core.mobfactory.SpecialMobRegistry;
-import de.eldoria.bloodnight.core.manager.NotificationManager;
 import de.eldoria.bloodnight.core.manager.MobManager;
 import de.eldoria.bloodnight.core.manager.NightManager;
+import de.eldoria.bloodnight.core.manager.NotificationManager;
+import de.eldoria.bloodnight.core.mobfactory.SpecialMobRegistry;
 import de.eldoria.bloodnight.specialmobs.mobs.creeper.EnderCreeper;
 import de.eldoria.bloodnight.specialmobs.mobs.creeper.FlyingCreeper;
 import de.eldoria.bloodnight.specialmobs.mobs.creeper.NervousPoweredCreeper;
@@ -72,6 +72,7 @@ public class BloodNight extends JavaPlugin {
     private Localizer localizer;
     private Configuration configuration;
     private InventoryListener inventoryListener;
+    private boolean initialized = false;
 
     @SuppressWarnings("StaticVariableUsedBeforeInitialization")
     @NotNull
@@ -82,8 +83,6 @@ public class BloodNight extends JavaPlugin {
     public static NamespacedKey getNamespacedKey(String string) {
         return new NamespacedKey(instance, string);
     }
-
-    private boolean initialized = false;
 
     public static Localizer localizer() {
         return instance.localizer;
@@ -128,7 +127,7 @@ public class BloodNight extends JavaPlugin {
         MessageSender messageSender = MessageSender.get(this);
         nightManager = new NightManager(configuration);
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, nightManager, 100, 5);
-        pm.registerEvents(new NotificationManager(nightManager, messageSender), this);
+        pm.registerEvents(new NotificationManager(configuration, nightManager), this);
         pm.registerEvents(nightManager, this);
         mobManager = new MobManager(nightManager, configuration);
         inventoryListener = new InventoryListener(configuration);

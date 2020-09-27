@@ -216,7 +216,7 @@ public class ManageMob extends EldoCommand {
         TextComponent component = CommandUtil.getPage(
                 new ArrayList<>(configuration.getWorldSettings(world).getMobSettings().getMobTypes()),
                 page,
-                4,4,
+                4, 4,
                 entry -> {
                     String cmd = "/bloodnight manageMob " + world.getName() + " " + entry.getMobName() + " ";
                     return TextComponent.builder()

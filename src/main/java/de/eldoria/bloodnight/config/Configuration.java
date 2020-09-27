@@ -7,7 +7,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +21,7 @@ public class Configuration {
 
     @Getter
     private GeneralSettings generalSettings;
-    private Map<String, WorldSettings> worldSettings = new HashMap<>();
+    private final Map<String, WorldSettings> worldSettings = new HashMap<>();
 
 
     public Configuration(Plugin plugin) {

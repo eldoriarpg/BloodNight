@@ -15,20 +15,20 @@ public abstract class AbstractCreeper implements SpecialMob {
         creeper.explode();
     }
 
-    public void setMaxFuseTicks(int fuse){
-        creeper.setMaxFuseTicks(fuse);
-    }
-
     public int getMaxFuseTicks() {
         return creeper.getMaxFuseTicks();
     }
 
-    public void setExplosionRadius(int radius) {
-        creeper.setExplosionRadius(radius);
+    public void setMaxFuseTicks(int fuse) {
+        creeper.setMaxFuseTicks(fuse);
     }
 
     public int getExplosionRadius() {
         return creeper.getExplosionRadius();
+    }
+
+    public void setExplosionRadius(int radius) {
+        creeper.setExplosionRadius(radius);
     }
 
     public void explode() {
