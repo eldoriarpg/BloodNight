@@ -2,6 +2,7 @@ package de.eldoria.bloodnight.config;
 
 import de.eldoria.bloodnight.core.BloodNight;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -58,7 +59,12 @@ public class Configuration {
         generalSettings = (GeneralSettings) config.get("generalSettings", new GeneralSettings());
         List<WorldSettings> worldList = (List<WorldSettings>) config.get("worldSettings", new ArrayList<>());
         for (WorldSettings settings : worldList) {
-            worldSettings.put(settings.getWorldName(), settings);
+            if (Bukkit.getWorld(settings.getWorldName()) != null) {
+                worldSettings.put(settings.getWorldName(), settings);
+            }
+        }
+        for (World world : Bukkit.getWorlds()) {
+            getWorldSettings(world);
         }
 
         safeConfig();

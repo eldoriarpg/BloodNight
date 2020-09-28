@@ -5,24 +5,32 @@ import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
 import de.eldoria.eldoutilities.utils.EnumUtil;
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarFlag;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Getter
+@Setter
 @SerializableAs("bloodNightBossBarSettings")
 public class BossBarSettings implements ConfigurationSerializable {
     private boolean enabled = true;
     private String title = "§c§lBlood Night";
     private BarColor color = BarColor.RED;
-    private BarFlag[] effects = {BarFlag.CREATE_FOG, BarFlag.DARKEN_SKY};
+    private List<BarFlag> effects = new ArrayList<BarFlag>() {
+        {
+            add(BarFlag.CREATE_FOG);
+            add(BarFlag.DARKEN_SKY);
+        }
+    };
 
     public BossBarSettings() {
     }
@@ -33,7 +41,23 @@ public class BossBarSettings implements ConfigurationSerializable {
         this.title = map.getValue("title");
         this.color = map.getValue("color", v -> EnumUtil.parse(v, BarColor.class));
         List<String> effects = map.getValue("effects");
-        this.effects = effects.stream().map(v -> EnumUtil.parse(v, BarFlag.class)).filter(Objects::nonNull).toArray(BarFlag[]::new);
+        this.effects = effects.stream().map(v -> EnumUtil.parse(v, BarFlag.class)).filter(Objects::nonNull).collect(Collectors.toList());
+    }
+
+    public void toggleEffect(BarFlag flag) {
+        if (effects.contains(flag)) {
+            effects.remove(flag);
+        } else {
+            effects.add(flag);
+        }
+    }
+
+    public BarFlag[] getEffects() {
+        return effects.toArray(new BarFlag[0]);
+    }
+
+    public boolean isEffectEnabled(BarFlag flag) {
+        return effects.contains(flag);
     }
 
     @Override

@@ -19,6 +19,7 @@ public final class KyoriColors {
     public static final TextColor LIGHT_PURPLE = TextColor.of(255, 85, 255);
     public static final TextColor YELLOW = TextColor.of(255, 255, 85);
     public static final TextColor WHITE = TextColor.of(255, 255, 255);
+    public static final TextColor PINK = TextColor.of(248, 24, 148);
 
     private KyoriColors() {
     }

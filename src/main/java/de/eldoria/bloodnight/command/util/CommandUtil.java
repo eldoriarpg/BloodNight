@@ -5,8 +5,11 @@ import net.kyori.adventure.text.event.ClickEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 public final class CommandUtil {
     private CommandUtil() {
@@ -31,7 +34,7 @@ public final class CommandUtil {
     }
 
     public static int pageCount(Collection<?> collection, int size) {
-        return (int) Math.floor(collection.size() / (double) size);
+        return (int) Math.floor(Math.max(collection.size() - 1, 0) / (double) size);
     }
 
     public static TextComponent getPageFooter(int page, int pageMax, String pageCommand) {
@@ -64,6 +67,20 @@ public final class CommandUtil {
 
         builder.append(" |>=====").color(KyoriColors.YELLOW);
         return builder.build();
+    }
+
+    public static <T> OptionalInt findPage(Collection<T> content, int pageSize, Predicate<T> predicate) {
+        Iterator<T> iterator = content.iterator();
+        int page = 0;
+        while (iterator.hasNext()) {
+            for (int i = 0; i < pageSize; i++) {
+                if (!iterator.hasNext()) break;
+                T next = iterator.next();
+                if (predicate.test(next)) return OptionalInt.of(page);
+            }
+            page++;
+        }
+        return OptionalInt.empty();
     }
 
     public static <T> TextComponent getPage(Collection<T> content, int page, Function<T, TextComponent> mapping, String title, String pageCommand) {
@@ -115,6 +132,18 @@ public final class CommandUtil {
                                 !currValue ? KyoriColors.RED : KyoriColors.DARK_GRAY)
                                 .clickEvent(
                                         ClickEvent.runCommand(cmd.replace("{bool}", "false"))))
+                .build();
+    }
+
+    public static TextComponent getToggleField(boolean currValue, String cmd, String field) {
+        String newCmd = cmd.replace("{bool}", String.valueOf(!currValue));
+        return TextComponent.builder()
+                .append(
+                        TextComponent.builder("[" + field + "]",
+                                currValue ? KyoriColors.GREEN : KyoriColors.DARK_GRAY)
+                                .clickEvent(
+                                        ClickEvent.runCommand(newCmd))
+                )
                 .build();
 
     }
