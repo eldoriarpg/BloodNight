@@ -36,11 +36,13 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
@@ -83,8 +85,6 @@ public class MobManager implements Listener, Runnable {
         }
 
         executeLater.add(() -> wrapMob(event.getEntity(), mobFactory.get()));
-
-        //wrapMob(event.getEntity(), mobFactory.get());
     }
 
     public void wrapMob(Entity entity, MobFactory mobFactory) {
@@ -109,14 +109,17 @@ public class MobManager implements Listener, Runnable {
 
     @Override
     public void run() {
-        // TODO: Probably split ping into ticks to reduce computation in one tick.
         for (World bloodWorld : nightManager.getBloodWorlds()) {
-            getWorldMobs(bloodWorld).invokeAll(SpecialMob::tick);
+            getWorldMobs(bloodWorld).tick(configuration.getGeneralSettings().getMobTick());
         }
 
+        // run runnables which should be executed this tick
         executeNow.forEach(Runnable::run);
+        // clear executed runnables
         executeNow.clear();
+        // schedule runnables for next tick
         executeNow.addAll(executeLater);
+        // clear the queue
         executeLater.clear();
     }
 
@@ -143,7 +146,7 @@ public class MobManager implements Listener, Runnable {
     }
 
     @EventHandler
-    public void onDead(EntityDeathEvent event) {
+    public void onDeath(EntityDeathEvent event) {
         getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(event.getEntity(), m -> m.onDeath(event));
     }
 
@@ -164,7 +167,17 @@ public class MobManager implements Listener, Runnable {
 
     @EventHandler
     public void onTargetEvent(EntityTargetEvent event) {
-        if (event.getTarget() != null && event.getTarget().getType() != EntityType.PLAYER) return;
+        if (!SpecialMobUtil.isSpecialMob(event.getEntity())) {
+            return;
+        }
+
+        // Block that special mobs target something else than players.
+        // Otherwise they will probably kill each other.
+        if (event.getTarget() != null && event.getTarget().getType() != EntityType.PLAYER) {
+            event.setCancelled(true);
+            return;
+        }
+
         getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(event.getEntity(), m -> m.onTargetEvent(event));
     }
 
@@ -277,6 +290,9 @@ public class MobManager implements Listener, Runnable {
 
     private static class WorldMobs {
         private final Map<UUID, SpecialMob> mobs = new HashMap<>();
+        private final Queue<SpecialMob> tickQueue = new ArrayDeque<>();
+
+        private double entityTick = 0;
 
         public void invokeIfPresent(Entity entity, Consumer<SpecialMob> invoke) {
             SpecialMob specialMob = mobs.get(entity.getUniqueId());
@@ -289,21 +305,35 @@ public class MobManager implements Listener, Runnable {
             mobs.values().forEach(invoke);
         }
 
+        public void tick(int tickDelay) {
+            if (tickQueue.isEmpty()) return;
+            entityTick += tickQueue.size() / (double) tickDelay;
+            while (entityTick > 0) {
+                SpecialMob poll = tickQueue.poll();
+                poll.tick();
+                tickQueue.add(poll);
+                entityTick--;
+            }
+        }
+
         public boolean isEmpty() {
             return mobs.isEmpty();
         }
 
         public void put(UUID key, SpecialMob value) {
-            value.tick();
             mobs.put(key, value);
+            tickQueue.add(value);
         }
 
         public SpecialMob remove(UUID key) {
-            return mobs.remove(key);
+            SpecialMob removed = mobs.remove(key);
+            tickQueue.remove(removed);
+            return removed;
         }
 
         public void clear() {
             mobs.clear();
+            tickQueue.clear();
         }
     }
 

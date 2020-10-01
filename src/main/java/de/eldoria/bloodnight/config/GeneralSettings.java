@@ -15,21 +15,20 @@ import java.util.Map;
 @Setter
 @SerializableAs("bloodNightGeneralSettings")
 public class GeneralSettings implements ConfigurationSerializable {
-    private String language;
-    private BroadcastLevel broadcastLevel;
-    private boolean joinWorldWarning;
+    private String language = "en_US";
+    private BroadcastLevel broadcastLevel = BroadcastLevel.SERVER;
+    private boolean joinWorldWarning = true;
+    private int mobTick = 5;
 
     public GeneralSettings(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
-        language = map.getValueOrDefault("language", "en_US");
-        broadcastLevel = EnumUtil.parse(map.getValueOrDefault("broadcastLevel", "SERVER"), BroadcastLevel.class);
-        joinWorldWarning = map.getValueOrDefault("joinWorldWarning", true);
+        language = map.getValueOrDefault("language", language);
+        broadcastLevel = EnumUtil.parse(map.getValueOrDefault("broadcastLevel", broadcastLevel.name()), BroadcastLevel.class);
+        joinWorldWarning = map.getValueOrDefault("joinWorldWarning", joinWorldWarning);
+        mobTick = map.getValueOrDefault("mobTick", mobTick);
     }
 
     public GeneralSettings() {
-        language = "en_US";
-        broadcastLevel = BroadcastLevel.SERVER;
-        joinWorldWarning = true;
     }
 
     @Override
@@ -38,6 +37,7 @@ public class GeneralSettings implements ConfigurationSerializable {
                 .add("language", language)
                 .add("broadcastLevel", broadcastLevel)
                 .add("joinWorldWarning", joinWorldWarning)
+                .add("mobTick", mobTick)
                 .build();
     }
 }

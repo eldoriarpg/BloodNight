@@ -133,7 +133,8 @@ public class BloodNight extends JavaPlugin {
         inventoryListener = new InventoryListener(configuration);
         pm.registerEvents(inventoryListener, this);
         pm.registerEvents(mobManager, this);
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, mobManager, 100, 5);
+        // Schedule mobManager
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, mobManager, 100, 1);
     }
 
     private void registerSerialization() {
