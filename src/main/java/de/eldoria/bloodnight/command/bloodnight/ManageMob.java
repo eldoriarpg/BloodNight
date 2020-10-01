@@ -11,7 +11,6 @@ import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.eldoutilities.localization.Localizer;
 import de.eldoria.eldoutilities.messages.MessageSender;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
-import de.eldoria.eldoutilities.utils.ArgumentUtils;
 import de.eldoria.eldoutilities.utils.ArrayUtil;
 import de.eldoria.eldoutilities.utils.Parser;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -90,7 +89,7 @@ public class ManageMob extends EldoCommand {
         String field = args[2];
         String value = args[3];
 
-        OptionalInt optPage = ArgumentUtils.getOptionalParameter(args, 4, OptionalInt.empty(), Parser::parseInt);
+        OptionalInt optPage = OptionalInt.empty();
 
         if (!"none".equalsIgnoreCase(field)) {
             Optional<MobSetting> mobByName = worldSettings.getMobSettings().getMobByName(args[1]);
@@ -98,6 +97,8 @@ public class ManageMob extends EldoCommand {
                 messageSender().sendError(sender, "Invalid mob");
                 return true;
             }
+
+            optPage = CommandUtil.findPage(worldSettings.getMobSettings().getMobTypes(),4,m -> m.getMobName().equalsIgnoreCase(mobByName.get().getMobName()));
 
             MobSetting mob = mobByName.get();
 
@@ -137,6 +138,7 @@ public class ManageMob extends EldoCommand {
                     Inventory inv = Bukkit.createInventory(player, 54, "Drops");
                     inv.setContents(mob.getDrops().stream().map(Drop::getItem).toArray(ItemStack[]::new));
                     player.openInventory(inv);
+                    OptionalInt finalOptPage = optPage;
                     inventoryListener.registerModification(player, new InventoryListener.InventoryActionHandler() {
                         @Override
                         public void onInventoryClose(InventoryCloseEvent event) {
@@ -145,7 +147,7 @@ public class ManageMob extends EldoCommand {
                                     .map(Drop::fromItemStack)
                                     .collect(Collectors.toList());
                             mob.setDrops(collect);
-                            optPage.ifPresent(i -> sendMobListPage(finalWorld, sender, i));
+                            finalOptPage.ifPresent(i -> sendMobListPage(finalWorld, sender, i));
                         }
 
                         @Override
@@ -160,6 +162,7 @@ public class ManageMob extends EldoCommand {
                     Inventory inv = Bukkit.createInventory(player, 54, "Weight");
                     inv.setContents(stacks.toArray(new ItemStack[0]));
                     player.openInventory(inv);
+                    OptionalInt finalOptPage = optPage;
                     inventoryListener.registerModification(player, new InventoryListener.InventoryActionHandler() {
                         @Override
                         public void onInventoryClose(InventoryCloseEvent event) {
@@ -168,7 +171,7 @@ public class ManageMob extends EldoCommand {
                                     .map(Drop::fromItemStack)
                                     .collect(Collectors.toList());
                             mob.setDrops(collect);
-                            optPage.ifPresent(i -> sendMobListPage(finalWorld, sender, i));
+                            finalOptPage.ifPresent(i -> sendMobListPage(finalWorld, sender, i));
                         }
 
                         @Override
@@ -225,7 +228,7 @@ public class ManageMob extends EldoCommand {
                                     .decoration(TextDecoration.BOLD, true).build()).append(" ")
                             // Mob state
                             .append(CommandUtil.getBooleanField(entry.isActive(),
-                                    cmd + "state {bool} " + page,
+                                    cmd + "state {bool}",
                                     "", "enabled", "disabled"))
                             .append(TextComponent.newline()).append("  ")
                             // Drop amount
