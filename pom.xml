@@ -6,7 +6,7 @@
 
     <groupId>de.eldoria</groupId>
     <artifactId>blood-night</artifactId>
-    <version>0.1</version>
+    <version>0.5</version>
     <name>BloodNight</name>
     <url>https://github.com/eldoriarpg/BloodNight</url>
     <description>Nights are not hard enough? Make them harder!</description>
