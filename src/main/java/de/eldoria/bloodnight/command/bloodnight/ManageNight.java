@@ -144,9 +144,7 @@ public class ManageNight extends EldoCommand {
         String cmd = "/bloodnight manageNight " + worldSettings.getWorldName() + " ";
         TextComponent.Builder builder = TextComponent.builder()
                 .append(TextComponent.newline())
-                .append(TextComponent.builder("=====<| ", KyoriColors.YELLOW))
-                .append(TextComponent.builder("Night Setting of " + worldSettings.getWorldName(), KyoriColors.AQUA))
-                .append(TextComponent.builder(" |>=====", KyoriColors.YELLOW))
+                .append(CommandUtil.getHeader("Night Setting of " + worldSettings.getWorldName()))
                 .append(TextComponent.newline())
                 // World state
                 .append(CommandUtil.getBooleanField(
@@ -181,34 +179,14 @@ public class ManageNight extends EldoCommand {
                         .clickEvent(ClickEvent.suggestCommand(cmd + "drops ")))
                 .append(TextComponent.newline())
                 // force phantoms
-                .append(TextComponent.builder("Force Phantoms: ", KyoriColors.AQUA))
-                .append(
-                        TextComponent.builder("enabled",
-                                nightSettings.isForcePhantoms() ? KyoriColors.GREEN : KyoriColors.DARK_GRAY)
-                                .clickEvent(
-                                        ClickEvent.runCommand(cmd + " forcePhantoms true"))
-                )
-                .append(" ")
-                .append(
-                        TextComponent.builder("disabled",
-                                !nightSettings.isForcePhantoms() ? KyoriColors.RED : KyoriColors.DARK_GRAY)
-                                .clickEvent(
-                                        ClickEvent.runCommand(cmd + "forcePhantoms false")))
+                .append(CommandUtil.getBooleanField(nightSettings.isForcePhantoms(),
+                        cmd + "forcePhantoms {bool}",
+                        "Force Phantoms", "enabled", "disabled"))
                 .append(TextComponent.newline())
                 // skippable
-                .append(TextComponent.builder("Skippable: ", KyoriColors.AQUA))
-                .append(
-                        TextComponent.builder("allow",
-                                nightSettings.isSkippable() ? KyoriColors.GREEN : KyoriColors.DARK_GRAY)
-                                .clickEvent(
-                                        ClickEvent.runCommand(cmd + " skippable true"))
-                )
-                .append(" ")
-                .append(
-                        TextComponent.builder("deny",
-                                !nightSettings.isSkippable() ? KyoriColors.RED : KyoriColors.DARK_GRAY)
-                                .clickEvent(
-                                        ClickEvent.runCommand(cmd + "skippable false")))
+                .append(CommandUtil.getBooleanField(nightSettings.isSkippable(),
+                        cmd + "skippable {bool}",
+                        "Skippable", "allow", "deny"))
                 .append(TextComponent.newline())
                 // night begin
                 .append(TextComponent.builder("Night Begin: ", KyoriColors.AQUA))
@@ -223,19 +201,8 @@ public class ManageNight extends EldoCommand {
                         .clickEvent(ClickEvent.suggestCommand(cmd + "nightEnd ")))
                 .append(TextComponent.newline())
                 // override night duration
-                .append(TextComponent.builder("Override Duration: ", KyoriColors.AQUA))
-                .append(
-                        TextComponent.builder("enabled",
-                                nightSettings.isOverrideNightDuration() ? KyoriColors.GREEN : KyoriColors.DARK_GRAY)
-                                .clickEvent(
-                                        ClickEvent.runCommand(cmd + " overrideDuration true"))
-                )
-                .append(" ")
-                .append(
-                        TextComponent.builder("disabled",
-                                !nightSettings.isOverrideNightDuration() ? KyoriColors.RED : KyoriColors.DARK_GRAY)
-                                .clickEvent(
-                                        ClickEvent.runCommand(cmd + "overrideDuration false")));
+                .append(CommandUtil.getBooleanField(nightSettings.isOverrideNightDuration(), cmd + " overrideDuration {bool}",
+                        "Override Duration", "enabled", "disabled"));
         if (nightSettings.isOverrideNightDuration()) {
             //night duration
             builder.append(TextComponent.newline())
