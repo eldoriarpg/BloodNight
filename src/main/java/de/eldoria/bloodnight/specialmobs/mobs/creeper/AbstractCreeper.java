@@ -3,51 +3,44 @@ package de.eldoria.bloodnight.specialmobs.mobs.creeper;
 import de.eldoria.bloodnight.specialmobs.SpecialMob;
 import org.bukkit.entity.Creeper;
 
-public abstract class AbstractCreeper implements SpecialMob {
-    private final Creeper creeper;
-
+public abstract class AbstractCreeper extends SpecialMob<Creeper> {
     public AbstractCreeper(Creeper creeper) {
-        this.creeper = creeper;
+        super(creeper);
     }
 
     @Override
     public void onEnd() {
-        creeper.explode();
     }
 
     public int getMaxFuseTicks() {
-        return creeper.getMaxFuseTicks();
+        return getBaseEntity().getMaxFuseTicks();
     }
 
     public void setMaxFuseTicks(int fuse) {
-        creeper.setMaxFuseTicks(fuse);
+        getBaseEntity().setMaxFuseTicks(fuse);
     }
 
     public int getExplosionRadius() {
-        return creeper.getExplosionRadius();
+        return getBaseEntity().getExplosionRadius();
     }
 
     public void setExplosionRadius(int radius) {
-        creeper.setExplosionRadius(radius);
+        getBaseEntity().setExplosionRadius(radius);
     }
 
     public void explode() {
-        creeper.explode();
+        getBaseEntity().explode();
     }
 
     public void ignite() {
-        creeper.ignite();
+        getBaseEntity().ignite();
     }
 
     public boolean isPowered() {
-        return creeper.isPowered();
+        return getBaseEntity().isPowered();
     }
 
     public void setPowered(boolean value) {
-        creeper.setPowered(value);
-    }
-
-    public Creeper getCreeper() {
-        return creeper;
+        getBaseEntity().setPowered(value);
     }
 }

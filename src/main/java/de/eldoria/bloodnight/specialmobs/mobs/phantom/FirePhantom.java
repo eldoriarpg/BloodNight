@@ -3,8 +3,10 @@ package de.eldoria.bloodnight.specialmobs.mobs.phantom;
 import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
 import org.bukkit.entity.Blaze;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Phantom;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityTargetEvent;
 
 public class FirePhantom extends AbstractPhantom {
 
@@ -12,13 +14,18 @@ public class FirePhantom extends AbstractPhantom {
 
     public FirePhantom(Phantom phantom) {
         super(phantom);
-        blaze = SpecialMobUtil.spawnAndMount(getPhantom(), EntityType.BLAZE);
+        blaze = SpecialMobUtil.spawnAndMount(getBaseEntity(), EntityType.BLAZE);
     }
 
     @Override
     public void onEnd() {
-        super.onEnd();
         blaze.remove();
+    }
+
+
+    @Override
+    public void onTargetEvent(EntityTargetEvent event) {
+        blaze.setTarget(event.getTarget() == null ? null : (LivingEntity) event.getTarget());
     }
 
     @Override

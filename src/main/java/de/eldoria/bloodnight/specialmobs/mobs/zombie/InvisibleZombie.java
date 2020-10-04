@@ -24,13 +24,13 @@ public class InvisibleZombie extends AbstractZombie {
     @Override
     public void tick() {
         if (lastDamage.isBefore(Instant.now().minusSeconds(10))) {
-            SpecialMobUtil.addPotionEffect(getZombie(), PotionEffectType.INVISIBILITY, 1, true);
+            SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.INVISIBILITY, 1, true);
         }
     }
 
     @Override
     public void onDamageByEntity(EntityDamageByEntityEvent event) {
         lastDamage = Instant.now();
-        getZombie().removePotionEffect(PotionEffectType.INVISIBILITY);
+        getBaseEntity().removePotionEffect(PotionEffectType.INVISIBILITY);
     }
 }

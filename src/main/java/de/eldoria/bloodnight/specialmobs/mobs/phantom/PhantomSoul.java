@@ -16,8 +16,8 @@ public class PhantomSoul extends AbstractPhantom {
 
     @Override
     public void tick() {
-        SpecialMobUtil.addPotionEffect(getPhantom(), PotionEffectType.GLOWING, 1, true);
-        SpecialMobUtil.addPotionEffect(getPhantom(), PotionEffectType.INVISIBILITY, 1, false);
+        SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.GLOWING, 1, true);
+        SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.INVISIBILITY, 1, false);
     }
 
     @Override

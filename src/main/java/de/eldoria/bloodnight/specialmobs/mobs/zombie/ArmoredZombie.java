@@ -13,6 +13,5 @@ public class ArmoredZombie extends AbstractZombie {
         equipment.setChestplate(new ItemStack(Material.DIAMOND_CHESTPLATE));
         equipment.setLeggings(new ItemStack(Material.DIAMOND_LEGGINGS));
         equipment.setBoots(new ItemStack(Material.DIAMOND_BOOTS));
-        zombie.setAbsorptionAmount(zombie.getHealth());
     }
 }

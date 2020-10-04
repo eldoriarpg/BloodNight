@@ -17,7 +17,7 @@ public class FearfulEnderman extends AbstractEnderman {
     @Override
     public void tick() {
         super.tick();
-        SpecialMobUtil.spawnParticlesAround(getEnderman(), Particle.SPELL_WITCH, 10);
+        SpecialMobUtil.spawnParticlesAround(getBaseEntity(), Particle.SPELL_WITCH, 10);
     }
 
     @Override

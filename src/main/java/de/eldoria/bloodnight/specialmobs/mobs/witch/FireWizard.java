@@ -14,12 +14,12 @@ public class FireWizard extends AbstractWitch {
 
     @Override
     public void tick() {
-        SpecialMobUtil.spawnParticlesAround(getWitch(), Particle.LAVA, 15);
+        SpecialMobUtil.spawnParticlesAround(getBaseEntity(), Particle.LAVA, 15);
     }
 
     @Override
     public void onProjectileShoot(ProjectileLaunchEvent event) {
         event.setCancelled(true);
-        SpecialMobUtil.launchProjectileOnTarget(getWitch(), LargeFireball.class, 1.5);
+        SpecialMobUtil.launchProjectileOnTarget(getBaseEntity(), LargeFireball.class, 1.5);
     }
 }

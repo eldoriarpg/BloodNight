@@ -15,7 +15,7 @@ public class FearfulPhantom extends AbstractPhantom {
 
     @Override
     public void tick() {
-        SpecialMobUtil.addPotionEffect(getPhantom(), PotionEffectType.GLOWING, 1, true);
+        SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.GLOWING, 1, true);
     }
 
     @Override

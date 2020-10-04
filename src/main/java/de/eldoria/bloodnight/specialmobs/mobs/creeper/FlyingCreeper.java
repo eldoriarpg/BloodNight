@@ -16,7 +16,7 @@ public class FlyingCreeper extends AbstractCreeper {
 
     public FlyingCreeper(Creeper creeper) {
         super(creeper);
-        bat = SpecialMobUtil.spawnAndMount(EntityType.BAT, getCreeper());
+        bat = SpecialMobUtil.spawnAndMount(EntityType.BAT, getBaseEntity());
         bat.setInvulnerable(true);
     }
 

@@ -30,7 +30,7 @@ public class MagicSkeleton extends AbstractSkeleton {
 
     @Override
     public void tick() {
-        SpecialMobUtil.addPotionEffect(getSkeleton(), PotionEffectType.NIGHT_VISION, 1, true);
+        SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.NIGHT_VISION, 1, true);
     }
 
     @Override

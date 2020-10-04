@@ -1,5 +1,7 @@
 package de.eldoria.bloodnight.specialmobs;
 
+import lombok.Getter;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -10,53 +12,61 @@ import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 
-public interface SpecialMob {
+public abstract class SpecialMob<T extends LivingEntity> {
+    @Getter
+    private final T baseEntity;
+
+    public SpecialMob(T baseEntity) {
+        this.baseEntity = baseEntity;
+    }
+
     /**
      * Called when the entity is spawned.
      */
-    default void onSpawn() {
+    public void onSpawn() {
     }
 
     /**
      * Called at a fixed amount of ticks while the blood night is active.
      */
-    default void tick() {
+    public void tick() {
     }
 
     /**
      * Called when a blood night ends.
-     * Should kill or normalize the entity.
      */
-    void onEnd();
+    public void onEnd() {
+
+    }
 
     /**
      * Called when the entity teleports.
      */
-    default void onTeleport(EntityTeleportEvent event) {
+    public void onTeleport(EntityTeleportEvent event) {
     }
 
     /**
      * Called when the entity launches a projectile.
      */
-    default void onProjectileShoot(ProjectileLaunchEvent event) {
+    public void onProjectileShoot(ProjectileLaunchEvent event) {
     }
 
     /**
      * Called when the a projectile of the entity hit something.
      */
-    default void onProjectileHit(ProjectileHitEvent event) {
+    public void onProjectileHit(ProjectileHitEvent event) {
     }
 
     /**
      * Called when the entity dies.
      */
-    default void onDeath(EntityDeathEvent event) {
+    public void onDeath(EntityDeathEvent event) {
     }
 
     /**
      * Called when the entity kills another entity.
      */
-    default void onKill(EntityDeathEvent event) {
+    public void onKill(EntityDeathEvent event) {
     }
 
     /**
@@ -64,7 +74,7 @@ public interface SpecialMob {
      *
      * @param event
      */
-    default void onExplosionPrimeEvent(ExplosionPrimeEvent event) {
+    public void onExplosionPrimeEvent(ExplosionPrimeEvent event) {
     }
 
     /**
@@ -72,15 +82,16 @@ public interface SpecialMob {
      *
      * @param event
      */
-    default void onExplosionEvent(EntityExplodeEvent event) {
+    public void onExplosionEvent(EntityExplodeEvent event) {
     }
 
     /**
-     * Called when a entity changes its target
+     * Called when a entity changes its target.
+     * This will only be called, when the new target is of type player or null.
      *
-     * @param event
+     * @param event event to handle
      */
-    default void onTargetEvent(EntityTargetEvent event) {
+    public void onTargetEvent(EntityTargetEvent event) {
     }
 
     /**
@@ -88,7 +99,7 @@ public interface SpecialMob {
      *
      * @param event
      */
-    default void onDamage(EntityDamageEvent event) {
+    public void onDamage(EntityDamageEvent event) {
     }
 
     /**
@@ -96,7 +107,7 @@ public interface SpecialMob {
      *
      * @param event
      */
-    default void onDamageByEntity(EntityDamageByEntityEvent event) {
+    public void onDamageByEntity(EntityDamageByEntityEvent event) {
     }
 
     /**
@@ -104,6 +115,12 @@ public interface SpecialMob {
      *
      * @param event
      */
-    default void onHit(EntityDamageByEntityEvent event) {
+    public void onHit(EntityDamageByEntityEvent event) {
+    }
+
+    public final void remove() {
+        if (getBaseEntity().isValid()) {
+            getBaseEntity().remove();
+        }
     }
 }

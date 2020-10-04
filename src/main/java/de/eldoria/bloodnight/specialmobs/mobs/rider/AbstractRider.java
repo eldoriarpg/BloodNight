@@ -9,15 +9,15 @@ import org.bukkit.entity.Mob;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 
-public abstract class AbstractRider implements SpecialMob {
-    @Getter
-    private final Mob carrier;
+public abstract class AbstractRider extends SpecialMob<Mob> {
     @Getter
     private final Mob passenger;
 
     public AbstractRider(Mob carrier, Mob passenger) {
-        this.carrier = carrier;
+        super(carrier);
         this.passenger = passenger;
+        passenger.setCustomName(carrier.getCustomName());
+        passenger.setCustomNameVisible(carrier.isCustomNameVisible());
     }
 
     @Override
@@ -27,8 +27,8 @@ public abstract class AbstractRider implements SpecialMob {
 
     @Override
     public void onEnd() {
-        SpecialMobUtil.spawnParticlesAround(carrier, Particle.CAMPFIRE_COSY_SMOKE, 30);
-        carrier.remove();
+        SpecialMobUtil.spawnParticlesAround(getBaseEntity(), Particle.CAMPFIRE_COSY_SMOKE, 30);
+        getBaseEntity().remove();
         passenger.remove();
     }
 

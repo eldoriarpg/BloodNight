@@ -13,12 +13,12 @@ public class WitherWizard extends AbstractWitch {
 
     @Override
     public void tick() {
-        SpecialMobUtil.spawnParticlesAround(getWitch(), Particle.SPELL_INSTANT, 15);
+        SpecialMobUtil.spawnParticlesAround(getBaseEntity(), Particle.SPELL_INSTANT, 15);
     }
 
     @Override
     public void onProjectileShoot(ProjectileLaunchEvent event) {
         event.setCancelled(true);
-        SpecialMobUtil.launchProjectileOnTarget(getWitch(), WitherSkull.class, 2);
+        SpecialMobUtil.launchProjectileOnTarget(getBaseEntity(), WitherSkull.class, 2);
     }
 }
