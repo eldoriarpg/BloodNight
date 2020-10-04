@@ -2,7 +2,6 @@ package de.eldoria.bloodnight.specialmobs;
 
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.util.VectorUtil;
-import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -23,6 +22,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 public final class SpecialMobUtil {
@@ -54,40 +54,42 @@ public final class SpecialMobUtil {
         entity.addPotionEffect(new PotionEffect(type, 60 * 20, amplifier, visible, visible));
     }
 
-    @Deprecated
     public static void spawnParticlesAround(Entity entity, Particle particle, int amount) {
         spawnParticlesAround(entity.getLocation(), particle, amount);
     }
 
-    @Deprecated
     public static void spawnParticlesAround(Location location, Particle particle, int amount) {
+        spawnParticlesAround(location, particle, null, amount);
+    }
+
+    public static <T> void spawnParticlesAround(Location location, Particle particle, T data, int amount) {
         World world = location.getWorld();
+        assert world != null;
         for (int i = 0; i < amount; i++) {
-            switch (particle) {
-                case REDSTONE:
-                    world.spawnParticle(particle,
-                            location.clone()
-                                    .add(
-                                            RAND.nextDouble(-3, 3),
-                                            RAND.nextDouble(-3, 3),
-                                            RAND.nextDouble(-3, 3)),
-                            1, new Particle.DustOptions(Color.RED, 2));
-                    break;
-                default:
-                    world.spawnParticle(particle,
-                            location.clone()
-                                    .add(
-                                            RAND.nextDouble(-3, 3),
-                                            RAND.nextDouble(-3, 3),
-                                            RAND.nextDouble(-3, 3)),
-                            1);
+            if (data != null) {
+                world.spawnParticle(particle,
+                        location.clone()
+                                .add(
+                                        RAND.nextDouble(-3, 3),
+                                        RAND.nextDouble(-3, 3),
+                                        RAND.nextDouble(-3, 3)),
+                        1, data);
+            } else {
+                world.spawnParticle(particle,
+                        location.clone()
+                                .add(
+                                        RAND.nextDouble(-3, 3),
+                                        RAND.nextDouble(-3, 3),
+                                        RAND.nextDouble(-3, 3)),
+                        1);
             }
         }
     }
 
-    public static void spawnEffectArea(Location location, PotionData potionData) {
+    public static void spawnEffectArea(Location location, PotionData potionData, int duration) {
         AreaEffectCloud entity = (AreaEffectCloud) location.getWorld().spawnEntity(location, EntityType.AREA_EFFECT_CLOUD);
         entity.setBasePotionData(potionData);
+        entity.setDuration(duration * 20);
     }
 
     public static void launchProjectileOnTarget(Mob source, Class<? extends Projectile> projectile, double speed) {
@@ -134,6 +136,19 @@ public final class SpecialMobUtil {
             ((LivingEntity) entity).setRemoveWhenFarAway(true);
         }
         entity.setPersistent(false);
+    }
+
+    public static void setSpecialMob(Entity entity, String name) {
+        PersistentDataContainer dataContainer = entity.getPersistentDataContainer();
+        dataContainer.set(BloodNight.getNamespacedKey("specialMobName"), PersistentDataType.STRING, name);
+    }
+
+    public static Optional<String> getSpecialMob(Entity entity) {
+        PersistentDataContainer dataContainer = entity.getPersistentDataContainer();
+        if (dataContainer.has(BloodNight.getNamespacedKey("specialMobName"), PersistentDataType.STRING)) {
+            return Optional.ofNullable(dataContainer.get(BloodNight.getNamespacedKey("specialMobName"), PersistentDataType.STRING));
+        }
+        return Optional.empty();
     }
 
     public static boolean isSpecialMob(Entity entity) {
