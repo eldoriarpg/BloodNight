@@ -37,6 +37,7 @@ public final class CommandUtil {
         return (int) Math.floor(Math.max(collection.size() - 1, 0) / (double) size);
     }
 
+
     public static TextComponent getPageFooter(int page, int pageMax, String pageCommand) {
         TextComponent.Builder builder = TextComponent.builder();
         builder.append("=====<| ").color(KyoriColors.YELLOW);
@@ -67,6 +68,13 @@ public final class CommandUtil {
 
         builder.append(" |>=====").color(KyoriColors.YELLOW);
         return builder.build();
+    }
+
+    public static TextComponent getFooter() {
+        return TextComponent.builder()
+                .append("=====<|    ").color(KyoriColors.YELLOW)
+                .append("    |>=====").color(KyoriColors.YELLOW)
+                .build();
     }
 
     public static <T> OptionalInt findPage(Collection<T> content, int pageSize, Predicate<T> predicate) {

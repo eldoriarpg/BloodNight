@@ -1,5 +1,7 @@
 package de.eldoria.bloodnight.config;
 
+import de.eldoria.bloodnight.config.generalsettings.GeneralSettings;
+import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.core.BloodNight;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -14,15 +16,14 @@ import java.util.Map;
 
 public class Configuration {
     private final Plugin plugin;
+    private final Map<String, WorldSettings> worldSettings = new HashMap<>();
     /**
      * Version of the config.
      */
     @Getter
     private int version;
-
     @Getter
     private GeneralSettings generalSettings;
-    private final Map<String, WorldSettings> worldSettings = new HashMap<>();
 
 
     public Configuration(Plugin plugin) {

@@ -1,4 +1,4 @@
-package de.eldoria.bloodnight.config;
+package de.eldoria.bloodnight.config.generalsettings;
 
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
@@ -17,15 +17,21 @@ import java.util.Map;
 public class GeneralSettings implements ConfigurationSerializable {
     private String language = "en_US";
     private BroadcastLevel broadcastLevel = BroadcastLevel.SERVER;
-    private boolean joinWorldWarning = true;
+    private BroadcastMethod broadcastMethod = BroadcastMethod.SUBTITLE;
     private int mobTick = 5;
+    private boolean blindness = true;
+    private boolean joinWorldWarning = true;
+    private boolean debug = false;
 
     public GeneralSettings(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
         language = map.getValueOrDefault("language", language);
-        broadcastLevel = EnumUtil.parse(map.getValueOrDefault("broadcastLevel", broadcastLevel.name()), BroadcastLevel.class);
-        joinWorldWarning = map.getValueOrDefault("joinWorldWarning", joinWorldWarning);
+        broadcastLevel = map.getValueOrDefault("broadcastLevel", broadcastLevel, s -> EnumUtil.parse(s, BroadcastLevel.class));
+        broadcastMethod = map.getValueOrDefault("broadcastMethod", broadcastMethod, s -> EnumUtil.parse(s, BroadcastMethod.class));
         mobTick = map.getValueOrDefault("mobTick", mobTick);
+        joinWorldWarning = map.getValueOrDefault("joinWorldWarning", joinWorldWarning);
+        blindness = map.getValueOrDefault("blindness", blindness);
+        debug = map.getValueOrDefault("debug", debug);
     }
 
     public GeneralSettings() {
@@ -35,9 +41,12 @@ public class GeneralSettings implements ConfigurationSerializable {
     public @NotNull Map<String, Object> serialize() {
         return SerializationUtil.newBuilder()
                 .add("language", language)
-                .add("broadcastLevel", broadcastLevel)
-                .add("joinWorldWarning", joinWorldWarning)
+                .add("broadcastLevel", broadcastLevel.name())
+                .add("broadcastMethod", broadcastMethod.name())
                 .add("mobTick", mobTick)
+                .add("joinWorldWarning", joinWorldWarning)
+                .add("blindness", blindness)
+                .add("debug", debug)
                 .build();
     }
 }
