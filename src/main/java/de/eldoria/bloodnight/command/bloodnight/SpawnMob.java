@@ -5,6 +5,7 @@ import de.eldoria.bloodnight.core.manager.NightManager;
 import de.eldoria.bloodnight.core.mobfactory.MobFactory;
 import de.eldoria.bloodnight.core.mobfactory.SpecialMobRegistry;
 import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
+import de.eldoria.bloodnight.util.Permissions;
 import de.eldoria.eldoutilities.localization.Localizer;
 import de.eldoria.eldoutilities.messages.MessageSender;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
@@ -36,6 +37,11 @@ public class SpawnMob extends EldoCommand {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player)) {
+            messageSender().sendError(sender, localizer().getMessage("error.console"));
+            return true;
+        }
+
+        if (denyAccess(sender, Permissions.SPAWN_MOB)) {
             return true;
         }
 
@@ -62,7 +68,7 @@ public class SpawnMob extends EldoCommand {
 
             MobFactory mobFactory = mobFactoryByName.get();
 
-            Entity entity = SpecialMobUtil.spawnAndTagEntity(targetBlock.getLocation().add(0, 1, 0), mobFactory.getEntityType());
+            Entity entity = targetBlock.getWorld().spawnEntity(targetBlock.getLocation().add(0, 1, 0), mobFactory.getEntityType());
             mobManager.wrapMob(entity, mobFactory);
         } else {
             messageSender().sendError(player, "no blood night active");
