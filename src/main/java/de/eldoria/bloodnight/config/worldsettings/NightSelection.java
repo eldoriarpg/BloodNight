@@ -1,4 +1,4 @@
-package de.eldoria.bloodnight.config;
+package de.eldoria.bloodnight.config.worldsettings;
 
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
@@ -27,7 +27,7 @@ public class NightSelection implements ConfigurationSerializable {
      * Probability that a night becomes a blood night.
      * In percent 0-100.
      */
-    private int probability = 20;
+    private int probability = 60;
 
 
     private Map<Integer, Integer> phases = new HashMap<Integer, Integer>() {{
@@ -41,11 +41,16 @@ public class NightSelection implements ConfigurationSerializable {
         put(7, 10);
     }};
 
+    private int interval = 5;
+    private int curInterval = 0;
+
     public NightSelection(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
         probability = map.getValue("probability");
-        nightSelectionType = map.getValue("nightSelectionType", o -> EnumUtil.parse(o, NightSelectionType.class));
-        List<String> list = map.getValue("phases");
+        nightSelectionType = map.getValueOrDefault("nightSelectionType", nightSelectionType,
+                o -> EnumUtil.parse(o, NightSelectionType.class));
+        List<String> list = map.getValueOrDefault("phases",
+                phases.entrySet().stream().map(e -> e.getKey() + ":" + e.getValue()).collect(Collectors.toList()));
         for (String s : list) {
             String[] split = s.split(":");
             try {
@@ -60,6 +65,8 @@ public class NightSelection implements ConfigurationSerializable {
                 BloodNight.getInstance().getLogger().log(Level.WARNING, "Could not parse " + s + " to moon phase.");
             }
         }
+        interval = map.getValueOrDefault("interval", interval);
+        curInterval = map.getValueOrDefault("curInterval", curInterval);
     }
 
     public NightSelection() {
@@ -77,10 +84,12 @@ public class NightSelection implements ConfigurationSerializable {
                 .add("probability", probability)
                 .add("nightSelectionType", nightSelectionType.name())
                 .add("phases", phases)
+                .add("interval", interval)
+                .add("curInterval", curInterval)
                 .build();
     }
 
     public enum NightSelectionType {
-        RANDOM, MOON_PHASE
+        RANDOM, MOON_PHASE, INTERVAL
     }
 }

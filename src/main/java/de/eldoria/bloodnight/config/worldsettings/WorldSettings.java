@@ -1,5 +1,6 @@
-package de.eldoria.bloodnight.config;
+package de.eldoria.bloodnight.config.worldsettings;
 
+import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSettings;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
 import lombok.Getter;
