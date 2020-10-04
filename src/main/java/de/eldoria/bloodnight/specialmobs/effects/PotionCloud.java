@@ -33,7 +33,7 @@ public class PotionCloud extends ParticleCloud {
 
         public Builder(AreaEffectCloud entity) {
             super(entity);
-            entity.setDuration(10 * 20);
+            entity.setDuration(10*20);
         }
 
         public Builder setPotionType(PotionData potionType) {
@@ -42,7 +42,7 @@ public class PotionCloud extends ParticleCloud {
         }
 
         public Builder setDuration(int duration) {
-            entity.setDuration(duration);
+            entity.setDuration(duration * 20);
             return this;
         }
 
@@ -78,19 +78,19 @@ public class PotionCloud extends ParticleCloud {
         }
 
         @Override
-        public ParticleCloud.Builder withRadius(float radius) {
+        public Builder withRadius(float radius) {
             super.withRadius(radius);
             return this;
         }
 
         @Override
-        public ParticleCloud.Builder withParticle(@NotNull Particle particle) {
+        public Builder withParticle(@NotNull Particle particle) {
             super.withParticle(particle);
             return this;
         }
 
         @Override
-        public <T> ParticleCloud.Builder withParticle(@NotNull Particle particle, @Nullable T data) {
+        public <T> Builder withParticle(@NotNull Particle particle, @Nullable T data) {
             super.withParticle(particle, data);
             return this;
         }
