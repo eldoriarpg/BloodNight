@@ -3,12 +3,15 @@ package de.eldoria.bloodnight.command.bloodnight;
 import de.eldoria.bloodnight.command.util.CommandUtil;
 import de.eldoria.bloodnight.command.util.KyoriColors;
 import de.eldoria.bloodnight.config.Configuration;
-import de.eldoria.bloodnight.config.NightSettings;
-import de.eldoria.bloodnight.config.WorldSettings;
+import de.eldoria.bloodnight.config.worldsettings.NightSettings;
+import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.core.BloodNight;
+import de.eldoria.bloodnight.util.Permissions;
 import de.eldoria.eldoutilities.localization.Localizer;
+import de.eldoria.eldoutilities.localization.Replacement;
 import de.eldoria.eldoutilities.messages.MessageSender;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
+import de.eldoria.eldoutilities.simplecommands.TabCompleteUtil;
 import de.eldoria.eldoutilities.utils.ArrayUtil;
 import de.eldoria.eldoutilities.utils.Parser;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -22,6 +25,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
@@ -39,72 +43,51 @@ public class ManageNight extends EldoCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (!(sender instanceof Player)) return true;
+        if (isConsole(sender)) return true;
+
+        if (denyAccess(sender, Permissions.MANAGE_NIGHT)) {
+            messageSender().sendError(sender, localizer().getMessage("error.console"));
+            return true;
+        }
 
         Player player = (Player) sender;
 
-        World world = player.getWorld();
+        World world = args.length > 0 ? Bukkit.getWorld(args[0]) : player.getWorld();
 
-        if (args.length > 0) {
-            world = Bukkit.getWorld(args[0]);
-            if (world == null) {
-                messageSender().sendError(sender, "invalid world");
-                return true;
-            }
+        if (world == null) {
+            messageSender().sendError(sender, localizer().getMessage("error.invalidWorld"));
+            return true;
         }
 
-
         WorldSettings worldSettings = configuration.getWorldSettings(world);
-        NightSettings nightSettings = worldSettings.getNightSettings();
         if (args.length < 2) {
             sendNightSettings(sender, worldSettings);
             return true;
         }
 
-        if (argumentsInvalid(sender, args, 3, "world field value")) {
+        if (argumentsInvalid(sender, args, 3,
+                "[" + localizer().getMessage("syntax.worldName") + "] [<"
+                        + localizer().getMessage("syntax.field") + "> <"
+                        + localizer().getMessage("syntax.value") + ">]")) {
             return true;
         }
 
         String cmd = args[1];
-        String value = args[2].replace(",", ".");
+        String value = args[2];
         OptionalDouble optionalDouble = Parser.parseDouble(value);
         OptionalInt optionalInt = Parser.parseInt(value);
         Optional<Boolean> optionalBoolean = Parser.parseBoolean(value);
 
-        if (ArrayUtil.arrayContains(new String[] {"monsterDamage", "playerDamage", "experience", "drops"}, cmd)) {
-            if (!optionalDouble.isPresent()) {
-                messageSender().sendError(sender, "invalid number");
-                return true;
-            }
+        NightSettings nightSettings = worldSettings.getNightSettings();
 
-            if ("monsterDamage".equalsIgnoreCase(cmd)) {
-                nightSettings.setMonsterDamageMultiplier(optionalDouble.getAsDouble());
-            }
-            if ("playerDamage".equalsIgnoreCase(cmd)) {
-                nightSettings.setPlayerDamageMultiplier(optionalDouble.getAsDouble());
-            }
-            if ("experience".equalsIgnoreCase(cmd)) {
-                nightSettings.setExperienceMultiplier(optionalDouble.getAsDouble());
-            }
-            if ("drops".equalsIgnoreCase(cmd)) {
-                nightSettings.setDropMultiplier(optionalDouble.getAsDouble());
-            }
-            configuration.safeConfig();
-            sendNightSettings(sender, worldSettings);
-            return true;
-        }
-
-        if (ArrayUtil.arrayContains(new String[] {"enable", "forcePhantoms", "skippable", "overrideDuration"}, cmd)) {
+        if (ArrayUtil.arrayContains(new String[] {"enable", "skippable", "overrideDuration"}, cmd)) {
             if (!optionalBoolean.isPresent()) {
-                messageSender().sendError(sender, "invalid boolean");
+                messageSender().sendError(sender, localizer().getMessage("error.invalidBoolean"));
                 return true;
             }
 
             if ("enable".equalsIgnoreCase(cmd)) {
                 worldSettings.setEnabled(optionalBoolean.get());
-            }
-            if ("forcePhantoms".equalsIgnoreCase(cmd)) {
-                nightSettings.setForcePhantoms(optionalBoolean.get());
             }
             if ("skippable".equalsIgnoreCase(cmd)) {
                 nightSettings.setSkippable(optionalBoolean.get());
@@ -119,23 +102,32 @@ public class ManageNight extends EldoCommand {
 
         if (ArrayUtil.arrayContains(new String[] {"nightBegin", "nightEnd", "nightDuration"}, cmd)) {
             if (!optionalInt.isPresent()) {
-                messageSender().sendError(sender, "invalid number");
+                messageSender().sendError(sender, localizer().getMessage("error.invalidNumber"));
                 return true;
             }
             if ("nightBegin".equalsIgnoreCase(cmd)) {
+                if (invalidRange(sender, optionalInt.getAsInt(), 0, 24000)) {
+                    return true;
+                }
                 nightSettings.setNightBegin(optionalInt.getAsInt());
             }
             if ("nightEnd".equalsIgnoreCase(cmd)) {
+                if (invalidRange(sender, optionalInt.getAsInt(), 0, 24000)) {
+                    return true;
+                }
                 nightSettings.setNightEnd(optionalInt.getAsInt());
             }
             if ("nightDuration".equalsIgnoreCase(cmd)) {
+                if (invalidRange(sender, optionalInt.getAsInt(), 0, 86400)) {
+                    return true;
+                }
                 nightSettings.setNightDuration(optionalInt.getAsInt());
             }
             configuration.safeConfig();
             sendNightSettings(sender, worldSettings);
             return true;
         }
-        messageSender().sendError(player, "invalid field");
+        messageSender().sendError(player, localizer().getMessage("error.invalidField"));
         return true;
     }
 
@@ -144,80 +136,78 @@ public class ManageNight extends EldoCommand {
         String cmd = "/bloodnight manageNight " + worldSettings.getWorldName() + " ";
         TextComponent.Builder builder = TextComponent.builder()
                 .append(TextComponent.newline())
-                .append(CommandUtil.getHeader("Night Setting of " + worldSettings.getWorldName()))
+                .append(TextComponent.newline())
+                .append(TextComponent.newline())
+                .append(TextComponent.newline())
+                .append(CommandUtil.getHeader(localizer().getMessage("manageNight.title",
+                        Replacement.create("WORLD", worldSettings.getWorldName()).addFormatting('6'))))
                 .append(TextComponent.newline())
                 // World state
                 .append(CommandUtil.getBooleanField(
                         worldSettings.isEnabled(),
                         cmd + "enable {bool}",
-                        "Active",
-                        "enabled",
-                        "disabled"))
-                .append(TextComponent.newline())
-                // Monster damage
-                .append(TextComponent.builder("Monster Damage: ", KyoriColors.AQUA))
-                .append(TextComponent.builder(nightSettings.getMonsterDamageMultiplier() + "x ", KyoriColors.GOLD))
-                .append(TextComponent.builder("[change]", KyoriColors.GREEN)
-                        .clickEvent(ClickEvent.suggestCommand(cmd + "monsterDamage ")))
-                .append(TextComponent.newline())
-                // Player damage
-                .append(TextComponent.builder("Player Damage: ", KyoriColors.AQUA))
-                .append(TextComponent.builder(nightSettings.getPlayerDamageMultiplier() + "x ", KyoriColors.GOLD))
-                .append(TextComponent.builder("[change]", KyoriColors.GREEN)
-                        .clickEvent(ClickEvent.suggestCommand(cmd + "playerDamage ")))
-                .append(TextComponent.newline())
-                // experience multiply
-                .append(TextComponent.builder("Experience Amount: ", KyoriColors.AQUA))
-                .append(TextComponent.builder(nightSettings.getExperienceMultiplier() + "x ", KyoriColors.GOLD))
-                .append(TextComponent.builder("[change]", KyoriColors.GREEN)
-                        .clickEvent(ClickEvent.suggestCommand(cmd + "experience ")))
-                .append(TextComponent.newline())
-                // drop multiply
-                .append(TextComponent.builder("Drop Amount: ", KyoriColors.AQUA))
-                .append(TextComponent.builder(nightSettings.getDropMultiplier() + "x ", KyoriColors.GOLD))
-                .append(TextComponent.builder("[change]", KyoriColors.GREEN)
-                        .clickEvent(ClickEvent.suggestCommand(cmd + "drops ")))
-                .append(TextComponent.newline())
-                // force phantoms
-                .append(CommandUtil.getBooleanField(nightSettings.isForcePhantoms(),
-                        cmd + "forcePhantoms {bool}",
-                        "Force Phantoms", "enabled", "disabled"))
+                        localizer().getMessage("field.active"),
+                        localizer().getMessage("state.enabled"),
+                        localizer().getMessage("state.disabled")))
                 .append(TextComponent.newline())
                 // skippable
                 .append(CommandUtil.getBooleanField(nightSettings.isSkippable(),
                         cmd + "skippable {bool}",
-                        "Skippable", "allow", "deny"))
+                        localizer().getMessage("field.sleep"),
+                        localizer().getMessage("state.allow"),
+                        localizer().getMessage("state.deny")))
                 .append(TextComponent.newline())
                 // night begin
-                .append(TextComponent.builder("Night Begin: ", KyoriColors.AQUA))
+                .append(TextComponent.builder(localizer().getMessage("field.nightBegin") + ": ", KyoriColors.AQUA))
                 .append(TextComponent.builder(nightSettings.getNightBegin() + " ", KyoriColors.GOLD))
-                .append(TextComponent.builder("[change]", KyoriColors.GREEN)
+                .append(TextComponent.builder("[" + localizer().getMessage("action.change") + "]", KyoriColors.GREEN)
                         .clickEvent(ClickEvent.suggestCommand(cmd + "nightBegin ")))
                 .append(TextComponent.newline())
                 // night end
-                .append(TextComponent.builder("Night End: ", KyoriColors.AQUA))
+                .append(TextComponent.builder(localizer().getMessage("field.nightEnd") + ": ", KyoriColors.AQUA))
                 .append(TextComponent.builder(nightSettings.getNightEnd() + " ", KyoriColors.GOLD))
-                .append(TextComponent.builder("[change]", KyoriColors.GREEN)
+                .append(TextComponent.builder("[" + localizer().getMessage("action.change") + "]", KyoriColors.GREEN)
                         .clickEvent(ClickEvent.suggestCommand(cmd + "nightEnd ")))
                 .append(TextComponent.newline())
                 // override night duration
                 .append(CommandUtil.getBooleanField(nightSettings.isOverrideNightDuration(), cmd + " overrideDuration {bool}",
-                        "Override Duration", "enabled", "disabled"));
+                        localizer().getMessage("field.overrideDuration") + ": ",
+                        localizer().getMessage("state.enabled"),
+                        localizer().getMessage("state.disabled")));
         if (nightSettings.isOverrideNightDuration()) {
             //night duration
             builder.append(TextComponent.newline())
-                    .append(TextComponent.builder("Night duration: ", KyoriColors.AQUA))
-                    .append(TextComponent.builder(nightSettings.getNightDuration() + "x ", KyoriColors.GOLD))
-                    .append(TextComponent.builder("[change]", KyoriColors.GREEN)
+                    .append(TextComponent.builder(localizer().getMessage("field.nightDuration") + ": ", KyoriColors.AQUA))
+                    .append(TextComponent.builder(nightSettings.getNightDuration() + " " + localizer().getMessage("value.seconds"), KyoriColors.GOLD))
+                    .append(TextComponent.builder(" [" + localizer().getMessage("action.change") + "]", KyoriColors.GREEN)
                             .clickEvent(ClickEvent.suggestCommand(cmd + "nightDuration ")));
         }
-        builder.append(TextComponent.newline());
+
 
         bukkitAudiences.audience(sender).sendMessage(builder.build());
     }
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        return super.onTabComplete(sender, command, alias, args);
+        if (args.length == 1) {
+            return TabCompleteUtil.completeWorlds(args[0]);
+        }
+        if (args.length == 2) {
+            return TabCompleteUtil.complete(args[1], "nightBegin", "nightEnd", "nightDuration",
+                    "enable", "skippable", "overrideDuration");
+        }
+
+        String field = args[1];
+        String value = args[2];
+        if (TabCompleteUtil.isCommand(field, "nightBegin", "nightEnd", "nightDuration")) {
+            return TabCompleteUtil.isCommand(field, "nightBegin", "nightEnd")
+                    ? TabCompleteUtil.completeInt(value, 1, 24000, localizer())
+                    : TabCompleteUtil.completeInt(value, 1, 86400, localizer());
+        }
+
+        if (TabCompleteUtil.isCommand(field, "enable", "skippable", "overrideDuration")) {
+            return TabCompleteUtil.completeBoolean(value);
+        }
+        return Collections.emptyList();
     }
 }
