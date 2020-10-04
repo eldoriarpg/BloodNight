@@ -1,12 +1,13 @@
 package de.eldoria.bloodnight.core.mobfactory;
 
-import de.eldoria.bloodnight.config.MobSetting;
-import de.eldoria.bloodnight.config.WorldSettings;
+import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
+import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSetting;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -29,7 +30,7 @@ public class WorldMobFactory {
 
         MobGroup group = mobGroup.get();
 
-        List<MobSetting> mobTypes = settings.getMobSettings().getMobTypes();
+        Set<MobSetting> mobTypes = settings.getMobSettings().getMobTypes().getSettings();
         List<MobFactory> allowedMobs = group.getFactories().stream()
                 .filter(f -> mobTypes.stream()
                         .filter(d -> d.getMobName().equalsIgnoreCase(f.getMobName()))
