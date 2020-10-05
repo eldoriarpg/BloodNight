@@ -13,7 +13,7 @@ public class UnstableCreeper extends AbstractCreeper {
         super(creeper);
         setExplosionRadius(10);
         setPowered(true);
-        setMaxFuseTicks(100);
+        setMaxFuseTicks(50);
     }
 
     @Override
