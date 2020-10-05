@@ -2,7 +2,6 @@ package de.eldoria.bloodnight.core.mobfactory;
 
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSetting;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSettings;
-import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.specialmobs.SpecialMob;
 import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
 import lombok.Getter;
@@ -26,7 +25,7 @@ public final class MobFactory {
     }
 
     public SpecialMob<?> wrap(LivingEntity entity, MobSettings mobSettings, MobSetting mobSetting) {
-        SpecialMobUtil.tagEntity(entity);
+        SpecialMobUtil.tagSpecialMob(entity);
         applySettings(entity, mobSettings, mobSetting);
         return factory.apply(entity);
     }
