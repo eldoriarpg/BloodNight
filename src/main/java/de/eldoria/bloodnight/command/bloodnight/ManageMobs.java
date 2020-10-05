@@ -373,7 +373,7 @@ public class ManageMobs extends EldoCommand {
 
 
         }
-        bukkitAudiences.audience(sender).sendMessage(message);
+        bukkitAudiences.sender(sender).sendMessage(message);
     }
 
     @Override

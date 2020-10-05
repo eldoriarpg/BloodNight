@@ -432,7 +432,7 @@ public class ManageMob extends EldoCommand {
                         Replacement.create("WORLD", world.getName())),
                 "/bloodNight manageMob " + mobGroup.getKey() + " " + world.getName() + " page {page}");
 
-        bukkitAudiences.audience(sender).sendMessage(component);
+        bukkitAudiences.sender(sender).sendMessage(component);
     }
 
     //group world mob field value

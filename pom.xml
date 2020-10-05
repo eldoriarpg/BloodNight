@@ -63,7 +63,7 @@
 
     <repositories>
         <repository>
-            <id>jitpack.io</id>
+            <id>jitpack.io</id> <!-- eldo utilities -->
             <url>https://jitpack.io</url>
         </repository>
         <repository>
@@ -73,6 +73,10 @@
         <repository>
             <id>CodeMC</id>
             <url>https://repo.codemc.org/repository/maven-public</url>
+        </repository>
+        <repository> <!-- kyori -->
+            <id>sonatype-oss</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
         </repository>
     </repositories>
 
@@ -104,14 +108,14 @@
         <dependency>
             <groupId>de.eldoria</groupId>
             <artifactId>EldoUtilities</artifactId>
-            <version>v1.0.18</version>
+            <version>ce4698f6</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>net.kyori</groupId>
             <artifactId>adventure-text-minimessage</artifactId>
-            <version>3.0.0-SNAPSHOT</version>
+            <version>4.0.0-SNAPSHOT</version>
             <scope>compile</scope>
             <exclusions>
                 <exclusion>

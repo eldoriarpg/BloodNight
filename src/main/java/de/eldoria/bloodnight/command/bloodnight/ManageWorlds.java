@@ -210,7 +210,7 @@ public class ManageWorlds extends EldoCommand {
                 localizer().getMessage("manageWorlds.title"),
                 "/bloodNight manageWorlds " + world.getName() + " page {page}");
 
-        bukkitAudiences.audience(sender).sendMessage(component);
+        bukkitAudiences.sender(sender).sendMessage(component);
     }
 
 

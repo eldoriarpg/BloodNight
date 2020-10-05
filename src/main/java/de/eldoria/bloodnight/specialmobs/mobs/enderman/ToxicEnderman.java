@@ -31,7 +31,7 @@ public class ToxicEnderman extends AbstractEnderman {
                 .ofColor(Color.GREEN)
                 .setDuration(10)
                 .withRadius(4)
-                .setRadiusPerTick(-0.1f)
+                .setRadiusPerTick(0.1f)
                 .build();
     }
 }

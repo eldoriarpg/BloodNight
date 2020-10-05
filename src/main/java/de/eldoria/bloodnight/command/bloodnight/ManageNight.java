@@ -184,7 +184,7 @@ public class ManageNight extends EldoCommand {
         }
 
 
-        bukkitAudiences.audience(sender).sendMessage(builder.build());
+        bukkitAudiences.sender(sender).sendMessage(builder.build());
     }
 
     @Override
