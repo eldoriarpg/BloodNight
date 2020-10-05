@@ -5,10 +5,10 @@ import org.bukkit.Color;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.Particle;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.util.Vector;
 
@@ -35,10 +35,6 @@ public class EnderCreeper extends AbstractCreeper {
     }
 
     @Override
-    public void onDamage(EntityDamageEvent event) {
-    }
-
-    @Override
     public void onDamageByEntity(EntityDamageByEntityEvent event) {
         if (getBaseEntity().getTarget() == event.getDamager()) {
             return;
@@ -52,17 +48,18 @@ public class EnderCreeper extends AbstractCreeper {
     }
 
     private void teleportToTarget() {
-        if (lastTeleport.isBefore(Instant.now().minusSeconds(10))) return;
+        if (lastTeleport.isBefore(Instant.now().minusSeconds(5))) return;
         LivingEntity target = getBaseEntity().getTarget();
 
         if (target == null) return;
 
         double distance = target.getLocation().distance(getBaseEntity().getLocation());
 
-        if (distance > 10) {
+        if (distance > 5) {
             Location loc = target.getLocation();
-            Vector vector = new Vector(loc.getX() + rand.nextDouble(-2, 2), loc.getY(), loc.getZ());
-            getBaseEntity().teleport(loc.add(vector));
+            Vector vector = new Vector(rand.nextDouble(-2, 2), loc.getY(), rand.nextDouble(-2, 2));
+            Block highestBlockAt = loc.add(vector).getWorld().getHighestBlockAt(loc);
+            getBaseEntity().teleport(highestBlockAt.getLocation(loc).add(0, 1, 0));
             lastTeleport = Instant.now();
             SpecialMobUtil.spawnParticlesAround(loc, Particle.PORTAL, 10);
             getBaseEntity().playEffect(EntityEffect.ENTITY_POOF);
