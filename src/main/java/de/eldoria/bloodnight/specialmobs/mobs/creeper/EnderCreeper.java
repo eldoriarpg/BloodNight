@@ -1,5 +1,6 @@
 package de.eldoria.bloodnight.specialmobs.mobs.creeper;
 
+import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
 import org.bukkit.Color;
 import org.bukkit.EntityEffect;
@@ -57,9 +58,11 @@ public class EnderCreeper extends AbstractCreeper {
 
         if (distance > 5) {
             Location loc = target.getLocation();
-            Vector vector = new Vector(rand.nextDouble(-2, 2), loc.getY(), rand.nextDouble(-2, 2));
-            Block highestBlockAt = loc.add(vector).getWorld().getHighestBlockAt(loc);
-            getBaseEntity().teleport(highestBlockAt.getLocation(loc).add(0, 1, 0));
+            Vector fuzz = new Vector(rand.nextDouble(-2, 2), 0, rand.nextDouble(-2, 2));
+            Block highestBlockAt = loc.getWorld().getHighestBlockAt(loc.add(fuzz));
+            Location newLoc = highestBlockAt.getLocation().add(0, 1, 0);
+            BloodNight.logger().info("Teleport from " + getBaseEntity().getLocation() + " to " + newLoc);
+            getBaseEntity().teleport(newLoc);
             lastTeleport = Instant.now();
             SpecialMobUtil.spawnParticlesAround(loc, Particle.PORTAL, 10);
             getBaseEntity().playEffect(EntityEffect.ENTITY_POOF);
