@@ -184,7 +184,7 @@ public class NightManager implements Listener, Runnable {
             NightSelection sel = settings.getNightSelection();
             switch (sel.getNightSelectionType()) {
                 case RANDOM:
-                    if (sel.getProbability() > val) return;
+                    if (sel.getProbability() < val) return;
                     break;
                 case MOON_PHASE:
                     int moonPhase = getMoonPhase(world);
