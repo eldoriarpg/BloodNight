@@ -21,7 +21,7 @@ public class FearfulPhantom extends AbstractPhantom {
     @Override
     public void onHit(EntityDamageByEntityEvent event) {
         if (event.getEntity().getType() == EntityType.PLAYER) {
-            ((LivingEntity) event.getEntity()).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 10, 2, true, true));
+            ((LivingEntity) event.getEntity()).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 7 * 20, 2, true, true));
         }
     }
 }
