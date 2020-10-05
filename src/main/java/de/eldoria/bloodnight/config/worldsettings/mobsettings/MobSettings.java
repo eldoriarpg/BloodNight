@@ -141,11 +141,11 @@ public class MobSettings implements ConfigurationSerializable {
         int totalWeight = totalDrops.stream().mapToInt(Drop::getWeight).sum();
 
         ThreadLocalRandom current = ThreadLocalRandom.current();
-
+        int nextInt = current.nextInt(dropAmount + 1);
         List<ItemStack> result = new ArrayList<>();
 
         int currentWeight = 0;
-        for (int i = 0; i < dropAmount; i++) {
+        for (int i = 0; i < nextInt; i++) {
             int goal = current.nextInt(totalWeight + 1);
             for (Drop drop : defaultDrops) {
                 currentWeight += drop.getWeight();
