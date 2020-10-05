@@ -12,6 +12,6 @@ public class SpeedSkeletonRider extends AbstractRider {
 
     @Override
     public void tick() {
-        SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.SPEED, 2, true);
+        SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.SPEED, 1, true);
     }
 }
