@@ -12,14 +12,14 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class MagicSkeleton extends AbstractSkeleton {
     private static final PotionEffect[] EFFECTS = {
-            new PotionEffect(PotionEffectType.SLOW, 8, 1, true, true),
-            new PotionEffect(PotionEffectType.SLOW, 6, 2, true, true),
-            new PotionEffect(PotionEffectType.HARM, 1, 1, true, true),
-            new PotionEffect(PotionEffectType.CONFUSION, 5, 1, true, true),
-            new PotionEffect(PotionEffectType.LEVITATION, 5, 1, true, true),
-            new PotionEffect(PotionEffectType.WEAKNESS, 5, 1, true, true),
-            new PotionEffect(PotionEffectType.POISON, 6, 1, true, true),
-            new PotionEffect(PotionEffectType.POISON, 4, 2, true, true),
+            new PotionEffect(PotionEffectType.SLOW, 8 * 20, 1, true, true),
+            new PotionEffect(PotionEffectType.SLOW, 6 * 20, 2, true, true),
+            new PotionEffect(PotionEffectType.HARM, 2 * 20, 1, true, true),
+            new PotionEffect(PotionEffectType.CONFUSION, 5 * 20, 1, true, true),
+            new PotionEffect(PotionEffectType.LEVITATION, 5 * 20, 1, true, true),
+            new PotionEffect(PotionEffectType.WEAKNESS, 5 * 20, 1, true, true),
+            new PotionEffect(PotionEffectType.POISON, 6 * 20, 1, true, true),
+            new PotionEffect(PotionEffectType.POISON, 4 * 20, 2, true, true),
     };
 
     private final ThreadLocalRandom rand = ThreadLocalRandom.current();
