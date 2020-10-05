@@ -3,6 +3,7 @@ package de.eldoria.bloodnight.specialmobs;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.util.VectorUtil;
 import de.eldoria.eldoutilities.serialization.TypeConversion;
+import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -15,6 +16,8 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.ThrownPotion;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -218,5 +221,24 @@ public final class SpecialMobUtil {
             return specialMob != null && specialMob == (byte) 1;
         }
         return false;
+    }
+
+    public static void handleExtendedEntityDamage(LivingEntity receiver, LivingEntity other, EntityDamageEvent event) {
+        if (event instanceof EntityDamageByEntityEvent) {
+            EntityDamageByEntityEvent entityDamage = (EntityDamageByEntityEvent) event;
+            if (entityDamage.getDamager().getUniqueId() == other.getUniqueId()) {
+                return;
+            }
+        }
+
+        if (receiver.getHealth() == 0) return;
+
+        double newHealth = Math.max(0, other.getHealth() - event.getFinalDamage());
+        if (newHealth == 0) {
+            other.damage(event.getFinalDamage(), event.getEntity());
+            return;
+        }
+        other.setHealth(newHealth);
+        other.playEffect(EntityEffect.HURT);
     }
 }
