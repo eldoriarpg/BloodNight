@@ -77,7 +77,7 @@ public final class SpecialMobUtil {
                         location.clone()
                                 .add(
                                         RAND.nextDouble(-3, 3),
-                                        RAND.nextDouble(-3, 3),
+                                        RAND.nextDouble(0, 3),
                                         RAND.nextDouble(-3, 3)),
                         1, data);
             } else {
@@ -85,7 +85,7 @@ public final class SpecialMobUtil {
                         location.clone()
                                 .add(
                                         RAND.nextDouble(-3, 3),
-                                        RAND.nextDouble(-3, 3),
+                                        RAND.nextDouble(0, 3),
                                         RAND.nextDouble(-3, 3)),
                         1);
             }
@@ -98,17 +98,18 @@ public final class SpecialMobUtil {
         entity.setDuration(duration * 20);
     }
 
-    public static void launchProjectileOnTarget(Mob source, Class<? extends Projectile> projectile, double speed) {
-        launchProjectileOnTarget(source, source.getTarget(), projectile, speed);
+    public static <T extends Projectile> T launchProjectileOnTarget(Mob source, Class<T> projectile, double speed) {
+        return launchProjectileOnTarget(source, source.getTarget(), projectile, speed);
     }
 
-    public static void launchProjectileOnTarget(Mob source, Entity target, Class<? extends Projectile> projectile, double speed) {
+    public static <T extends Projectile> T launchProjectileOnTarget(Mob source, Entity target, Class<T> projectile, double speed) {
         if (target != null) {
             Vector vel = VectorUtil.getDirectionVector(source.getLocation(), target.getLocation())
                     .normalize()
                     .multiply(speed);
-            source.launchProjectile(projectile, vel);
+            return source.launchProjectile(projectile, vel);
         }
+        return null;
     }
 
     @SuppressWarnings("unchecked")
@@ -159,7 +160,7 @@ public final class SpecialMobUtil {
     public static boolean isExtension(Entity entity) {
         PersistentDataContainer dataContainer = entity.getPersistentDataContainer();
         if (dataContainer.has(IS_MOB_EXTENSION, PersistentDataType.BYTE)) {
-            Byte specialMob = dataContainer.get(BASE_UUID, PersistentDataType.BYTE);
+            Byte specialMob = dataContainer.get(IS_MOB_EXTENSION, PersistentDataType.BYTE);
             return specialMob != null && specialMob == (byte) 1;
         }
         return false;
