@@ -2,11 +2,15 @@ package de.eldoria.bloodnight.specialmobs.mobs.rider;
 
 import de.eldoria.bloodnight.specialmobs.SpecialMob;
 import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
+import de.eldoria.eldoutilities.utils.AttributeUtil;
 import lombok.Getter;
+import org.bukkit.EntityEffect;
 import org.bukkit.Particle;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 
@@ -19,11 +23,13 @@ public abstract class AbstractRider extends SpecialMob<Mob> {
         this.passenger = passenger;
         passenger.setCustomName(carrier.getCustomName());
         passenger.setCustomNameVisible(carrier.isCustomNameVisible());
+        AttributeUtil.syncAttributeValue(carrier, passenger, Attribute.GENERIC_ATTACK_DAMAGE);
+        AttributeUtil.syncAttributeValue(carrier, passenger, Attribute.GENERIC_MAX_HEALTH);
     }
 
     @Override
     public void onDeath(EntityDeathEvent event) {
-        passenger.damage(passenger.getHealth());
+        passenger.damage(passenger.getHealth(), getBaseEntity());
     }
 
     @Override
@@ -46,8 +52,21 @@ public abstract class AbstractRider extends SpecialMob<Mob> {
     }
 
     @Override
-    public void onExtensionDamage(EntityDamageByEntityEvent event) {
-        getBaseEntity().damage(event.getDamage(), event.getDamager());
-        event.setDamage(0.01);
+    public void onDamageByEntity(EntityDamageByEntityEvent event) {
+    }
+
+    @Override
+    public void onDamage(EntityDamageEvent event) {
+        SpecialMobUtil.handleExtendedEntityDamage(getBaseEntity(), getPassenger(), event);
+    }
+
+    @Override
+    public void onExtensionDamage(EntityDamageEvent event) {
+        SpecialMobUtil.handleExtendedEntityDamage(getPassenger(), getBaseEntity(), event);
+    }
+
+    @Override
+    public void onExtensionDeath(EntityDeathEvent event) {
+        getBaseEntity().damage(getBaseEntity().getHealth(), getPassenger());
     }
 }
