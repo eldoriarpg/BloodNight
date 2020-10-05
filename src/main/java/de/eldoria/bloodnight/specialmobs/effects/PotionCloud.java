@@ -33,7 +33,7 @@ public class PotionCloud extends ParticleCloud {
 
         public Builder(AreaEffectCloud entity) {
             super(entity);
-            entity.setDuration(10*20);
+            entity.setDuration(10 * 20);
         }
 
         public Builder setPotionType(PotionData potionType) {
@@ -41,6 +41,12 @@ public class PotionCloud extends ParticleCloud {
             return this;
         }
 
+        /**
+         * Set duration
+         *
+         * @param duration duration in seconds
+         * @return builder with changed duration
+         */
         public Builder setDuration(int duration) {
             entity.setDuration(duration * 20);
             return this;
