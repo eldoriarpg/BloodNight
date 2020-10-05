@@ -445,6 +445,9 @@ public class MobManager implements Listener, Runnable {
                 SpecialMob<?> poll = tickQueue.poll();
                 if (!poll.getBaseEntity().isValid()) {
                     remove(poll.getBaseEntity().getUniqueId());
+                    if(BloodNight.isDebug()){
+                        BloodNight.logger().info("Removed invalid entity.");
+                    }
                 } else {
                     poll.tick();
                     tickQueue.add(poll);

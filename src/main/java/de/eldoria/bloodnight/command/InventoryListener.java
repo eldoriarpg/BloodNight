@@ -30,9 +30,6 @@ public class InventoryListener implements Listener {
         if (inventories.containsKey(event.getPlayer().getUniqueId())) {
             inventories.remove(event.getPlayer().getUniqueId()).onInventoryClose(event);
             configuration.safeConfig();
-            BloodNight.logger().info("inventory closed");
-        } else {
-            BloodNight.logger().info("unregistered inventory closed");
         }
     }
 
