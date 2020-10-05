@@ -118,9 +118,25 @@ public abstract class SpecialMob<T extends LivingEntity> {
     public void onHit(EntityDamageByEntityEvent event) {
     }
 
-    public final void remove() {
+    /**
+     * Attemts to remove the base entity.
+     * Override if your entity has a extension and call super afterwards.
+     */
+    public void remove() {
         if (getBaseEntity().isValid()) {
             getBaseEntity().remove();
         }
+    }
+
+    /**
+     * This event is called when a entity which is tagges as special mob extension receives damage.
+     * This will be most likely the passenger or the carrier or a special mob.
+     * This event should be used for damage synchronization.
+     * Best practise should be that the damage to the extension is forwarded to the base mob.
+     * Dont implement this if the mob doesnt have a extension.
+     *
+     * @param event damage event of the extension taking damage,
+     */
+    public void onExtensionDamage(EntityDamageByEntityEvent event) {
     }
 }
