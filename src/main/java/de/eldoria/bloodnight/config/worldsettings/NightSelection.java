@@ -46,7 +46,7 @@ public class NightSelection implements ConfigurationSerializable {
 
     public NightSelection(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
-        probability = map.getValue("probability");
+        probability = map.getValueOrDefault("probability", probability);
         nightSelectionType = map.getValueOrDefault("nightSelectionType", nightSelectionType,
                 o -> EnumUtil.parse(o, NightSelectionType.class));
         List<String> list = map.getValueOrDefault("phases",
