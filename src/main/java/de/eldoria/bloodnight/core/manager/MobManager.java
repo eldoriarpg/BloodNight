@@ -189,7 +189,10 @@ public class MobManager implements Listener, Runnable {
 
     @EventHandler
     public void onProjectileHit(ProjectileHitEvent event) {
-        getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(event.getEntity(), m -> m.onProjectileHit(event));
+        ProjectileSender projectileSource = ProjectileUtil.getProjectileSource(event.getEntity());
+        if (projectileSource.isEntity()) {
+            getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(projectileSource.getEntity(), m -> m.onProjectileHit(event));
+        }
     }
 
     @EventHandler
@@ -236,7 +239,17 @@ public class MobManager implements Listener, Runnable {
 
     @EventHandler
     public void onDamageByEntity(EntityDamageByEntityEvent event) {
-        getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(event.getEntity(), m -> m.onDamageByEntity(event));
+        if (SpecialMobUtil.isSpecialMob(event.getEntity())) {
+            if (SpecialMobUtil.isExtension(event.getEntity())) {
+                Optional<UUID> baseUUID = SpecialMobUtil.getBaseUUID(event.getEntity());
+                if (!baseUUID.isPresent()) {
+                    return;
+                }
+                getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(baseUUID.get(), m -> m.onExtensionDamage(event));
+            } else {
+                getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(event.getEntity(), m -> m.onDamageByEntity(event));
+            }
+        }
     }
 
     @EventHandler
@@ -347,10 +360,9 @@ public class MobManager implements Listener, Runnable {
             //TODO: tag rider mobs.
 
             // add custom drops
-            Optional<String> specialMob = SpecialMobUtil.getSpecialMob(entity);
+            Optional<String> specialMob = SpecialMobUtil.getSpecialMobType(entity);
             if (!specialMob.isPresent()) {
                 // this shouldnt happen.
-
                 return;
             }
             Optional<MobSetting> mobByName = mobSettings.getMobByName(specialMob.get());
@@ -408,7 +420,11 @@ public class MobManager implements Listener, Runnable {
         private double entityTick = 0;
 
         public void invokeIfPresent(Entity entity, Consumer<SpecialMob<?>> invoke) {
-            SpecialMob<?> specialMob = mobs.get(entity.getUniqueId());
+            invokeIfPresent(entity.getUniqueId(), invoke);
+        }
+
+        public void invokeIfPresent(UUID uuid, Consumer<SpecialMob<?>> invoke) {
+            SpecialMob<?> specialMob = mobs.get(uuid);
             if (specialMob != null) {
                 invoke.accept(specialMob);
             }
@@ -422,9 +438,14 @@ public class MobManager implements Listener, Runnable {
             if (tickQueue.isEmpty()) return;
             entityTick += tickQueue.size() / (double) tickDelay;
             while (entityTick > 0) {
+                if (tickQueue.isEmpty()) return;
                 SpecialMob<?> poll = tickQueue.poll();
-                poll.tick();
-                tickQueue.add(poll);
+                if (!poll.getBaseEntity().isValid()) {
+                    remove(poll.getBaseEntity().getUniqueId());
+                } else {
+                    poll.tick();
+                    tickQueue.add(poll);
+                }
                 entityTick--;
             }
         }
