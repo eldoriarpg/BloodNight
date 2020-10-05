@@ -41,6 +41,6 @@ public final class MobFactory {
     }
 
     private void setNewBase(AttributeInstance attribute, double target) {
-        attribute.setBaseValue(target / (attribute.getValue() / attribute.getBaseValue()));
+        attribute.setBaseValue(target / (attribute.getValue() / Math.max(attribute.getBaseValue(), 1)));
     }
 }
