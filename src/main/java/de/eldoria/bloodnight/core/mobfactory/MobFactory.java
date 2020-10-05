@@ -4,6 +4,7 @@ import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSetting;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSettings;
 import de.eldoria.bloodnight.specialmobs.SpecialMob;
 import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
+import de.eldoria.eldoutilities.utils.AttributeUtil;
 import lombok.Getter;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -32,15 +33,12 @@ public final class MobFactory {
 
     private void applySettings(LivingEntity entity, MobSettings mobSettings, MobSetting mobSetting) {
         AttributeInstance damage = entity.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
-        setNewBase(damage, Math.min(mobSetting.applyDamage(damage.getValue(), mobSettings.getMonsterDamageMultiplier()), 2048));
+        AttributeUtil.setAttributeValue(damage, Math.min(mobSetting.applyDamage(damage.getValue(), mobSettings.getMonsterDamageMultiplier()), 2048));
         AttributeInstance health = entity.getAttribute(Attribute.GENERIC_MAX_HEALTH);
-        setNewBase(health, Math.min(mobSetting.applyHealth(health.getValue(), mobSettings.getMonsterHealthModifier()), 2048));
+        AttributeUtil.setAttributeValue(health, Math.min(mobSetting.applyHealth(health.getValue(), mobSettings.getMonsterHealthModifier()), 2048));
+        SpecialMobUtil.setSpecialMobType(entity, mobSetting.getMobName());
         entity.setHealth(health.getValue());
         entity.setCustomName(mobSetting.getDisplayName());
         entity.setCustomNameVisible(mobSettings.isDisplayMobNames());
-    }
-
-    private void setNewBase(AttributeInstance attribute, double target) {
-        attribute.setBaseValue(target / (attribute.getValue() / Math.max(attribute.getBaseValue(), 1)));
     }
 }
