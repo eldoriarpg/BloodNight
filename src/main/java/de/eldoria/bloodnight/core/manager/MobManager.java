@@ -50,6 +50,7 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 
 public class MobManager implements Listener, Runnable {
     private final Map<String, WorldMobs> mobRegistry = new HashMap<>();
@@ -200,7 +201,17 @@ public class MobManager implements Listener, Runnable {
 
     @EventHandler
     public void onDeath(EntityDeathEvent event) {
-        getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(event.getEntity(), m -> m.onDeath(event));
+        if (SpecialMobUtil.isSpecialMob(event.getEntity())) {
+            if (SpecialMobUtil.isExtension(event.getEntity())) {
+                Optional<UUID> baseUUID = SpecialMobUtil.getBaseUUID(event.getEntity());
+                if (!baseUUID.isPresent()) {
+                    return;
+                }
+                getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(baseUUID.get(), m -> m.onExtensionDeath(event));
+            } else {
+                getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(event.getEntity(), m -> m.onDeath(event));
+            }
+        }
     }
 
     @EventHandler
@@ -220,6 +231,11 @@ public class MobManager implements Listener, Runnable {
 
     @EventHandler
     public void onTargetEvent(EntityTargetEvent event) {
+        if(event.getTarget() != null && SpecialMobUtil.isSpecialMob(event.getTarget())){
+            event.setCancelled(true);
+            return;
+        }
+
         if (!SpecialMobUtil.isSpecialMob(event.getEntity())) {
             return;
         }
@@ -237,7 +253,17 @@ public class MobManager implements Listener, Runnable {
 
     @EventHandler
     public void onDamage(EntityDamageEvent event) {
-        getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(event.getEntity(), m -> m.onDamage(event));
+        if (SpecialMobUtil.isSpecialMob(event.getEntity())) {
+            if (SpecialMobUtil.isExtension(event.getEntity())) {
+                Optional<UUID> baseUUID = SpecialMobUtil.getBaseUUID(event.getEntity());
+                if (!baseUUID.isPresent()) {
+                    return;
+                }
+                getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(baseUUID.get(), m -> m.onExtensionDamage(event));
+            } else {
+                getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(event.getEntity(), m -> m.onDamage(event));
+            }
+        }
     }
 
     @EventHandler
@@ -248,7 +274,7 @@ public class MobManager implements Listener, Runnable {
                 if (!baseUUID.isPresent()) {
                     return;
                 }
-                getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(baseUUID.get(), m -> m.onExtensionDamage(event));
+                getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(baseUUID.get(), m -> m.onDamageByEntity(event));
             } else {
                 getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(event.getEntity(), m -> m.onDamageByEntity(event));
             }
@@ -312,7 +338,9 @@ public class MobManager implements Listener, Runnable {
         Entity oponent = event.getEntity();
 
         if (damager.getType() != EntityType.PLAYER) {
-            lastDamage.invalidate(oponent.getEntityId());
+            if (!SpecialMobUtil.isSpecialMob(damager)) {
+                lastDamage.invalidate(oponent.getEntityId());
+            }
             return;
         }
 
@@ -321,9 +349,10 @@ public class MobManager implements Listener, Runnable {
         // We just care about monsters and boss monsters
         if (!(oponent instanceof Monster || oponent instanceof Boss)) return;
 
+        // Reduce damage for vanilla mobs
         if (!SpecialMobUtil.isSpecialMob(oponent)) {
             VanillaMobSettings vanillaMobSettings = configuration.getWorldSettings(oponent.getLocation().getWorld().getName()).getMobSettings().getVanillaMobSettings();
-            event.setDamage(event.getDamage() * vanillaMobSettings.getHealthMultiplier());
+            event.setDamage(event.getDamage() / vanillaMobSettings.getHealthMultiplier());
         }
 
         // Register player on entity
@@ -347,30 +376,49 @@ public class MobManager implements Listener, Runnable {
 
         // Just remove the entity.
         if (player == null) {
+            BloodNight.logger().info("Entity " + entity.getCustomName() + " was not killed by a player.");
             getWorldMobs(event.getEntity().getWorld()).remove(event.getEntity().getUniqueId());
             return;
         }
 
+        if (SpecialMobUtil.isExtension(entity)) {
+            BloodNight.logger().info("Mob is extension. Ignore.");
+            return;
+        }
+
+        BloodNight.logger().info("Entity " + entity.getCustomName() + " was killed by " + player.getName());
+
+        BloodNight.logger().info("Attemt to drop items.");
+
         if (SpecialMobUtil.isSpecialMob(entity)) {
+            BloodNight.logger().info("Mob is special mob.");
             if (!mobSettings.isNaturalDrops()) {
+                BloodNight.logger().info("Natural Drops are disabled. Clear loot.");
                 event.getDrops().clear();
             } else {
+                BloodNight.logger().info("Natural Drops are enabled. Multiply loot.");
                 // Raise amount of drops by multiplier
                 for (ItemStack drop : event.getDrops()) {
                     drop.setAmount((int) (drop.getAmount() * vanillaMobSettings.getDropMultiplier()));
                 }
             }
-            //TODO: tag rider mobs.
 
             // add custom drops
             Optional<String> specialMob = SpecialMobUtil.getSpecialMobType(entity);
             if (!specialMob.isPresent()) {
-                // this shouldnt happen.
+                BloodNight.logger().log(Level.WARNING, "No special type name was received from special mob.", new IllegalStateException());
                 return;
             }
             Optional<MobSetting> mobByName = mobSettings.getMobByName(specialMob.get());
-            mobByName.ifPresent(mob -> event.getDrops().addAll(mobSettings.getDrops(mob)));
+            if (mobByName.isPresent()) {
+                List<ItemStack> drops = mobSettings.getDrops(mobByName.get());
+                BloodNight.logger().info("Added " + drops.size() + " drops to " + event.getDrops().size() + " drops.");
+                event.getDrops().addAll(drops);
+            } else {
+                BloodNight.logger().info("No mob found for " + specialMob.get() + " in group ");
+            }
         } else {
+            // If it is a vanilla mob just increase the drops.
             switch (vanillaMobSettings.getVanillaDropMode()) {
                 case VANILLA:
                     for (ItemStack drop : event.getDrops()) {
@@ -388,16 +436,17 @@ public class MobManager implements Listener, Runnable {
                     event.getDrops().addAll(mobSettings.getDrops(vanillaMobSettings.getDropAmount()));
                     break;
             }
-            // If it is a vanilla mob just increase the drops.
-            for (ItemStack drop : event.getDrops()) {
-                drop.setAmount((int) (drop.getAmount() * vanillaMobSettings.getDropMultiplier()));
-            }
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onEntityExplode(EntityExplodeEvent event) {
-        getWorldMobs(event.getLocation().getWorld()).remove(event.getEntity().getUniqueId());
+        BloodNight.logger().info("Prevented " + event.blockList().size() + " from destruction");
+        BloodNight.logger().info("Explosion is canceled? " + event.isCancelled());
+        event.blockList().clear();
+        executeLater.add(() ->
+                getWorldMobs(event.getLocation().getWorld())
+                        .remove(event.getEntity().getUniqueId()));
     }
 
     @EventHandler
@@ -406,7 +455,7 @@ public class MobManager implements Listener, Runnable {
         for (Entity entity : event.getChunk().getEntities()) {
             SpecialMob<?> remove = worldMobs.remove(entity.getUniqueId());
             if (SpecialMobUtil.isSpecialMob(entity)) {
-                entity.remove();
+                remove.remove();
             }
         }
     }
@@ -445,7 +494,8 @@ public class MobManager implements Listener, Runnable {
                 SpecialMob<?> poll = tickQueue.poll();
                 if (!poll.getBaseEntity().isValid()) {
                     remove(poll.getBaseEntity().getUniqueId());
-                    if(BloodNight.isDebug()){
+                    poll.getBaseEntity().remove();
+                    if (BloodNight.isDebug()) {
                         BloodNight.logger().info("Removed invalid entity.");
                     }
                 } else {
