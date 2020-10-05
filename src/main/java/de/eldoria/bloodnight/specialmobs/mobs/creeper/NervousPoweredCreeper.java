@@ -12,7 +12,7 @@ public class NervousPoweredCreeper extends AbstractCreeper {
     public NervousPoweredCreeper(Creeper creeper) {
         super(creeper);
         setPowered(true);
-        setMaxFuseTicks(0);
+        setMaxFuseTicks(1);
         SpecialMobUtil.spawnParticlesAround(getBaseEntity().getLocation(), Particle.REDSTONE, new Particle.DustOptions(Color.RED, 5), 10);
     }
 
