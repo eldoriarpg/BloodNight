@@ -15,7 +15,6 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 
 public class FireWizard extends AbstractWitch {
     private Instant lastShot = Instant.now();
@@ -30,9 +29,9 @@ public class FireWizard extends AbstractWitch {
         EntityEquipment equipment = getBaseEntity().getEquipment();
         equipment.setItemInMainHand(new ItemStack(Material.FIRE_CHARGE));
         SpecialMobUtil.spawnParticlesAround(getBaseEntity(), Particle.DRIP_LAVA, 5);
-        if (lastShot.isBefore(Instant.now().minus(5, ChronoUnit.SECONDS))) {
+        if (canShoot(5)) {
             SpecialMobUtil.launchProjectileOnTarget(getBaseEntity(), LargeFireball.class, 4);
-            lastShot = Instant.now();
+            shot();
         }
     }
 

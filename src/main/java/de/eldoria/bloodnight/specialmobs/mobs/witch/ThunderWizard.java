@@ -13,13 +13,14 @@ public class ThunderWizard extends AbstractWitch {
     @Override
     public void tick() {
         SpecialMobUtil.spawnParticlesAround(getBaseEntity(), Particle.SPELL_INSTANT, 15);
+        if (canShoot(4) && getBaseEntity().getTarget() != null) {
+            getBaseEntity().getLocation().getWorld().strikeLightning(getBaseEntity().getTarget().getLocation());
+            shot();
+        }
     }
 
     @Override
     public void onProjectileShoot(ProjectileLaunchEvent event) {
         event.setCancelled(true);
-        if (getBaseEntity().getTarget() != null) {
-            getBaseEntity().getLocation().getWorld().strikeLightning(getBaseEntity().getTarget().getLocation());
-        }
     }
 }
