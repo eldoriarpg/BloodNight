@@ -1,7 +1,6 @@
 package de.eldoria.bloodnight.specialmobs.mobs.creeper;
 
 import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
-import org.bukkit.Color;
 import org.bukkit.Particle;
 import org.bukkit.entity.Creeper;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -24,7 +23,7 @@ public class UnstableCreeper extends AbstractCreeper {
 
     @Override
     public void onDamage(EntityDamageEvent event) {
-        if (event.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
+        if (event.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK || event.getCause() == EntityDamageEvent.DamageCause.PROJECTILE) {
             explode();
         }
     }
