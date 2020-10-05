@@ -6,6 +6,7 @@ import lombok.Getter;
 import org.bukkit.Particle;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 
@@ -44,4 +45,9 @@ public abstract class AbstractRider extends SpecialMob<Mob> {
         }
     }
 
+    @Override
+    public void onExtensionDamage(EntityDamageByEntityEvent event) {
+        getBaseEntity().damage(event.getDamage(), event.getDamager());
+        event.setDamage(0.01);
+    }
 }

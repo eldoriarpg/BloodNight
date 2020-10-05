@@ -5,6 +5,7 @@ import org.bukkit.entity.Blaze;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Phantom;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 
@@ -31,5 +32,11 @@ public class FirePhantom extends AbstractPhantom {
     @Override
     public void onDeath(EntityDeathEvent event) {
         blaze.damage(blaze.getHealth());
+    }
+
+    @Override
+    public void onExtensionDamage(EntityDamageByEntityEvent event) {
+        getBaseEntity().damage(event.getDamage(), event.getDamager());
+        event.setDamage(0.01);
     }
 }
