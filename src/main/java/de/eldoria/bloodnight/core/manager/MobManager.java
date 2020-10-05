@@ -184,7 +184,10 @@ public class MobManager implements Listener, Runnable {
 
     @EventHandler
     public void onProjectileShoot(ProjectileLaunchEvent event) {
-        getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(event.getEntity(), v -> v.onProjectileShoot(event));
+        ProjectileSender projectileSource = ProjectileUtil.getProjectileSource(event.getEntity());
+        if (projectileSource.isEntity()) {
+            getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(projectileSource.getEntity(), v -> v.onProjectileShoot(event));
+        }
     }
 
     @EventHandler
