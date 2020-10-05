@@ -73,10 +73,10 @@ public class NotificationManager implements Listener {
                 messageSender.sendMessage(player, message);
                 break;
             case TITLE:
-                player.sendTitle(message, "", 10, 70, 20);
+                player.sendTitle("§a" + message, "", 10, 70, 20);
                 break;
             case SUBTITLE:
-                player.sendTitle("", message, 10, 70, 20);
+                player.sendTitle("", "§a" + message, 10, 70, 20);
                 break;
         }
     }
@@ -99,7 +99,7 @@ public class NotificationManager implements Listener {
         if (!configuration.getGeneralSettings().isJoinWorldWarning()) return;
 
         if (nightManager.isBloodNightActive(event.getPlayer().getWorld())) {
-            messageSender.sendMessage(event.getPlayer(), localizer.getMessage("notify.bloodNightJoined"));
+            sendMessage(event.getPlayer(), localizer.getMessage("notify.bloodNightJoined"));
         }
     }
 }
