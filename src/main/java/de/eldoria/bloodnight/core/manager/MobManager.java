@@ -156,7 +156,7 @@ public class MobManager implements Listener, Runnable {
         worldMobs.clear();
         IteratingTask<Entity> iteratingTask = new IteratingTask<>(event.getWorld().getEntities(), (e) ->
         {
-            if ((e instanceof LivingEntity)) {
+            if (!(e instanceof LivingEntity)) {
                 return false;
             }
             if (SpecialMobUtil.isSpecialMob(e)) {
@@ -494,7 +494,7 @@ public class MobManager implements Listener, Runnable {
                 SpecialMob<?> poll = tickQueue.poll();
                 if (!poll.getBaseEntity().isValid()) {
                     remove(poll.getBaseEntity().getUniqueId());
-                    poll.getBaseEntity().remove();
+                    poll.remove();
                     if (BloodNight.isDebug()) {
                         BloodNight.logger().info("Removed invalid entity.");
                     }
@@ -534,5 +534,4 @@ public class MobManager implements Listener, Runnable {
             tickQueue.clear();
         }
     }
-
 }
