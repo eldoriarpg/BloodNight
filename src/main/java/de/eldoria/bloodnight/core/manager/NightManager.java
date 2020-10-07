@@ -13,10 +13,12 @@ import de.eldoria.eldoutilities.messages.MessageSender;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Statistic;
 import org.bukkit.World;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
+import org.bukkit.boss.KeyedBossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -34,6 +36,8 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -217,7 +221,7 @@ public class NightManager implements Listener, Runnable {
         BossBar bossBar = null;
         BossBarSettings bbS = settings.getBossBarSettings();
         if (bbS.isEnabled()) {
-            bossBar = Bukkit.createBossBar(BloodNight.getNamespacedKey("bossBar" + settings.getWorldName()), bbS.getTitle(), bbS.getColor(), BarStyle.SOLID, bbS.getEffects());
+            bossBar = Bukkit.createBossBar(getBossBarNamespace(world), bbS.getTitle(), bbS.getColor(), BarStyle.SOLID, bbS.getEffects());
         }
         BloodNightData bloodNightData = new BloodNightData(bossBar);
         bloodWorlds.put(world, bloodNightData);
@@ -261,7 +265,7 @@ public class NightManager implements Listener, Runnable {
         }
 
         if (bloodNightData.getBossBar() != null) {
-            Bukkit.removeBossBar(BloodNight.getNamespacedKey("bossBar" + settings.getWorldName()));
+            Bukkit.removeBossBar(getBossBarNamespace(world));
         }
     }
 
@@ -314,6 +318,9 @@ public class NightManager implements Listener, Runnable {
         if (playerConsistencyMap.containsKey(event.getPlayer().getUniqueId())) {
             playerConsistencyMap.get(event.getPlayer().getUniqueId()).revert(event.getPlayer());
         }
+        if (isBloodNightActive(event.getPlayer().getWorld())) {
+            disableBloodNightForPlayer(event.getPlayer(), bloodWorlds.get(event.getPlayer().getWorld()));
+        }
     }
 
     @EventHandler
@@ -346,6 +353,7 @@ public class NightManager implements Listener, Runnable {
      * Check if a world is currenty in blood night mode.
      *
      * @param world world to check
+     *
      * @return true if world is currently in blood night mode.
      */
     public boolean isBloodNightActive(World world) {
@@ -397,6 +405,18 @@ public class NightManager implements Listener, Runnable {
         }
 
         BloodNight.logger().info("Night manager shutdown successful.");
+
+        Iterator<KeyedBossBar> bossBars = Bukkit.getBossBars();
+        String s = BloodNight.getInstance().getName().toLowerCase(Locale.ROOT);
+        int i = 0;
+        while (bossBars.hasNext()) {
+            KeyedBossBar next = bossBars.next();
+            if (next.getKey().getNamespace().equalsIgnoreCase(s)) {
+                Bukkit.removeBossBar(next.getKey());
+                i++;
+            }
+        }
+        BloodNight.logger().info("Removed " + i + " boss bars.");
     }
 
     public void reload() {
@@ -440,5 +460,9 @@ public class NightManager implements Listener, Runnable {
         public BloodNightData(BossBar bossBar) {
             this.bossBar = bossBar;
         }
+    }
+
+    public NamespacedKey getBossBarNamespace(World world) {
+        return BloodNight.getNamespacedKey("bossBar" + world.getName());
     }
 }
