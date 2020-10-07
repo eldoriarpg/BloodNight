@@ -5,6 +5,7 @@ import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
 import org.bukkit.Color;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Creeper;
@@ -59,13 +60,22 @@ public class EnderCreeper extends AbstractCreeper {
         if (distance > 5) {
             Location loc = target.getLocation();
             Vector fuzz = new Vector(rand.nextDouble(-2, 2), 0, rand.nextDouble(-2, 2));
-            Block highestBlockAt = loc.getWorld().getHighestBlockAt(loc.add(fuzz));
-            Location newLoc = highestBlockAt.getLocation().add(0, 1, 0);
-            BloodNight.logger().info("Teleport from " + getBaseEntity().getLocation() + " to " + newLoc);
-            getBaseEntity().teleport(newLoc);
-            lastTeleport = Instant.now();
-            SpecialMobUtil.spawnParticlesAround(loc, Particle.PORTAL, 10);
-            getBaseEntity().playEffect(EntityEffect.ENTITY_POOF);
+            Block first = loc.getWorld().getBlockAt(loc.add(fuzz));
+            Block second = first.getRelative(0, 1, 0);
+            if (first.getType() == Material.AIR && second.getType() == Material.AIR) {
+                Location newLoc = first.getLocation();
+                BloodNight.logger().info("Teleport from " + getBaseEntity().getLocation() + " to " + newLoc);
+                getBaseEntity().teleport(newLoc);
+                lastTeleport = Instant.now();
+                SpecialMobUtil.spawnParticlesAround(loc, Particle.PORTAL, 10);
+                getBaseEntity().playEffect(EntityEffect.ENTITY_POOF);
+            }
+            if(lastTeleport.isBefore(Instant.now().minusSeconds(8))){
+                getBaseEntity().teleport(target.getLocation());
+                lastTeleport = Instant.now();
+                SpecialMobUtil.spawnParticlesAround(loc, Particle.PORTAL, 10);
+                getBaseEntity().playEffect(EntityEffect.ENTITY_POOF);
+            }
         }
     }
 }
