@@ -4,7 +4,6 @@ import de.eldoria.bloodnight.specialmobs.SpecialMob;
 import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
 import de.eldoria.eldoutilities.utils.AttributeUtil;
 import lombok.Getter;
-import org.bukkit.EntityEffect;
 import org.bukkit.Particle;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.LivingEntity;
@@ -30,6 +29,19 @@ public abstract class AbstractRider extends SpecialMob<Mob> {
     @Override
     public void onDeath(EntityDeathEvent event) {
         passenger.damage(passenger.getHealth(), getBaseEntity());
+    }
+
+    @Override
+    public void tick() {
+        if (getBaseEntity().isDead() || !getBaseEntity().isValid()) {
+            remove();
+        }
+    }
+
+    @Override
+    public void remove() {
+        passenger.remove();
+        super.remove();
     }
 
     @Override
@@ -67,6 +79,6 @@ public abstract class AbstractRider extends SpecialMob<Mob> {
 
     @Override
     public void onExtensionDeath(EntityDeathEvent event) {
-        getBaseEntity().damage(getBaseEntity().getHealth(), getPassenger());
+        getBaseEntity().damage(getBaseEntity().getHealth(), event.getEntity().getKiller());
     }
 }
