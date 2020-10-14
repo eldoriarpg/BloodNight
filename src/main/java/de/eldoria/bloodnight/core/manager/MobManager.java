@@ -3,6 +3,7 @@ package de.eldoria.bloodnight.core.manager;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import de.eldoria.bloodnight.config.Configuration;
+import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSetting;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSettings;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.VanillaMobSettings;
@@ -231,7 +232,7 @@ public class MobManager implements Listener, Runnable {
 
     @EventHandler
     public void onTargetEvent(EntityTargetEvent event) {
-        if(event.getTarget() != null && SpecialMobUtil.isSpecialMob(event.getTarget())){
+        if (event.getTarget() != null && SpecialMobUtil.isSpecialMob(event.getTarget())) {
             event.setCancelled(true);
             return;
         }
@@ -376,13 +377,17 @@ public class MobManager implements Listener, Runnable {
 
         // Just remove the entity.
         if (player == null) {
-            BloodNight.logger().info("Entity " + entity.getCustomName() + " was not killed by a player.");
+            if (BloodNight.isDebug()) {
+                BloodNight.logger().info("Entity " + entity.getCustomName() + " was not killed by a player.");
+            }
             getWorldMobs(event.getEntity().getWorld()).remove(event.getEntity().getUniqueId());
             return;
         }
 
         if (SpecialMobUtil.isExtension(entity)) {
-            BloodNight.logger().info("Mob is extension. Ignore.");
+            if (BloodNight.isDebug()) {
+                BloodNight.logger().info("Mob is extension. Ignore.");
+            }
             return;
         }
 
@@ -393,10 +398,14 @@ public class MobManager implements Listener, Runnable {
         if (SpecialMobUtil.isSpecialMob(entity)) {
             BloodNight.logger().info("Mob is special mob.");
             if (!mobSettings.isNaturalDrops()) {
-                BloodNight.logger().info("Natural Drops are disabled. Clear loot.");
+                if (BloodNight.isDebug()) {
+                    BloodNight.logger().info("Natural Drops are disabled. Clear loot.");
+                }
                 event.getDrops().clear();
             } else {
-                BloodNight.logger().info("Natural Drops are enabled. Multiply loot.");
+                if (BloodNight.isDebug()) {
+                    BloodNight.logger().info("Natural Drops are enabled. Multiply loot.");
+                }
                 // Raise amount of drops by multiplier
                 for (ItemStack drop : event.getDrops()) {
                     drop.setAmount((int) (drop.getAmount() * vanillaMobSettings.getDropMultiplier()));
@@ -412,10 +421,14 @@ public class MobManager implements Listener, Runnable {
             Optional<MobSetting> mobByName = mobSettings.getMobByName(specialMob.get());
             if (mobByName.isPresent()) {
                 List<ItemStack> drops = mobSettings.getDrops(mobByName.get());
-                BloodNight.logger().info("Added " + drops.size() + " drops to " + event.getDrops().size() + " drops.");
+                if (BloodNight.isDebug()) {
+                    BloodNight.logger().info("Added " + drops.size() + " drops to " + event.getDrops().size() + " drops.");
+                }
                 event.getDrops().addAll(drops);
             } else {
-                BloodNight.logger().info("No mob found for " + specialMob.get() + " in group ");
+                if (BloodNight.isDebug()) {
+                    BloodNight.logger().info("No mob found for " + specialMob.get() + " in group ");
+                }
             }
         } else {
             // If it is a vanilla mob just increase the drops.
@@ -439,11 +452,18 @@ public class MobManager implements Listener, Runnable {
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onEntityExplode(EntityExplodeEvent event) {
-        BloodNight.logger().info("Prevented " + event.blockList().size() + " from destruction");
-        BloodNight.logger().info("Explosion is canceled? " + event.isCancelled());
-        event.blockList().clear();
+        WorldSettings worldSettings = configuration.getWorldSettings(event.getLocation().getWorld());
+        if(!worldSettings.isEnabled()) return;
+
+        if (!worldSettings.isCreeperBlockDamage()) {
+            event.blockList().clear();
+            if (BloodNight.isDebug()) {
+                BloodNight.logger().info("Explosion is canceled? " + event.isCancelled());
+                BloodNight.logger().info("Prevented " + event.blockList().size() + " from destruction");
+            }
+        }
         executeLater.add(() ->
                 getWorldMobs(event.getLocation().getWorld())
                         .remove(event.getEntity().getUniqueId()));
@@ -519,6 +539,7 @@ public class MobManager implements Listener, Runnable {
          * Attemts to remove an entity from world mobs and the world.
          *
          * @param key uid of entity
+         *
          * @return special mob if present.
          */
         public SpecialMob<?> remove(UUID key) {
