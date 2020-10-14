@@ -18,6 +18,7 @@ public class WorldSettings implements ConfigurationSerializable {
 
     private String worldName;
     private boolean enabled = false;
+    private boolean creeperBlockDamage = false;
     private BossBarSettings bossBarSettings = new BossBarSettings();
     private NightSelection nightSelection = new NightSelection();
     private NightSettings nightSettings = new NightSettings();
@@ -28,6 +29,7 @@ public class WorldSettings implements ConfigurationSerializable {
         worldName = map.getValue("world");
         assert worldName == null : "World is null. This should not happen";
         enabled = map.getValueOrDefault("enabled", enabled);
+        enabled = map.getValueOrDefault("creeperBlockDamage", creeperBlockDamage);
         bossBarSettings = map.getValueOrDefault("bossBar", bossBarSettings);
         nightSelection = map.getValueOrDefault("nightSelection", nightSelection);
         nightSettings = map.getValueOrDefault("nightSettings", nightSettings);
@@ -43,6 +45,7 @@ public class WorldSettings implements ConfigurationSerializable {
         return SerializationUtil.newBuilder()
                 .add("world", worldName)
                 .add("enabled", enabled)
+                .add("creeperBlockDamage", creeperBlockDamage)
                 .add("bossBar", bossBarSettings)
                 .add("nightSelection", nightSelection)
                 .add("nightSettings", nightSettings)
