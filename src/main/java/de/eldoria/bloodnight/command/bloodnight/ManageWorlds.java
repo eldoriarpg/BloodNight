@@ -1,7 +1,6 @@
 package de.eldoria.bloodnight.command.bloodnight;
 
 import de.eldoria.bloodnight.command.util.CommandUtil;
-import de.eldoria.bloodnight.command.util.KyoriColors;
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.config.worldsettings.BossBarSettings;
 import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
@@ -14,9 +13,12 @@ import de.eldoria.eldoutilities.simplecommands.TabCompleteUtil;
 import de.eldoria.eldoutilities.utils.ArgumentUtils;
 import de.eldoria.eldoutilities.utils.EnumUtil;
 import de.eldoria.eldoutilities.utils.Parser;
+import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
@@ -162,46 +164,46 @@ public class ManageWorlds extends EldoCommand {
                 entry -> {
                     String cmd = "/bloodnight manageWorlds " + entry.getWorldName() + " ";
                     BossBarSettings bbs = entry.getBossBarSettings();
-                    return TextComponent.builder()
+                    return Component.text()
                             // World State
-                            .append(TextComponent.builder(entry.getWorldName(), KyoriColors.GOLD)
-                                    .decoration(TextDecoration.BOLD, true).build()).append(" ")
+                            .append(Component.text(entry.getWorldName(), NamedTextColor.GOLD, TextDecoration.BOLD))
+                            .append(Component.text("  "))
                             .append(CommandUtil.getBooleanField(entry.isEnabled(),
                                     cmd + "state {bool} ",
                                     "",
                                     localizer().getMessage("state.enabled"),
                                     localizer().getMessage("state.disabled")))
-                            .append(TextComponent.newline()).append("  ")
+                            .append(Component.newline()).append(Component.text("  "))
                             // boss bar state
-                            .append(TextComponent.builder(localizer().getMessage("field.bossBarSettings") + ": ", KyoriColors.AQUA))
+                            .append(Component.text(localizer().getMessage("field.bossBarSettings") + ": ", NamedTextColor.AQUA))
                             .append(CommandUtil.getBooleanField(bbs.isEnabled(),
                                     cmd + "bossBar state {bool} ",
                                     "",
                                     localizer().getMessage("state.enabled"),
                                     localizer().getMessage("state.disabled")))
-                            .append(TextComponent.newline()).append("  ")
+                            .append(Component.newline()).append(Component.text("  "))
                             // title
-                            .append(TextComponent.builder(localizer().getMessage("field.title") + ": ", KyoriColors.AQUA))
-                            .append(TextComponent.builder(bbs.getTitle(), KyoriColors.GOLD))
-                            .append(TextComponent.builder(" [" + localizer().getMessage("action.change") + "] ", KyoriColors.GREEN)
+                            .append(Component.text(localizer().getMessage("field.title") + ": ", NamedTextColor.AQUA))
+                            .append(Component.text(bbs.getTitle(), NamedTextColor.GOLD))
+                            .append(Component.text(" [" + localizer().getMessage("action.change") + "] ", NamedTextColor.GREEN)
                                     .clickEvent(ClickEvent.suggestCommand(cmd + "bossBar title " + bbs.getTitle())))
-                            .append(TextComponent.newline()).append("  ")
+                            .append(Component.newline()).append(Component.text("  "))
                             // Color
-                            .append(TextComponent.builder(localizer().getMessage("field.color") + ": ", KyoriColors.AQUA))
-                            .append(TextComponent.builder(bbs.getColor().toString(), toKyoriColor(bbs.getColor())))
-                            .append(TextComponent.builder(" [" + localizer().getMessage("action.change") + "] ", KyoriColors.GREEN)
+                            .append(Component.text(localizer().getMessage("field.color") + ": ", NamedTextColor.AQUA))
+                            .append(Component.text(bbs.getColor().toString(), toKyoriColor(bbs.getColor())))
+                            .append(Component.text(" [" + localizer().getMessage("action.change") + "] ", NamedTextColor.GREEN)
                                     .clickEvent(ClickEvent.suggestCommand(cmd + "bossBar color ")))
-                            .append(TextComponent.newline()).append("  ")
+                            .append(Component.newline()).append(Component.text("  "))
                             // Effects
-                            .append(TextComponent.builder(localizer().getMessage("field.effects") + ": ", KyoriColors.AQUA))
+                            .append(Component.text(localizer().getMessage("field.effects") + ": ", NamedTextColor.AQUA))
                             .append(CommandUtil.getToggleField(bbs.isEffectEnabled(BarFlag.CREATE_FOG),
                                     cmd + "bossBar toggleEffect CREATE_FOG",
                                     localizer().getMessage("state.fog")))
-                            .append(" ")
+                            .append(Component.space())
                             .append(CommandUtil.getToggleField(bbs.isEffectEnabled(BarFlag.DARKEN_SKY),
                                     cmd + "bossBar toggleEffect DARKEN_SKY",
                                     localizer().getMessage("state.darkenSky")))
-                            .append(" ")
+                            .append(Component.space())
                             .append(CommandUtil.getToggleField(bbs.isEffectEnabled(BarFlag.PLAY_BOSS_MUSIC),
                                     cmd + "bossBar toggleEffect PLAY_BOSS_MUSIC",
                                     localizer().getMessage("state.music")))
@@ -210,7 +212,7 @@ public class ManageWorlds extends EldoCommand {
                 localizer().getMessage("manageWorlds.title"),
                 "/bloodNight manageWorlds " + world.getName() + " page {page}");
 
-        bukkitAudiences.sender(sender).sendMessage(component);
+        bukkitAudiences.sender(sender).sendMessage(Identity.nil(), component);
     }
 
 
@@ -255,19 +257,19 @@ public class ManageWorlds extends EldoCommand {
     private TextColor toKyoriColor(BarColor color) {
         switch (color) {
             case PINK:
-                return KyoriColors.PINK;
+                return TextColor.color(248,24,148);
             case BLUE:
-                return KyoriColors.BLUE;
+                return NamedTextColor.BLUE;
             case RED:
-                return KyoriColors.RED;
+                return NamedTextColor.RED;
             case GREEN:
-                return KyoriColors.GREEN;
+                return NamedTextColor.GREEN;
             case YELLOW:
-                return KyoriColors.YELLOW;
+                return NamedTextColor.YELLOW;
             case PURPLE:
-                return KyoriColors.LIGHT_PURPLE;
+                return NamedTextColor.LIGHT_PURPLE;
             case WHITE:
-                return KyoriColors.WHITE;
+                return NamedTextColor.WHITE;
             default:
                 throw new IllegalStateException("Unexpected value: " + color);
         }

@@ -1,7 +1,6 @@
 package de.eldoria.bloodnight.command.bloodnight;
 
 import de.eldoria.bloodnight.command.util.CommandUtil;
-import de.eldoria.bloodnight.command.util.KyoriColors;
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.config.worldsettings.NightSettings;
 import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
@@ -14,9 +13,12 @@ import de.eldoria.eldoutilities.simplecommands.EldoCommand;
 import de.eldoria.eldoutilities.simplecommands.TabCompleteUtil;
 import de.eldoria.eldoutilities.utils.ArrayUtil;
 import de.eldoria.eldoutilities.utils.Parser;
+import lombok.var;
+import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -134,14 +136,14 @@ public class ManageNight extends EldoCommand {
     private void sendNightSettings(CommandSender sender, WorldSettings worldSettings) {
         NightSettings nightSettings = worldSettings.getNightSettings();
         String cmd = "/bloodnight manageNight " + worldSettings.getWorldName() + " ";
-        TextComponent.Builder builder = TextComponent.builder()
-                .append(TextComponent.newline())
-                .append(TextComponent.newline())
-                .append(TextComponent.newline())
-                .append(TextComponent.newline())
+        var builder = Component.text()
+                .append(Component.newline())
+                .append(Component.newline())
+                .append(Component.newline())
+                .append(Component.newline())
                 .append(CommandUtil.getHeader(localizer().getMessage("manageNight.title",
                         Replacement.create("WORLD", worldSettings.getWorldName()).addFormatting('6'))))
-                .append(TextComponent.newline())
+                .append(Component.newline())
                 // World state
                 .append(CommandUtil.getBooleanField(
                         worldSettings.isEnabled(),
@@ -149,26 +151,26 @@ public class ManageNight extends EldoCommand {
                         localizer().getMessage("field.active"),
                         localizer().getMessage("state.enabled"),
                         localizer().getMessage("state.disabled")))
-                .append(TextComponent.newline())
+                .append(Component.newline())
                 // skippable
                 .append(CommandUtil.getBooleanField(nightSettings.isSkippable(),
                         cmd + "skippable {bool}",
                         localizer().getMessage("field.sleep"),
                         localizer().getMessage("state.allow"),
                         localizer().getMessage("state.deny")))
-                .append(TextComponent.newline())
+                .append(Component.newline())
                 // night begin
-                .append(TextComponent.builder(localizer().getMessage("field.nightBegin") + ": ", KyoriColors.AQUA))
-                .append(TextComponent.builder(nightSettings.getNightBegin() + " ", KyoriColors.GOLD))
-                .append(TextComponent.builder("[" + localizer().getMessage("action.change") + "]", KyoriColors.GREEN)
+                .append(Component.text(localizer().getMessage("field.nightBegin") + ": ", NamedTextColor.AQUA))
+                .append(Component.text(nightSettings.getNightBegin() + " ", NamedTextColor.GOLD))
+                .append(Component.text("[" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                         .clickEvent(ClickEvent.suggestCommand(cmd + "nightBegin ")))
-                .append(TextComponent.newline())
+                .append(Component.newline())
                 // night end
-                .append(TextComponent.builder(localizer().getMessage("field.nightEnd") + ": ", KyoriColors.AQUA))
-                .append(TextComponent.builder(nightSettings.getNightEnd() + " ", KyoriColors.GOLD))
-                .append(TextComponent.builder("[" + localizer().getMessage("action.change") + "]", KyoriColors.GREEN)
+                .append(Component.text(localizer().getMessage("field.nightEnd") + ": ", NamedTextColor.AQUA))
+                .append(Component.text(nightSettings.getNightEnd() + " ", NamedTextColor.GOLD))
+                .append(Component.text("[" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                         .clickEvent(ClickEvent.suggestCommand(cmd + "nightEnd ")))
-                .append(TextComponent.newline())
+                .append(Component.newline())
                 // override night duration
                 .append(CommandUtil.getBooleanField(nightSettings.isOverrideNightDuration(), cmd + " overrideDuration {bool}",
                         localizer().getMessage("field.overrideDuration") + ": ",
@@ -176,15 +178,15 @@ public class ManageNight extends EldoCommand {
                         localizer().getMessage("state.disabled")));
         if (nightSettings.isOverrideNightDuration()) {
             //night duration
-            builder.append(TextComponent.newline())
-                    .append(TextComponent.builder(localizer().getMessage("field.nightDuration") + ": ", KyoriColors.AQUA))
-                    .append(TextComponent.builder(nightSettings.getNightDuration() + " " + localizer().getMessage("value.seconds"), KyoriColors.GOLD))
-                    .append(TextComponent.builder(" [" + localizer().getMessage("action.change") + "]", KyoriColors.GREEN)
+            builder.append(Component.newline())
+                    .append(Component.text(localizer().getMessage("field.nightDuration") + ": ", NamedTextColor.AQUA))
+                    .append(Component.text(nightSettings.getNightDuration() + " " + localizer().getMessage("value.seconds"), NamedTextColor.GOLD))
+                    .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                             .clickEvent(ClickEvent.suggestCommand(cmd + "nightDuration ")));
         }
 
 
-        bukkitAudiences.sender(sender).sendMessage(builder.build());
+        bukkitAudiences.sender(sender).sendMessage(Identity.nil(), builder.build());
     }
 
     @Override

@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.eldoria</groupId>
-    <artifactId>blood-night</artifactId>
+    <artifactId>bloodnight</artifactId>
     <version>0.5</version>
     <name>BloodNight</name>
     <url>https://github.com/eldoriarpg/BloodNight</url>
@@ -20,7 +20,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.5</version>
+                <version>3.8.1</version>
                 <configuration>
                     <source>8</source>
                     <target>8</target>
@@ -29,7 +29,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.3</version>
+                <version>3.2.4</version>
                 <!-- Do not include the <configuration>...</configuration> part if you are using Sponge! -->
                 <configuration>
                     <relocations>
@@ -96,7 +96,7 @@
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>19.0.0</version>
+            <version>16.0.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -108,7 +108,7 @@
         <dependency>
             <groupId>de.eldoria</groupId>
             <artifactId>EldoUtilities</artifactId>
-            <version>v1.0.20</version>
+            <version>v1.0.21</version>
             <scope>compile</scope>
         </dependency>
 
@@ -118,10 +118,6 @@
             <version>4.0.0-SNAPSHOT</version>
             <scope>compile</scope>
             <exclusions>
-                <exclusion>
-                    <groupId>net.kyori</groupId>
-                    <artifactId>examination-string</artifactId>
-                </exclusion>
                 <exclusion>
                     <groupId>org.checkerframework</groupId>
                     <artifactId>checker-qual</artifactId>

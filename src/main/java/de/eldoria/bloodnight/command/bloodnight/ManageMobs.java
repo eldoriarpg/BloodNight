@@ -2,7 +2,6 @@ package de.eldoria.bloodnight.command.bloodnight;
 
 import de.eldoria.bloodnight.command.InventoryListener;
 import de.eldoria.bloodnight.command.util.CommandUtil;
-import de.eldoria.bloodnight.command.util.KyoriColors;
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.Drop;
@@ -19,9 +18,12 @@ import de.eldoria.eldoutilities.simplecommands.TabCompleteUtil;
 import de.eldoria.eldoutilities.utils.ArrayUtil;
 import de.eldoria.eldoutilities.utils.EnumUtil;
 import de.eldoria.eldoutilities.utils.Parser;
+import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -265,115 +267,115 @@ public class ManageMobs extends EldoCommand {
         MobSettings mSet = worldSettings.getMobSettings();
         VanillaMobSettings vms = worldSettings.getMobSettings().getVanillaMobSettings();
         String cmd = "/bloodnight manageMobs " + worldSettings.getWorldName() + " ";
-        TextComponent.Builder message = TextComponent.builder()
+        TextComponent.Builder message = Component.text()
                 .append(CommandUtil.getHeader(localizer().getMessage("manageMobs.title",
                         Replacement.create("WORLD", worldSettings.getWorldName()).addFormatting('6'))))
-                .append(TextComponent.newline())
+                .append(Component.newline())
                 // spawn percentage
-                .append(TextComponent.builder(localizer().getMessage("field.spawnPercentage") + ": ", KyoriColors.AQUA))
-                .append(TextComponent.builder(mSet.getSpawnPercentage() + "% ", KyoriColors.GOLD))
-                .append(TextComponent.builder("[" + localizer().getMessage("action.change") + "]", KyoriColors.GREEN)
+                .append(Component.text(localizer().getMessage("field.spawnPercentage") + ": ", NamedTextColor.AQUA))
+                .append(Component.text(mSet.getSpawnPercentage() + "% ", NamedTextColor.GOLD))
+                .append(Component.text("[" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                         .clickEvent(ClickEvent.suggestCommand(cmd + "spawnPercentage ")))
                 // Display mobNamens
-                .append(TextComponent.newline())
+                .append(Component.newline())
                 .append(CommandUtil.getBooleanField(mSet.isDisplayMobNames(),
                         cmd + "displayName {bool}",
                         localizer().getMessage("field.showMobNames"),
                         localizer().getMessage("state.enabled"),
                         localizer().getMessage("state.disabled")))
-                .append(TextComponent.newline())
+                .append(Component.newline())
                 // Monster damage
-                .append(TextComponent.builder(localizer().getMessage("field.monsterDamage") + ": ", KyoriColors.AQUA))
-                .append(TextComponent.builder(mSet.getMonsterDamageMultiplier() + "x ", KyoriColors.GOLD))
-                .append(TextComponent.builder("[" + localizer().getMessage("action.change") + "]", KyoriColors.GREEN)
+                .append(Component.text(localizer().getMessage("field.monsterDamage") + ": ", NamedTextColor.AQUA))
+                .append(Component.text(mSet.getMonsterDamageMultiplier() + "x ", NamedTextColor.GOLD))
+                .append(Component.text("[" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                         .clickEvent(ClickEvent.suggestCommand(cmd + "monsterDamage ")))
-                .append(TextComponent.newline())
+                .append(Component.newline())
                 // Player damage
-                .append(TextComponent.builder(localizer().getMessage("field.monsterHealth") + ": ", KyoriColors.AQUA))
-                .append(TextComponent.builder(mSet.getMonsterHealthModifier() + "x ", KyoriColors.GOLD))
-                .append(TextComponent.builder("[" + localizer().getMessage("action.change") + "]", KyoriColors.GREEN)
+                .append(Component.text(localizer().getMessage("field.monsterHealth") + ": ", NamedTextColor.AQUA))
+                .append(Component.text(mSet.getMonsterHealthModifier() + "x ", NamedTextColor.GOLD))
+                .append(Component.text("[" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                         .clickEvent(ClickEvent.suggestCommand(cmd + "monsterHealth ")))
-                .append(TextComponent.newline())
+                .append(Component.newline())
                 // experience multiply
-                .append(TextComponent.builder(localizer().getMessage("field.experienceMultiplier") + ": ", KyoriColors.AQUA))
-                .append(TextComponent.builder(mSet.getExperienceMultiplier() + "x ", KyoriColors.GOLD))
-                .append(TextComponent.builder("[" + localizer().getMessage("action.change") + "]", KyoriColors.GREEN)
+                .append(Component.text(localizer().getMessage("field.experienceMultiplier") + ": ", NamedTextColor.AQUA))
+                .append(Component.text(mSet.getExperienceMultiplier() + "x ", NamedTextColor.GOLD))
+                .append(Component.text("[" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                         .clickEvent(ClickEvent.suggestCommand(cmd + "experience ")))
-                .append(TextComponent.newline())
+                .append(Component.newline())
                 // force phantoms
                 .append(CommandUtil.getBooleanField(mSet.isForcePhantoms(),
                         cmd + "forcePhantoms {bool}",
                         localizer().getMessage("field.forcePhantoms"),
                         localizer().getMessage("state.enabled"),
                         localizer().getMessage("state.disabled")))
-                .append(TextComponent.newline())
+                .append(Component.newline())
                 // natural drops
                 .append(CommandUtil.getBooleanField(mSet.isNaturalDrops(),
                         cmd + "naturalDrops {bool}",
                         localizer().getMessage("field.naturalDrops"),
                         localizer().getMessage("state.allow"),
                         localizer().getMessage("state.deny")))
-                .append(TextComponent.newline())
+                .append(Component.newline())
                 // default drops
-                .append(TextComponent.builder(localizer().getMessage("field.defaultDrops") + ": ", KyoriColors.AQUA))
-                .append(TextComponent.builder(mSet.getDefaultDrops().size() + " " + localizer().getMessage("field.drops"), KyoriColors.GOLD))
-                .append(TextComponent.builder(" [" + localizer().getMessage("action.content") + "]", KyoriColors.GREEN)
+                .append(Component.text(localizer().getMessage("field.defaultDrops") + ": ", NamedTextColor.AQUA))
+                .append(Component.text(mSet.getDefaultDrops().size() + " " + localizer().getMessage("field.drops"), NamedTextColor.GOLD))
+                .append(Component.text(" [" + localizer().getMessage("action.content") + "]", NamedTextColor.GREEN)
                         .clickEvent(ClickEvent.runCommand(cmd + "defaultDrops changeContent")))
-                .append(TextComponent.builder(" [" + localizer().getMessage("action.weight") + "]", KyoriColors.GOLD)
+                .append(Component.text(" [" + localizer().getMessage("action.weight") + "]", NamedTextColor.GOLD)
                         .clickEvent(ClickEvent.runCommand(cmd + "defaultDrops changeWeight")))
-                .append(TextComponent.builder(" [" + localizer().getMessage("action.clear") + "]", KyoriColors.RED)
+                .append(Component.text(" [" + localizer().getMessage("action.clear") + "]", NamedTextColor.RED)
                         .clickEvent(ClickEvent.runCommand(cmd + "defaultDrops clear")))
-                .append(TextComponent.newline())
+                .append(Component.newline())
                 // default drop amount
-                .append(TextComponent.builder(localizer().getMessage("field.dropAmount") + ": ", KyoriColors.AQUA))
-                .append(TextComponent.builder(mSet.getDropAmount() + "x ", KyoriColors.GOLD))
-                .append(TextComponent.builder("[" + localizer().getMessage("action.change") + "]", KyoriColors.GREEN)
+                .append(Component.text(localizer().getMessage("field.dropAmount") + ": ", NamedTextColor.AQUA))
+                .append(Component.text(mSet.getDropAmount() + "x ", NamedTextColor.GOLD))
+                .append(Component.text("[" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                         .clickEvent(ClickEvent.suggestCommand(cmd + "dropAmount ")))
-                .append(TextComponent.newline())
+                .append(Component.newline())
                 // Vanilla Mobs submenu
-                .append(TextComponent.builder(localizer().getMessage("field.vanillaMobs") + ": ", KyoriColors.AQUA))
-                .append(TextComponent.newline().append(TextComponent.builder("  ")))
+                .append(Component.text(localizer().getMessage("field.vanillaMobs") + ": ", NamedTextColor.AQUA))
+                .append(Component.newline().append(Component.text("  ")))
                 // Monster damage
-                .append(TextComponent.builder(localizer().getMessage("field.monsterDamage") + ": ", KyoriColors.AQUA))
-                .append(TextComponent.builder(vms.getDamageMultiplier() + "x ", KyoriColors.GOLD))
-                .append(TextComponent.builder("[" + localizer().getMessage("action.change") + "]", KyoriColors.GREEN)
+                .append(Component.text(localizer().getMessage("field.monsterDamage") + ": ", NamedTextColor.AQUA))
+                .append(Component.text(vms.getDamageMultiplier() + "x ", NamedTextColor.GOLD))
+                .append(Component.text("[" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                         .clickEvent(ClickEvent.suggestCommand(cmd + "vanillaMonsterDamage ")))
-                .append(TextComponent.newline().append(TextComponent.builder("  ")))
+                .append(Component.newline().append(Component.text("  ")))
                 // Player damage
-                .append(TextComponent.builder(localizer().getMessage("field.monsterHealth") + ": ", KyoriColors.AQUA))
-                .append(TextComponent.builder(vms.getHealthMultiplier() + "x ", KyoriColors.GOLD))
-                .append(TextComponent.builder("[" + localizer().getMessage("action.change") + "]", KyoriColors.GREEN)
+                .append(Component.text(localizer().getMessage("field.monsterHealth") + ": ", NamedTextColor.AQUA))
+                .append(Component.text(vms.getHealthMultiplier() + "x ", NamedTextColor.GOLD))
+                .append(Component.text("[" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                         .clickEvent(ClickEvent.suggestCommand(cmd + "vanillaPlayerDamage ")))
-                .append(TextComponent.newline().append(TextComponent.builder("  ")))
+                .append(Component.newline().append(Component.text("  ")))
                 // drops
-                .append(TextComponent.builder(localizer().getMessage("field.dropsMultiplier") + ": ", KyoriColors.AQUA))
-                .append(TextComponent.builder(vms.getDropMultiplier() + "x ", KyoriColors.GOLD))
-                .append(TextComponent.builder("[" + localizer().getMessage("action.change") + "]", KyoriColors.GREEN)
+                .append(Component.text(localizer().getMessage("field.dropsMultiplier") + ": ", NamedTextColor.AQUA))
+                .append(Component.text(vms.getDropMultiplier() + "x ", NamedTextColor.GOLD))
+                .append(Component.text("[" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                         .clickEvent(ClickEvent.suggestCommand(cmd + "vanillaDropsMulti ")))
-                .append(TextComponent.newline().append(TextComponent.builder("  ")))
+                .append(Component.newline().append(Component.text("  ")))
                 // Drop Mode
-                .append(TextComponent.builder(localizer().getMessage("field.dropMode") + ": ", KyoriColors.AQUA))
+                .append(Component.text(localizer().getMessage("field.dropMode") + ": ", NamedTextColor.AQUA))
                 .append(CommandUtil.getToggleField(vms.getVanillaDropMode() == VanillaDropMode.VANILLA,
                         cmd + "vanillaDropMode VANILLA",
                         localizer().getMessage("state.vanilla")))
-                .append(" ")
+                .append(Component.space())
                 .append(CommandUtil.getToggleField(vms.getVanillaDropMode() == VanillaDropMode.COMBINE,
                         cmd + "vanillaDropMode COMBINE",
                         localizer().getMessage("state.combine")))
-                .append(" ")
+                .append(Component.space())
                 .append(CommandUtil.getToggleField(vms.getVanillaDropMode() == VanillaDropMode.CUSTOM,
                         cmd + "vanillaDropMode CUSTOM",
                         localizer().getMessage("state.custom")));
         if (vms.getVanillaDropMode() != VanillaDropMode.VANILLA) {
-            message.append(TextComponent.newline().append(TextComponent.builder("  ")))
-                    .append(TextComponent.builder(localizer().getMessage("field.customDropAmount") + ": ", KyoriColors.AQUA))
-                    .append(TextComponent.builder(vms.getDropAmount() + "x ", KyoriColors.GOLD))
-                    .append(TextComponent.builder("[" + localizer().getMessage("action.change") + "]", KyoriColors.GREEN)
+            message.append(Component.newline().append(Component.text("  ")))
+                    .append(Component.text(localizer().getMessage("field.customDropAmount") + ": ", NamedTextColor.AQUA))
+                    .append(Component.text(vms.getDropAmount() + "x ", NamedTextColor.GOLD))
+                    .append(Component.text("[" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                             .clickEvent(ClickEvent.suggestCommand(cmd + "vanillaDropAmount ")));
 
 
         }
-        bukkitAudiences.sender(sender).sendMessage(message);
+        bukkitAudiences.sender(sender).sendMessage(Identity.nil(), message);
     }
 
     @Override
