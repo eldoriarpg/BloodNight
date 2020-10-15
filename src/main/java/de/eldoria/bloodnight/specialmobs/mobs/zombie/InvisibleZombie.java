@@ -17,7 +17,11 @@ public class InvisibleZombie extends AbstractZombie {
         super(zombie);
 
         EntityEquipment equipment = zombie.getEquipment();
-        equipment.setItemInMainHand(new ItemStack(Material.GOLDEN_SWORD));
+        equipment.setItemInMainHand(new ItemStack(Material.AIR));
+        equipment.setHelmet(new ItemStack(Material.AIR));
+        equipment.setChestplate(new ItemStack(Material.AIR));
+        equipment.setLeggings(new ItemStack(Material.AIR));
+        equipment.setBoots(new ItemStack(Material.AIR));
         tick();
     }
 
