@@ -1,13 +1,13 @@
-package de.eldoria.bloodnight.specialmobs.mobs.rider;
+package de.eldoria.bloodnight.specialmobs.mobs.spider;
 
 import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
 import de.eldoria.bloodnight.specialmobs.mobs.ExtendedSpecialMob;
 import org.bukkit.Particle;
 import org.bukkit.entity.Mob;
 
-public abstract class AbstractRider extends ExtendedSpecialMob<Mob, Mob> {
+public abstract class AbstractSpiderRider extends ExtendedSpecialMob<Mob, Mob> {
 
-    public AbstractRider(Mob carrier, Mob passenger) {
+    public AbstractSpiderRider(Mob carrier, Mob passenger) {
         super(carrier, passenger);
     }
 
