@@ -272,6 +272,10 @@ public class NightManager implements Listener, Runnable {
     private void enableBloodNightForPlayer(Player player, BloodNightData bloodNightData) {
         playerConsistencyMap.put(player.getUniqueId(), new ConsistencyCache(player));
         WorldSettings worldSettings = configuration.getWorldSettings(player.getWorld().getName());
+
+        if (BloodNight.isDebug()) {
+            BloodNight.logger().info("Enabling blood night for player " + player.getName());
+        }
         if (worldSettings.getMobSettings().isForcePhantoms()) {
             player.setStatistic(Statistic.TIME_SINCE_REST, 720000);
         }
@@ -285,12 +289,19 @@ public class NightManager implements Listener, Runnable {
 
     private void disableBloodNightForPlayer(Player player, BloodNightData bloodNightData) {
         ConsistencyCache consistencyCache = playerConsistencyMap.get(player.getUniqueId());
+
+        if (BloodNight.isDebug()) {
+            BloodNight.logger().info("Resolving blood night for player " + player.getName());
+        }
+
         if (consistencyCache != null) {
             consistencyCache.revert(player);
         }
+
         if (bloodNightData.getBossBar() != null) {
             bloodNightData.getBossBar().removePlayer(player);
         }
+
         if (configuration.getGeneralSettings().isBlindness()) {
             player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 5 * 20, 1, false, true));
         }
