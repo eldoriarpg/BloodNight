@@ -110,7 +110,7 @@ public class ManageMobs extends EldoCommand {
                 mobSettings.setDropAmount(optionalInt.getAsInt());
             }
             if ("vanillaDropAmount".equalsIgnoreCase(field)) {
-                mobSettings.getVanillaMobSettings().setDropAmount(optionalInt.getAsInt());
+                mobSettings.getVanillaMobSettings().setExtraDrops(optionalInt.getAsInt());
             }
             configuration.safeConfig();
             sendInfo(sender, worldSettings);
@@ -130,13 +130,13 @@ public class ManageMobs extends EldoCommand {
             }
 
             if ("monsterDamage".equalsIgnoreCase(field)) {
-                mobSettings.setMonsterDamageMultiplier(optionalDouble.getAsDouble());
+                mobSettings.setDamageMultiplier(optionalDouble.getAsDouble());
             }
             if ("vanillaMonsterDamage".equalsIgnoreCase(field)) {
                 mobSettings.getVanillaMobSettings().setDamageMultiplier(optionalDouble.getAsDouble());
             }
             if ("monsterHealth".equalsIgnoreCase(field)) {
-                mobSettings.setMonsterHealthModifier(optionalDouble.getAsDouble());
+                mobSettings.setHealthModifier(optionalDouble.getAsDouble());
             }
             if ("vanillaPlayerHealth".equalsIgnoreCase(field)) {
                 mobSettings.getVanillaMobSettings().setHealthMultiplier(optionalDouble.getAsDouble());
@@ -286,13 +286,13 @@ public class ManageMobs extends EldoCommand {
                 .append(Component.newline())
                 // Monster damage
                 .append(Component.text(localizer().getMessage("field.monsterDamage") + ": ", NamedTextColor.AQUA))
-                .append(Component.text(mSet.getMonsterDamageMultiplier() + "x ", NamedTextColor.GOLD))
+                .append(Component.text(mSet.getDamageMultiplier() + "x ", NamedTextColor.GOLD))
                 .append(Component.text("[" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                         .clickEvent(ClickEvent.suggestCommand(cmd + "monsterDamage ")))
                 .append(Component.newline())
                 // Player damage
                 .append(Component.text(localizer().getMessage("field.monsterHealth") + ": ", NamedTextColor.AQUA))
-                .append(Component.text(mSet.getMonsterHealthModifier() + "x ", NamedTextColor.GOLD))
+                .append(Component.text(mSet.getHealthModifier() + "x ", NamedTextColor.GOLD))
                 .append(Component.text("[" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                         .clickEvent(ClickEvent.suggestCommand(cmd + "monsterHealth ")))
                 .append(Component.newline())
@@ -369,7 +369,7 @@ public class ManageMobs extends EldoCommand {
         if (vms.getVanillaDropMode() != VanillaDropMode.VANILLA) {
             message.append(Component.newline().append(Component.text("  ")))
                     .append(Component.text(localizer().getMessage("field.customDropAmount") + ": ", NamedTextColor.AQUA))
-                    .append(Component.text(vms.getDropAmount() + "x ", NamedTextColor.GOLD))
+                    .append(Component.text(vms.getExtraDrops() + "x ", NamedTextColor.GOLD))
                     .append(Component.text("[" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                             .clickEvent(ClickEvent.suggestCommand(cmd + "vanillaDropAmount ")));
 

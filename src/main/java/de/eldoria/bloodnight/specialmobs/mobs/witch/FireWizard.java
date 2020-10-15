@@ -14,11 +14,7 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 
-import java.time.Instant;
-
 public class FireWizard extends AbstractWitch {
-    private Instant lastShot = Instant.now();
-
     public FireWizard(Witch witch) {
         super(witch);
         tick();

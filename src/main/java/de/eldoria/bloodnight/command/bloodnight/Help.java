@@ -33,7 +33,8 @@ public class Help extends EldoCommand {
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+    public @Nullable
+    List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         return Collections.emptyList();
     }
 }

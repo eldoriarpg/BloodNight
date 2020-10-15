@@ -4,7 +4,6 @@ import de.eldoria.bloodnight.core.manager.MobManager;
 import de.eldoria.bloodnight.core.manager.NightManager;
 import de.eldoria.bloodnight.core.mobfactory.MobFactory;
 import de.eldoria.bloodnight.core.mobfactory.SpecialMobRegistry;
-import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
 import de.eldoria.bloodnight.util.Permissions;
 import de.eldoria.eldoutilities.localization.Localizer;
 import de.eldoria.eldoutilities.messages.MessageSender;

@@ -34,13 +34,13 @@ public class BloodNight extends JavaPlugin {
     @Getter
     private static BloodNight instance;
     private static Logger logger;
+    private static boolean debug = false;
     private NightManager nightManager;
     private MobManager mobManager;
     private Localizer localizer;
     private Configuration configuration;
     private InventoryListener inventoryListener;
     private boolean initialized = false;
-    private static boolean debug = false;
 
     @SuppressWarnings("StaticVariableUsedBeforeInitialization")
     @NotNull
@@ -90,6 +90,7 @@ public class BloodNight extends JavaPlugin {
 
     public void onReload() {
         localizer.setLocale(configuration.getGeneralSettings().getLanguage());
+        configuration.reload();
         debug = configuration.getGeneralSettings().isDebug();
         nightManager.reload();
     }

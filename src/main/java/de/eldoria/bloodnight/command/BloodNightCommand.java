@@ -35,6 +35,6 @@ public class BloodNightCommand extends EldoCommand {
         registerCommand("manageMob", new ManageMob(localizer, messageSender, configuration, inventoryListener));
         registerCommand("manageNight", new ManageNight(localizer, messageSender, configuration));
         registerCommand("manageMobs", new ManageMobs(localizer, messageSender, configuration, inventoryListener));
-        registerCommand("reload", new Reload(localizer, messageSender, configuration, nightManager));
+        registerCommand("reload", new Reload(localizer, messageSender));
     }
 }

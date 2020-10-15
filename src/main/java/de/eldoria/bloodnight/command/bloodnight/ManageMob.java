@@ -2,7 +2,6 @@ package de.eldoria.bloodnight.command.bloodnight;
 
 import de.eldoria.bloodnight.command.InventoryListener;
 import de.eldoria.bloodnight.command.util.CommandUtil;
-import net.kyori.adventure.text.format.NamedTextColor;
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.Drop;
@@ -28,6 +27,7 @@ import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -387,7 +387,7 @@ public class ManageMob extends EldoCommand {
                             .append(Component.text(localizer().getMessage("field.health") + ": ", NamedTextColor.AQUA));
                     switch (entry.getHealthModifier()) {
                         case DEFAULT:
-                            builder.append(Component.text(localizer().getMessage("action.default") + " (" + mobSettings.getMonsterHealthModifier() + "x)", NamedTextColor.GOLD));
+                            builder.append(Component.text(localizer().getMessage("action.default") + " (" + mobSettings.getHealthModifier() + "x)", NamedTextColor.GOLD));
                             break;
                         case MULTIPLY:
                             builder.append(Component.text(entry.getHealth() + "x", NamedTextColor.GOLD));
@@ -416,7 +416,7 @@ public class ManageMob extends EldoCommand {
                             .append(Component.text(localizer().getMessage("field.damage") + ": ", NamedTextColor.AQUA));
                     switch (entry.getDamageModifier()) {
                         case DEFAULT:
-                            builder.append(Component.text(localizer().getMessage("action.default") + " (" + mobSettings.getMonsterHealthModifier() + "x)", NamedTextColor.GOLD));
+                            builder.append(Component.text(localizer().getMessage("action.default") + " (" + mobSettings.getHealthModifier() + "x)", NamedTextColor.GOLD));
                             break;
                         case MULTIPLY:
                             builder.append(Component.text(entry.getDamage() + "x", NamedTextColor.GOLD));
@@ -434,7 +434,7 @@ public class ManageMob extends EldoCommand {
                         Replacement.create("WORLD", world.getName())),
                 "/bloodNight manageMob " + mobGroup.getKey() + " " + world.getName() + " page {page}");
 
-        bukkitAudiences.sender(sender).sendMessage(Identity.nil(),component);
+        bukkitAudiences.sender(sender).sendMessage(Identity.nil(), component);
     }
 
     //group world mob field value

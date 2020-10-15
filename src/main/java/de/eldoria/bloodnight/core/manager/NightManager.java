@@ -273,7 +273,7 @@ public class NightManager implements Listener, Runnable {
         playerConsistencyMap.put(player.getUniqueId(), new ConsistencyCache(player));
         WorldSettings worldSettings = configuration.getWorldSettings(player.getWorld().getName());
         if (worldSettings.getMobSettings().isForcePhantoms()) {
-            player.setStatistic(Statistic.TIME_SINCE_REST, 72000);
+            player.setStatistic(Statistic.TIME_SINCE_REST, 720000);
         }
         if (configuration.getGeneralSettings().isBlindness()) {
             player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 5 * 20, 1, false, true));
@@ -440,6 +440,10 @@ public class NightManager implements Listener, Runnable {
         return observedWorlds;
     }
 
+    public NamespacedKey getBossBarNamespace(World world) {
+        return BloodNight.getNamespacedKey("bossBar" + world.getName());
+    }
+
     @Getter
     private static class ConsistencyCache {
         private final int timeSinceRest;
@@ -460,9 +464,5 @@ public class NightManager implements Listener, Runnable {
         public BloodNightData(BossBar bossBar) {
             this.bossBar = bossBar;
         }
-    }
-
-    public NamespacedKey getBossBarNamespace(World world) {
-        return BloodNight.getNamespacedKey("bossBar" + world.getName());
     }
 }

@@ -70,7 +70,7 @@ public class EnderCreeper extends AbstractCreeper {
                 SpecialMobUtil.spawnParticlesAround(loc, Particle.PORTAL, 10);
                 getBaseEntity().playEffect(EntityEffect.ENTITY_POOF);
             }
-            if(lastTeleport.isBefore(Instant.now().minusSeconds(8))){
+            if (lastTeleport.isBefore(Instant.now().minusSeconds(8))) {
                 getBaseEntity().teleport(target.getLocation());
                 lastTeleport = Instant.now();
                 SpecialMobUtil.spawnParticlesAround(loc, Particle.PORTAL, 10);

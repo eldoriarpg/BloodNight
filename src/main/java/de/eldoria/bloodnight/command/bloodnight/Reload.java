@@ -1,7 +1,6 @@
 package de.eldoria.bloodnight.command.bloodnight;
 
-import de.eldoria.bloodnight.config.Configuration;
-import de.eldoria.bloodnight.core.manager.NightManager;
+import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.util.Permissions;
 import de.eldoria.eldoutilities.localization.Localizer;
 import de.eldoria.eldoutilities.messages.MessageSender;
@@ -11,13 +10,9 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 public class Reload extends EldoCommand {
-    private final Configuration configuration;
-    private final NightManager nightManager;
 
-    public Reload(Localizer localizer, MessageSender messageSender, Configuration configuration, NightManager nightManager) {
+    public Reload(Localizer localizer, MessageSender messageSender) {
         super(localizer, messageSender);
-        this.configuration = configuration;
-        this.nightManager = nightManager;
     }
 
     @Override
@@ -25,9 +20,7 @@ public class Reload extends EldoCommand {
         if (denyAccess(sender, Permissions.RELOAD)) {
             return true;
         }
-
-        configuration.reload();
-        nightManager.reload();
+        BloodNight.getInstance().onReload();
         messageSender().sendMessage(sender, localizer().getMessage("reload.success"));
         return true;
     }

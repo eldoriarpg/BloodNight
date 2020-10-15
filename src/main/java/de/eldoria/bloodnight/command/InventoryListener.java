@@ -1,7 +1,6 @@
 package de.eldoria.bloodnight.command;
 
 import de.eldoria.bloodnight.config.Configuration;
-import de.eldoria.bloodnight.core.BloodNight;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -40,9 +39,9 @@ public class InventoryListener implements Listener {
         }
     }
 
-    public static interface InventoryActionHandler {
-        public void onInventoryClose(InventoryCloseEvent event);
+    public interface InventoryActionHandler {
+        void onInventoryClose(InventoryCloseEvent event);
 
-        public void onInventoryClick(InventoryClickEvent event);
+        void onInventoryClick(InventoryClickEvent event);
     }
 }

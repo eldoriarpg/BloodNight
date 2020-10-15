@@ -34,8 +34,8 @@ public class MobSetting implements ConfigurationSerializable {
     @Setter
     private int dropAmount = -1;
     /**
-     * If this is true only drops from mobs are choosen and default drops will not drop.
-     * if false the drops will be added to default drops.
+     * If this is true only drops from mobs are choosen and default drops will not drop. if false the drops will be
+     * added to default drops.
      */
     @Setter
     private boolean overrideDefaultDrops = false;
@@ -45,8 +45,7 @@ public class MobSetting implements ConfigurationSerializable {
     @Setter
     private MobValueModifier healthModifier = MobValueModifier.DEFAULT;
     /**
-     * The max health of a mob.
-     * -1 is disabled
+     * The max health of a mob. -1 is disabled
      */
     @Setter
     private double health = 2;
@@ -54,8 +53,7 @@ public class MobSetting implements ConfigurationSerializable {
     @Setter
     private MobValueModifier damageModifier = MobValueModifier.DEFAULT;
     /**
-     * The damage a mob makes.
-     * -1 is disabled
+     * The damage a mob makes. -1 is disabled
      */
     @Setter
     private double damage = 2;

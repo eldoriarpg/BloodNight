@@ -28,6 +28,7 @@ public abstract class AbstractWitch extends SpecialMob<Witch> {
      * check if last shot is in the past more than the delay
      *
      * @param delay delay in seconds
+     *
      * @return true if entity can shoot again
      */
     protected boolean canShoot(int delay) {

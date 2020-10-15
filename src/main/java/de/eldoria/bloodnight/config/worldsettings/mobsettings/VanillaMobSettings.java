@@ -29,7 +29,7 @@ public class VanillaMobSettings implements ConfigurationSerializable {
 
     private VanillaDropMode vanillaDropMode = VanillaDropMode.VANILLA;
 
-    private int dropAmount = 1;
+    private int extraDrops = 1;
 
     public VanillaMobSettings() {
     }
@@ -40,7 +40,7 @@ public class VanillaMobSettings implements ConfigurationSerializable {
         healthMultiplier = map.getValueOrDefault("healthMultiplier", healthMultiplier);
         dropMultiplier = map.getValueOrDefault("dropMultiplier", dropMultiplier);
         vanillaDropMode = EnumUtil.parse(map.getValueOrDefault("vanillaDropMode", vanillaDropMode.name()), VanillaDropMode.class);
-        dropAmount = map.getValueOrDefault("extraDrops", dropAmount);
+        extraDrops = map.getValueOrDefault("extraDrops", extraDrops);
     }
 
     @Override
@@ -50,7 +50,7 @@ public class VanillaMobSettings implements ConfigurationSerializable {
                 .add("healthMultiplier", healthMultiplier)
                 .add("dropMultiplier", dropMultiplier)
                 .add("vanillaDropMode", vanillaDropMode.toString())
-                .add("extraDrops", dropAmount)
+                .add("extraDrops", extraDrops)
                 .build();
     }
 }

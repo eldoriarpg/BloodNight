@@ -257,7 +257,7 @@ public class ManageWorlds extends EldoCommand {
     private TextColor toKyoriColor(BarColor color) {
         switch (color) {
             case PINK:
-                return TextColor.color(248,24,148);
+                return TextColor.color(248, 24, 148);
             case BLUE:
                 return NamedTextColor.BLUE;
             case RED:

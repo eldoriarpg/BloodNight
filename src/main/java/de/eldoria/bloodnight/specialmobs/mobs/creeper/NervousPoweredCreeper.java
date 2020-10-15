@@ -1,7 +1,6 @@
 package de.eldoria.bloodnight.specialmobs.mobs.creeper;
 
 import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
-import de.eldoria.bloodnight.specialmobs.effects.ParticleCloud;
 import org.bukkit.Color;
 import org.bukkit.Particle;
 import org.bukkit.entity.Creeper;

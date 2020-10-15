@@ -24,8 +24,7 @@ public class NightSelection implements ConfigurationSerializable {
     private NightSelectionType nightSelectionType = NightSelectionType.RANDOM;
 
     /**
-     * Probability that a night becomes a blood night.
-     * In percent 0-100.
+     * Probability that a night becomes a blood night. In percent 0-100.
      */
     private int probability = 60;
 

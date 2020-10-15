@@ -1,5 +1,6 @@
 package de.eldoria.bloodnight.config.worldsettings.mobsettings;
 
+import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.core.mobfactory.MobFactory;
 import de.eldoria.bloodnight.core.mobfactory.MobGroup;
 import de.eldoria.bloodnight.core.mobfactory.SpecialMobRegistry;
@@ -38,12 +39,12 @@ public class MobSettings implements ConfigurationSerializable {
     /**
      * The modifier which will be multiplied with monster damage when dealing damage to players.
      */
-    private double monsterDamageMultiplier = 2;
+    private double damageMultiplier = 2;
 
     /**
      * The modifier which will be applied to special Mobs health on spawn.
      */
-    private double monsterHealthModifier = 2;
+    private double healthModifier = 2;
 
     /**
      * The modifier which will be muliplied with the dropped exp of a monster.
@@ -52,13 +53,13 @@ public class MobSettings implements ConfigurationSerializable {
 
 
     /**
-     * Sleep time will be set for every player when the nights starts and will be reset to earlier value when the night ends
+     * Sleep time will be set for every player when the nights starts and will be reset to earlier value when the night
+     * ends
      */
     private boolean forcePhantoms = true;
 
     /**
      * The conversion rate of mobs. Higher numer -> more special mobs.
-     * TODO: implement this shit
      */
     private int spawnPercentage = 80;
 
@@ -68,8 +69,7 @@ public class MobSettings implements ConfigurationSerializable {
     private List<Drop> defaultDrops = new ArrayList<>();
 
     /**
-     * If true drops will be added to vanilla drops.
-     * If false vanilla drops will be removed.
+     * If true drops will be added to vanilla drops. If false vanilla drops will be removed.
      */
     private boolean naturalDrops = true;
 
@@ -87,8 +87,8 @@ public class MobSettings implements ConfigurationSerializable {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
         vanillaMobSettings = map.getValueOrDefault("vanillaMobSettings", vanillaMobSettings);
         displayMobNames = map.getValueOrDefault("displayMobNames", displayMobNames);
-        monsterDamageMultiplier = map.getValueOrDefault("monsterDamageMultiplier", monsterDamageMultiplier);
-        monsterHealthModifier = map.getValueOrDefault("playerDamageMultiplier", monsterHealthModifier);
+        damageMultiplier = map.getValueOrDefault("damageMultiplier", damageMultiplier);
+        healthModifier = map.getValueOrDefault("healthMultiplier", healthModifier);
         experienceMultiplier = map.getValueOrDefault("experienceMultiplier", experienceMultiplier);
         forcePhantoms = map.getValueOrDefault("forcePhantoms", forcePhantoms);
         spawnPercentage = map.getValueOrDefault("spawnPercentage", spawnPercentage);
@@ -105,8 +105,8 @@ public class MobSettings implements ConfigurationSerializable {
     public @NotNull Map<String, Object> serialize() {
         return SerializationUtil.newBuilder()
                 .add("displayMobNames", displayMobNames)
-                .add("monsterDamageMultiplier", monsterDamageMultiplier)
-                .add("playerDamageMultiplier", monsterHealthModifier)
+                .add("monsterDamageMultiplier", damageMultiplier)
+                .add("playerDamageMultiplier", healthModifier)
                 .add("experienceMultiplier", experienceMultiplier)
                 .add("forcePhantoms", forcePhantoms)
                 .add("spawnPercentage", spawnPercentage)
@@ -127,7 +127,18 @@ public class MobSettings implements ConfigurationSerializable {
             totalDrops.addAll(defaultDrops);
         }
 
-        return getDrops(totalDrops, mobSetting.getOverridenDropAmount(dropAmount));
+        return getDrops(totalDrops, 1, mobSetting.getOverridenDropAmount(dropAmount));
+    }
+
+    /**
+     * Get the amount of drops from the default drops
+     *
+     * @param dropAmount max amount of drops
+     *
+     * @return list of length between 0 and drop amount
+     */
+    public List<ItemStack> getDrops(int dropAmount) {
+        return getDrops(defaultDrops, 0, dropAmount);
     }
 
     /**
@@ -135,19 +146,22 @@ public class MobSettings implements ConfigurationSerializable {
      *
      * @param totalDrops list of drops
      * @param dropAmount max amount of drops
+     *
      * @return item stack list of length between 1 and drop amount
      */
-    public List<ItemStack> getDrops(List<Drop> totalDrops, int dropAmount) {
+    public List<ItemStack> getDrops(List<Drop> totalDrops, int minDrops, int dropAmount) {
+        if (dropAmount == 0) return new ArrayList<>();
+
         int totalWeight = totalDrops.stream().mapToInt(Drop::getWeight).sum();
 
         ThreadLocalRandom current = ThreadLocalRandom.current();
-        int nextInt = current.nextInt(dropAmount + 1);
+        int nextInt = current.nextInt(minDrops, dropAmount + 1);
         List<ItemStack> result = new ArrayList<>();
 
         int currentWeight = 0;
         for (int i = 0; i < nextInt; i++) {
             int goal = current.nextInt(totalWeight + 1);
-            for (Drop drop : defaultDrops) {
+            for (Drop drop : totalDrops) {
                 currentWeight += drop.getWeight();
                 if (currentWeight < goal) continue;
                 result.add(new ItemStack(drop.getItem().clone()));
@@ -157,21 +171,11 @@ public class MobSettings implements ConfigurationSerializable {
         return result;
     }
 
-    /**
-     * Get the amount of drops from the default drops
-     *
-     * @param dropAmount max amount of drops
-     * @return list of length between 1 and drop amount
-     */
-    public List<ItemStack> getDrops(int dropAmount) {
-        return getDrops(defaultDrops, dropAmount);
-    }
-
     public Optional<MobSetting> getMobByName(String string) {
         Optional<MobFactory> mobFactoryByName = SpecialMobRegistry.getMobFactoryByName(string);
         if (!mobFactoryByName.isPresent()) return Optional.empty();
         String name = mobFactoryByName.get().getEntityType().getEntityClass().getSimpleName();
-        for (MobSetting entry : mobTypes.mobTypes.getOrDefault(name, Collections.emptySet())) {
+        for (MobSetting entry : mobTypes.mobSettings.getOrDefault(name, Collections.emptySet())) {
             if (string.equalsIgnoreCase(entry.getMobName())) {
                 return Optional.of(entry);
             }
@@ -185,10 +189,10 @@ public class MobSettings implements ConfigurationSerializable {
         /**
          * List of mob type settings.
          */
-        private Map<String, Set<MobSetting>> mobTypes = new HashMap<>();
+        private Map<String, Set<MobSetting>> mobSettings = new HashMap<>();
 
         public MobTypes() {
-            this.mobTypes = SpecialMobRegistry.getMobGroups().entrySet().stream()
+            this.mobSettings = SpecialMobRegistry.getMobGroups().entrySet().stream()
                     .map(m -> {
                         Pair<String, Set<MobSetting>> pair = new Pair<>(m.getKey().getSimpleName(), new HashSet<>());
                         m.getValue().getFactories().forEach(v -> pair.second.add(new MobSetting(v.getMobName())));
@@ -201,7 +205,7 @@ public class MobSettings implements ConfigurationSerializable {
             TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
 
             for (Map.Entry<Class<? extends Entity>, MobGroup> entry : SpecialMobRegistry.getMobGroups().entrySet()) {
-                Set<MobSetting> mobSettings = mobTypes.computeIfAbsent(entry.getKey().getSimpleName(), k -> new HashSet<>());
+                Set<MobSetting> mobSettings = this.mobSettings.computeIfAbsent(entry.getKey().getSimpleName(), k -> new HashSet<>());
                 List<MobSetting> valueOrDefault = map.getValueOrDefault(entry.getKey().getSimpleName(), new ArrayList<>());
 
                 // only load settings for valid mobs
@@ -215,6 +219,7 @@ public class MobSettings implements ConfigurationSerializable {
                     }
                     // create default settings
                     mobSettings.add(new MobSetting(factory.getMobName()));
+                    BloodNight.logger().info(String.format("No settings for {} found. Creating default settings.", factory.getMobName()));
                 }
             }
         }
@@ -222,7 +227,7 @@ public class MobSettings implements ConfigurationSerializable {
         @Override
         public @NotNull Map<String, Object> serialize() {
             SerializationUtil.Builder builder = SerializationUtil.newBuilder();
-            for (Map.Entry<String, Set<MobSetting>> entry : mobTypes.entrySet()) {
+            for (Map.Entry<String, Set<MobSetting>> entry : mobSettings.entrySet()) {
                 builder.add(entry.getKey(), new ArrayList<>(entry.getValue()));
             }
             return builder.build();
@@ -232,17 +237,18 @@ public class MobSettings implements ConfigurationSerializable {
          * Returns a optional of a mob group.
          *
          * @param groupName name of group
+         *
          * @return optional result set. Key represents the mob group and value a set of mob settings.
          */
         public Optional<Map.Entry<String, Set<MobSetting>>> getGroup(String groupName) {
-            return mobTypes.entrySet().stream()
+            return mobSettings.entrySet().stream()
                     .filter(e -> e.getKey().equalsIgnoreCase(groupName))
                     .findFirst();
         }
 
         public Set<MobSetting> getSettings() {
             Set<MobSetting> settings = new HashSet<>();
-            mobTypes.values().forEach(settings::addAll);
+            mobSettings.values().forEach(settings::addAll);
             return settings;
         }
     }

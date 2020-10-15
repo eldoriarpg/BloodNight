@@ -45,6 +45,7 @@ public class PotionCloud extends ParticleCloud {
          * Set duration
          *
          * @param duration duration in seconds
+         *
          * @return builder with changed duration
          */
         public Builder setDuration(int duration) {

@@ -442,12 +442,17 @@ public class MobManager implements Listener, Runnable {
                     for (ItemStack drop : event.getDrops()) {
                         drop.setAmount((int) (drop.getAmount() * vanillaMobSettings.getDropMultiplier()));
                     }
-                    event.getDrops().addAll(mobSettings.getDrops(vanillaMobSettings.getDropAmount()));
+                    event.getDrops().addAll(mobSettings.getDrops(vanillaMobSettings.getExtraDrops()));
                     break;
                 case CUSTOM:
                     event.getDrops().clear();
-                    event.getDrops().addAll(mobSettings.getDrops(vanillaMobSettings.getDropAmount()));
+                    event.getDrops().addAll(mobSettings.getDrops(vanillaMobSettings.getExtraDrops()));
                     break;
+            }
+            // Add extra drops
+            if (vanillaMobSettings.getExtraDrops() > 0) {
+                List<ItemStack> drops = mobSettings.getDrops(vanillaMobSettings.getExtraDrops());
+                event.getDrops().addAll(drops);
             }
         }
     }
@@ -455,7 +460,7 @@ public class MobManager implements Listener, Runnable {
     @EventHandler(priority = EventPriority.HIGH)
     public void onEntityExplode(EntityExplodeEvent event) {
         WorldSettings worldSettings = configuration.getWorldSettings(event.getLocation().getWorld());
-        if(!worldSettings.isEnabled()) return;
+        if (!worldSettings.isEnabled()) return;
 
         if (!worldSettings.isCreeperBlockDamage()) {
             event.blockList().clear();
