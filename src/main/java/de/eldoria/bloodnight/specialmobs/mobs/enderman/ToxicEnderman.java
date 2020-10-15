@@ -8,8 +8,6 @@ import org.bukkit.Particle;
 import org.bukkit.entity.Enderman;
 import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.potion.PotionData;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
 public class ToxicEnderman extends AbstractEnderman {
@@ -26,12 +24,12 @@ public class ToxicEnderman extends AbstractEnderman {
     @Override
     public void onTeleport(EntityTeleportEvent event) {
         Location from = event.getFrom();
-        PotionCloud.builder(from.subtract(0,1,0))
+        PotionCloud.builder(from.subtract(0, 1, 0))
                 .setPotionType(new PotionData(PotionType.POISON, false, true))
                 .ofColor(Color.GREEN)
                 .setDuration(10)
                 .withRadius(4)
-                .setRadiusPerTick(0.1f)
+                .setRadiusPerTick(0.01f)
                 .build();
     }
 }
