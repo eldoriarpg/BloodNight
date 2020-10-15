@@ -1,6 +1,8 @@
 package de.eldoria.bloodnight.specialmobs;
 
 import de.eldoria.bloodnight.core.BloodNight;
+import de.eldoria.bloodnight.specialmobs.effects.ParticleCloud;
+import de.eldoria.bloodnight.specialmobs.effects.PotionCloud;
 import de.eldoria.bloodnight.util.VectorUtil;
 import de.eldoria.eldoutilities.serialization.TypeConversion;
 import org.bukkit.EntityEffect;
@@ -9,7 +11,6 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.World;
-import org.bukkit.entity.AreaEffectCloud;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -22,7 +23,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
@@ -59,18 +59,49 @@ public final class SpecialMobUtil {
         entity.remove();
     }
 
+    /**
+     * Adds a simple potion effect to a entitiy.
+     *
+     * @param entity    entity to add potion effect
+     * @param type      type of potion effect
+     * @param amplifier amplifier
+     * @param visible   true if particles should be visible
+     */
     public static void addPotionEffect(LivingEntity entity, PotionEffectType type, int amplifier, boolean visible) {
         entity.addPotionEffect(new PotionEffect(type, 60 * 20, amplifier, visible, visible));
     }
 
+    /**
+     * Spawns particle around a entity.
+     *
+     * @param entity   entity as center
+     * @param particle particle to spawn
+     * @param amount   amount to spawn
+     */
     public static void spawnParticlesAround(Entity entity, Particle particle, int amount) {
         spawnParticlesAround(entity.getLocation(), particle, amount);
     }
 
+    /**
+     * Spawns particle around a location.
+     *
+     * @param location location as center
+     * @param particle particle to spawn
+     * @param amount   amount to spawn
+     */
     public static void spawnParticlesAround(Location location, Particle particle, int amount) {
         spawnParticlesAround(location, particle, null, amount);
     }
 
+    /**
+     * Spawns particle around a location.
+     *
+     * @param location location as center
+     * @param particle particle to spawn
+     * @param data     data which may be required for spawning the particle
+     * @param amount   amount to spawn
+     * @param <T>      type of date
+     */
     public static <T> void spawnParticlesAround(Location location, Particle particle, T data, int amount) {
         World world = location.getWorld();
         assert world != null;
@@ -95,16 +126,31 @@ public final class SpecialMobUtil {
         }
     }
 
-    public static void spawnEffectArea(Location location, PotionData potionData, int duration) {
-        AreaEffectCloud entity = (AreaEffectCloud) location.getWorld().spawnEntity(location, EntityType.AREA_EFFECT_CLOUD);
-        entity.setBasePotionData(potionData);
-        entity.setDuration(duration * 20);
-    }
-
+    /**
+     * Launches a projectile on the current target of the entity.
+     *
+     * @param source     source of the projectile.
+     * @param projectile projectile type
+     * @param speed      projectile speed
+     * @param <T>        type of projectile
+     *
+     * @return projectile or null if target is null
+     */
     public static <T extends Projectile> T launchProjectileOnTarget(Mob source, Class<T> projectile, double speed) {
         return launchProjectileOnTarget(source, source.getTarget(), projectile, speed);
     }
 
+    /**
+     * Launches a projectile.
+     *
+     * @param source     source of the projectile.
+     * @param target     target of the projectile.
+     * @param projectile projectile type
+     * @param speed      projectile speed
+     * @param <T>        type of projectile
+     *
+     * @return projectile or null if target is null
+     */
     public static <T extends Projectile> T launchProjectileOnTarget(Mob source, Entity target, Class<T> projectile, double speed) {
         if (target != null) {
             Vector vel = VectorUtil.getDirectionVector(source.getLocation(), target.getLocation())
@@ -115,15 +161,33 @@ public final class SpecialMobUtil {
         return null;
     }
 
+    /**
+     * Spawn and mount a entity as a passenger
+     *
+     * @param passengerType type of passenger
+     * @param carrier       carrier where the passenger should be mounted on
+     * @param <T>           type of carrier
+     *
+     * @return spawned passenger which is already mounted.
+     */
     @SuppressWarnings("unchecked")
-    public static <T extends Entity> T spawnAndMount(Entity carrier, EntityType riderType) {
-        T rider = spawnAndTagEntity(carrier.getLocation(), riderType);
-        assert rider == null;
-        tagExtension(rider, carrier);
-        carrier.addPassenger(rider);
-        return rider;
+    public static <T extends Entity> T spawnAndMount(Entity carrier, EntityType passengerType) {
+        T passenger = spawnAndTagEntity(carrier.getLocation(), passengerType);
+        assert passenger == null;
+        tagExtension(passenger, carrier);
+        carrier.addPassenger(passenger);
+        return passenger;
     }
 
+    /**
+     * Spawn and mount a entity on a carrier
+     *
+     * @param carrierType type of carrier
+     * @param rider       rider to mount
+     * @param <T>         type of carrier
+     *
+     * @return spawned carrier with the rider mounted.
+     */
     @SuppressWarnings("unchecked")
     public static <T extends Entity> T spawnAndMount(EntityType carrierType, Entity rider) {
         T carrier = spawnAndTagEntity(rider.getLocation(), carrierType);
@@ -133,6 +197,15 @@ public final class SpecialMobUtil {
         return carrier;
     }
 
+    /**
+     * Spawns a new entity and tags it as special mob.
+     *
+     * @param location   location of the new entity
+     * @param entityType type of the entity
+     * @param <T>        type of the entity
+     *
+     * @return spawned entity of type
+     */
     @SuppressWarnings("unchecked")
     public static <T extends Entity> T spawnAndTagEntity(Location location, EntityType entityType) {
         Entity entity = location.getWorld().spawnEntity(location, entityType);
@@ -158,6 +231,7 @@ public final class SpecialMobUtil {
      * Checks if a entity is a extension of a special mob.
      *
      * @param entity entity to check
+     *
      * @return true if the entity is a extension
      */
     public static boolean isExtension(Entity entity) {
@@ -170,10 +244,10 @@ public final class SpecialMobUtil {
     }
 
     /**
-     * Get the UUID of the base mob.
-     * This will only return a UUID if {@link #isExtension(Entity)} returns true
+     * Get the UUID of the base mob. This will only return a UUID if {@link #isExtension(Entity)} returns true
      *
      * @param entity entity to check
+     *
      * @return returns a uuid if the mob is a extension.
      */
     public static Optional<UUID> getBaseUUID(Entity entity) {
@@ -185,11 +259,24 @@ public final class SpecialMobUtil {
         return Optional.empty();
     }
 
+    /**
+     * Set the special mob type.
+     *
+     * @param entity entity to set
+     * @param type   type to set
+     */
     public static void setSpecialMobType(Entity entity, String type) {
         PersistentDataContainer dataContainer = entity.getPersistentDataContainer();
         dataContainer.set(MOB_TYPE, PersistentDataType.STRING, type);
     }
 
+    /**
+     * Get the Special Mob type
+     *
+     * @param entity entity to check
+     *
+     * @return optional string with the mob type or a empty optional
+     */
     public static Optional<String> getSpecialMobType(Entity entity) {
         PersistentDataContainer dataContainer = entity.getPersistentDataContainer();
         if (dataContainer.has(MOB_TYPE, PersistentDataType.STRING)) {
@@ -214,6 +301,13 @@ public final class SpecialMobUtil {
         entity.setPersistent(false);
     }
 
+    /**
+     * Checks if a mob is a special mob
+     *
+     * @param entity entity to check
+     *
+     * @return true if the mob is a special mob
+     */
     public static boolean isSpecialMob(Entity entity) {
         PersistentDataContainer dataContainer = entity.getPersistentDataContainer();
         if (dataContainer.has(IS_SPECIAL_MOB, PersistentDataType.BYTE)) {
@@ -223,6 +317,13 @@ public final class SpecialMobUtil {
         return false;
     }
 
+    /**
+     * Handles the damage which was dealt to one entity to the extension or base.
+     *
+     * @param receiver receiver of the damage.
+     * @param other    the other part of the mob.
+     * @param event    the damage event
+     */
     public static void handleExtendedEntityDamage(LivingEntity receiver, LivingEntity other, EntityDamageEvent event) {
         if (event instanceof EntityDamageByEntityEvent) {
             EntityDamageByEntityEvent entityDamage = (EntityDamageByEntityEvent) event;
@@ -240,5 +341,40 @@ public final class SpecialMobUtil {
         }
         other.setHealth(newHealth);
         other.playEffect(EntityEffect.HURT);
+    }
+
+    /**
+     * Builds a particle cloud and binds it to an entity.
+     * <p>
+     * In the most cases {@link #spawnParticlesAround(Entity, Particle, int)} will result in a better result.
+     *
+     * @param target target to which the particle cloud should be bound.
+     *
+     * @return builder
+     */
+    public static ParticleCloud.Builder buildParticleCloud(LivingEntity target) {
+        return ParticleCloud.builder(target);
+    }
+
+    /**
+     * Build a particle cloud which is bound to a entity
+     *
+     * @param target entity which will be followed by the cloud
+     *
+     * @return builder
+     */
+    public static PotionCloud.Builder buildPotionCloud(LivingEntity target) {
+        return PotionCloud.builder(target);
+    }
+
+    /**
+     * Build a particle cloud at a specific location.
+     *
+     * @param location location where the cloud should be created
+     *
+     * @return builder
+     */
+    public static PotionCloud.Builder buildParticleCloud(Location location) {
+        return PotionCloud.builder(location);
     }
 }
