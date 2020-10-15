@@ -41,6 +41,10 @@
                             <pattern>de.eldoria.eldoutilities</pattern>
                             <shadedPattern>de.eldoria.bloodnight.eldoutilities</shadedPattern>
                         </relocation>
+                        <relocation>
+                            <pattern>net.kyori</pattern>
+                            <shadedPattern>de.eldoria.bloodnight.kyori</shadedPattern>
+                        </relocation>
                     </relocations>
                 </configuration>
                 <executions>
