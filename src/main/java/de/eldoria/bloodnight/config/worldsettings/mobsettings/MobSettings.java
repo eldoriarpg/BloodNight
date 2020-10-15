@@ -210,16 +210,20 @@ public class MobSettings implements ConfigurationSerializable {
 
                 // only load settings for valid mobs
                 for (MobFactory factory : entry.getValue().getFactories()) {
+                    boolean found = false;
                     for (MobSetting mobSetting : valueOrDefault) {
                         // check if a setting is already registered
                         if (mobSetting.getMobName().equalsIgnoreCase(factory.getMobName())) {
                             mobSettings.add(mobSetting);
+                            found = true;
                             break;
                         }
                     }
-                    // create default settings
-                    mobSettings.add(new MobSetting(factory.getMobName()));
-                    BloodNight.logger().info(String.format("No settings for {} found. Creating default settings.", factory.getMobName()));
+                    if (!found) {
+                        // create default settings
+                        mobSettings.add(new MobSetting(factory.getMobName()));
+                        BloodNight.logger().info(String.format("No settings for %s found. Creating default settings.", factory.getMobName()));
+                    }
                 }
             }
         }
