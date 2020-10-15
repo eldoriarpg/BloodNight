@@ -17,6 +17,7 @@ import de.eldoria.bloodnight.core.manager.NotificationManager;
 import de.eldoria.eldoutilities.localization.Localizer;
 import de.eldoria.eldoutilities.messages.MessageSender;
 import lombok.Getter;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.PluginCommand;
@@ -76,6 +77,9 @@ public class BloodNight extends JavaPlugin {
             registerListener();
             registerCommand("bloodnight",
                     new BloodNightCommand(configuration, localizer, this, nightManager, mobManager, inventoryListener));
+            if (configuration.isMetrics()) {
+                enableMetrics();
+            }
         }
 
         onReload();
@@ -92,6 +96,10 @@ public class BloodNight extends JavaPlugin {
         localizer.setLocale(configuration.getGeneralSettings().getLanguage());
         configuration.reload();
         debug = configuration.getGeneralSettings().isDebug();
+
+        if(debug){
+            logger.info("§cDebug mode active");
+        }
         nightManager.reload();
     }
 
@@ -121,6 +129,11 @@ public class BloodNight extends JavaPlugin {
         ConfigurationSerialization.registerClass(Drop.class);
         ConfigurationSerialization.registerClass(BossBarSettings.class);
         ConfigurationSerialization.registerClass(MobSettings.MobTypes.class);
+    }
+
+    private void enableMetrics() {
+        logger.info("§1Metrics enabled. Thank you!");
+        Metrics metrics = new Metrics(this, 9123);
     }
 
     @Override
