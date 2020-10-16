@@ -26,7 +26,7 @@ public class About extends EldoCommand {
                 Replacement.create("AUTHORS", String.join(", ", descr.getAuthors())).addFormatting('b'),
                 Replacement.create("VERSION", descr.getVersion()).addFormatting('b'),
                 Replacement.create("WEBSITE", descr.getWebsite()).addFormatting('b'),
-                Replacement.create("DISCORD", "https://discord.gg/rfRuUge").addFormatting('b'));
+                Replacement.create("DISCORD", "https://discord.gg/3bYny67").addFormatting('b'));
         messageSender().sendMessage(sender, info);
         return true;
     }
