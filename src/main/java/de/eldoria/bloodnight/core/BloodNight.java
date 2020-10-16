@@ -16,6 +16,8 @@ import de.eldoria.bloodnight.core.manager.NightManager;
 import de.eldoria.bloodnight.core.manager.NotificationManager;
 import de.eldoria.eldoutilities.localization.Localizer;
 import de.eldoria.eldoutilities.messages.MessageSender;
+import de.eldoria.eldoutilities.updater.spigotupdater.SpigotUpdateChecker;
+import de.eldoria.eldoutilities.updater.spigotupdater.SpigotUpdateData;
 import lombok.Getter;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
@@ -80,6 +82,10 @@ public class BloodNight extends JavaPlugin {
             if (configuration.isMetrics()) {
                 enableMetrics();
             }
+            if (configuration.isUpdateReminder()) {
+                // TODO: Uncomment this when published and add spigot id.
+                // new SpigotUpdateChecker(new SpigotUpdateData(this, "bloodNight.admin.*", true, 0));
+            }
         }
 
         onReload();
@@ -97,7 +103,7 @@ public class BloodNight extends JavaPlugin {
         configuration.reload();
         debug = configuration.getGeneralSettings().isDebug();
 
-        if(debug){
+        if (debug) {
             logger.info("§cDebug mode active");
         }
         nightManager.reload();
