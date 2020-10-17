@@ -1,19 +1,24 @@
 package de.eldoria.bloodnight.command.bloodnight;
 
 import de.eldoria.bloodnight.command.util.CommandUtil;
-import de.eldoria.bloodnight.command.util.KyoriColors;
-import de.eldoria.bloodnight.config.BossBarSettings;
 import de.eldoria.bloodnight.config.Configuration;
-import de.eldoria.bloodnight.config.WorldSettings;
+import de.eldoria.bloodnight.config.worldsettings.BossBarSettings;
+import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.core.BloodNight;
+import de.eldoria.bloodnight.util.Permissions;
 import de.eldoria.eldoutilities.localization.Localizer;
 import de.eldoria.eldoutilities.messages.MessageSender;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
+import de.eldoria.eldoutilities.simplecommands.TabCompleteUtil;
+import de.eldoria.eldoutilities.utils.ArgumentUtils;
 import de.eldoria.eldoutilities.utils.EnumUtil;
 import de.eldoria.eldoutilities.utils.Parser;
+import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
@@ -28,6 +33,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -45,18 +51,20 @@ public class ManageWorlds extends EldoCommand {
     // world field value page
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (!(sender instanceof Player)) return true;
+        if (isConsole(sender)) return true;
+
+        if (denyAccess(sender, Permissions.MANAGE_WORLDS)) {
+            messageSender().sendError(sender, localizer().getMessage("error.console"));
+            return true;
+        }
 
         Player player = (Player) sender;
 
-        World world = player.getWorld();
+        World world = args.length > 0 ? Bukkit.getWorld(args[0]) : player.getWorld();
 
-        if (args.length > 0) {
-            world = Bukkit.getWorld(args[0]);
-            if (world == null) {
-                messageSender().sendError(sender, "invalid world");
-                return true;
-            }
+        if (world == null) {
+            messageSender().sendError(sender, localizer().getMessage("error.invalidWorld"));
+            return true;
         }
 
         WorldSettings worldSettings = configuration.getWorldSettings(world);
@@ -66,16 +74,18 @@ public class ManageWorlds extends EldoCommand {
             return true;
         }
 
-        // world field value [page]
-        if (argumentsInvalid(sender, args, 3, "some syntax")) {
+        // world field value
+        if (argumentsInvalid(sender, args, 3,
+                "[" + localizer().getMessage("syntax.worldName") + "] [<"
+                        + localizer().getMessage("syntax.field") + "> <"
+                        + localizer().getMessage("syntax.value") + ">]")) {
             return true;
         }
 
         String field = args[1];
         String value = args[2];
-        World finalWorld = world;
         OptionalInt optPage = CommandUtil.findPage(configuration.getWorldSettings().values(), 3,
-                w -> w.getWorldName().equalsIgnoreCase(finalWorld.getName()));
+                w -> w.getWorldName().equalsIgnoreCase(world.getName()));
 
         if ("page".equalsIgnoreCase(field)) {
             optPage = Parser.parseInt(value);
@@ -86,52 +96,63 @@ public class ManageWorlds extends EldoCommand {
         }
 
         if ("bossBar".equalsIgnoreCase(field)) {
+            if (!TabCompleteUtil.isCommand(value, "state", "title", "color", "toggleEffect")) {
+                messageSender().sendError(sender, localizer().getMessage("error.invalidField"));
+            }
+            if (argumentsInvalid(sender, args, 4,
+                    "[" + localizer().getMessage("syntax.worldName") + "] [" +
+                            "bossBar <"
+                            + localizer().getMessage("syntax.field") + "> <"
+                            + localizer().getMessage("syntax.value") + ">]")) {
+                return true;
+            }
             String bossBarValue = args[3];
             BossBarSettings bbs = worldSettings.getBossBarSettings();
             if ("state".equalsIgnoreCase(value)) {
                 Optional<Boolean> aBoolean = Parser.parseBoolean(bossBarValue);
                 if (!aBoolean.isPresent()) {
-                    messageSender().sendError(sender, "invalid boolean");
+                    messageSender().sendError(sender, localizer().getMessage("error.invalidBoolean"));
                     return true;
                 }
                 bbs.setEnabled(aBoolean.get());
-            } else if ("title".equalsIgnoreCase(value)) {
+            }
+            if ("title".equalsIgnoreCase(value)) {
                 String title = String.join(" ", Arrays.copyOfRange(args, 3, args.length));
                 bbs.setTitle(title);
-            } else if ("color".equalsIgnoreCase(value)) {
+            }
+            if ("color".equalsIgnoreCase(value)) {
                 BarColor parse = EnumUtil.parse(bossBarValue, BarColor.class);
                 if (parse == null) {
-                    messageSender().sendError(sender, "Invalid boss bar color");
+                    messageSender().sendError(sender, localizer().getMessage("error.invalidValue"));
                     return true;
                 }
                 bbs.setColor(parse);
-            } else if ("toggleEffect".equalsIgnoreCase(value)) {
+            }
+            if ("toggleEffect".equalsIgnoreCase(value)) {
                 BarFlag parse = EnumUtil.parse(bossBarValue, BarFlag.class);
                 if (parse == null) {
-                    messageSender().sendError(sender, "Invalid boss bar flag");
+                    messageSender().sendError(sender, localizer().getMessage("error.invalidValue"));
                     return true;
                 }
                 bbs.toggleEffect(parse);
-            } else {
-                messageSender().sendError(sender, "invalid field");
-                return true;
             }
-        } else if ("state".equalsIgnoreCase(field)) {
+
+            sendWorldPage(world, sender, optPage.getAsInt());
+            configuration.safeConfig();
+            return true;
+        }
+        if ("state".equalsIgnoreCase(field)) {
             Optional<Boolean> aBoolean = Parser.parseBoolean(value);
             if (!aBoolean.isPresent()) {
                 messageSender().sendError(sender, "invalid boolean");
                 return true;
             }
             worldSettings.setEnabled(aBoolean.get());
-        } else {
-            messageSender().sendError(sender, "invalid field");
+            sendWorldPage(world, sender, optPage.getAsInt());
+            configuration.safeConfig();
             return true;
         }
-        if (optPage.isPresent()) {
-            sendWorldPage(world, sender, optPage.getAsInt());
-        } else {
-            messageSender().sendMessage(sender, "changed");
-        }
+        messageSender().sendError(sender, localizer().getMessage("error.invalidField"));
         return true;
     }
 
@@ -143,75 +164,112 @@ public class ManageWorlds extends EldoCommand {
                 entry -> {
                     String cmd = "/bloodnight manageWorlds " + entry.getWorldName() + " ";
                     BossBarSettings bbs = entry.getBossBarSettings();
-                    return TextComponent.builder()
+                    return Component.text()
                             // World State
-                            .append(TextComponent.builder(entry.getWorldName(), KyoriColors.GOLD)
-                                    .decoration(TextDecoration.BOLD, true).build()).append(" ")
+                            .append(Component.text(entry.getWorldName(), NamedTextColor.GOLD, TextDecoration.BOLD))
+                            .append(Component.text("  "))
                             .append(CommandUtil.getBooleanField(entry.isEnabled(),
                                     cmd + "state {bool} ",
-                                    "", "enabled", "disabled"))
-                            .append(TextComponent.newline()).append("  ")
+                                    "",
+                                    localizer().getMessage("state.enabled"),
+                                    localizer().getMessage("state.disabled")))
+                            .append(Component.newline()).append(Component.text("  "))
                             // boss bar state
-                            .append(TextComponent.builder("BossBarSettings: ", KyoriColors.AQUA))
+                            .append(Component.text(localizer().getMessage("field.bossBarSettings") + ": ", NamedTextColor.AQUA))
                             .append(CommandUtil.getBooleanField(bbs.isEnabled(),
                                     cmd + "bossBar state {bool} ",
-                                    "", "enabled", "disabled"))
-                            .append(TextComponent.newline()).append("  ")
+                                    "",
+                                    localizer().getMessage("state.enabled"),
+                                    localizer().getMessage("state.disabled")))
+                            .append(Component.newline()).append(Component.text("  "))
                             // title
-                            .append(TextComponent.builder("Title: ", KyoriColors.AQUA))
-                            .append(TextComponent.builder(bbs.getTitle(), KyoriColors.GOLD))
-                            .append(TextComponent.builder(" [change] ", KyoriColors.GREEN)
-                                    .clickEvent(ClickEvent.suggestCommand(cmd + "bossBar title ")))
-                            .append(TextComponent.newline()).append("  ")
+                            .append(Component.text(localizer().getMessage("field.title") + ": ", NamedTextColor.AQUA))
+                            .append(Component.text(bbs.getTitle(), NamedTextColor.GOLD))
+                            .append(Component.text(" [" + localizer().getMessage("action.change") + "] ", NamedTextColor.GREEN)
+                                    .clickEvent(ClickEvent.suggestCommand(cmd + "bossBar title " + bbs.getTitle())))
+                            .append(Component.newline()).append(Component.text("  "))
                             // Color
-                            .append(TextComponent.builder("Color: ", KyoriColors.AQUA))
-                            .append(TextComponent.builder(bbs.getColor().toString(), toKyoriColor(bbs.getColor())))
-                            .append(TextComponent.builder(" [change] ", KyoriColors.GREEN)
+                            .append(Component.text(localizer().getMessage("field.color") + ": ", NamedTextColor.AQUA))
+                            .append(Component.text(bbs.getColor().toString(), toKyoriColor(bbs.getColor())))
+                            .append(Component.text(" [" + localizer().getMessage("action.change") + "] ", NamedTextColor.GREEN)
                                     .clickEvent(ClickEvent.suggestCommand(cmd + "bossBar color ")))
-                            .append(TextComponent.newline()).append("  ")
+                            .append(Component.newline()).append(Component.text("  "))
                             // Effects
-                            .append(TextComponent.builder("Effects: ", KyoriColors.AQUA))
+                            .append(Component.text(localizer().getMessage("field.effects") + ": ", NamedTextColor.AQUA))
                             .append(CommandUtil.getToggleField(bbs.isEffectEnabled(BarFlag.CREATE_FOG),
                                     cmd + "bossBar toggleEffect CREATE_FOG",
-                                    "Fog"))
-                            .append(" ")
+                                    localizer().getMessage("state.fog")))
+                            .append(Component.space())
                             .append(CommandUtil.getToggleField(bbs.isEffectEnabled(BarFlag.DARKEN_SKY),
                                     cmd + "bossBar toggleEffect DARKEN_SKY",
-                                    "Darken Sky"))
-                            .append(" ")
+                                    localizer().getMessage("state.darkenSky")))
+                            .append(Component.space())
                             .append(CommandUtil.getToggleField(bbs.isEffectEnabled(BarFlag.PLAY_BOSS_MUSIC),
                                     cmd + "bossBar toggleEffect PLAY_BOSS_MUSIC",
-                                    "Music"))
+                                    localizer().getMessage("state.music")))
                             .build();
                 },
-                "Mob States",
+                localizer().getMessage("manageWorlds.title"),
                 "/bloodNight manageWorlds " + world.getName() + " page {page}");
 
-        bukkitAudiences.audience(sender).sendMessage(component);
+        bukkitAudiences.sender(sender).sendMessage(Identity.nil(), component);
     }
 
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        return super.onTabComplete(sender, command, alias, args);
+        if (args.length == 1) {
+            return TabCompleteUtil.completeWorlds(args[0]);
+        }
+        if (args.length == 2) {
+            return TabCompleteUtil.complete(args[1], "bossBar", "state");
+        }
+
+        String field = args[1];
+        if ("bossBar".equalsIgnoreCase(field)) {
+            if (args.length == 3) {
+                return TabCompleteUtil.complete(args[2], "state", "title", "color", "toggleEffect");
+            }
+            String bossField = args[2];
+            String bossValue = args[3];
+
+            if ("state".equalsIgnoreCase(bossField)) {
+                return TabCompleteUtil.completeBoolean(bossValue);
+            }
+            if ("title".equalsIgnoreCase(bossField)) {
+                return TabCompleteUtil.completeFreeInput(ArgumentUtils.getRangeAsString(args, 3), 16, localizer().getMessage("field.title"), localizer());
+            }
+            if ("color".equalsIgnoreCase(bossField)) {
+                return TabCompleteUtil.complete(bossValue, BarColor.class);
+            }
+            if ("toggleEffect".equalsIgnoreCase(bossField)) {
+                return TabCompleteUtil.complete(bossValue, BarFlag.class);
+            }
+            return Collections.emptyList();
+        }
+
+        if ("state".equalsIgnoreCase(field)) {
+            return TabCompleteUtil.completeBoolean(args[2]);
+        }
+        return Collections.emptyList();
     }
 
     private TextColor toKyoriColor(BarColor color) {
         switch (color) {
             case PINK:
-                return KyoriColors.PINK;
+                return TextColor.color(248, 24, 148);
             case BLUE:
-                return KyoriColors.BLUE;
+                return NamedTextColor.BLUE;
             case RED:
-                return KyoriColors.RED;
+                return NamedTextColor.RED;
             case GREEN:
-                return KyoriColors.GREEN;
+                return NamedTextColor.GREEN;
             case YELLOW:
-                return KyoriColors.YELLOW;
+                return NamedTextColor.YELLOW;
             case PURPLE:
-                return KyoriColors.LIGHT_PURPLE;
+                return NamedTextColor.LIGHT_PURPLE;
             case WHITE:
-                return KyoriColors.WHITE;
+                return NamedTextColor.WHITE;
             default:
                 throw new IllegalStateException("Unexpected value: " + color);
         }

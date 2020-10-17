@@ -9,7 +9,6 @@ import de.eldoria.bloodnight.command.bloodnight.ManageMobs;
 import de.eldoria.bloodnight.command.bloodnight.ManageNight;
 import de.eldoria.bloodnight.command.bloodnight.ManageWorlds;
 import de.eldoria.bloodnight.command.bloodnight.Reload;
-import de.eldoria.bloodnight.command.bloodnight.SetWorldState;
 import de.eldoria.bloodnight.command.bloodnight.SpawnMob;
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.core.manager.MobManager;
@@ -30,12 +29,12 @@ public class BloodNightCommand extends EldoCommand {
         registerCommand("help", help);
         registerCommand("about", new About(localizer, messageSender, plugin));
         registerCommand("spawnMob", new SpawnMob(localizer, messageSender, nightManager, mobManager));
-        registerCommand("cancelNight", new CancelNight(localizer, messageSender, nightManager));
-        registerCommand("forceNight", new ForceNight(localizer, messageSender, nightManager));
+        registerCommand("cancelNight", new CancelNight(localizer, messageSender, nightManager, configuration));
+        registerCommand("forceNight", new ForceNight(localizer, messageSender, nightManager, configuration));
         registerCommand("manageWorlds", new ManageWorlds(localizer, messageSender, configuration));
         registerCommand("manageMob", new ManageMob(localizer, messageSender, configuration, inventoryListener));
         registerCommand("manageNight", new ManageNight(localizer, messageSender, configuration));
         registerCommand("manageMobs", new ManageMobs(localizer, messageSender, configuration, inventoryListener));
-        registerCommand("reload", new Reload(localizer, messageSender, configuration, nightManager));
+        registerCommand("reload", new Reload(localizer, messageSender));
     }
 }

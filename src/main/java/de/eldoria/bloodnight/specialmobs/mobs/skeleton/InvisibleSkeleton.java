@@ -11,6 +11,6 @@ public class InvisibleSkeleton extends AbstractSkeleton {
 
     @Override
     public void tick() {
-        SpecialMobUtil.addPotionEffect(getSkeleton(), PotionEffectType.INVISIBILITY, 1, false);
+        SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.INVISIBILITY, 1, false);
     }
 }

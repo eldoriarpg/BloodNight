@@ -22,11 +22,11 @@ public class About extends EldoCommand {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         PluginDescriptionFile descr = plugin.getDescription();
         String info = localizer().getMessage("about",
-                Replacement.create("PLUGIN_NAME", "Big Doors Opener").addFormatting('b'),
+                Replacement.create("PLUGIN_NAME", "Blood Night").addFormatting('b'),
                 Replacement.create("AUTHORS", String.join(", ", descr.getAuthors())).addFormatting('b'),
                 Replacement.create("VERSION", descr.getVersion()).addFormatting('b'),
                 Replacement.create("WEBSITE", descr.getWebsite()).addFormatting('b'),
-                Replacement.create("DISCORD", "https://discord.gg/rfRuUge").addFormatting('b'));
+                Replacement.create("DISCORD", "https://discord.gg/3bYny67").addFormatting('b'));
         messageSender().sendMessage(sender, info);
         return true;
     }

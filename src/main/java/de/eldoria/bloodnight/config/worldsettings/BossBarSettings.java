@@ -1,4 +1,4 @@
-package de.eldoria.bloodnight.config;
+package de.eldoria.bloodnight.config.worldsettings;
 
 import com.google.common.collect.Lists;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;

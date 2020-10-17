@@ -17,20 +17,24 @@ public class InvisibleZombie extends AbstractZombie {
         super(zombie);
 
         EntityEquipment equipment = zombie.getEquipment();
-        equipment.setItemInMainHand(new ItemStack(Material.GOLDEN_SWORD));
+        equipment.setItemInMainHand(new ItemStack(Material.AIR));
+        equipment.setHelmet(new ItemStack(Material.AIR));
+        equipment.setChestplate(new ItemStack(Material.AIR));
+        equipment.setLeggings(new ItemStack(Material.AIR));
+        equipment.setBoots(new ItemStack(Material.AIR));
         tick();
     }
 
     @Override
     public void tick() {
         if (lastDamage.isBefore(Instant.now().minusSeconds(10))) {
-            SpecialMobUtil.addPotionEffect(getZombie(), PotionEffectType.INVISIBILITY, 1, true);
+            SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.INVISIBILITY, 1, true);
         }
     }
 
     @Override
     public void onDamageByEntity(EntityDamageByEntityEvent event) {
         lastDamage = Instant.now();
-        getZombie().removePotionEffect(PotionEffectType.INVISIBILITY);
+        getBaseEntity().removePotionEffect(PotionEffectType.INVISIBILITY);
     }
 }

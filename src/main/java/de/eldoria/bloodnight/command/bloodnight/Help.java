@@ -6,6 +6,10 @@ import de.eldoria.eldoutilities.simplecommands.EldoCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Collections;
+import java.util.List;
 
 public class Help extends EldoCommand {
     public Help(Localizer localizer, MessageSender messageSender) {
@@ -14,17 +18,23 @@ public class Help extends EldoCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        messageSender().sendMessage(sender, "help" + localizer().getMessage("help.help") + "\n"
+        messageSender().sendMessage(sender, localizer().getMessage("help.help") + "\n"
                 + "§6about§r\n" + localizer().getMessage("help.about") + "\n"
-                + "§6addWorld§r\n" + localizer().getMessage("help.addWorld") + "\n"
-                + "§6removeWorld§r\n" + localizer().getMessage("help.removeWorld") + "\n"
-                + "§6setLanguage§r\n" + localizer().getMessage("help.setLanguage") + "\n"
-                + "§6forcePhantoms§r\n" + localizer().getMessage("help.forcePhantoms") + "\n"
-                + "§6setSkippable§r\n" + localizer().getMessage("help.setSkippable") + "\n"
-                + "§6setNightBegin§r\n" + localizer().getMessage("help.setNightBegin") + "\n"
-                + "§6setNightEnd§r\n" + localizer().getMessage("help.setNightEnd")
+                + "§6forceNight§r\n" + localizer().getMessage("help.forceNight") + "\n"
+                + "§6cancelNight§r\n" + localizer().getMessage("help.cancelNight") + "\n"
+                + "§6manageMob§r\n" + localizer().getMessage("help.manageMob") + "\n"
+                + "§6manageMobs§r\n" + localizer().getMessage("help.manageMobs") + "\n"
+                + "§6manageNight§r\n" + localizer().getMessage("help.manageNight") + "\n"
+                + "§6manageWorlds§r\n" + localizer().getMessage("help.manageWorlds") + "\n"
+                + "§6reload§r\n" + localizer().getMessage("help.reload") + "\n"
+                + "§6spawnMob§r\n" + localizer().getMessage("help.spawnMob")
         );
         return true;
     }
 
+    @Override
+    public @Nullable
+    List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+        return Collections.emptyList();
+    }
 }

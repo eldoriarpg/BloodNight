@@ -28,7 +28,7 @@ public class MobGroup {
         factories.add(factory);
     }
 
-    public void registerFactory(String displayName, Function<LivingEntity, SpecialMob> factory) {
-        factories.add(new MobFactory(entityType, displayName, factory));
+    public void registerFactory(Class<? extends SpecialMob<?>> clazz, Function<LivingEntity, SpecialMob<?>> factory) {
+        factories.add(new MobFactory(entityType, clazz, factory));
     }
 }

@@ -13,7 +13,7 @@ public class SpeedCreeper extends AbstractCreeper {
 
     @Override
     public void tick() {
-        SpecialMobUtil.addPotionEffect(getCreeper(), PotionEffectType.SPEED, 4, true);
+        SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.SPEED, 4, true);
     }
 
     @Override

@@ -1,9 +1,10 @@
 package de.eldoria.bloodnight.core.manager;
 
-import de.eldoria.bloodnight.config.BossBarSettings;
 import de.eldoria.bloodnight.config.Configuration;
-import de.eldoria.bloodnight.config.NightSettings;
-import de.eldoria.bloodnight.config.WorldSettings;
+import de.eldoria.bloodnight.config.worldsettings.BossBarSettings;
+import de.eldoria.bloodnight.config.worldsettings.NightSelection;
+import de.eldoria.bloodnight.config.worldsettings.NightSettings;
+import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.core.events.BloodNightBeginEvent;
 import de.eldoria.bloodnight.core.events.BloodNightEndEvent;
@@ -12,10 +13,12 @@ import de.eldoria.eldoutilities.messages.MessageSender;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Statistic;
 import org.bukkit.World;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
+import org.bukkit.boss.KeyedBossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -33,6 +36,8 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -59,10 +64,14 @@ public class NightManager implements Listener, Runnable {
 
     private final Map<UUID, ConsistencyCache> playerConsistencyMap = new HashMap<>();
 
+    private final Map<String, Double> customTimes = new HashMap<>();
+
     private final PluginManager pluginManager = Bukkit.getPluginManager();
     private final ThreadLocalRandom rand = ThreadLocalRandom.current();
     private final Localizer localizer;
     private final MessageSender messageSender;
+
+    private int worldRefresh = 0;
 
     public NightManager(Configuration configuration) {
         this.configuration = configuration;
@@ -107,8 +116,12 @@ public class NightManager implements Listener, Runnable {
      */
     @Override
     public void run() {
-        for (World observedWorld : observedWorlds) {
-            calcualteWorldState(observedWorld);
+        worldRefresh++;
+        if (worldRefresh == 5) {
+            for (World observedWorld : observedWorlds) {
+                calcualteWorldState(observedWorld);
+            }
+            worldRefresh = 0;
         }
 
         for (Map.Entry<World, BloodNightData> entry : bloodWorlds.entrySet()) {
@@ -117,12 +130,13 @@ public class NightManager implements Listener, Runnable {
             if (ns.isOverrideNightDuration()) {
                 int nightDurationTicks = ns.getNightDuration() * 20;
                 long normalNightDuration = getDiff(ns.getNightBegin(), ns.getNightEnd());
+                double calcTicks = (double) normalNightDuration / nightDurationTicks;
 
-                double calcTicks = nightDurationTicks / (double) normalNightDuration;
+                long fullTime = entry.getKey().getFullTime();
+                double time = customTimes.compute(entry.getKey().getName(), (key, old) -> (old == null ? fullTime : old) + calcTicks);
 
                 // This scheduler is called every 5 ticks.
-                // TODO make scheduler tick modular
-                entry.getKey().setFullTime(entry.getKey().getFullTime() + Math.round(calcTicks * 5));
+                entry.getKey().setFullTime(Math.round(time));
             }
         }
     }
@@ -163,40 +177,59 @@ public class NightManager implements Listener, Runnable {
         WorldSettings settings = configuration.getWorldSettings(world.getName());
 
         if (!settings.isEnabled()) {
-            BloodNight.logger().info("Blood night in world " + world.getName() + " is not enabled. Will not initialize.");
+            if (BloodNight.isDebug()) {
+                BloodNight.logger().info("Blood night in world " + world.getName() + " is not enabled. Will not initialize.");
+            }
             return;
         }
 
         // skip the calculation if a night should be forced.
         if (!forceNight.remove(world)) {
-            switch (settings.getNightSelection().getNightSelectionType()) {
+            NightSelection sel = settings.getNightSelection();
+            switch (sel.getNightSelectionType()) {
                 case RANDOM:
-                    if (settings.getNightSelection().getProbability() > val) return;
+                    if (sel.getProbability() < val) return;
                     break;
                 case MOON_PHASE:
                     int moonPhase = getMoonPhase(world);
-                    if (!settings.getNightSelection().getPhases().containsKey(moonPhase)) return;
-                    if (settings.getNightSelection().getPhases().get(moonPhase) > val) return;
+                    if (!sel.getPhases().containsKey(moonPhase)) return;
+                    if (sel.getPhases().get(moonPhase) > val) return;
+                    break;
+                case INTERVAL:
+                    sel.setCurInterval(sel.getCurInterval() + 1);
+                    if (sel.getCurInterval() != sel.getInterval()) {
+                        return;
+                    }
+                    sel.setCurInterval(0);
                     break;
             }
         }
 
         if (!settings.isEnabled()) {
-            BloodNight.logger().info("Blood night in world " + world.getName() + " is not enabled. Will not initialize.");
+            if (BloodNight.isDebug()) {
+                BloodNight.logger().info("Blood night in world " + world.getName() + " is not enabled. Will not initialize.");
+            }
             return;
         }
 
-        BloodNight.logger().info("BloodNight in " + world.getName() + " activated.");
+        if (BloodNight.isDebug()) {
+            BloodNight.logger().info("BloodNight in " + world.getName() + " activated.");
+        }
 
         // A new blood night has begun.
         pluginManager.callEvent(new BloodNightBeginEvent(world));
         BossBar bossBar = null;
         BossBarSettings bbS = settings.getBossBarSettings();
         if (bbS.isEnabled()) {
-            bossBar = Bukkit.createBossBar(BloodNight.getNamespacedKey("bossBar" + settings.getWorldName()), bbS.getTitle(), bbS.getColor(), BarStyle.SOLID, bbS.getEffects());
+            bossBar = Bukkit.createBossBar(getBossBarNamespace(world), bbS.getTitle(), bbS.getColor(), BarStyle.SOLID, bbS.getEffects());
         }
         BloodNightData bloodNightData = new BloodNightData(bossBar);
         bloodWorlds.put(world, bloodNightData);
+
+        for (String cmd : settings.getNightSettings().getStartCommands()) {
+            cmd = cmd.replace("{world}", world.getName());
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
+        }
 
         if (settings.getNightSettings().isOverrideNightDuration()) {
             world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
@@ -205,17 +238,24 @@ public class NightManager implements Listener, Runnable {
         for (Player player : world.getPlayers()) {
             enableBloodNightForPlayer(player, bloodNightData);
         }
-
     }
 
     private void resolveBloodNight(World world) {
 
-        BloodNight.logger().info("BloodNight in " + world.getName() + " resolved.");
+        if (BloodNight.isDebug()) {
+            BloodNight.logger().info("BloodNight in " + world.getName() + " resolved.");
+        }
 
         WorldSettings settings = configuration.getWorldSettings(world.getName());
 
         if (settings.getNightSettings().isOverrideNightDuration()) {
             world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, true);
+            customTimes.remove(world.getName());
+        }
+
+        for (String cmd : settings.getNightSettings().getEndCommands()) {
+            cmd = cmd.replace("{world}", world.getName());
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
         }
 
         pluginManager.callEvent(new BloodNightEndEvent(world));
@@ -225,17 +265,23 @@ public class NightManager implements Listener, Runnable {
         }
 
         if (bloodNightData.getBossBar() != null) {
-            Bukkit.removeBossBar(BloodNight.getNamespacedKey("bossBar" + settings.getWorldName()));
+            Bukkit.removeBossBar(getBossBarNamespace(world));
         }
     }
 
     private void enableBloodNightForPlayer(Player player, BloodNightData bloodNightData) {
         playerConsistencyMap.put(player.getUniqueId(), new ConsistencyCache(player));
         WorldSettings worldSettings = configuration.getWorldSettings(player.getWorld().getName());
-        if (worldSettings.getNightSettings().isForcePhantoms()) {
-            player.setStatistic(Statistic.TIME_SINCE_REST, 72000);
+
+        if (BloodNight.isDebug()) {
+            BloodNight.logger().info("Enabling blood night for player " + player.getName());
         }
-        player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 5 * 20, 1, false, true));
+        if (worldSettings.getMobSettings().isForcePhantoms()) {
+            player.setStatistic(Statistic.TIME_SINCE_REST, 720000);
+        }
+        if (configuration.getGeneralSettings().isBlindness()) {
+            player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 5 * 20, 1, false, true));
+        }
         if (bloodNightData.getBossBar() != null) {
             bloodNightData.getBossBar().addPlayer(player);
         }
@@ -243,13 +289,22 @@ public class NightManager implements Listener, Runnable {
 
     private void disableBloodNightForPlayer(Player player, BloodNightData bloodNightData) {
         ConsistencyCache consistencyCache = playerConsistencyMap.get(player.getUniqueId());
+
+        if (BloodNight.isDebug()) {
+            BloodNight.logger().info("Resolving blood night for player " + player.getName());
+        }
+
         if (consistencyCache != null) {
             consistencyCache.revert(player);
         }
+
         if (bloodNightData.getBossBar() != null) {
             bloodNightData.getBossBar().removePlayer(player);
         }
-        player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 5 * 20, 1, false, true));
+
+        if (configuration.getGeneralSettings().isBlindness()) {
+            player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 5 * 20, 1, false, true));
+        }
     }
 
     // <--- Player state consistency ---> //
@@ -273,6 +328,9 @@ public class NightManager implements Listener, Runnable {
     public void onPlayerLeave(PlayerQuitEvent event) {
         if (playerConsistencyMap.containsKey(event.getPlayer().getUniqueId())) {
             playerConsistencyMap.get(event.getPlayer().getUniqueId()).revert(event.getPlayer());
+        }
+        if (isBloodNightActive(event.getPlayer().getWorld())) {
+            disableBloodNightForPlayer(event.getPlayer(), bloodWorlds.get(event.getPlayer().getWorld()));
         }
     }
 
@@ -306,6 +364,7 @@ public class NightManager implements Listener, Runnable {
      * Check if a world is currenty in blood night mode.
      *
      * @param world world to check
+     *
      * @return true if world is currently in blood night mode.
      */
     public boolean isBloodNightActive(World world) {
@@ -325,17 +384,6 @@ public class NightManager implements Listener, Runnable {
         return currentTime > nextTime ? 24000 - currentTime + nextTime : nextTime - currentTime;
     }
 
-    public void registerWorld(World world) {
-        observedWorlds.add(world);
-    }
-
-    public boolean unregisterWorld(World world) {
-        return observedWorlds.remove(world);
-    }
-
-    public boolean isWorldRegistered(World world) {
-        return observedWorlds.contains(world);
-    }
 
     public void forceNight(World world) {
         forceNight.add(world);
@@ -364,6 +412,18 @@ public class NightManager implements Listener, Runnable {
         }
 
         BloodNight.logger().info("Night manager shutdown successful.");
+
+        Iterator<KeyedBossBar> bossBars = Bukkit.getBossBars();
+        String s = BloodNight.getInstance().getName().toLowerCase(Locale.ROOT);
+        int i = 0;
+        while (bossBars.hasNext()) {
+            KeyedBossBar next = bossBars.next();
+            if (next.getKey().getNamespace().equalsIgnoreCase(s)) {
+                Bukkit.removeBossBar(next.getKey());
+                i++;
+            }
+        }
+        BloodNight.logger().info("Removed " + i + " boss bars.");
     }
 
     public void reload() {
@@ -387,6 +447,10 @@ public class NightManager implements Listener, Runnable {
         return observedWorlds;
     }
 
+    public NamespacedKey getBossBarNamespace(World world) {
+        return BloodNight.getNamespacedKey("bossBar" + world.getName());
+    }
+
     @Getter
     private static class ConsistencyCache {
         private final int timeSinceRest;
@@ -396,7 +460,7 @@ public class NightManager implements Listener, Runnable {
         }
 
         public void revert(Player player) {
-            player.setStatistic(Statistic.TIME_SINCE_REST, timeSinceRest + player.getStatistic(Statistic.TIME_SINCE_REST));
+            player.setStatistic(Statistic.TIME_SINCE_REST, timeSinceRest);
         }
     }
 

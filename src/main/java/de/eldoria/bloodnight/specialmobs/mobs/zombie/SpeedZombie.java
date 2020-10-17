@@ -11,6 +11,6 @@ public class SpeedZombie extends AbstractZombie {
 
     @Override
     public void tick() {
-        SpecialMobUtil.addPotionEffect(getZombie(), PotionEffectType.SPEED, 4, true);
+        SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.SPEED, 4, true);
     }
 }

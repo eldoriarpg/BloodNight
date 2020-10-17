@@ -1,15 +1,16 @@
 package de.eldoria.bloodnight.specialmobs.mobs.creeper;
 
+import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
-import de.eldoria.bloodnight.specialmobs.effects.ParticleCloud;
 import org.bukkit.Color;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.util.Vector;
 
@@ -17,21 +18,16 @@ import java.time.Instant;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class EnderCreeper extends AbstractCreeper {
-    private final ParticleCloud cloud;
-    private Instant lastTeleport = Instant.now();
     private final ThreadLocalRandom rand = ThreadLocalRandom.current();
+    private Instant lastTeleport = Instant.now();
 
     public EnderCreeper(Creeper creeper) {
         super(creeper);
-        cloud = ParticleCloud.builder(creeper)
-                .ofColor(Color.PURPLE)
-                .withParticle(Particle.REVERSE_PORTAL)
-                .build();
     }
 
     @Override
     public void tick() {
-        cloud.tick();
+        SpecialMobUtil.spawnParticlesAround(getBaseEntity().getLocation(), Particle.REDSTONE, new Particle.DustOptions(Color.PURPLE, 2), 5);
         teleportToTarget();
     }
 
@@ -41,37 +37,45 @@ public class EnderCreeper extends AbstractCreeper {
     }
 
     @Override
-    public void onDamage(EntityDamageEvent event) {
-    }
-
-    @Override
     public void onDamageByEntity(EntityDamageByEntityEvent event) {
-        if (getCreeper().getTarget() == event.getDamager()) {
+        if (getBaseEntity().getTarget() == event.getDamager()) {
             return;
         }
 
         if (event.getDamager() instanceof LivingEntity) {
-            getCreeper().setTarget((LivingEntity) event.getDamager());
+            getBaseEntity().setTarget((LivingEntity) event.getDamager());
         }
 
         teleportToTarget();
     }
 
     private void teleportToTarget() {
-        if (lastTeleport.isBefore(Instant.now().minusSeconds(10))) return;
-        LivingEntity target = getCreeper().getTarget();
+        if (lastTeleport.isBefore(Instant.now().minusSeconds(5))) return;
+        LivingEntity target = getBaseEntity().getTarget();
 
         if (target == null) return;
 
-        double distance = target.getLocation().distance(getCreeper().getLocation());
+        double distance = target.getLocation().distance(getBaseEntity().getLocation());
 
-        if (distance > 10) {
+        if (distance > 5) {
             Location loc = target.getLocation();
-            Vector vector = new Vector(loc.getX() + rand.nextDouble(-2, 2), loc.getY(), loc.getZ());
-            getCreeper().teleport(loc.add(vector));
-            lastTeleport = Instant.now();
-            SpecialMobUtil.spawnParticlesAround(loc, Particle.PORTAL, 10);
-            getCreeper().playEffect(EntityEffect.ENTITY_POOF);
+            Vector fuzz = new Vector(rand.nextDouble(-2, 2), 0, rand.nextDouble(-2, 2));
+            Block first = loc.getWorld().getBlockAt(loc.add(fuzz));
+            Block second = first.getRelative(0, 1, 0);
+            if (first.getType() == Material.AIR && second.getType() == Material.AIR) {
+                Location newLoc = first.getLocation();
+                BloodNight.logger().info("Teleport from " + getBaseEntity().getLocation() + " to " + newLoc);
+                getBaseEntity().teleport(newLoc);
+                lastTeleport = Instant.now();
+                SpecialMobUtil.spawnParticlesAround(loc, Particle.PORTAL, 10);
+                getBaseEntity().playEffect(EntityEffect.ENTITY_POOF);
+            }
+            if (lastTeleport.isBefore(Instant.now().minusSeconds(8))) {
+                getBaseEntity().teleport(target.getLocation());
+                lastTeleport = Instant.now();
+                SpecialMobUtil.spawnParticlesAround(loc, Particle.PORTAL, 10);
+                getBaseEntity().playEffect(EntityEffect.ENTITY_POOF);
+            }
         }
     }
 }

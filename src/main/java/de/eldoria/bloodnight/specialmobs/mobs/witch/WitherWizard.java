@@ -1,10 +1,14 @@
 package de.eldoria.bloodnight.specialmobs.mobs.witch;
 
 import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
+import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Witch;
 import org.bukkit.entity.WitherSkull;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.ItemStack;
 
 public class WitherWizard extends AbstractWitch {
     public WitherWizard(Witch witch) {
@@ -13,12 +17,18 @@ public class WitherWizard extends AbstractWitch {
 
     @Override
     public void tick() {
-        SpecialMobUtil.spawnParticlesAround(getWitch(), Particle.SPELL_INSTANT, 15);
+        EntityEquipment equipment = getBaseEntity().getEquipment();
+        equipment.setItemInMainHand(new ItemStack(Material.WITHER_SKELETON_SKULL));
+        SpecialMobUtil.spawnParticlesAround(getBaseEntity(), Particle.SPELL_INSTANT, 15);
+        if (canShoot(5)) {
+            SpecialMobUtil.launchProjectileOnTarget(getBaseEntity(), WitherSkull.class, 4);
+            shot();
+        }
     }
 
     @Override
     public void onProjectileShoot(ProjectileLaunchEvent event) {
+        if (event.getEntity().getType() == EntityType.WITHER_SKULL) return;
         event.setCancelled(true);
-        SpecialMobUtil.launchProjectileOnTarget(getWitch(), WitherSkull.class, 2);
     }
 }

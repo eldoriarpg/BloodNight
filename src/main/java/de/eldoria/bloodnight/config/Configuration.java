@@ -1,6 +1,9 @@
 package de.eldoria.bloodnight.config;
 
+import de.eldoria.bloodnight.config.generalsettings.GeneralSettings;
+import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.core.BloodNight;
+import de.eldoria.eldoutilities.utils.ObjUtil;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -14,15 +17,25 @@ import java.util.Map;
 
 public class Configuration {
     private final Plugin plugin;
+    private final Map<String, WorldSettings> worldSettings = new HashMap<>();
     /**
      * Version of the config.
      */
     @Getter
     private int version;
+    /**
+     * Metrics enabled.
+     */
+    @Getter
+    private boolean metrics;
+    /**
+     * Update reminder enabled.
+     */
+    @Getter
+    private boolean updateReminder;
 
     @Getter
     private GeneralSettings generalSettings;
-    private final Map<String, WorldSettings> worldSettings = new HashMap<>();
 
 
     public Configuration(Plugin plugin) {
@@ -31,6 +44,10 @@ public class Configuration {
     }
 
     public WorldSettings getWorldSettings(String key) {
+        if (worldSettings.containsKey(key)) {
+            return worldSettings.get(key);
+        }
+        BloodNight.logger().info("No world setting for " + key + " present. Computing default settings.");
         return worldSettings.computeIfAbsent(key, WorldSettings::new);
     }
 
@@ -38,26 +55,28 @@ public class Configuration {
         return getWorldSettings(key.getName());
     }
 
-    public void addWorldSettings(World world) {
-        worldSettings.put(world.getName(), new WorldSettings(world.getName()));
-    }
-
     public Map<String, WorldSettings> getWorldSettings() {
         return worldSettings;
     }
 
     public void reload() {
+        plugin.reloadConfig();
         FileConfiguration config = plugin.getConfig();
 
         BloodNight.logger().info("Loading config.");
 
         if (!config.contains("version")) {
             init();
+            safeConfig();
+            plugin.reloadConfig();
+            config = plugin.getConfig();
         }
 
         version = config.getInt("version");
+        metrics = config.getBoolean("metrics", true);
+        updateReminder = config.getBoolean("updateReminder", true);
         generalSettings = (GeneralSettings) config.get("generalSettings", new GeneralSettings());
-        List<WorldSettings> worldList = (List<WorldSettings>) config.get("worldSettings", new ArrayList<>());
+        List<WorldSettings> worldList = ObjUtil.nonNull((List<WorldSettings>) config.get("worldSettings", new ArrayList<>()), new ArrayList<>());
         for (WorldSettings settings : worldList) {
             if (Bukkit.getWorld(settings.getWorldName()) != null) {
                 worldSettings.put(settings.getWorldName(), settings);
@@ -76,8 +95,6 @@ public class Configuration {
         BloodNight.logger().info("Config version 1");
         generalSettings = new GeneralSettings();
         BloodNight.logger().info("Added general settings");
-        worldSettings.put("world", new WorldSettings("world"));
-        BloodNight.logger().info("Added default settings for world \"world\"");
         BloodNight.logger().info("Config initialized");
     }
 
@@ -87,6 +104,8 @@ public class Configuration {
     public void safeConfig() {
         FileConfiguration config = plugin.getConfig();
         config.set("version", version);
+        config.set("metrics", metrics);
+        config.set("updateReminder", updateReminder);
         config.set("generalSettings", generalSettings);
         config.set("worldSettings", new ArrayList<>(worldSettings.values()));
         plugin.saveConfig();

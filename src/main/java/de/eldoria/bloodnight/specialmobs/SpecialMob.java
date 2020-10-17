@@ -1,5 +1,7 @@
 package de.eldoria.bloodnight.specialmobs;
 
+import lombok.Getter;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -10,100 +12,162 @@ import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 
-public interface SpecialMob {
-    /**
-     * Called when the entity is spawned.
-     */
-    default void onSpawn() {
+public abstract class SpecialMob<T extends LivingEntity> {
+    @Getter
+    private final T baseEntity;
+
+    public SpecialMob(T baseEntity) {
+        this.baseEntity = baseEntity;
     }
 
     /**
      * Called at a fixed amount of ticks while the blood night is active.
+     * <p>
+     * Counting ticks is not a best practice, since the tick speed is not fixed and can be changed.
+     * <p>
+     * Use {@link java.time.Instant} to measure time since the last action.
      */
-    default void tick() {
+    public void tick() {
     }
 
     /**
-     * Called when a blood night ends.
-     * Should kill or normalize the entity.
+     * Called when a blood night ends and the special mob is going to be removed in the next step.
+     * <p>
+     * The mob will be removed by the {@link #remove()} method. Therefore this method should not remove the mob.
      */
-    void onEnd();
+    public void onEnd() {
 
-    /**
-     * Called when the entity teleports.
-     */
-    default void onTeleport(EntityTeleportEvent event) {
     }
 
     /**
-     * Called when the entity launches a projectile.
+     * Called when the special mob teleports.
      */
-    default void onProjectileShoot(ProjectileLaunchEvent event) {
+    public void onTeleport(EntityTeleportEvent event) {
     }
 
     /**
-     * Called when the a projectile of the entity hit something.
+     * Called when the special mob launches a projectile.
      */
-    default void onProjectileHit(ProjectileHitEvent event) {
+    public void onProjectileShoot(ProjectileLaunchEvent event) {
     }
 
     /**
-     * Called when the entity dies.
+     * Called when a projectile launched by the special mob hit something.
      */
-    default void onDeath(EntityDeathEvent event) {
+    public void onProjectileHit(ProjectileHitEvent event) {
     }
 
     /**
-     * Called when the entity kills another entity.
-     */
-    default void onKill(EntityDeathEvent event) {
-    }
-
-    /**
-     * Called when a entitz starts to explode
+     * Called when the special mob dies.
      *
-     * @param event
+     * @param event The death event of the death of the special mob.
      */
-    default void onExplosionPrimeEvent(ExplosionPrimeEvent event) {
+    public void onDeath(EntityDeathEvent event) {
     }
 
     /**
-     * Called when a entity exploded
+     * Called when the special mob kills another entity.
      *
-     * @param event
+     * @param event The death event of the killed entity.
      */
-    default void onExplosionEvent(EntityExplodeEvent event) {
+    public void onKill(EntityDeathEvent event) {
     }
 
     /**
-     * Called when a entity changes its target
+     * Called when a special mob starts to explode.
      *
-     * @param event
+     * @param event event of the special mob starting to explode
      */
-    default void onTargetEvent(EntityTargetEvent event) {
+    public void onExplosionPrimeEvent(ExplosionPrimeEvent event) {
     }
 
     /**
-     * Called when the entity takes damage
+     * Called when a special mob exploded.
      *
-     * @param event
+     * @param event event of the explosion of the special mob
      */
-    default void onDamage(EntityDamageEvent event) {
+    public void onExplosionEvent(EntityExplodeEvent event) {
+    }
+
+    /**
+     * Called when a special mob changes its target.
+     * <p>
+     * This will only be called, when the new target is of type player or null.
+     * <p>
+     * A special mob will never target something else then a player.
+     *
+     * @param event event containing the new target
+     */
+    public void onTargetEvent(EntityTargetEvent event) {
+    }
+
+    /**
+     * Called when the special mob takes damage
+     * <p>
+     * This is a less specific version of {@link #onDamageByEntity(EntityDamageByEntityEvent)}. Do not implement both.
+     *
+     * @param event damage event of the special mob taking damage
+     */
+    public void onDamage(EntityDamageEvent event) {
     }
 
     /**
      * Called when the entity takes damage from another entity
+     * <p>
+     * This is a more specific version of {@link #onDamage(EntityDamageEvent)}. Do not implement both.
      *
-     * @param event
+     * @param event damage event of the special mob taking damage
      */
-    default void onDamageByEntity(EntityDamageByEntityEvent event) {
+    public void onDamageByEntity(EntityDamageByEntityEvent event) {
     }
 
     /**
      * Called when the entity damages another entity
      *
-     * @param event
+     * @param event event of the special mob dealing damage
      */
-    default void onHit(EntityDamageByEntityEvent event) {
+    public void onHit(EntityDamageByEntityEvent event) {
+    }
+
+    /**
+     * Attemts to remove the base entity.
+     * <p>
+     * This should not be overridden unless your entity has a extension.
+     * <p>
+     * If you override this just remove the extension and call super afterwards.
+     */
+    public void remove() {
+        if (getBaseEntity().isValid()) {
+            getBaseEntity().remove();
+        }
+    }
+
+    /**
+     * This event is called when a entity which is tagged as special mob extension receives damage. This will be most
+     * likely the passenger or the carrier of a special mob.
+     * <p>
+     * This event should be used for damage synchronization.
+     * <p>
+     * Best practise should be that the damage to the extension is forwarded to the base mob.
+     * <p>
+     * Dont implement this if the special mob doesn't has an extension.
+     *
+     * @param event damage event of the extension taking damage,
+     */
+    public void onExtensionDamage(EntityDamageEvent event) {
+    }
+
+    /**
+     * This event is called when a entity which is tagged as special mob extension is killed.
+     * <p>
+     * This will be most likely the passenger or the carrier of a special mob.
+     * <p>
+     * This event should be used to kill the remaining entity.
+     * <p>
+     * Dont implement this if the mob doesn't has an extension.
+     *
+     * @param event damage event of the extension taking damage,
+     */
+    public void onExtensionDeath(EntityDeathEvent event) {
     }
 }

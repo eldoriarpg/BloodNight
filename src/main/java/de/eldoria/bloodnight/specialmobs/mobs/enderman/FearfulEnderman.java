@@ -17,13 +17,13 @@ public class FearfulEnderman extends AbstractEnderman {
     @Override
     public void tick() {
         super.tick();
-        SpecialMobUtil.spawnParticlesAround(getEnderman(), Particle.SPELL_WITCH, 10);
+        SpecialMobUtil.spawnParticlesAround(getBaseEntity(), Particle.SPELL_WITCH, 10);
     }
 
     @Override
     public void onHit(EntityDamageByEntityEvent event) {
         if (event.getEntity().getType() == EntityType.PLAYER) {
-            ((LivingEntity) event.getEntity()).addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 10, 1, true, true));
+            ((LivingEntity) event.getEntity()).addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 7 * 20, 1, true, true));
         }
     }
 }

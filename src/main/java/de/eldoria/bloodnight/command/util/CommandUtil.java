@@ -1,7 +1,9 @@
 package de.eldoria.bloodnight.command.util;
 
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,6 +24,7 @@ public final class CommandUtil {
      * @param page       page starting from 0
      * @param size       size of a page
      * @param <T>        Type of collection
+     *
      * @return collection with a size beteween 0 and size
      */
     public static <T> Collection<T> getSlice(Collection<T> collection, int page, int size) {
@@ -37,36 +40,44 @@ public final class CommandUtil {
         return (int) Math.floor(Math.max(collection.size() - 1, 0) / (double) size);
     }
 
+
     public static TextComponent getPageFooter(int page, int pageMax, String pageCommand) {
-        TextComponent.Builder builder = TextComponent.builder();
-        builder.append("=====<| ").color(KyoriColors.YELLOW);
+        TextComponent.Builder builder = Component.text();
+        builder.append(Component.text("=====<| ", NamedTextColor.YELLOW));
 
         if (page != 0) {
             builder.append(
-                    TextComponent.builder("<<< ")
+                    Component.text("<<< ", NamedTextColor.AQUA)
                             .clickEvent(
                                     ClickEvent.runCommand(pageCommand.replace("{page}", String.valueOf(page - 1)))
-                            )).color(KyoriColors.AQUA);
+                            ));
         } else {
             builder.append(
-                    TextComponent.builder("<<< ").color(KyoriColors.GRAY));
+                    Component.text("<<< ", NamedTextColor.GRAY));
         }
 
-        builder.append((page + 1) + "/" + (pageMax + 1)).color(KyoriColors.YELLOW);
+        builder.append(Component.text((page + 1) + "/" + (pageMax + 1), NamedTextColor.YELLOW));
 
         if (page != pageMax) {
             builder.append(
-                    TextComponent.builder(" >>>")
+                    Component.text(" >>>")
                             .clickEvent(
                                     ClickEvent.runCommand(pageCommand.replace("{page}", String.valueOf(page + 1)))
-                            )).color(KyoriColors.AQUA);
+                            )).color(NamedTextColor.AQUA);
         } else {
             builder.append(
-                    TextComponent.builder(" >>>").color(KyoriColors.GRAY));
+                    Component.text(" >>>", NamedTextColor.GRAY));
         }
 
-        builder.append(" |>=====").color(KyoriColors.YELLOW);
+        builder.append(Component.text(" |>=====", NamedTextColor.YELLOW));
         return builder.build();
+    }
+
+    public static TextComponent getFooter() {
+        return Component.text()
+                .append(Component.text("=====<|    ", NamedTextColor.YELLOW))
+                .append(Component.text("    |>=====", NamedTextColor.YELLOW))
+                .build();
     }
 
     public static <T> OptionalInt findPage(Collection<T> content, int pageSize, Predicate<T> predicate) {
@@ -89,21 +100,21 @@ public final class CommandUtil {
 
     public static <T> TextComponent getPage(Collection<T> content, int page, int elementsPerPage, int elementSize, Function<T, TextComponent> mapping, String title, String pageCommand) {
         Collection<T> elements = getSlice(content, page, elementsPerPage);
-        TextComponent.Builder builder = TextComponent.builder();
+        TextComponent.Builder builder = Component.text();
         for (int i = elements.size() * elementSize; i < 18; i++) {
-            builder.append(TextComponent.newline());
+            builder.append(Component.newline());
 
         }
 
-        builder.append(TextComponent.builder("=====<| ").color(KyoriColors.YELLOW))
-                .append(TextComponent.builder(title).color(KyoriColors.AQUA))
-                .append(TextComponent.builder(" |>=====").color(KyoriColors.YELLOW));
+        builder.append(Component.text("=====<| ").color(NamedTextColor.YELLOW))
+                .append(Component.text(title).color(NamedTextColor.AQUA))
+                .append(Component.text(" |>=====").color(NamedTextColor.YELLOW));
         for (T t : elements) {
-            builder.append(TextComponent.newline())
+            builder.append(Component.newline())
                     .append(mapping.apply(t));
         }
 
-        return builder.append(TextComponent.newline())
+        return builder.append(Component.newline())
                 .append(
                         CommandUtil.getPageFooter(page,
                                 CommandUtil.pageCount(content, elementsPerPage),
@@ -111,25 +122,25 @@ public final class CommandUtil {
     }
 
     public static TextComponent getHeader(String title) {
-        return TextComponent.builder()
-                .append(TextComponent.builder("=====<| ").color(KyoriColors.YELLOW))
-                .append(TextComponent.builder(title).color(KyoriColors.AQUA))
-                .append(TextComponent.builder(" |>=====").color(KyoriColors.YELLOW)).build();
+        return Component.text()
+                .append(Component.text("=====<| ").color(NamedTextColor.YELLOW))
+                .append(Component.text(title).color(NamedTextColor.AQUA))
+                .append(Component.text(" |>=====").color(NamedTextColor.YELLOW)).build();
     }
 
     public static TextComponent getBooleanField(boolean currValue, String cmd, String field, String postive, String negative) {
-        return TextComponent.builder()
-                .append(TextComponent.builder(field + ": ", KyoriColors.AQUA))
+        return Component.text()
+                .append(Component.text(field + ": ", NamedTextColor.AQUA))
                 .append(
-                        TextComponent.builder(postive,
-                                currValue ? KyoriColors.GREEN : KyoriColors.DARK_GRAY)
+                        Component.text(postive,
+                                currValue ? NamedTextColor.GREEN : NamedTextColor.DARK_GRAY)
                                 .clickEvent(
                                         ClickEvent.runCommand(cmd.replace("{bool}", "true")))
                 )
-                .append(" ")
+                .append(Component.space())
                 .append(
-                        TextComponent.builder(negative,
-                                !currValue ? KyoriColors.RED : KyoriColors.DARK_GRAY)
+                        Component.text(negative,
+                                !currValue ? NamedTextColor.RED : NamedTextColor.DARK_GRAY)
                                 .clickEvent(
                                         ClickEvent.runCommand(cmd.replace("{bool}", "false"))))
                 .build();
@@ -137,10 +148,10 @@ public final class CommandUtil {
 
     public static TextComponent getToggleField(boolean currValue, String cmd, String field) {
         String newCmd = cmd.replace("{bool}", String.valueOf(!currValue));
-        return TextComponent.builder()
+        return Component.text()
                 .append(
-                        TextComponent.builder("[" + field + "]",
-                                currValue ? KyoriColors.GREEN : KyoriColors.DARK_GRAY)
+                        Component.text("[" + field + "]",
+                                currValue ? NamedTextColor.GREEN : NamedTextColor.DARK_GRAY)
                                 .clickEvent(
                                         ClickEvent.runCommand(newCmd))
                 )

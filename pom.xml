@@ -5,14 +5,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.eldoria</groupId>
-    <artifactId>blood-night</artifactId>
-    <version>0.1</version>
+    <artifactId>bloodnight</artifactId>
+    <version>0.5</version>
     <name>BloodNight</name>
-    <url>https://github.com/eldoriarpg/BloodNight</url>
+    <url>https://www.spigotmc.org/resources/authors/585216/</url>
     <description>Nights are not hard enough? Make them harder!</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
+        <java.version>8</java.version>
     </properties>
 
     <build>
@@ -20,16 +22,16 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.5</version>
+                <version>3.8.1</version>
                 <configuration>
-                    <source>8</source>
-                    <target>8</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.3</version>
+                <version>3.2.4</version>
                 <!-- Do not include the <configuration>...</configuration> part if you are using Sponge! -->
                 <configuration>
                     <relocations>
@@ -40,6 +42,10 @@
                         <relocation>
                             <pattern>de.eldoria.eldoutilities</pattern>
                             <shadedPattern>de.eldoria.bloodnight.eldoutilities</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>net.kyori</pattern>
+                            <shadedPattern>de.eldoria.bloodnight.kyori</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
@@ -63,7 +69,7 @@
 
     <repositories>
         <repository>
-            <id>jitpack.io</id>
+            <id>jitpack.io</id> <!-- eldo utilities -->
             <url>https://jitpack.io</url>
         </repository>
         <repository>
@@ -74,13 +80,17 @@
             <id>CodeMC</id>
             <url>https://repo.codemc.org/repository/maven-public</url>
         </repository>
+        <repository> <!-- kyori -->
+            <id>sonatype-oss</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </repository>
     </repositories>
 
     <dependencies>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.10</version>
+            <version>1.18.12</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -92,7 +102,7 @@
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>16.0.1</version>
+            <version>16.0.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -104,20 +114,16 @@
         <dependency>
             <groupId>de.eldoria</groupId>
             <artifactId>EldoUtilities</artifactId>
-            <version>v1.0.18</version>
+            <version>v1.0.24</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>net.kyori</groupId>
             <artifactId>adventure-text-minimessage</artifactId>
-            <version>3.0.0-SNAPSHOT</version>
+            <version>4.0.0-SNAPSHOT</version>
             <scope>compile</scope>
             <exclusions>
-                <exclusion>
-                    <groupId>net.kyori</groupId>
-                    <artifactId>examination-string</artifactId>
-                </exclusion>
                 <exclusion>
                     <groupId>org.checkerframework</groupId>
                     <artifactId>checker-qual</artifactId>
@@ -146,10 +152,17 @@
             <version>5.5.2</version>
             <scope>test</scope>
         </dependency>
+        <!-- unit testing -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.8.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>3.5.13</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

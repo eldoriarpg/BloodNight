@@ -61,8 +61,24 @@ public class NotificationManager implements Listener {
                 throw new IllegalStateException("Unexpected value: " + configuration.getGeneralSettings().getBroadcastLevel());
         }
 
+
         for (Player player : players) {
-            messageSender.sendMessage(player, message);
+            sendMessage(player, message);
+        }
+    }
+
+    private void sendMessage(Player player, String message) {
+        String m = "§a" + message.replace("§r", "§r§a");
+        switch (configuration.getGeneralSettings().getBroadcastMethod()) {
+            case CHAT:
+                messageSender.sendMessage(player, message);
+                break;
+            case TITLE:
+                player.sendTitle(m, "", 10, 70, 20);
+                break;
+            case SUBTITLE:
+                player.sendTitle("", m, 10, 70, 20);
+                break;
         }
     }
 
@@ -71,14 +87,10 @@ public class NotificationManager implements Listener {
         if (!configuration.getGeneralSettings().isJoinWorldWarning()) return;
 
         if (nightManager.isBloodNightActive(event.getFrom())) {
-            if (nightManager.isBloodNightActive(event.getPlayer().getWorld())) {
-                // no action needs to be taken
-                return;
-            }
-            messageSender.sendMessage(event.getPlayer(), localizer.getMessage("notify.bloodNightJoined"));
+            sendMessage(event.getPlayer(), localizer.getMessage("notify.bloodNightJoined"));
         } else {
             if (nightManager.isBloodNightActive(event.getPlayer().getWorld())) {
-                messageSender.sendMessage(event.getPlayer(), localizer.getMessage("notify.bloodNightLeft"));
+                sendMessage(event.getPlayer(), localizer.getMessage("notify.bloodNightLeft"));
             }
         }
     }
@@ -88,7 +100,7 @@ public class NotificationManager implements Listener {
         if (!configuration.getGeneralSettings().isJoinWorldWarning()) return;
 
         if (nightManager.isBloodNightActive(event.getPlayer().getWorld())) {
-            messageSender.sendMessage(event.getPlayer(), localizer.getMessage("notify.bloodNightJoined"));
+            sendMessage(event.getPlayer(), localizer.getMessage("notify.bloodNightJoined"));
         }
     }
 }

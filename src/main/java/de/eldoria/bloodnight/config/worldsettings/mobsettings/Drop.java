@@ -1,4 +1,4 @@
-package de.eldoria.bloodnight.config;
+package de.eldoria.bloodnight.config.worldsettings.mobsettings;
 
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;

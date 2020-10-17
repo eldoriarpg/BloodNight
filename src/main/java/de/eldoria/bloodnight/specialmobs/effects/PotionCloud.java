@@ -41,8 +41,15 @@ public class PotionCloud extends ParticleCloud {
             return this;
         }
 
+        /**
+         * Set duration
+         *
+         * @param duration duration in seconds
+         *
+         * @return builder with changed duration
+         */
         public Builder setDuration(int duration) {
-            entity.setDuration(duration);
+            entity.setDuration(duration * 20);
             return this;
         }
 
@@ -78,19 +85,19 @@ public class PotionCloud extends ParticleCloud {
         }
 
         @Override
-        public ParticleCloud.Builder withRadius(float radius) {
+        public Builder withRadius(float radius) {
             super.withRadius(radius);
             return this;
         }
 
         @Override
-        public ParticleCloud.Builder withParticle(@NotNull Particle particle) {
+        public Builder withParticle(@NotNull Particle particle) {
             super.withParticle(particle);
             return this;
         }
 
         @Override
-        public <T> ParticleCloud.Builder withParticle(@NotNull Particle particle, @Nullable T data) {
+        public <T> Builder withParticle(@NotNull Particle particle, @Nullable T data) {
             super.withParticle(particle, data);
             return this;
         }

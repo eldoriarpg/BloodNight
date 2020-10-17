@@ -10,6 +10,6 @@ public final class VectorUtil {
     }
 
     public static Vector getDirectionVector(Vector start, Vector target) {
-        return new Vector(target.getX() - start.getX(), target.getX() - start.getY(), target.getZ() - start.getZ());
+        return new Vector(target.getX() - start.getX(), target.getY() - start.getY(), target.getZ() - start.getZ());
     }
 }
