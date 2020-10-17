@@ -8,11 +8,13 @@
     <artifactId>bloodnight</artifactId>
     <version>0.5</version>
     <name>BloodNight</name>
-    <url>https://github.com/eldoriarpg/BloodNight</url>
+    <url>https://www.spigotmc.org/resources/authors/585216/</url>
     <description>Nights are not hard enough? Make them harder!</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
+        <java.version>8</java.version>
     </properties>
 
     <build>
@@ -22,8 +24,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>8</source>
-                    <target>8</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                 </configuration>
             </plugin>
             <plugin>
