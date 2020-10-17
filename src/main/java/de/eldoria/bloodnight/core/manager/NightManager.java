@@ -385,10 +385,6 @@ public class NightManager implements Listener, Runnable {
     }
 
 
-    public boolean isWorldRegistered(World world) {
-        return observedWorlds.contains(world);
-    }
-
     public void forceNight(World world) {
         forceNight.add(world);
         if (isNight(world)) {
