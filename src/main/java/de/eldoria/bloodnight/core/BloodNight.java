@@ -11,13 +11,12 @@ import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.Drop;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSetting;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSettings;
+import de.eldoria.bloodnight.core.api.BloodNightAPI;
 import de.eldoria.bloodnight.core.manager.MobManager;
 import de.eldoria.bloodnight.core.manager.NightManager;
 import de.eldoria.bloodnight.core.manager.NotificationManager;
 import de.eldoria.eldoutilities.localization.Localizer;
 import de.eldoria.eldoutilities.messages.MessageSender;
-import de.eldoria.eldoutilities.updater.spigotupdater.SpigotUpdateChecker;
-import de.eldoria.eldoutilities.updater.spigotupdater.SpigotUpdateData;
 import lombok.Getter;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
@@ -44,6 +43,7 @@ public class BloodNight extends JavaPlugin {
     private Configuration configuration;
     private InventoryListener inventoryListener;
     private boolean initialized = false;
+    private BloodNightAPI bloodNightAPI;
 
     @SuppressWarnings("StaticVariableUsedBeforeInitialization")
     @NotNull
@@ -57,6 +57,10 @@ public class BloodNight extends JavaPlugin {
 
     public static Localizer localizer() {
         return instance.localizer;
+    }
+
+    public static BloodNightAPI getBloodNightAPI() {
+        return instance.bloodNightAPI;
     }
 
     public static boolean isDebug() {
@@ -77,6 +81,7 @@ public class BloodNight extends JavaPlugin {
                     "messages", Locale.US, "de_DE", "en_US");
             MessageSender.create(this, "§4[BN] ", '2', 'c');
             registerListener();
+            bloodNightAPI = new BloodNightAPI(nightManager);
             registerCommand("bloodnight",
                     new BloodNightCommand(configuration, localizer, this, nightManager, mobManager, inventoryListener));
             if (configuration.isMetrics()) {
