@@ -138,7 +138,7 @@ public class ManageWorlds extends EldoCommand {
             }
 
             sendWorldPage(world, sender, optPage.getAsInt());
-            configuration.safeConfig();
+            configuration.saveConfig();
             return true;
         }
         if ("state".equalsIgnoreCase(field)) {
@@ -149,7 +149,7 @@ public class ManageWorlds extends EldoCommand {
             }
             worldSettings.setEnabled(aBoolean.get());
             sendWorldPage(world, sender, optPage.getAsInt());
-            configuration.safeConfig();
+            configuration.saveConfig();
             return true;
         }
         messageSender().sendError(sender, localizer().getMessage("error.invalidField"));

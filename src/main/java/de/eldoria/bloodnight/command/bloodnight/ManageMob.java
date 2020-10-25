@@ -169,7 +169,7 @@ public class ManageMob extends EldoCommand {
                 mob.setOverrideDefaultDrops(aBoolean.get());
             }
             optPage.ifPresent(i -> sendMobListPage(world, sender, mobGroup, i));
-            configuration.safeConfig();
+            configuration.saveConfig();
             return true;
         }
 
@@ -179,7 +179,7 @@ public class ManageMob extends EldoCommand {
                 mob.setDisplayName(s);
             }
             optPage.ifPresent(i -> sendMobListPage(world, sender, mobGroup, i));
-            configuration.safeConfig();
+            configuration.saveConfig();
             return true;
         }
 
@@ -196,7 +196,7 @@ public class ManageMob extends EldoCommand {
                 mob.setDropAmount(num.getAsInt());
             }
             optPage.ifPresent(i -> sendMobListPage(world, sender, mobGroup, i));
-            configuration.safeConfig();
+            configuration.saveConfig();
             return true;
         }
 
@@ -219,7 +219,7 @@ public class ManageMob extends EldoCommand {
                 mob.setDamage(num.getAsDouble());
             }
             optPage.ifPresent(i -> sendMobListPage(world, sender, mobGroup, i));
-            configuration.safeConfig();
+            configuration.saveConfig();
             return true;
         }
         if (ArrayUtil.arrayContains(new String[] {"healthModifier", "damageModifier"}, field)) {
@@ -235,7 +235,7 @@ public class ManageMob extends EldoCommand {
                 mob.setDamageModifier(val);
             }
             optPage.ifPresent(i -> sendMobListPage(world, sender, mobGroup, i));
-            configuration.safeConfig();
+            configuration.saveConfig();
             return true;
         }
 
@@ -311,7 +311,7 @@ public class ManageMob extends EldoCommand {
             if ("clear".equalsIgnoreCase(value)) {
                 mob.setDrops(new ArrayList<>());
                 optPage.ifPresent(i -> sendMobListPage(world, sender, mobGroup, i));
-                configuration.safeConfig();
+                configuration.saveConfig();
             }
             return true;
         }

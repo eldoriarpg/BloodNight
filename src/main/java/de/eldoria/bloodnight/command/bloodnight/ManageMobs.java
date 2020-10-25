@@ -112,7 +112,7 @@ public class ManageMobs extends EldoCommand {
             if ("vanillaDropAmount".equalsIgnoreCase(field)) {
                 mobSettings.getVanillaMobSettings().setExtraDrops(optionalInt.getAsInt());
             }
-            configuration.safeConfig();
+            configuration.saveConfig();
             sendInfo(sender, worldSettings);
             return true;
         }
@@ -147,7 +147,7 @@ public class ManageMobs extends EldoCommand {
             if ("vanillaDropsMulti".equalsIgnoreCase(field)) {
                 mobSettings.getVanillaMobSettings().setDropMultiplier(optionalDouble.getAsDouble());
             }
-            configuration.safeConfig();
+            configuration.saveConfig();
             sendInfo(sender, worldSettings);
             return true;
         }
@@ -167,7 +167,7 @@ public class ManageMobs extends EldoCommand {
                 mobSettings.setNaturalDrops(optionalBoolean.get());
             }
             sendInfo(sender, worldSettings);
-            configuration.safeConfig();
+            configuration.saveConfig();
             return true;
         }
 
@@ -239,7 +239,7 @@ public class ManageMobs extends EldoCommand {
             }
             if ("clear".equalsIgnoreCase(value)) {
                 mobSettings.setDefaultDrops(new ArrayList<>());
-                configuration.safeConfig();
+                configuration.saveConfig();
                 sendInfo(sender, worldSettings);
                 return true;
             }
@@ -255,7 +255,7 @@ public class ManageMobs extends EldoCommand {
             }
             mobSettings.getVanillaMobSettings().setVanillaDropMode(parse);
             sendInfo(sender, worldSettings);
-            configuration.safeConfig();
+            configuration.saveConfig();
             return true;
         }
         messageSender().sendError(sender, localizer().getMessage("error.invalidField"));

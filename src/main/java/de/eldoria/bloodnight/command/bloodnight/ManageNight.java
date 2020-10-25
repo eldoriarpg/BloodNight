@@ -97,7 +97,7 @@ public class ManageNight extends EldoCommand {
             if ("overrideDuration".equalsIgnoreCase(cmd)) {
                 nightSettings.setOverrideNightDuration(optionalBoolean.get());
             }
-            configuration.safeConfig();
+            configuration.saveConfig();
             sendNightSettings(sender, worldSettings);
             return true;
         }
@@ -125,7 +125,7 @@ public class ManageNight extends EldoCommand {
                 }
                 nightSettings.setNightDuration(optionalInt.getAsInt());
             }
-            configuration.safeConfig();
+            configuration.saveConfig();
             sendNightSettings(sender, worldSettings);
             return true;
         }
