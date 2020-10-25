@@ -67,7 +67,7 @@ public class Configuration {
 
         if (!config.contains("version")) {
             init();
-            safeConfig();
+            saveConfig();
             plugin.reloadConfig();
             config = plugin.getConfig();
         }
@@ -80,13 +80,20 @@ public class Configuration {
         for (WorldSettings settings : worldList) {
             if (Bukkit.getWorld(settings.getWorldName()) != null) {
                 worldSettings.put(settings.getWorldName(), settings);
+                if (generalSettings.isDebug()) {
+                    BloodNight.logger().info("Loading world settings for " + settings.getWorldName());
+                }
+            } else {
+                if (generalSettings.isDebug()) {
+                    BloodNight.logger().info("Didnt found a matching world for " + settings.getWorldName());
+                }
             }
         }
         for (World world : Bukkit.getWorlds()) {
             getWorldSettings(world);
         }
 
-        safeConfig();
+        saveConfig();
     }
 
     private void init() {
@@ -101,13 +108,16 @@ public class Configuration {
     /**
      * Safe current config settings.
      */
-    public void safeConfig() {
+    public void saveConfig() {
         FileConfiguration config = plugin.getConfig();
         config.set("version", version);
         config.set("metrics", metrics);
         config.set("updateReminder", updateReminder);
         config.set("generalSettings", generalSettings);
         config.set("worldSettings", new ArrayList<>(worldSettings.values()));
+        if (generalSettings.isDebug()) {
+            BloodNight.logger().info("Saved config.");
+        }
         plugin.saveConfig();
     }
 }
