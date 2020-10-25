@@ -28,7 +28,7 @@ public class InventoryListener implements Listener {
     public void onInventoryClose(InventoryCloseEvent event) {
         if (inventories.containsKey(event.getPlayer().getUniqueId())) {
             inventories.remove(event.getPlayer().getUniqueId()).onInventoryClose(event);
-            configuration.safeConfig();
+            configuration.saveConfig();
         }
     }
 

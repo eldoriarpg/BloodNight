@@ -8,6 +8,7 @@ import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.core.events.BloodNightBeginEvent;
 import de.eldoria.bloodnight.core.events.BloodNightEndEvent;
+import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.localization.Localizer;
 import de.eldoria.eldoutilities.messages.MessageSender;
 import lombok.Getter;
@@ -68,7 +69,7 @@ public class NightManager implements Listener, Runnable {
 
     private final PluginManager pluginManager = Bukkit.getPluginManager();
     private final ThreadLocalRandom rand = ThreadLocalRandom.current();
-    private final Localizer localizer;
+    private final ILocalizer localizer;
     private final MessageSender messageSender;
 
     private int worldRefresh = 0;

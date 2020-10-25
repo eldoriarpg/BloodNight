@@ -4,6 +4,7 @@ import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.core.events.BloodNightBeginEvent;
 import de.eldoria.bloodnight.core.events.BloodNightEndEvent;
+import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.localization.Localizer;
 import de.eldoria.eldoutilities.localization.Replacement;
 import de.eldoria.eldoutilities.messages.MessageSender;
@@ -18,7 +19,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import java.util.Collection;
 
 public class NotificationManager implements Listener {
-    private final Localizer localizer;
+    private final ILocalizer localizer;
     private final NightManager nightManager;
     private final MessageSender messageSender;
     private final Configuration configuration;

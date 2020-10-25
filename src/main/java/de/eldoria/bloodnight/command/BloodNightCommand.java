@@ -13,14 +13,14 @@ import de.eldoria.bloodnight.command.bloodnight.SpawnMob;
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.core.manager.MobManager;
 import de.eldoria.bloodnight.core.manager.NightManager;
-import de.eldoria.eldoutilities.localization.Localizer;
+import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.messages.MessageSender;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
 import org.bukkit.plugin.Plugin;
 
 public class BloodNightCommand extends EldoCommand {
 
-    public BloodNightCommand(Configuration configuration, Localizer localizer, Plugin plugin,
+    public BloodNightCommand(Configuration configuration, ILocalizer localizer, Plugin plugin,
                              NightManager nightManager, MobManager mobManager, InventoryListener inventoryListener) {
         super(localizer, MessageSender.get(plugin));
         MessageSender messageSender = MessageSender.get(plugin);
