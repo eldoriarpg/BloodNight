@@ -5,6 +5,9 @@ version: ${project.version}
 main: de.eldoria.bloodnight.core.BloodNight
 website: https://www.spigotmc.org/resources/authors/eldoria.585216/
 api-version: 1.16
+softdepend:
+  - Multiverse-Core
+  - Hyperverse
 
 commands:
   bloodnight:
