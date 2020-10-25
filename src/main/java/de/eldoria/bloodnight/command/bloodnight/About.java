@@ -1,6 +1,6 @@
 package de.eldoria.bloodnight.command.bloodnight;
 
-import de.eldoria.eldoutilities.localization.Localizer;
+import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.localization.Replacement;
 import de.eldoria.eldoutilities.messages.MessageSender;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 public class About extends EldoCommand {
     private final Plugin plugin;
 
-    public About(Localizer localizer, MessageSender messageSender, Plugin plugin) {
+    public About(ILocalizer localizer, MessageSender messageSender, Plugin plugin) {
         super(localizer, messageSender);
         this.plugin = plugin;
     }

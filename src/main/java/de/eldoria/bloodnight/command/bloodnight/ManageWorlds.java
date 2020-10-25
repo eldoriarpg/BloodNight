@@ -6,7 +6,7 @@ import de.eldoria.bloodnight.config.worldsettings.BossBarSettings;
 import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.util.Permissions;
-import de.eldoria.eldoutilities.localization.Localizer;
+import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.messages.MessageSender;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
 import de.eldoria.eldoutilities.simplecommands.TabCompleteUtil;
@@ -42,7 +42,7 @@ public class ManageWorlds extends EldoCommand {
     private final Configuration configuration;
     private final BukkitAudiences bukkitAudiences;
 
-    public ManageWorlds(Localizer localizer, MessageSender messageSender, Configuration configuration) {
+    public ManageWorlds(ILocalizer localizer, MessageSender messageSender, Configuration configuration) {
         super(localizer, messageSender);
         this.configuration = configuration;
         bukkitAudiences = BukkitAudiences.create(BloodNight.getInstance());

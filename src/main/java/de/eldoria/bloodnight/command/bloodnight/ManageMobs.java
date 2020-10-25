@@ -10,7 +10,7 @@ import de.eldoria.bloodnight.config.worldsettings.mobsettings.VanillaDropMode;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.VanillaMobSettings;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.util.Permissions;
-import de.eldoria.eldoutilities.localization.Localizer;
+import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.localization.Replacement;
 import de.eldoria.eldoutilities.messages.MessageSender;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
@@ -52,7 +52,7 @@ public class ManageMobs extends EldoCommand {
     private final Configuration configuration;
     private final InventoryListener inventoryListener;
 
-    public ManageMobs(Localizer localizer, MessageSender messageSender, Configuration configuration, InventoryListener inventoryListener) {
+    public ManageMobs(ILocalizer localizer, MessageSender messageSender, Configuration configuration, InventoryListener inventoryListener) {
         super(localizer, messageSender);
         this.configuration = configuration;
         this.inventoryListener = inventoryListener;

@@ -16,7 +16,7 @@ import de.eldoria.bloodnight.core.manager.MobManager;
 import de.eldoria.bloodnight.core.manager.NightManager;
 import de.eldoria.bloodnight.core.manager.NotificationManager;
 import de.eldoria.bloodnight.util.Permissions;
-import de.eldoria.eldoutilities.localization.Localizer;
+import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.messages.MessageSender;
 import de.eldoria.eldoutilities.updater.Updater;
 import de.eldoria.eldoutilities.updater.spigotupdater.SpigotUpdateData;
@@ -31,7 +31,6 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Locale;
 import java.util.logging.Logger;
 
 public class BloodNight extends JavaPlugin {
@@ -42,7 +41,7 @@ public class BloodNight extends JavaPlugin {
     private static boolean debug = false;
     private NightManager nightManager;
     private MobManager mobManager;
-    private Localizer localizer;
+    private ILocalizer localizer;
     private Configuration configuration;
     private InventoryListener inventoryListener;
     private boolean initialized = false;
@@ -58,7 +57,7 @@ public class BloodNight extends JavaPlugin {
         return new NamespacedKey(instance, string);
     }
 
-    public static Localizer localizer() {
+    public static ILocalizer localizer() {
         return instance.localizer;
     }
 
@@ -80,8 +79,7 @@ public class BloodNight extends JavaPlugin {
 
             debug = configuration.getGeneralSettings().isDebug();
 
-            localizer = new Localizer(this, configuration.getGeneralSettings().getLanguage(), "messages",
-                    "messages", Locale.US, "de_DE", "en_US");
+            localizer = ILocalizer.create(this, configuration.getGeneralSettings().getLanguage(), "de_DE", "en_US");
             MessageSender.create(this, "§4[BN] ", '2', 'c');
             registerListener();
             bloodNightAPI = new BloodNightAPI(nightManager);

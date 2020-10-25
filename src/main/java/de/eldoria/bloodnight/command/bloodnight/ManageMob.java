@@ -13,7 +13,7 @@ import de.eldoria.bloodnight.core.mobfactory.MobFactory;
 import de.eldoria.bloodnight.core.mobfactory.MobGroup;
 import de.eldoria.bloodnight.core.mobfactory.SpecialMobRegistry;
 import de.eldoria.bloodnight.util.Permissions;
-import de.eldoria.eldoutilities.localization.Localizer;
+import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.localization.Replacement;
 import de.eldoria.eldoutilities.messages.MessageSender;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
@@ -59,7 +59,7 @@ public class ManageMob extends EldoCommand {
     private final InventoryListener inventoryListener;
     private final BukkitAudiences bukkitAudiences;
 
-    public ManageMob(Localizer localizer, MessageSender messageSender, Configuration configuration, InventoryListener inventoryListener) {
+    public ManageMob(ILocalizer localizer, MessageSender messageSender, Configuration configuration, InventoryListener inventoryListener) {
         super(localizer, messageSender);
         this.configuration = configuration;
         this.inventoryListener = inventoryListener;
