@@ -462,11 +462,17 @@ public class MobManager implements Listener, Runnable {
         WorldSettings worldSettings = configuration.getWorldSettings(event.getLocation().getWorld());
         if (!worldSettings.isEnabled()) return;
 
-        if (!worldSettings.isCreeperBlockDamage()) {
-            event.blockList().clear();
-            if (BloodNight.isDebug()) {
-                BloodNight.logger().info("Explosion is canceled? " + event.isCancelled());
-                BloodNight.logger().info("Prevented " + event.blockList().size() + " from destruction");
+        if (event.getEntity().getType() != EntityType.CREEPER) return;
+
+        boolean bloodNightActive = nightManager.isBloodNightActive(event.getLocation().getWorld());
+        if (worldSettings.isAlwaysManageCreepers() || bloodNightActive) {
+            if (!worldSettings.isCreeperBlockDamage()) {
+                int size = event.blockList().size();
+                event.blockList().clear();
+                if (BloodNight.isDebug()) {
+                    BloodNight.logger().info("Explosion is canceled? " + event.isCancelled());
+                    BloodNight.logger().info("Prevented " + size + " from destruction");
+                }
             }
         }
         executeLater.add(() ->

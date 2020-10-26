@@ -22,6 +22,7 @@ public class Reload extends EldoCommand {
         }
         BloodNight.getInstance().onReload();
         messageSender().sendMessage(sender, localizer().getMessage("reload.success"));
+        BloodNight.logger().info("BloodNight reloaded!");
         return true;
     }
 }
