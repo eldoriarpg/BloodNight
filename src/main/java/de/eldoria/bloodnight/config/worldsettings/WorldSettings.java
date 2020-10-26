@@ -29,7 +29,7 @@ public class WorldSettings implements ConfigurationSerializable {
         worldName = map.getValue("world");
         assert worldName == null : "World is null. This should not happen";
         enabled = map.getValueOrDefault("enabled", enabled);
-        enabled = map.getValueOrDefault("creeperBlockDamage", creeperBlockDamage);
+        creeperBlockDamage = map.getValueOrDefault("creeperBlockDamage", creeperBlockDamage);
         bossBarSettings = map.getValueOrDefault("bossBar", bossBarSettings);
         nightSelection = map.getValueOrDefault("nightSelection", nightSelection);
         nightSettings = map.getValueOrDefault("nightSettings", nightSettings);
