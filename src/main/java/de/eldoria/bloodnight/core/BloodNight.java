@@ -104,8 +104,8 @@ public class BloodNight extends JavaPlugin {
     }
 
     public void onReload() {
-        localizer.setLocale(configuration.getGeneralSettings().getLanguage());
         configuration.reload();
+        localizer.setLocale(configuration.getGeneralSettings().getLanguage());
         debug = configuration.getGeneralSettings().isDebug();
 
         if (debug) {

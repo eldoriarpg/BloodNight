@@ -76,6 +76,7 @@ public class Configuration {
         metrics = config.getBoolean("metrics", true);
         updateReminder = config.getBoolean("updateReminder", true);
         generalSettings = (GeneralSettings) config.get("generalSettings", new GeneralSettings());
+        worldSettings.clear();
         List<WorldSettings> worldList = ObjUtil.nonNull((List<WorldSettings>) config.get("worldSettings", new ArrayList<>()), new ArrayList<>());
         for (WorldSettings settings : worldList) {
             if (Bukkit.getWorld(settings.getWorldName()) != null) {
