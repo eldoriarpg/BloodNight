@@ -24,11 +24,6 @@ public class Configuration {
     @Getter
     private int version;
     /**
-     * Metrics enabled.
-     */
-    @Getter
-    private boolean metrics;
-    /**
      * Update reminder enabled.
      */
     @Getter
@@ -73,7 +68,6 @@ public class Configuration {
         }
 
         version = config.getInt("version");
-        metrics = config.getBoolean("metrics", true);
         updateReminder = config.getBoolean("updateReminder", true);
         generalSettings = (GeneralSettings) config.get("generalSettings", new GeneralSettings());
         worldSettings.clear();
@@ -112,7 +106,6 @@ public class Configuration {
     public void saveConfig() {
         FileConfiguration config = plugin.getConfig();
         config.set("version", version);
-        config.set("metrics", metrics);
         config.set("updateReminder", updateReminder);
         config.set("generalSettings", generalSettings);
         config.set("worldSettings", new ArrayList<>(worldSettings.values()));
