@@ -85,9 +85,9 @@ public class BloodNight extends JavaPlugin {
             bloodNightAPI = new BloodNightAPI(nightManager);
             registerCommand("bloodnight",
                     new BloodNightCommand(configuration, localizer, this, nightManager, mobManager, inventoryListener));
-            if (configuration.isMetrics()) {
-                enableMetrics();
-            }
+
+            enableMetrics();
+
             if (configuration.isUpdateReminder()) {
                 Updater.Spigot(new SpigotUpdateData(this, Permissions.RELOAD, true, 85095));
             }
@@ -143,8 +143,14 @@ public class BloodNight extends JavaPlugin {
     }
 
     private void enableMetrics() {
-        logger.info("§1Metrics enabled. Thank you!");
-        Metrics metrics = new Metrics(this, 9123);
+        if (configuration.isMetrics()) {
+            Metrics metrics = new Metrics(this, 9123);
+            if (metrics.isEnabled()) {
+                logger.info("§1Metrics enabled. Thank you!");
+                return;
+            }
+        }
+        logger.info("§2Metrics are not enabled. Metrics help me to stay motivated. Please enable it.");
     }
 
     @Override

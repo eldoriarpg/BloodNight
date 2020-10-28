@@ -484,9 +484,9 @@ public class MobManager implements Listener, Runnable {
     private void onChunkLoad(ChunkLoadEvent event) {
         WorldMobs worldMobs = getWorldMobs(event.getWorld());
         for (Entity entity : event.getChunk().getEntities()) {
-            SpecialMob<?> remove = worldMobs.remove(entity.getUniqueId());
+            Optional<SpecialMob<?>> remove = worldMobs.remove(entity.getUniqueId());
             if (SpecialMobUtil.isSpecialMob(entity)) {
-                remove.remove();
+                remove.ifPresent(SpecialMob::remove);
             }
         }
     }
@@ -553,12 +553,12 @@ public class MobManager implements Listener, Runnable {
          *
          * @return special mob if present.
          */
-        public SpecialMob<?> remove(UUID key) {
-            if (!mobs.containsKey(key)) return null;
+        public Optional<SpecialMob<?>> remove(UUID key) {
+            if (!mobs.containsKey(key)) return Optional.empty();
             SpecialMob<?> removed = mobs.remove(key);
             tickQueue.remove(removed);
             removed.remove();
-            return removed;
+            return Optional.of(removed);
         }
 
         public void clear() {
