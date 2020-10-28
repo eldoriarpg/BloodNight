@@ -143,12 +143,10 @@ public class BloodNight extends JavaPlugin {
     }
 
     private void enableMetrics() {
-        if (configuration.isMetrics()) {
-            Metrics metrics = new Metrics(this, 9123);
-            if (metrics.isEnabled()) {
-                logger.info("§1Metrics enabled. Thank you!");
-                return;
-            }
+        Metrics metrics = new Metrics(this, 9123);
+        if (metrics.isEnabled()) {
+            logger.info("§1Metrics enabled. Thank you!");
+            return;
         }
         logger.info("§2Metrics are not enabled. Metrics help me to stay motivated. Please enable it.");
     }
