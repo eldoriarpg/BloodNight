@@ -9,7 +9,6 @@ import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.core.events.BloodNightBeginEvent;
 import de.eldoria.bloodnight.core.events.BloodNightEndEvent;
 import de.eldoria.eldoutilities.localization.ILocalizer;
-import de.eldoria.eldoutilities.localization.Localizer;
 import de.eldoria.eldoutilities.messages.MessageSender;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -174,7 +173,6 @@ public class NightManager implements Listener, Runnable {
     // <--- BloodNight activation and deactivation --->
 
     private void initializeBloodNight(World world) {
-        int val = rand.nextInt(101);
         WorldSettings settings = configuration.getWorldSettings(world.getName());
 
         if (!settings.isEnabled()) {
@@ -187,14 +185,18 @@ public class NightManager implements Listener, Runnable {
         // skip the calculation if a night should be forced.
         if (!forceNight.remove(world)) {
             NightSelection sel = settings.getNightSelection();
+            int val = rand.nextInt(101);
+
             switch (sel.getNightSelectionType()) {
                 case RANDOM:
-                    if (sel.getProbability() < val) return;
+                    if (sel.getProbability() <= 0) return;
+                    if (val > sel.getProbability()) return;
                     break;
                 case MOON_PHASE:
                     int moonPhase = getMoonPhase(world);
                     if (!sel.getPhases().containsKey(moonPhase)) return;
-                    if (sel.getPhases().get(moonPhase) > val) return;
+                    if (sel.getPhaseProbability(moonPhase) <= 0) return;
+                    if (val > sel.getPhaseProbability(moonPhase)) return;
                     break;
                 case INTERVAL:
                     sel.setCurInterval(sel.getCurInterval() + 1);
