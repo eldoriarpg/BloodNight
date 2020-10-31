@@ -75,8 +75,8 @@ public class NightManager implements Listener, Runnable {
 
     public NightManager(Configuration configuration) {
         this.configuration = configuration;
-        this.localizer = BloodNight.localizer();
-        this.messageSender = MessageSender.get(BloodNight.getInstance());
+        this.localizer = ILocalizer.getPluginLocalizer(BloodNight.class);
+        this.messageSender = MessageSender.getPluginMessageSender(BloodNight.class);
         reload();
     }
 
