@@ -6,6 +6,7 @@ import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -19,8 +20,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Getter
-public
-class Drop implements ConfigurationSerializable {
+@SerializableAs("bloodNightDrop")
+public class Drop implements ConfigurationSerializable {
     private final ItemStack item;
     private final int weight;
 
