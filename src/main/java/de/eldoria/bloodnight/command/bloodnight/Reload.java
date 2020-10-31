@@ -2,17 +2,16 @@ package de.eldoria.bloodnight.command.bloodnight;
 
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.util.Permissions;
-import de.eldoria.eldoutilities.localization.ILocalizer;
-import de.eldoria.eldoutilities.messages.MessageSender;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 public class Reload extends EldoCommand {
 
-    public Reload(ILocalizer localizer, MessageSender messageSender) {
-        super(localizer, messageSender);
+    public Reload(Plugin plugin) {
+        super(plugin);
     }
 
     @Override

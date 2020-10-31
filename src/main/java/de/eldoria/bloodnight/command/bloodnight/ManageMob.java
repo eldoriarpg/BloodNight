@@ -13,9 +13,7 @@ import de.eldoria.bloodnight.core.mobfactory.MobFactory;
 import de.eldoria.bloodnight.core.mobfactory.MobGroup;
 import de.eldoria.bloodnight.core.mobfactory.SpecialMobRegistry;
 import de.eldoria.bloodnight.util.Permissions;
-import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.localization.Replacement;
-import de.eldoria.eldoutilities.messages.MessageSender;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
 import de.eldoria.eldoutilities.simplecommands.TabCompleteUtil;
 import de.eldoria.eldoutilities.utils.ArgumentUtils;
@@ -39,6 +37,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,8 +58,8 @@ public class ManageMob extends EldoCommand {
     private final InventoryListener inventoryListener;
     private final BukkitAudiences bukkitAudiences;
 
-    public ManageMob(ILocalizer localizer, MessageSender messageSender, Configuration configuration, InventoryListener inventoryListener) {
-        super(localizer, messageSender);
+    public ManageMob(Plugin plugin, Configuration configuration, InventoryListener inventoryListener) {
+        super(plugin);
         this.configuration = configuration;
         this.inventoryListener = inventoryListener;
         bukkitAudiences = BukkitAudiences.create(BloodNight.getInstance());
