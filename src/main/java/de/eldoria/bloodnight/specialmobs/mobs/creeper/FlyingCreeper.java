@@ -20,7 +20,7 @@ import java.util.Optional;
 public class FlyingCreeper extends AbstractCreeper {
 
     private final Bee bee;
-    private boolean legacy;
+    private boolean legacy = false;
 
     public FlyingCreeper(Creeper creeper) {
         super(creeper);
