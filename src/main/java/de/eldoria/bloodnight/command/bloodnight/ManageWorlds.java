@@ -50,10 +50,12 @@ public class ManageWorlds extends EldoCommand {
     // world field value page
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (isConsole(sender)) return true;
+        if (isConsole(sender)) {
+            messageSender().sendError(sender, localizer().getMessage("error.console"));
+            return true;
+        }
 
         if (denyAccess(sender, Permissions.MANAGE_WORLDS)) {
-            messageSender().sendError(sender, localizer().getMessage("error.console"));
             return true;
         }
 

@@ -67,8 +67,12 @@ public class ManageMob extends EldoCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (denyAccess(sender, Permissions.MANAGE_MOB)) {
+        if (isConsole(sender)) {
             messageSender().sendError(sender, localizer().getMessage("error.console"));
+            return true;
+        }
+
+        if (denyAccess(sender, Permissions.MANAGE_MOB)) {
             return true;
         }
 
