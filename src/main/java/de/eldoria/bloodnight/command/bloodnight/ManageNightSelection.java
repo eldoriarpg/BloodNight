@@ -19,6 +19,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -95,7 +96,7 @@ public class ManageNightSelection extends EldoCommand {
         String field = args[1];
         String value = ArgumentUtils.getOptionalParameter(args, 2, "none", s -> s);
 
-        OptionalInt optPage = CommandUtil.findPage(configuration.getWorldSettings().values(), 5,
+        OptionalInt optPage = CommandUtil.findPage(configuration.getWorldSettings().values(), 3,
                 w -> w.getWorldName().equalsIgnoreCase(world.getName()));
 
         if ("page".equalsIgnoreCase(field)) {
@@ -183,49 +184,50 @@ public class ManageNightSelection extends EldoCommand {
         return true;
     }
 
-    private void sendWorldPage(World world, CommandSender sender, int page) {
-        CommandUtil.getPage(configuration.getWorldSettings().values(), page, 5, 2, s -> {
+    private void sendWorldPage(World world, CommandSender sender, int p) {
+        TextComponent page = CommandUtil.getPage(configuration.getWorldSettings().values(), p, 3, 4, s -> {
             NightSelection ns = s.getNightSelection();
-            String cmd = "/bloodnight manageMob " + world.getName() + " ";
+            String cmd = "/bloodnight nightSelection " + s.getWorldName() + " ";
             TextComponent.Builder builder = Component.text()
-                    .append(Component.text(s.getWorldName(), NamedTextColor.GOLD))
+                    .append(Component.text(s.getWorldName(), NamedTextColor.GOLD, TextDecoration.BOLD))
                     .append(Component.newline())
-                    .append(Component.text(localizer().getMessage("field.nightSelectionType")))
+                    .append(Component.text(localizer().getMessage("field.nightSelectionType") + ":", NamedTextColor.AQUA))
                     .append(Component.newline())
                     .append(CommandUtil.getToggleField(ns.getNightSelectionType() == NightSelection.NightSelectionType.RANDOM,
                             cmd + "type random",
-                            "state.random"))
+                            localizer().getMessage("state.random")))
+                    .append(Component.space())
                     .append(CommandUtil.getToggleField(ns.getNightSelectionType() == NightSelection.NightSelectionType.MOON_PHASE,
                             cmd + "type moon_phase",
-                            "state.moonPhase"))
+                            localizer().getMessage("state.moonPhase")))
+                    .append(Component.space())
                     .append(CommandUtil.getToggleField(ns.getNightSelectionType() == NightSelection.NightSelectionType.INTERVAL,
                             cmd + "type interval",
-                            "state.interval"))
+                            localizer().getMessage("state.interval")))
                     .append(Component.newline());
 
             switch (ns.getNightSelectionType()) {
                 case RANDOM:
                     builder.append(Component.text(localizer().getMessage("field.probability") + ": ", NamedTextColor.AQUA))
-                            .append(Component.text(ns.getProbability() + " ", NamedTextColor.GOLD))
+                            .append(Component.text(ns.getProbability(), NamedTextColor.GOLD))
                             .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                                     .clickEvent(ClickEvent.suggestCommand(cmd + "probability ")));
                     break;
                 case MOON_PHASE:
                     builder.append(Component.text(localizer().getMessage("field.moonPhase") + ": ", NamedTextColor.AQUA))
-                            .append(Component.text(ns.getProbability() + " ", NamedTextColor.GOLD))
                             .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                                     .clickEvent(ClickEvent.runCommand(cmd + "moonPhase none")))
                             .append(Component.newline());
-                    ns.getPhases().forEach((key, value) -> builder.append(Component.text("| " + key + ":" + value + " |")));
+                    ns.getPhases().forEach((key, value) -> builder.append(Component.text("| " + key + ":" + value + " |",NamedTextColor.GOLD)));
                     break;
                 case INTERVAL:
                     builder.append(Component.text(localizer().getMessage("field.interval") + ": ", NamedTextColor.AQUA))
-                            .append(Component.text(ns.getInterval() + " ", NamedTextColor.GOLD))
+                            .append(Component.text(ns.getInterval(), NamedTextColor.GOLD))
                             .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                                     .clickEvent(ClickEvent.suggestCommand(cmd + "interval ")))
                             .append(Component.newline())
                             .append(Component.text(localizer().getMessage("field.intervalProbability") + ": ", NamedTextColor.AQUA))
-                            .append(Component.text(ns.getIntervalProbability() + " ", NamedTextColor.GOLD))
+                            .append(Component.text(ns.getIntervalProbability(), NamedTextColor.GOLD))
                             .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                                     .clickEvent(ClickEvent.suggestCommand(cmd + "intervalProbability ")));
 
@@ -233,6 +235,7 @@ public class ManageNightSelection extends EldoCommand {
             }
             return builder.build();
         }, "Night Selection", "/bloodNight nightSelection " + world.getName() + " page {page}");
+        bukkitAudiences.sender(sender).sendMessage(page);
     }
 
     @Override
