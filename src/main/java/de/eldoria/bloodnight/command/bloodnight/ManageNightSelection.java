@@ -1,5 +1,6 @@
 package de.eldoria.bloodnight.command.bloodnight;
 
+import com.google.common.collect.Lists;
 import de.eldoria.bloodnight.command.InventoryListener;
 import de.eldoria.bloodnight.command.util.CommandUtil;
 import de.eldoria.bloodnight.config.Configuration;
@@ -18,6 +19,7 @@ import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
@@ -218,7 +220,22 @@ public class ManageNightSelection extends EldoCommand {
                             .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                                     .clickEvent(ClickEvent.runCommand(cmd + "moonPhase none")))
                             .append(Component.newline());
-                    ns.getPhases().forEach((key, value) -> builder.append(Component.text("| " + key + ":" + value + " |",NamedTextColor.GOLD)));
+                    ns.getPhases().forEach((key, value) ->
+                            builder.append(Component.text("| " + key + ":" + value + " |", NamedTextColor.GOLD)
+                                    .hoverEvent(
+                                            HoverEvent.showText(
+                                                    Component.text()
+                                                            .append(Component.text(localizer().getMessage("field.moonPhase") + " " + key, NamedTextColor.GOLD))
+                                                            .append(Component.newline())
+                                                            .append(Component.text(localizer().getMessage(getMoonPhaseName(key)), NamedTextColor.AQUA))
+                                                            .append(Component.newline())
+                                                            .append(Component.text(getMoonPhaseSign(key)))
+                                                            .append(Component.newline())
+                                                            .append(Component.text(localizer().getMessage("field.probability") + ": " + value, NamedTextColor.GREEN))
+                                                    .build()
+                                            )
+                                    )
+                            ));
                     break;
                 case INTERVAL:
                     builder.append(Component.text(localizer().getMessage("field.interval") + ": ", NamedTextColor.AQUA))
@@ -230,7 +247,6 @@ public class ManageNightSelection extends EldoCommand {
                             .append(Component.text(ns.getIntervalProbability(), NamedTextColor.GOLD))
                             .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                                     .clickEvent(ClickEvent.suggestCommand(cmd + "intervalProbability ")));
-
                     break;
             }
             return builder.build();
@@ -282,11 +298,12 @@ public class ManageNightSelection extends EldoCommand {
 
         public static void changeProbability(ItemStack item, int change) {
             int currWeight = getProbability(item);
+            int phase = getPhase(item);
             int newWeight = Math.min(Math.max(currWeight + change, 0), 100);
             setWeight(item, newWeight);
             ItemMeta itemMeta = item.getItemMeta();
             assert itemMeta != null;
-            itemMeta.setLore(getLore(newWeight));
+            itemMeta.setLore(getLore(phase, newWeight));
             item.setItemMeta(itemMeta);
         }
 
@@ -313,8 +330,8 @@ public class ManageNightSelection extends EldoCommand {
             ILocalizer localizer = ILocalizer.getPluginLocalizer(BloodNight.class);
             ItemStack stack = new ItemStack(Material.FIREWORK_STAR, entry.getKey());
             ItemMeta itemMeta = stack.getItemMeta();
-            itemMeta.setDisplayName("§2" + localizer.getMessage("phaseItem.phase") + ": " + entry.getKey());
-            itemMeta.setLore(getLore(entry.getValue()));
+            itemMeta.setDisplayName("§2" + localizer.getMessage("phaseItem.phase") + ": " + entry.getKey() + " (" + getMoonPhaseName(entry.getKey()) + ")");
+            itemMeta.setLore(getLore(entry.getKey(), entry.getValue()));
             PersistentDataContainer container = itemMeta.getPersistentDataContainer();
             container.set(BloodNight.getNamespacedKey("probability"), PersistentDataType.INTEGER, entry.getValue());
             container.set(BloodNight.getNamespacedKey("phase"), PersistentDataType.INTEGER, entry.getKey());
@@ -322,8 +339,36 @@ public class ManageNightSelection extends EldoCommand {
             return stack;
         }
 
-        private static List<String> getLore(int value) {
-            return Collections.singletonList("§6" + ILocalizer.getPluginLocalizer(BloodNight.class).getMessage("field.probability") + ": " + value);
+        private static List<String> getLore(int phase, int probability) {
+            return Lists.newArrayList(getMoonPhaseSign(phase),
+                    "§6" + ILocalizer.getPluginLocalizer(BloodNight.class).getMessage("field.probability") + ": " + probability);
+        }
+    }
+
+    private static String getMoonPhaseName(int phase) {
+        return "state.phase" + phase;
+    }
+
+    private static String getMoonPhaseSign(int phase) {
+        switch (phase) {
+            case 0:
+                return "§f████";
+            case 1:
+                return "§f███§8█";
+            case 2:
+                return "§f██§8██";
+            case 3:
+                return "§f█§8███";
+            case 4:
+                return "§8████";
+            case 5:
+                return "§8███§f█";
+            case 6:
+                return "§8██§f██";
+            case 7:
+                return "§8█§f███";
+            default:
+                throw new IllegalStateException("Unexpected value: " + phase);
         }
     }
 }
