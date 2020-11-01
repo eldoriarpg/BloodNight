@@ -15,6 +15,8 @@ import de.eldoria.bloodnight.core.api.BloodNightAPI;
 import de.eldoria.bloodnight.core.manager.MobManager;
 import de.eldoria.bloodnight.core.manager.NightManager;
 import de.eldoria.bloodnight.core.manager.NotificationManager;
+import de.eldoria.bloodnight.core.mobfactory.MobFactory;
+import de.eldoria.bloodnight.core.mobfactory.SpecialMobRegistry;
 import de.eldoria.bloodnight.util.Permissions;
 import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.messages.MessageSender;
@@ -27,6 +29,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.PluginManager;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 public class BloodNight extends EldoPlugin {
 
@@ -129,8 +135,52 @@ public class BloodNight extends EldoPlugin {
         Metrics metrics = new Metrics(this, 9123);
         if (metrics.isEnabled()) {
             logger().info("§2Metrics enabled. Thank you! (> ^_^ )>");
+
+            metrics.addCustomChart(new Metrics.MultiLineChart("update_settings", () -> {
+                Map<String, Integer> map = new HashMap<>();
+                map.put("Update Check", configuration.getGeneralSettings().isUpdateReminder() ? 1 : 0);
+                if (configuration.getGeneralSettings().isUpdateReminder()) {
+                    map.put("Auto Update", configuration.getGeneralSettings().isUpdateReminder() ? 1 : 0);
+                    return map;
+                }
+                map.put("Auto Update", 0);
+                return map;
+            }));
+
+            metrics.addCustomChart(new Metrics.MultiLineChart("mob_types", () -> {
+                Map<String, Integer> map = new HashMap<>();
+                for (MobFactory factory : SpecialMobRegistry.getRegisteredMobs()) {
+                    for (WorldSettings world : configuration.getWorldSettings().values()) {
+                        if (!world.isEnabled()) continue;
+                        Optional<MobSetting> mobByName = world.getMobSettings().getMobByName(factory.getMobName());
+                        map.compute(mobByName.get().getMobName(), (key, value) -> {
+                            if (value == null) {
+                                return mobByName.get().isActive() ? 1 : 0;
+                            }
+                            return value + (mobByName.get().isActive() ? 1 : 0);
+                        });
+                    }
+                }
+                return map;
+            }));
+
+            metrics.addCustomChart(new Metrics.MultiLineChart("night_selection", () -> {
+                Map<String, Integer> map = new HashMap<>();
+                for (WorldSettings world : configuration.getWorldSettings().values()) {
+                    if (!world.isEnabled()) continue;
+                    map.compute(world.getNightSelection().getNightSelectionType().toString(), (key, value) -> {
+                        if (value == null) {
+                            return 1;
+                        }
+                        return value + 1;
+                    });
+                }
+                return map;
+            }));
+
             return;
         }
+
         logger().info("§2Metrics are not enabled. Metrics help me to stay motivated. Please enable it.");
     }
 
