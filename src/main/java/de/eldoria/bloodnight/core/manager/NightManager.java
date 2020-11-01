@@ -203,6 +203,8 @@ public class NightManager implements Listener, Runnable {
                     if (sel.getCurInterval() != sel.getInterval()) {
                         return;
                     }
+                    if (sel.getIntervalProbability() <= 0) return;
+                    if (val > sel.getIntervalProbability()) return;
                     sel.setCurInterval(0);
                     break;
             }
