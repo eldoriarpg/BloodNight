@@ -7,6 +7,7 @@ import de.eldoria.bloodnight.command.bloodnight.Help;
 import de.eldoria.bloodnight.command.bloodnight.ManageMob;
 import de.eldoria.bloodnight.command.bloodnight.ManageMobs;
 import de.eldoria.bloodnight.command.bloodnight.ManageNight;
+import de.eldoria.bloodnight.command.bloodnight.ManageNightSelection;
 import de.eldoria.bloodnight.command.bloodnight.ManageWorlds;
 import de.eldoria.bloodnight.command.bloodnight.Reload;
 import de.eldoria.bloodnight.command.bloodnight.SpawnMob;
@@ -32,6 +33,7 @@ public class BloodNightCommand extends EldoCommand {
         registerCommand("manageMob", new ManageMob(plugin, configuration, inventoryListener));
         registerCommand("manageNight", new ManageNight(plugin, configuration));
         registerCommand("manageMobs", new ManageMobs(plugin, configuration, inventoryListener));
+        registerCommand("nightSelection", new ManageNightSelection(plugin, configuration, inventoryListener));
         registerCommand("reload", new Reload(plugin));
     }
 }

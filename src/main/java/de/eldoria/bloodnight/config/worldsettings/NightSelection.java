@@ -28,7 +28,6 @@ public class NightSelection implements ConfigurationSerializable {
      */
     private int probability = 60;
 
-
     private Map<Integer, Integer> phases = new HashMap<Integer, Integer>() {{
         put(0, 0);
         put(1, 10);
@@ -41,6 +40,7 @@ public class NightSelection implements ConfigurationSerializable {
     }};
 
     private int interval = 5;
+    private int intervalProbability = 100;
     private int curInterval = 0;
 
     public NightSelection(Map<String, Object> objectMap) {
@@ -65,6 +65,7 @@ public class NightSelection implements ConfigurationSerializable {
             }
         }
         interval = map.getValueOrDefault("interval", interval);
+        intervalProbability = map.getValueOrDefault("intervalProbability", intervalProbability);
         curInterval = map.getValueOrDefault("curInterval", curInterval);
     }
 
@@ -86,6 +87,10 @@ public class NightSelection implements ConfigurationSerializable {
                 .add("interval", interval)
                 .add("curInterval", curInterval)
                 .build();
+    }
+
+    public void setPhase(int phase, int probability) {
+        phases.put(phase,probability);
     }
 
     public enum NightSelectionType {
