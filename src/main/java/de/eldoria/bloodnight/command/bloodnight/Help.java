@@ -18,15 +18,16 @@ public class Help extends EldoCommand {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         messageSender().sendMessage(sender, localizer().getMessage("help.help") + "\n"
-                + "§6about§r\n" + localizer().getMessage("help.about") + "\n"
-                + "§6forceNight§r\n" + localizer().getMessage("help.forceNight") + "\n"
-                + "§6cancelNight§r\n" + localizer().getMessage("help.cancelNight") + "\n"
-                + "§6manageMob§r\n" + localizer().getMessage("help.manageMob") + "\n"
-                + "§6manageMobs§r\n" + localizer().getMessage("help.manageMobs") + "\n"
-                + "§6manageNight§r\n" + localizer().getMessage("help.manageNight") + "\n"
-                + "§6manageWorlds§r\n" + localizer().getMessage("help.manageWorlds") + "\n"
-                + "§6reload§r\n" + localizer().getMessage("help.reload") + "\n"
-                + "§6spawnMob§r\n" + localizer().getMessage("help.spawnMob")
+                + "§6/bn about§r\n" + localizer().getMessage("help.about") + "\n"
+                + "§6/bn forceNight§r\n" + localizer().getMessage("help.forceNight") + "\n"
+                + "§6/bn cancelNight§r\n" + localizer().getMessage("help.cancelNight") + "\n"
+                + "§6/bn manageMob§r\n" + localizer().getMessage("help.manageMob") + "\n"
+                + "§6/bn manageMobs§r\n" + localizer().getMessage("help.manageMobs") + "\n"
+                + "§6/bn manageNight§r\n" + localizer().getMessage("help.manageNight") + "\n"
+                + "§6/bn manageWorlds§r\n" + localizer().getMessage("help.manageWorlds") + "\n"
+                + "§6/bn manageWorlds§r\n" + localizer().getMessage("help.nightSelection") + "\n"
+                + "§6/bn reload§r\n" + localizer().getMessage("help.reload") + "\n"
+                + "§6/bn spawnMob§r\n" + localizer().getMessage("help.spawnMob")
         );
         return true;
     }

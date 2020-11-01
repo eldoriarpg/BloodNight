@@ -10,6 +10,7 @@ import de.eldoria.bloodnight.core.events.BloodNightBeginEvent;
 import de.eldoria.bloodnight.core.events.BloodNightEndEvent;
 import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.messages.MessageSender;
+import de.eldoria.eldoutilities.utils.ObjUtil;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
@@ -151,7 +152,9 @@ public class NightManager implements Listener, Runnable {
                 long total = getDiff(settings.getNightBegin(), settings.getNightEnd());
                 long left = getDiff(world.getFullTime(), settings.getNightEnd());
                 BloodNightData bloodNightData = bloodWorlds.get(world);
-                bloodNightData.getBossBar().setProgress(left / (double) total);
+                ObjUtil.nonNull(bloodNightData.getBossBar(), bossBar -> {
+                    bossBar.setProgress(left / (double) total);
+                });
             }
             return;
         }
@@ -269,9 +272,9 @@ public class NightManager implements Listener, Runnable {
             disableBloodNightForPlayer(player, bloodNightData);
         }
 
-        if (bloodNightData.getBossBar() != null) {
+        ObjUtil.nonNull(bloodNightData.getBossBar(), b -> {
             Bukkit.removeBossBar(getBossBarNamespace(world));
-        }
+        });
     }
 
     private void enableBloodNightForPlayer(Player player, BloodNightData bloodNightData) {
@@ -287,9 +290,10 @@ public class NightManager implements Listener, Runnable {
         if (configuration.getGeneralSettings().isBlindness()) {
             player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 5 * 20, 1, false, true));
         }
-        if (bloodNightData.getBossBar() != null) {
+
+        ObjUtil.nonNull(bloodNightData.getBossBar(), b -> {
             bloodNightData.getBossBar().addPlayer(player);
-        }
+        });
     }
 
     private void disableBloodNightForPlayer(Player player, BloodNightData bloodNightData) {
@@ -303,9 +307,9 @@ public class NightManager implements Listener, Runnable {
             consistencyCache.revert(player);
         }
 
-        if (bloodNightData.getBossBar() != null) {
+        ObjUtil.nonNull(bloodNightData.getBossBar(), b -> {
             bloodNightData.getBossBar().removePlayer(player);
-        }
+        });
 
         if (configuration.getGeneralSettings().isBlindness()) {
             player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 5 * 20, 1, false, true));
