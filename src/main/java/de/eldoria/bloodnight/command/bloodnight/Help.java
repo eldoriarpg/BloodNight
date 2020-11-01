@@ -1,10 +1,9 @@
 package de.eldoria.bloodnight.command.bloodnight;
 
-import de.eldoria.eldoutilities.localization.ILocalizer;
-import de.eldoria.eldoutilities.messages.MessageSender;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,8 +11,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class Help extends EldoCommand {
-    public Help(ILocalizer localizer, MessageSender messageSender) {
-        super(localizer, messageSender);
+    public Help(Plugin plugin) {
+        super(plugin);
     }
 
     @Override

@@ -23,11 +23,6 @@ public class Configuration {
      */
     @Getter
     private int version;
-    /**
-     * Update reminder enabled.
-     */
-    @Getter
-    private boolean updateReminder;
 
     @Getter
     private GeneralSettings generalSettings;
@@ -68,7 +63,6 @@ public class Configuration {
         }
 
         version = config.getInt("version");
-        updateReminder = config.getBoolean("updateReminder", true);
         generalSettings = (GeneralSettings) config.get("generalSettings", new GeneralSettings());
         worldSettings.clear();
         List<WorldSettings> worldList = ObjUtil.nonNull((List<WorldSettings>) config.get("worldSettings", new ArrayList<>()), new ArrayList<>());
@@ -106,7 +100,6 @@ public class Configuration {
     public void saveConfig() {
         FileConfiguration config = plugin.getConfig();
         config.set("version", version);
-        config.set("updateReminder", updateReminder);
         config.set("generalSettings", generalSettings);
         config.set("worldSettings", new ArrayList<>(worldSettings.values()));
         if (generalSettings.isDebug()) {

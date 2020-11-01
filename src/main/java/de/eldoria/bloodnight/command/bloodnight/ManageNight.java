@@ -6,9 +6,7 @@ import de.eldoria.bloodnight.config.worldsettings.NightSettings;
 import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.util.Permissions;
-import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.localization.Replacement;
-import de.eldoria.eldoutilities.messages.MessageSender;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
 import de.eldoria.eldoutilities.simplecommands.TabCompleteUtil;
 import de.eldoria.eldoutilities.utils.ArrayUtil;
@@ -24,6 +22,7 @@ import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,8 +36,8 @@ public class ManageNight extends EldoCommand {
     private final Configuration configuration;
     private final BukkitAudiences bukkitAudiences;
 
-    public ManageNight(ILocalizer localizer, MessageSender messageSender, Configuration configuration) {
-        super(localizer, messageSender);
+    public ManageNight(Plugin plugin, Configuration configuration) {
+        super(plugin);
         this.configuration = configuration;
         bukkitAudiences = BukkitAudiences.create(BloodNight.getInstance());
     }

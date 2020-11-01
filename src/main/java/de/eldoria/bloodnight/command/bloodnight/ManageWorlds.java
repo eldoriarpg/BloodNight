@@ -6,8 +6,6 @@ import de.eldoria.bloodnight.config.worldsettings.BossBarSettings;
 import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.util.Permissions;
-import de.eldoria.eldoutilities.localization.ILocalizer;
-import de.eldoria.eldoutilities.messages.MessageSender;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
 import de.eldoria.eldoutilities.simplecommands.TabCompleteUtil;
 import de.eldoria.eldoutilities.utils.ArgumentUtils;
@@ -28,6 +26,7 @@ import org.bukkit.boss.BarFlag;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,8 +41,8 @@ public class ManageWorlds extends EldoCommand {
     private final Configuration configuration;
     private final BukkitAudiences bukkitAudiences;
 
-    public ManageWorlds(ILocalizer localizer, MessageSender messageSender, Configuration configuration) {
-        super(localizer, messageSender);
+    public ManageWorlds(Plugin plugin, Configuration configuration) {
+        super(plugin);
         this.configuration = configuration;
         bukkitAudiences = BukkitAudiences.create(BloodNight.getInstance());
     }
@@ -84,7 +83,7 @@ public class ManageWorlds extends EldoCommand {
 
         String field = args[1];
         String value = args[2];
-        OptionalInt optPage = CommandUtil.findPage(configuration.getWorldSettings().values(), 3,
+        OptionalInt optPage = CommandUtil.findPage(configuration.getWorldSettings().values(), 2,
                 w -> w.getWorldName().equalsIgnoreCase(world.getName()));
 
         if ("page".equalsIgnoreCase(field)) {
@@ -141,13 +140,22 @@ public class ManageWorlds extends EldoCommand {
             configuration.saveConfig();
             return true;
         }
-        if ("state".equalsIgnoreCase(field)) {
+
+        if (TabCompleteUtil.isCommand(field, "state", "creeperBlockDamage", "manageCreeperAlways")) {
             Optional<Boolean> aBoolean = Parser.parseBoolean(value);
             if (!aBoolean.isPresent()) {
                 messageSender().sendError(sender, "invalid boolean");
                 return true;
             }
-            worldSettings.setEnabled(aBoolean.get());
+            if ("state".equalsIgnoreCase(field)) {
+                worldSettings.setEnabled(aBoolean.get());
+            }
+            if ("creeperBlockDamage".equalsIgnoreCase(field)) {
+                worldSettings.setCreeperBlockDamage(aBoolean.get());
+            }
+            if ("manageCreeperAlways".equalsIgnoreCase(field)) {
+                worldSettings.setAlwaysManageCreepers(aBoolean.get());
+            }
             sendWorldPage(world, sender, optPage.getAsInt());
             configuration.saveConfig();
             return true;
@@ -160,7 +168,7 @@ public class ManageWorlds extends EldoCommand {
         TextComponent component = CommandUtil.getPage(
                 new ArrayList<>(configuration.getWorldSettings().values()),
                 page,
-                3, 5,
+                2, 7,
                 entry -> {
                     String cmd = "/bloodnight manageWorlds " + entry.getWorldName() + " ";
                     BossBarSettings bbs = entry.getBossBarSettings();
@@ -171,6 +179,18 @@ public class ManageWorlds extends EldoCommand {
                             .append(CommandUtil.getBooleanField(entry.isEnabled(),
                                     cmd + "state {bool} ",
                                     "",
+                                    localizer().getMessage("state.enabled"),
+                                    localizer().getMessage("state.disabled")))
+                            .append(Component.newline())
+                            .append(CommandUtil.getBooleanField(entry.isCreeperBlockDamage(),
+                                    cmd + "creeperBlockDamage {bool} ",
+                                    localizer().getMessage("field.creeperBlockDamage"),
+                                    localizer().getMessage("state.enabled"),
+                                    localizer().getMessage("state.disabled")))
+                            .append(Component.newline())
+                            .append(CommandUtil.getBooleanField(entry.isAlwaysManageCreepers(),
+                                    cmd + "manageCreeperAlways {bool} ",
+                                    localizer().getMessage("field.alwaysManageCreepers"),
                                     localizer().getMessage("state.enabled"),
                                     localizer().getMessage("state.disabled")))
                             .append(Component.newline()).append(Component.text("  "))
@@ -222,7 +242,7 @@ public class ManageWorlds extends EldoCommand {
             return TabCompleteUtil.completeWorlds(args[0]);
         }
         if (args.length == 2) {
-            return TabCompleteUtil.complete(args[1], "bossBar", "state");
+            return TabCompleteUtil.complete(args[1], "bossBar", "state", "creeperBlockDamage", "manageCreeperAlways");
         }
 
         String field = args[1];
@@ -248,7 +268,7 @@ public class ManageWorlds extends EldoCommand {
             return Collections.emptyList();
         }
 
-        if ("state".equalsIgnoreCase(field)) {
+        if (TabCompleteUtil.isCommand(field, "state", "creeperBlockDamage", "manageCreeperAlways")) {
             return TabCompleteUtil.completeBoolean(args[2]);
         }
         return Collections.emptyList();

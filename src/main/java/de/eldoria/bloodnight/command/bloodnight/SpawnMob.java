@@ -5,8 +5,6 @@ import de.eldoria.bloodnight.core.manager.NightManager;
 import de.eldoria.bloodnight.core.mobfactory.MobFactory;
 import de.eldoria.bloodnight.core.mobfactory.SpecialMobRegistry;
 import de.eldoria.bloodnight.util.Permissions;
-import de.eldoria.eldoutilities.localization.ILocalizer;
-import de.eldoria.eldoutilities.messages.MessageSender;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
 import de.eldoria.eldoutilities.utils.ArrayUtil;
 import org.bukkit.Material;
@@ -15,6 +13,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,8 +26,8 @@ public class SpawnMob extends EldoCommand {
     private final NightManager nightManager;
     private final MobManager mobManager;
 
-    public SpawnMob(ILocalizer localizer, MessageSender messageSender, NightManager nightManager, MobManager mobManager) {
-        super(localizer, messageSender);
+    public SpawnMob(Plugin plugin, NightManager nightManager, MobManager mobManager) {
+        super(plugin);
         this.nightManager = nightManager;
         this.mobManager = mobManager;
     }

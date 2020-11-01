@@ -3,9 +3,7 @@ package de.eldoria.bloodnight.command.bloodnight;
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.core.manager.NightManager;
 import de.eldoria.bloodnight.util.Permissions;
-import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.localization.Replacement;
-import de.eldoria.eldoutilities.messages.MessageSender;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
 import de.eldoria.eldoutilities.utils.ArrayUtil;
 import org.bukkit.Bukkit;
@@ -13,6 +11,7 @@ import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,8 +23,8 @@ public class CancelNight extends EldoCommand {
     private final NightManager nightManager;
     private final Configuration configuration;
 
-    public CancelNight(ILocalizer localizer, MessageSender messageSender, NightManager nightManager, Configuration configuration) {
-        super(localizer, messageSender);
+    public CancelNight(Plugin plugin, NightManager nightManager, Configuration configuration) {
+        super(plugin);
         this.nightManager = nightManager;
         this.configuration = configuration;
     }

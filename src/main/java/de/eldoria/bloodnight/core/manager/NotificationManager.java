@@ -5,7 +5,6 @@ import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.core.events.BloodNightBeginEvent;
 import de.eldoria.bloodnight.core.events.BloodNightEndEvent;
 import de.eldoria.eldoutilities.localization.ILocalizer;
-import de.eldoria.eldoutilities.localization.Localizer;
 import de.eldoria.eldoutilities.localization.Replacement;
 import de.eldoria.eldoutilities.messages.MessageSender;
 import org.bukkit.Bukkit;
@@ -26,9 +25,9 @@ public class NotificationManager implements Listener {
 
     public NotificationManager(Configuration configuration, NightManager nightManager) {
         this.configuration = configuration;
-        this.localizer = BloodNight.localizer();
+        this.localizer = ILocalizer.getPluginLocalizer(BloodNight.class);
         this.nightManager = nightManager;
-        this.messageSender = MessageSender.get(BloodNight.getInstance());
+        this.messageSender = MessageSender.getPluginMessageSender(BloodNight.class);
     }
 
     @EventHandler

@@ -1,6 +1,7 @@
 package de.eldoria.bloodnight.config.worldsettings.mobsettings;
 
 import de.eldoria.bloodnight.core.BloodNight;
+import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
 import lombok.Getter;
@@ -90,7 +91,7 @@ public class Drop implements ConfigurationSerializable {
     }
 
     private static Pattern getRegexWeight() {
-        return Pattern.compile("§6" + BloodNight.localizer().getMessage("drops.weight") + ":\\s([0-9]+?)");
+        return Pattern.compile("§6" + ILocalizer.getPluginLocalizer(BloodNight.class).getMessage("drops.weight") + ":\\s([0-9]+?)");
     }
 
     private static void setWeight(ItemStack item, int weight) {
@@ -109,7 +110,7 @@ public class Drop implements ConfigurationSerializable {
     }
 
     private static String getWeightString(int weight) {
-        return "§6" + BloodNight.localizer().getMessage("drops.weight") + ": " + weight;
+        return "§6" + ILocalizer.getPluginLocalizer(BloodNight.class).getMessage("drops.weight") + ": " + weight;
     }
 
     @Override

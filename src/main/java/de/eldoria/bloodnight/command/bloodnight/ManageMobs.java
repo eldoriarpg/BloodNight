@@ -10,9 +10,7 @@ import de.eldoria.bloodnight.config.worldsettings.mobsettings.VanillaDropMode;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.VanillaMobSettings;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.util.Permissions;
-import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.localization.Replacement;
-import de.eldoria.eldoutilities.messages.MessageSender;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
 import de.eldoria.eldoutilities.simplecommands.TabCompleteUtil;
 import de.eldoria.eldoutilities.utils.ArrayUtil;
@@ -34,6 +32,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,8 +51,8 @@ public class ManageMobs extends EldoCommand {
     private final Configuration configuration;
     private final InventoryListener inventoryListener;
 
-    public ManageMobs(ILocalizer localizer, MessageSender messageSender, Configuration configuration, InventoryListener inventoryListener) {
-        super(localizer, messageSender);
+    public ManageMobs(Plugin plugin, Configuration configuration, InventoryListener inventoryListener) {
+        super(plugin);
         this.configuration = configuration;
         this.inventoryListener = inventoryListener;
     }

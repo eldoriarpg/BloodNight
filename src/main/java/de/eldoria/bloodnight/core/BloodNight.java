@@ -18,47 +18,30 @@ import de.eldoria.bloodnight.core.manager.NotificationManager;
 import de.eldoria.bloodnight.util.Permissions;
 import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.messages.MessageSender;
+import de.eldoria.eldoutilities.plugin.EldoPlugin;
 import de.eldoria.eldoutilities.updater.Updater;
-import de.eldoria.eldoutilities.updater.spigotupdater.SpigotUpdateData;
+import de.eldoria.eldoutilities.updater.butlerupdater.ButlerUpdateData;
 import lombok.Getter;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.command.TabExecutor;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.logging.Logger;
-
-public class BloodNight extends JavaPlugin {
+public class BloodNight extends EldoPlugin {
 
     @Getter
     private static BloodNight instance;
-    private static Logger logger;
     private static boolean debug = false;
     private NightManager nightManager;
     private MobManager mobManager;
-    private ILocalizer localizer;
     private Configuration configuration;
     private InventoryListener inventoryListener;
     private boolean initialized = false;
     private BloodNightAPI bloodNightAPI;
 
-    @SuppressWarnings("StaticVariableUsedBeforeInitialization")
-    @NotNull
-    public static Logger logger() {
-        return logger;
-    }
-
     public static NamespacedKey getNamespacedKey(String string) {
         return new NamespacedKey(instance, string);
-    }
-
-    public static ILocalizer localizer() {
-        return instance.localizer;
     }
 
     public static BloodNightAPI getBloodNightAPI() {
@@ -73,23 +56,23 @@ public class BloodNight extends JavaPlugin {
     public void onEnable() {
         if (!initialized) {
             instance = this;
-            logger = getLogger();
             registerSerialization();
             configuration = new Configuration(this);
 
             debug = configuration.getGeneralSettings().isDebug();
 
-            localizer = ILocalizer.create(this, configuration.getGeneralSettings().getLanguage(), "de_DE", "en_US");
+            ILocalizer.create(this, configuration.getGeneralSettings().getLanguage(), "de_DE", "en_US");
             MessageSender.create(this, "§4[BN] ", '2', 'c');
             registerListener();
             bloodNightAPI = new BloodNightAPI(nightManager);
             registerCommand("bloodnight",
-                    new BloodNightCommand(configuration, localizer, this, nightManager, mobManager, inventoryListener));
+                    new BloodNightCommand(configuration, this, nightManager, mobManager, inventoryListener));
 
             enableMetrics();
 
-            if (configuration.isUpdateReminder()) {
-                Updater.Spigot(new SpigotUpdateData(this, Permissions.RELOAD, true, 85095));
+            if (configuration.getGeneralSettings().isUpdateReminder()) {
+                Updater.Butler(new ButlerUpdateData(this, Permissions.RELOAD, true,
+                        configuration.getGeneralSettings().isAutoUpdater(), 4, "https://plugins.eldoria.de"));
             }
         }
 
@@ -105,11 +88,11 @@ public class BloodNight extends JavaPlugin {
 
     public void onReload() {
         configuration.reload();
-        localizer.setLocale(configuration.getGeneralSettings().getLanguage());
+        ILocalizer.getPluginLocalizer(this).setLocale(configuration.getGeneralSettings().getLanguage());
         debug = configuration.getGeneralSettings().isDebug();
 
         if (debug) {
-            logger.info("§cDebug mode active");
+            logger().info("§cDebug mode active");
         }
         nightManager.reload();
     }
@@ -117,7 +100,7 @@ public class BloodNight extends JavaPlugin {
     private void registerListener() {
         PluginManager pm = Bukkit.getPluginManager();
 
-        MessageSender messageSender = MessageSender.get(this);
+        MessageSender messageSender = MessageSender.getPluginMessageSender(this);
         nightManager = new NightManager(configuration);
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, nightManager, 100, 1);
         pm.registerEvents(new NotificationManager(configuration, nightManager), this);
@@ -145,10 +128,10 @@ public class BloodNight extends JavaPlugin {
     private void enableMetrics() {
         Metrics metrics = new Metrics(this, 9123);
         if (metrics.isEnabled()) {
-            logger.info("§1Metrics enabled. Thank you!");
+            logger().info("§2Metrics enabled. Thank you! (> ^_^ )>");
             return;
         }
-        logger.info("§2Metrics are not enabled. Metrics help me to stay motivated. Please enable it.");
+        logger().info("§2Metrics are not enabled. Metrics help me to stay motivated. Please enable it.");
     }
 
     @Override
@@ -157,14 +140,5 @@ public class BloodNight extends JavaPlugin {
             nightManager.shutdown();
         }
         logger().info("Blood Night disabled!");
-    }
-
-    private void registerCommand(String command, TabExecutor executor) {
-        PluginCommand cmd = getCommand(command);
-        if (cmd != null) {
-            cmd.setExecutor(executor);
-            return;
-        }
-        logger().warning("Command " + command + " not found!");
     }
 }
