@@ -81,7 +81,7 @@ public class MobSetting implements ConfigurationSerializable {
     }
 
     public int getOverridenDropAmount(int dropAmount) {
-        return this.dropAmount == -1 ? dropAmount : this.dropAmount;
+        return this.dropAmount <= 0 ? dropAmount : this.dropAmount;
     }
 
     @Override
