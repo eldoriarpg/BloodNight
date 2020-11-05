@@ -193,7 +193,7 @@ public class ManageMob extends EldoCommand {
                 return true;
             }
             if ("dropAmount".equalsIgnoreCase(field)) {
-                if (invalidRange(sender, num.getAsInt(), 1, 100)) {
+                if (invalidRange(sender, num.getAsInt(), 0, 100)) {
                     return true;
                 }
                 mob.setDropAmount(num.getAsInt());
@@ -352,7 +352,7 @@ public class ManageMob extends EldoCommand {
                             // Drop amount
                             .append(Component.text(localizer().getMessage("field.dropAmount") + ": ", NamedTextColor.AQUA))
                             .append(Component.text(
-                                    entry.getDropAmount() == -1 ? localizer().getMessage("action.content") + " " : entry.getDropAmount() + "x", NamedTextColor.GOLD))
+                                    entry.getDropAmount() <= 0 ? localizer().getMessage("action.default") : entry.getDropAmount() + "x", NamedTextColor.GOLD))
                             .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                                     .clickEvent(ClickEvent.suggestCommand(cmd + "dropAmount ")))
                             .append(Component.newline()).append(Component.text("  "))

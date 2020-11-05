@@ -74,6 +74,8 @@ public class NightManager implements Listener, Runnable {
 
     private int worldRefresh = 0;
 
+    private boolean initialized = false;
+
     public NightManager(Configuration configuration) {
         this.configuration = configuration;
         this.localizer = ILocalizer.getPluginLocalizer(BloodNight.class);
@@ -117,6 +119,28 @@ public class NightManager implements Listener, Runnable {
      */
     @Override
     public void run() {
+        if (!initialized) {
+            BloodNight.logger().info("Executing cleanup task on startup.");
+
+            Iterator<KeyedBossBar> bossBars = Bukkit.getBossBars();
+            String s = BloodNight.getInstance().getName().toLowerCase(Locale.ROOT);
+            int i = 0;
+            while (bossBars.hasNext()) {
+                KeyedBossBar next = bossBars.next();
+                if (next.getKey().getNamespace().equalsIgnoreCase(s)) {
+                    Bukkit.removeBossBar(next.getKey());
+                    i++;
+                    if (BloodNight.isDebug()) {
+                        BloodNight.logger().info("Removed 1 boss bar" + next.getKey());
+                    }
+                    continue;
+                }
+            }
+            BloodNight.logger().info("Removed " + i + " hanging boss bars.");
+            BloodNight.logger().info("Night manager initialized.");
+            initialized = true;
+        }
+
         worldRefresh++;
         if (worldRefresh == 5) {
             for (World observedWorld : observedWorlds) {
@@ -421,18 +445,6 @@ public class NightManager implements Listener, Runnable {
         }
 
         BloodNight.logger().info("Night manager shutdown successful.");
-
-        Iterator<KeyedBossBar> bossBars = Bukkit.getBossBars();
-        String s = BloodNight.getInstance().getName().toLowerCase(Locale.ROOT);
-        int i = 0;
-        while (bossBars.hasNext()) {
-            KeyedBossBar next = bossBars.next();
-            if (next.getKey().getNamespace().equalsIgnoreCase(s)) {
-                Bukkit.removeBossBar(next.getKey());
-                i++;
-            }
-        }
-        BloodNight.logger().info("Removed " + i + " boss bars.");
     }
 
     public void reload() {
