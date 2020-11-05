@@ -6,6 +6,7 @@ import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.inventory.ItemStack;
@@ -25,6 +26,7 @@ import java.util.regex.Pattern;
 public class Drop implements ConfigurationSerializable {
     private final ItemStack item;
     private final int weight;
+    private static final NamespacedKey WEIGHT_KEY = BloodNight.getNamespacedKey("dropWeight");
 
     public Drop(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
@@ -79,6 +81,10 @@ public class Drop implements ConfigurationSerializable {
         }
         ItemStack newItem = item.clone();
         itemMeta.setLore(lore);
+        PersistentDataContainer container = itemMeta.getPersistentDataContainer();
+        if (container.has(WEIGHT_KEY, PersistentDataType.INTEGER)) {
+            container.remove(WEIGHT_KEY);
+        }
         newItem.setItemMeta(itemMeta);
         return newItem;
     }
@@ -87,7 +93,7 @@ public class Drop implements ConfigurationSerializable {
         setWeightIfNotSet(item, 1);
         ItemMeta itemMeta = item.hasItemMeta() ? item.getItemMeta() : Bukkit.getItemFactory().getItemMeta(item.getType());
         PersistentDataContainer dataContainer = itemMeta.getPersistentDataContainer();
-        return dataContainer.get(BloodNight.getNamespacedKey("dropWeight"), PersistentDataType.INTEGER);
+        return dataContainer.get(WEIGHT_KEY, PersistentDataType.INTEGER);
     }
 
     private static Pattern getRegexWeight() {
@@ -97,14 +103,14 @@ public class Drop implements ConfigurationSerializable {
     private static void setWeight(ItemStack item, int weight) {
         ItemMeta itemMeta = item.hasItemMeta() ? item.getItemMeta() : Bukkit.getItemFactory().getItemMeta(item.getType());
         PersistentDataContainer dataContainer = itemMeta.getPersistentDataContainer();
-        dataContainer.set(BloodNight.getNamespacedKey("dropWeight"), PersistentDataType.INTEGER, weight);
+        dataContainer.set(WEIGHT_KEY, PersistentDataType.INTEGER, weight);
         item.setItemMeta(itemMeta);
     }
 
     private static void setWeightIfNotSet(ItemStack item, int weight) {
         ItemMeta itemMeta = item.hasItemMeta() ? item.getItemMeta() : Bukkit.getItemFactory().getItemMeta(item.getType());
         PersistentDataContainer dataContainer = itemMeta.getPersistentDataContainer();
-        if (!dataContainer.has(BloodNight.getNamespacedKey("dropWeight"), PersistentDataType.INTEGER)) {
+        if (!dataContainer.has(WEIGHT_KEY, PersistentDataType.INTEGER)) {
             setWeight(item, weight);
         }
     }
