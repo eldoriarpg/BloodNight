@@ -1,6 +1,7 @@
 package de.eldoria.bloodnight.specialmobs.mobs.witch;
 
 import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
+import de.eldoria.eldoutilities.utils.ObjUtil;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.attribute.Attribute;
@@ -39,9 +40,11 @@ public class FireWizard extends AbstractWitch {
 
     @Override
     public void onProjectileHit(ProjectileHitEvent event) {
-        if (event.getHitEntity().getType() == EntityType.PLAYER) {
-            AttributeInstance attribute = getBaseEntity().getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
-            ((LivingEntity) event.getHitEntity()).damage(attribute.getValue(), getBaseEntity());
-        }
+        ObjUtil.nonNull(event.getEntity(), e -> {
+            if (e.getType() == EntityType.PLAYER) {
+                AttributeInstance attribute = getBaseEntity().getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
+                ((LivingEntity) event.getHitEntity()).damage(attribute.getValue(), getBaseEntity());
+            }
+        });
     }
 }
