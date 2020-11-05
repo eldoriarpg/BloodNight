@@ -6,7 +6,7 @@
 
     <groupId>de.eldoria</groupId>
     <artifactId>bloodnight</artifactId>
-    <version>0.6.1</version>
+    <version>0.6.3</version>
     <name>BloodNight</name>
     <url>https://www.spigotmc.org/resources/85095/</url>
     <description>Nights are not hard enough? Make them harder!</description>
@@ -114,7 +114,7 @@
         <dependency>
             <groupId>de.eldoria</groupId>
             <artifactId>EldoUtilities</artifactId>
-            <version>v1.0.33</version>
+            <version>v1.0.34</version>
             <scope>compile</scope>
         </dependency>
 

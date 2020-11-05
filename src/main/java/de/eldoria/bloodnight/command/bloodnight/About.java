@@ -26,5 +26,4 @@ public class About extends EldoCommand {
         messageSender().sendMessage(sender, info);
         return true;
     }
-
 }
