@@ -62,27 +62,24 @@ public class Configuration {
             config = plugin.getConfig();
         }
 
+
         version = config.getInt("version");
         generalSettings = (GeneralSettings) config.get("generalSettings", new GeneralSettings());
         worldSettings.clear();
         List<WorldSettings> worldList = ObjUtil.nonNull((List<WorldSettings>) config.get("worldSettings", new ArrayList<>()), new ArrayList<>());
         for (WorldSettings settings : worldList) {
-            if (Bukkit.getWorld(settings.getWorldName()) != null) {
-                worldSettings.put(settings.getWorldName(), settings);
-                if (generalSettings.isDebug()) {
-                    BloodNight.logger().info("Loading world settings for " + settings.getWorldName());
-                }
-            } else {
-                if (generalSettings.isDebug()) {
-                    BloodNight.logger().info("Didnt found a matching world for " + settings.getWorldName());
-                }
+            worldSettings.put(settings.getWorldName(), settings);
+            if (generalSettings.isDebug()) {
+                BloodNight.logger().info("Loading world settings for " + settings.getWorldName());
             }
         }
+
         for (World world : Bukkit.getWorlds()) {
             getWorldSettings(world);
         }
 
         saveConfig();
+
     }
 
     private void init() {
@@ -106,5 +103,20 @@ public class Configuration {
             BloodNight.logger().info("Saved config.");
         }
         plugin.saveConfig();
+    }
+
+    public void cleanup() {
+        List<String> invalid = new ArrayList<>();
+        BloodNight.logger().info("Performing config cleanup.");
+        for (Map.Entry<String, WorldSettings> entry : this.worldSettings.entrySet()) {
+            if (Bukkit.getWorld(entry.getKey()) == null) {
+                invalid.add(entry.getKey());
+                BloodNight.logger().info("Didnt found a matching world for " + entry.getKey() + "Will will discard Settings");
+            }
+        }
+
+        invalid.forEach(this.worldSettings::remove);
+
+        saveConfig();
     }
 }
