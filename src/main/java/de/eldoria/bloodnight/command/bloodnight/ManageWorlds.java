@@ -208,7 +208,7 @@ public class ManageWorlds extends EldoCommand {
                             .append(Component.text(localizer().getMessage("field.title") + ": ", NamedTextColor.AQUA))
                             .append(Component.text(bbs.getTitle(), NamedTextColor.GOLD))
                             .append(Component.text(" [" + localizer().getMessage("action.change") + "] ", NamedTextColor.GREEN)
-                                    .clickEvent(ClickEvent.suggestCommand(cmd + "bossBar title " + bbs.getTitle())))
+                                    .clickEvent(ClickEvent.suggestCommand(cmd + "bossBar title " + bbs.getTitle().replace("§", "&"))))
                             .append(Component.newline()).append(Component.text("  "))
                             // Color
                             .append(Component.text(localizer().getMessage("field.color") + ": ", NamedTextColor.AQUA))

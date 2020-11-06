@@ -115,7 +115,7 @@ public class MobManager implements Listener, Runnable {
         SpecialMob<?> specialMob = mobFactory.wrap((LivingEntity) entity, mobSettings, mobSetting.get());
 
         if (BloodNight.isDebug()) {
-            BloodNight.logger().info("Special Mob " + mobSetting.get().getDisplayName() + " spawned.");
+            BloodNight.logger().info("Special Mob " + mobSetting.get().getMobName() + " spawned.");
         }
 
         getWorldMobs(entity.getWorld()).put(entity.getUniqueId(), specialMob);
