@@ -347,7 +347,7 @@ public class ManageMob extends EldoCommand {
                             .append(Component.text(localizer().getMessage("field.displayName") + ": ", NamedTextColor.AQUA))
                             .append(Component.text(entry.getDisplayName(), NamedTextColor.GOLD))
                             .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                                    .clickEvent(ClickEvent.suggestCommand(cmd + "displayName " + entry.getDisplayName())))
+                                    .clickEvent(ClickEvent.suggestCommand(cmd + "displayName " + entry.getDisplayName().replace("§", "&"))))
                             .append(Component.newline()).append(Component.text("  "))
                             // Drop amount
                             .append(Component.text(localizer().getMessage("field.dropAmount") + ": ", NamedTextColor.AQUA))

@@ -21,7 +21,9 @@ public class MobSetting implements ConfigurationSerializable {
      * plugin name of the mob
      */
     private final String mobName;
-    @Setter
+    /**
+     * The display name of the mob. Uses § as color code identifier.
+     */
     private String displayName;
     /**
      * Indicates if this mob can be spawned
@@ -64,7 +66,8 @@ public class MobSetting implements ConfigurationSerializable {
         if (mobName == null) {
             throw new NullPointerException("Mob name is null. This is not allowed");
         }
-        displayName = map.getValueOrDefault("displayName", String.join(" ", mobName.split("(?<=.)(?=\\p{Lu})")));
+        setDisplayName(map.getValueOrDefault("displayName",
+                String.join(" ", mobName.split("(?<=.)(?=\\p{Lu})"))));
         active = map.getValueOrDefault("active", active);
         dropAmount = map.getValueOrDefault("dropAmount", dropAmount);
         overrideDefaultDrops = map.getValueOrDefault("overrideDefaultDrops", overrideDefaultDrops);
@@ -137,5 +140,16 @@ public class MobSetting implements ConfigurationSerializable {
             default:
                 throw new IllegalStateException("Unexpected value: " + healthModifier);
         }
+    }
+
+    /**
+     * Sets the display name.
+     * <p>
+     * This will replace & with §
+     *
+     * @param displayName display name to set.
+     */
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName.replace("&", "§");
     }
 }
