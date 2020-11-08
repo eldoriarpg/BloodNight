@@ -120,23 +120,7 @@ public class NightManager implements Listener, Runnable {
     @Override
     public void run() {
         if (!initialized) {
-            BloodNight.logger().info("Executing cleanup task on startup.");
-
-            Iterator<KeyedBossBar> bossBars = Bukkit.getBossBars();
-            String s = BloodNight.getInstance().getName().toLowerCase(Locale.ROOT);
-            int i = 0;
-            while (bossBars.hasNext()) {
-                KeyedBossBar next = bossBars.next();
-                if (next.getKey().getNamespace().equalsIgnoreCase(s)) {
-                    Bukkit.removeBossBar(next.getKey());
-                    i++;
-                    if (BloodNight.isDebug()) {
-                        BloodNight.logger().info("Removed 1 boss bar" + next.getKey());
-                    }
-                    continue;
-                }
-            }
-            BloodNight.logger().info("Removed " + i + " hanging boss bars.");
+            cleanup();
             BloodNight.logger().info("Night manager initialized.");
             initialized = true;
         }
@@ -166,6 +150,25 @@ public class NightManager implements Listener, Runnable {
         }
     }
 
+    private void cleanup() {
+        BloodNight.logger().info("Executing cleanup task on startup.");
+
+        Iterator<KeyedBossBar> bossBars = Bukkit.getBossBars();
+        String s = BloodNight.getInstance().getName().toLowerCase(Locale.ROOT);
+        int i = 0;
+        while (bossBars.hasNext()) {
+            KeyedBossBar next = bossBars.next();
+            if (next.getKey().getNamespace().equalsIgnoreCase(s)) {
+                Bukkit.removeBossBar(next.getKey());
+                i++;
+                if (BloodNight.isDebug()) {
+                    BloodNight.logger().info("Removed 1 boss bar" + next.getKey());
+                }
+            }
+        }
+        BloodNight.logger().info("Removed " + i + " hanging boss bars.");
+    }
+
     private void calcualteWorldState(World world) {
         boolean current = isNight(world);
         boolean old = timeState.getOrDefault(world.getName(), false);
@@ -177,7 +180,7 @@ public class NightManager implements Listener, Runnable {
                 long left = getDiff(world.getFullTime(), settings.getNightEnd());
                 BloodNightData bloodNightData = bloodWorlds.get(world);
                 ObjUtil.nonNull(bloodNightData.getBossBar(), bossBar -> {
-                    bossBar.setProgress(left / (double) total);
+                    bossBar.setProgress(Math.max(Math.min(left / (double) total, 1), 0));
                 });
             }
             return;
@@ -255,8 +258,8 @@ public class NightManager implements Listener, Runnable {
         if (bbS.isEnabled()) {
             bossBar = Bukkit.createBossBar(getBossBarNamespace(world), bbS.getTitle(), bbS.getColor(), BarStyle.SOLID, bbS.getEffects());
         }
-        BloodNightData bloodNightData = new BloodNightData(bossBar);
-        bloodWorlds.put(world, bloodNightData);
+
+        bloodWorlds.put(world, new BloodNightData(bossBar));
 
         for (String cmd : settings.getNightSettings().getStartCommands()) {
             cmd = cmd.replace("{world}", world.getName());
@@ -268,7 +271,7 @@ public class NightManager implements Listener, Runnable {
         }
 
         for (Player player : world.getPlayers()) {
-            enableBloodNightForPlayer(player, bloodNightData);
+            enableBloodNightForPlayer(player, world);
         }
     }
 
@@ -291,18 +294,25 @@ public class NightManager implements Listener, Runnable {
         }
 
         pluginManager.callEvent(new BloodNightEndEvent(world));
-        BloodNightData bloodNightData = bloodWorlds.remove(world);
         for (Player player : world.getPlayers()) {
-            disableBloodNightForPlayer(player, bloodNightData);
+            disableBloodNightForPlayer(player, world);
         }
 
-        ObjUtil.nonNull(bloodNightData.getBossBar(), b -> {
-            Bukkit.removeBossBar(getBossBarNamespace(world));
+        bloodWorlds.remove(world);
+
+        ObjUtil.nonNull(Bukkit.getBossBar(getBossBarNamespace(world)), b -> {
+            b.removeAll();
+            if (!Bukkit.removeBossBar(getBossBarNamespace(world))) {
+                if (BloodNight.isDebug()) {
+                    BloodNight.logger().warning("Could not remove boss bar " + getBossBarNamespace(world));
+                }
+            }
         });
     }
 
-    private void enableBloodNightForPlayer(Player player, BloodNightData bloodNightData) {
+    private void enableBloodNightForPlayer(Player player, World world) {
         playerConsistencyMap.put(player.getUniqueId(), new ConsistencyCache(player));
+        BloodNightData bloodNightData = this.bloodWorlds.get(world);
         WorldSettings worldSettings = configuration.getWorldSettings(player.getWorld().getName());
 
         if (BloodNight.isDebug()) {
@@ -320,7 +330,7 @@ public class NightManager implements Listener, Runnable {
         });
     }
 
-    private void disableBloodNightForPlayer(Player player, BloodNightData bloodNightData) {
+    private void disableBloodNightForPlayer(Player player, World world) {
         ConsistencyCache consistencyCache = playerConsistencyMap.get(player.getUniqueId());
 
         if (BloodNight.isDebug()) {
@@ -331,8 +341,8 @@ public class NightManager implements Listener, Runnable {
             consistencyCache.revert(player);
         }
 
-        ObjUtil.nonNull(bloodNightData.getBossBar(), b -> {
-            bloodNightData.getBossBar().removePlayer(player);
+        ObjUtil.nonNull(Bukkit.getBossBar(getBossBarNamespace(world)), b -> {
+            b.removePlayer(player);
         });
 
         if (configuration.getGeneralSettings().isBlindness()) {
@@ -345,15 +355,21 @@ public class NightManager implements Listener, Runnable {
     @EventHandler
     public void onPlayerWorldChange(PlayerChangedWorldEvent event) {
         if (isBloodNightActive(event.getFrom())) {
-            if (isBloodNightActive(event.getPlayer().getWorld())) {
-                // no action needs to be taken
-                return;
-            }
-            disableBloodNightForPlayer(event.getPlayer(), bloodWorlds.get(event.getFrom()));
+            disableBloodNightForPlayer(event.getPlayer(), event.getFrom());
         } else {
-            if (isBloodNightActive(event.getPlayer().getWorld())) {
-                enableBloodNightForPlayer(event.getPlayer(), bloodWorlds.get(event.getPlayer().getWorld()));
-            }
+            ObjUtil.nonNull(Bukkit.getBossBar(getBossBarNamespace(event.getFrom())),
+                    b -> {
+                        b.removePlayer(event.getPlayer());
+                    });
+        }
+
+        if (isBloodNightActive(event.getPlayer().getWorld())) {
+            enableBloodNightForPlayer(event.getPlayer(), event.getPlayer().getWorld());
+        } else {
+            ObjUtil.nonNull(Bukkit.getBossBar(getBossBarNamespace(event.getPlayer().getWorld())),
+                    b -> {
+                        b.removePlayer(event.getPlayer());
+                    });
         }
     }
 
@@ -363,14 +379,14 @@ public class NightManager implements Listener, Runnable {
             playerConsistencyMap.get(event.getPlayer().getUniqueId()).revert(event.getPlayer());
         }
         if (isBloodNightActive(event.getPlayer().getWorld())) {
-            disableBloodNightForPlayer(event.getPlayer(), bloodWorlds.get(event.getPlayer().getWorld()));
+            disableBloodNightForPlayer(event.getPlayer(), event.getPlayer().getWorld());
         }
     }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         if (isBloodNightActive(event.getPlayer().getWorld())) {
-            enableBloodNightForPlayer(event.getPlayer(), bloodWorlds.get(event.getPlayer().getWorld()));
+            enableBloodNightForPlayer(event.getPlayer(), event.getPlayer().getWorld());
         }
     }
 
@@ -451,6 +467,9 @@ public class NightManager implements Listener, Runnable {
         for (World observedWorld : bloodWorlds.keySet()) {
             resolveBloodNight(observedWorld);
         }
+
+        cleanup();
+
         observedWorlds.clear();
         configuration.getWorldSettings().keySet().stream()
                 .map(Bukkit::getWorld)
