@@ -1,8 +1,6 @@
 package de.eldoria.bloodnight.command.bloodnight;
 
-import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.localization.Replacement;
-import de.eldoria.eldoutilities.messages.MessageSender;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -11,16 +9,14 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.jetbrains.annotations.NotNull;
 
 public class About extends EldoCommand {
-    private final Plugin plugin;
 
-    public About(ILocalizer localizer, MessageSender messageSender, Plugin plugin) {
-        super(localizer, messageSender);
-        this.plugin = plugin;
+    public About(Plugin plugin) {
+        super(plugin);
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        PluginDescriptionFile descr = plugin.getDescription();
+        PluginDescriptionFile descr = getPlugin().getDescription();
         String info = localizer().getMessage("about",
                 Replacement.create("PLUGIN_NAME", "Blood Night").addFormatting('b'),
                 Replacement.create("AUTHORS", String.join(", ", descr.getAuthors())).addFormatting('b'),
@@ -30,5 +26,4 @@ public class About extends EldoCommand {
         messageSender().sendMessage(sender, info);
         return true;
     }
-
 }

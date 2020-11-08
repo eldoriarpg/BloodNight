@@ -22,6 +22,8 @@ public class GeneralSettings implements ConfigurationSerializable {
     private boolean blindness = true;
     private boolean joinWorldWarning = true;
     private boolean debug = false;
+    private boolean updateReminder = true;
+    private boolean autoUpdater = false;
 
     public GeneralSettings(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
@@ -32,6 +34,8 @@ public class GeneralSettings implements ConfigurationSerializable {
         joinWorldWarning = map.getValueOrDefault("joinWorldWarning", joinWorldWarning);
         blindness = map.getValueOrDefault("blindness", blindness);
         debug = map.getValueOrDefault("debug", debug);
+        updateReminder = map.getValueOrDefault("updateReminder", updateReminder);
+        autoUpdater = map.getValueOrDefault("autoUpdater", autoUpdater);
     }
 
     public GeneralSettings() {
@@ -47,6 +51,8 @@ public class GeneralSettings implements ConfigurationSerializable {
                 .add("joinWorldWarning", joinWorldWarning)
                 .add("blindness", blindness)
                 .add("debug", debug)
+                .add("updateReminder", updateReminder)
+                .add("autoUpdater", autoUpdater)
                 .build();
     }
 }

@@ -5,13 +5,13 @@ import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.core.events.BloodNightBeginEvent;
 import de.eldoria.bloodnight.core.events.BloodNightEndEvent;
 import de.eldoria.eldoutilities.localization.ILocalizer;
-import de.eldoria.eldoutilities.localization.Localizer;
 import de.eldoria.eldoutilities.localization.Replacement;
 import de.eldoria.eldoutilities.messages.MessageSender;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -26,9 +26,9 @@ public class NotificationManager implements Listener {
 
     public NotificationManager(Configuration configuration, NightManager nightManager) {
         this.configuration = configuration;
-        this.localizer = BloodNight.localizer();
+        this.localizer = ILocalizer.getPluginLocalizer(BloodNight.class);
         this.nightManager = nightManager;
-        this.messageSender = MessageSender.get(BloodNight.getInstance());
+        this.messageSender = MessageSender.getPluginMessageSender(BloodNight.class);
     }
 
     @EventHandler
@@ -83,16 +83,19 @@ public class NotificationManager implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerWorldChange(PlayerChangedWorldEvent event) {
         if (!configuration.getGeneralSettings().isJoinWorldWarning()) return;
 
-        if (nightManager.isBloodNightActive(event.getFrom())) {
+        boolean origin = nightManager.isBloodNightActive(event.getFrom());
+        boolean destination = nightManager.isBloodNightActive(event.getPlayer().getWorld());
+        if (destination) {
             sendMessage(event.getPlayer(), localizer.getMessage("notify.bloodNightJoined"));
-        } else {
-            if (nightManager.isBloodNightActive(event.getPlayer().getWorld())) {
-                sendMessage(event.getPlayer(), localizer.getMessage("notify.bloodNightLeft"));
-            }
+            return;
+        }
+
+        if (origin) {
+            sendMessage(event.getPlayer(), localizer.getMessage("notify.bloodNightLeft"));
         }
     }
 

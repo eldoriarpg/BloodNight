@@ -23,6 +23,9 @@ import java.util.stream.Collectors;
 @SerializableAs("bloodNightBossBarSettings")
 public class BossBarSettings implements ConfigurationSerializable {
     private boolean enabled = true;
+    /**
+     * Boss bar title with § as color identifier
+     */
     private String title = "§c§lBlood Night";
     private BarColor color = BarColor.RED;
     private List<BarFlag> effects = new ArrayList<BarFlag>() {
@@ -38,7 +41,7 @@ public class BossBarSettings implements ConfigurationSerializable {
     public BossBarSettings(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
         this.enabled = map.getValue("enabled");
-        this.title = map.getValue("title");
+        setTitle(map.getValue("title"));
         this.color = map.getValue("color", v -> EnumUtil.parse(v, BarColor.class));
         List<String> effects = map.getValue("effects");
         this.effects = effects.stream().map(v -> EnumUtil.parse(v, BarFlag.class)).filter(Objects::nonNull).collect(Collectors.toList());
@@ -58,6 +61,10 @@ public class BossBarSettings implements ConfigurationSerializable {
 
     public boolean isEffectEnabled(BarFlag flag) {
         return effects.contains(flag);
+    }
+
+    public void setTitle(String title) {
+        this.title = title.replace("&", "§");
     }
 
     @Override

@@ -13,9 +13,7 @@ import de.eldoria.bloodnight.core.mobfactory.MobFactory;
 import de.eldoria.bloodnight.core.mobfactory.MobGroup;
 import de.eldoria.bloodnight.core.mobfactory.SpecialMobRegistry;
 import de.eldoria.bloodnight.util.Permissions;
-import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.localization.Replacement;
-import de.eldoria.eldoutilities.messages.MessageSender;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
 import de.eldoria.eldoutilities.simplecommands.TabCompleteUtil;
 import de.eldoria.eldoutilities.utils.ArgumentUtils;
@@ -39,6 +37,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,8 +58,8 @@ public class ManageMob extends EldoCommand {
     private final InventoryListener inventoryListener;
     private final BukkitAudiences bukkitAudiences;
 
-    public ManageMob(ILocalizer localizer, MessageSender messageSender, Configuration configuration, InventoryListener inventoryListener) {
-        super(localizer, messageSender);
+    public ManageMob(Plugin plugin, Configuration configuration, InventoryListener inventoryListener) {
+        super(plugin);
         this.configuration = configuration;
         this.inventoryListener = inventoryListener;
         bukkitAudiences = BukkitAudiences.create(BloodNight.getInstance());
@@ -68,8 +67,12 @@ public class ManageMob extends EldoCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (denyAccess(sender, Permissions.MANAGE_MOB)) {
+        if (isConsole(sender)) {
             messageSender().sendError(sender, localizer().getMessage("error.console"));
+            return true;
+        }
+
+        if (denyAccess(sender, Permissions.MANAGE_MOB)) {
             return true;
         }
 
@@ -190,7 +193,7 @@ public class ManageMob extends EldoCommand {
                 return true;
             }
             if ("dropAmount".equalsIgnoreCase(field)) {
-                if (invalidRange(sender, num.getAsInt(), 1, 100)) {
+                if (invalidRange(sender, num.getAsInt(), 0, 100)) {
                     return true;
                 }
                 mob.setDropAmount(num.getAsInt());
@@ -344,12 +347,12 @@ public class ManageMob extends EldoCommand {
                             .append(Component.text(localizer().getMessage("field.displayName") + ": ", NamedTextColor.AQUA))
                             .append(Component.text(entry.getDisplayName(), NamedTextColor.GOLD))
                             .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                                    .clickEvent(ClickEvent.suggestCommand(cmd + "displayName " + entry.getDisplayName())))
+                                    .clickEvent(ClickEvent.suggestCommand(cmd + "displayName " + entry.getDisplayName().replace("§", "&"))))
                             .append(Component.newline()).append(Component.text("  "))
                             // Drop amount
                             .append(Component.text(localizer().getMessage("field.dropAmount") + ": ", NamedTextColor.AQUA))
                             .append(Component.text(
-                                    entry.getDropAmount() == -1 ? localizer().getMessage("action.content") + " " : entry.getDropAmount() + "x", NamedTextColor.GOLD))
+                                    entry.getDropAmount() <= 0 ? localizer().getMessage("action.default") : entry.getDropAmount() + "x", NamedTextColor.GOLD))
                             .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                                     .clickEvent(ClickEvent.suggestCommand(cmd + "dropAmount ")))
                             .append(Component.newline()).append(Component.text("  "))
