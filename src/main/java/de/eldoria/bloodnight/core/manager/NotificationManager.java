@@ -11,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -82,16 +83,19 @@ public class NotificationManager implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerWorldChange(PlayerChangedWorldEvent event) {
         if (!configuration.getGeneralSettings().isJoinWorldWarning()) return;
 
-        if (nightManager.isBloodNightActive(event.getFrom())) {
+        boolean origin = nightManager.isBloodNightActive(event.getFrom());
+        boolean destination = nightManager.isBloodNightActive(event.getPlayer().getWorld());
+        if (destination) {
             sendMessage(event.getPlayer(), localizer.getMessage("notify.bloodNightJoined"));
-        } else {
-            if (nightManager.isBloodNightActive(event.getPlayer().getWorld())) {
-                sendMessage(event.getPlayer(), localizer.getMessage("notify.bloodNightLeft"));
-            }
+            return;
+        }
+
+        if (origin) {
+            sendMessage(event.getPlayer(), localizer.getMessage("notify.bloodNightLeft"));
         }
     }
 

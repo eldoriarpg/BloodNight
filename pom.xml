@@ -6,7 +6,7 @@
 
     <groupId>de.eldoria</groupId>
     <artifactId>bloodnight</artifactId>
-    <version>0.6.6</version>
+    <version>0.6.7</version>
     <name>BloodNight</name>
     <url>https://www.spigotmc.org/resources/85095/</url>
     <description>Nights are not hard enough? Make them harder!</description>
@@ -15,6 +15,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
         <java.version>8</java.version>
+        <shade.base>de.eldoria.bloodnight</shade.base>
     </properties>
 
     <build>
@@ -37,15 +38,15 @@
                     <relocations>
                         <relocation>
                             <pattern>org.bstats.bukkit</pattern>
-                            <shadedPattern>de.eldoria.bloodnight.bstats</shadedPattern>
+                            <shadedPattern>${shade.base}.bstats</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>de.eldoria.eldoutilities</pattern>
-                            <shadedPattern>de.eldoria.bloodnight.eldoutilities</shadedPattern>
+                            <shadedPattern>${shade.base}.eldoutilities</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>net.kyori</pattern>
-                            <shadedPattern>de.eldoria.bloodnight.kyori</shadedPattern>
+                            <shadedPattern>${shade.base}.kyori</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
