@@ -11,7 +11,7 @@ public class MoonPhase {
     /**
      * Computes the moon phase index as a value from 0 to 7 Used to display the phase name and the moon image for the
      * current phase.
-     *
+     * <p>
      * 0 is a New Moon. 4 is a Full Moon
      *
      * @param cal Calendar calendar object for today's date

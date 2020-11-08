@@ -62,6 +62,33 @@ public class ManageNightSelection extends EldoCommand {
         bukkitAudiences = BukkitAudiences.create(BloodNight.getInstance());
     }
 
+    private static String getMoonPhaseName(int phase) {
+        return "state.phase" + phase;
+    }
+
+    private static String getMoonPhaseSign(int phase) {
+        switch (phase) {
+            case 0:
+                return "§f████";
+            case 1:
+                return "§f███§8█";
+            case 2:
+                return "§f██§8██";
+            case 3:
+                return "§f█§8███";
+            case 4:
+                return "§8████";
+            case 5:
+                return "§8███§f█";
+            case 6:
+                return "§8██§f██";
+            case 7:
+                return "§8█§f███";
+            default:
+                throw new IllegalStateException("Unexpected value: " + phase);
+        }
+    }
+
     // world field value
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
@@ -429,33 +456,6 @@ public class ManageNightSelection extends EldoCommand {
             }
             result.add("§6" + ILocalizer.getPluginLocalizer(BloodNight.class).getMessage("field.probability") + ": " + probability);
             return result;
-        }
-    }
-
-    private static String getMoonPhaseName(int phase) {
-        return "state.phase" + phase;
-    }
-
-    private static String getMoonPhaseSign(int phase) {
-        switch (phase) {
-            case 0:
-                return "§f████";
-            case 1:
-                return "§f███§8█";
-            case 2:
-                return "§f██§8██";
-            case 3:
-                return "§f█§8███";
-            case 4:
-                return "§8████";
-            case 5:
-                return "§8███§f█";
-            case 6:
-                return "§8██§f██";
-            case 7:
-                return "§8█§f███";
-            default:
-                throw new IllegalStateException("Unexpected value: " + phase);
         }
     }
 }
