@@ -9,7 +9,6 @@ import lombok.Setter;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.jetbrains.annotations.NotNull;
-import sun.jvm.hotspot.ui.ObjectHistogramPanel;
 
 import java.util.HashMap;
 import java.util.List;
@@ -40,10 +39,10 @@ public class NightSelection implements ConfigurationSerializable {
         put(7, 10);
     }};
 
-    private Map<Integer, Integer> phase = new HashMap<Integer, Integer>() {{
+    private Map<Integer, Integer> phaseCustom = new HashMap<Integer, Integer>() {{
         put(0, 50);
-        put(0, 50);
-        put(0, 50);
+        put(1, 50);
+        put(2, 50);
     }};
 
     private int currPhase = 0;
@@ -55,7 +54,7 @@ public class NightSelection implements ConfigurationSerializable {
     /**
      * Current value of the curve.
      */
-    private int currCurvePos =  0;
+    private int currCurvePos = 0;
     /**
      * Min curve value.
      */
@@ -87,8 +86,8 @@ public class NightSelection implements ConfigurationSerializable {
         // phases
         moonPhase = parsePhase(map.getValueOrDefault("phases",
                 moonPhase.entrySet().stream().map(e -> e.getKey() + ":" + e.getValue()).collect(Collectors.toList())));
-        phase = parsePhase(map.getValueOrDefault("customPhases",
-                phase.entrySet().stream().map(e -> e.getKey() + ":" + e.getValue()).collect(Collectors.toList())));
+        phaseCustom = parsePhase(map.getValueOrDefault("phasesCustom",
+                phaseCustom.entrySet().stream().map(e -> e.getKey() + ":" + e.getValue()).collect(Collectors.toList())));
         verifyPhases();
         currPhase = map.getValueOrDefault("currPhase", currPhase);
         period = map.getValueOrDefault("currPhase", period);
@@ -107,13 +106,13 @@ public class NightSelection implements ConfigurationSerializable {
     }
 
     public void upcountInterval() {
-        curInterval %= interval;
         curInterval++;
+        curInterval %= interval;
     }
 
     public void upcountPhase() {
-        currPhase %= phase.size() - 1;
         currPhase++;
+        currPhase %= phaseCustom.size();
     }
 
     public int getPhaseProbability(int phase) {
@@ -123,7 +122,7 @@ public class NightSelection implements ConfigurationSerializable {
     @Override
     public @NotNull Map<String, Object> serialize() {
         List<String> phases = this.moonPhase.entrySet().stream().map(e -> e.getKey() + ":" + e.getValue()).collect(Collectors.toList());
-        List<String> phasesCustom = this.moonPhase.entrySet().stream().map(e -> e.getKey() + ":" + e.getValue()).collect(Collectors.toList());
+        List<String> phasesCustom = this.phaseCustom.entrySet().stream().map(e -> e.getKey() + ":" + e.getValue()).collect(Collectors.toList());
 
         return SerializationUtil.newBuilder()
                 .add("probability", probability)
@@ -140,9 +139,9 @@ public class NightSelection implements ConfigurationSerializable {
                 .build();
     }
 
-    public void setPhase(int phase, int probability) {
-        this.phase.put(phase, probability);
-        currPhase = Math.min(this.phase.size(), currPhase);
+    public void setPhaseCustom(int phase, int probability) {
+        this.phaseCustom.put(phase, probability);
+        currPhase = Math.min(this.phaseCustom.size(), currPhase);
     }
 
     public void setMoonPhase(int phase, int probability) {
@@ -152,22 +151,22 @@ public class NightSelection implements ConfigurationSerializable {
     public void setPhaseCount(int phaseCount) {
         Map<Integer, Integer> newPhases = new HashMap<>();
         for (int i = 0; i < phaseCount; i++) {
-            newPhases.put(i, phase.getOrDefault(i, 50));
+            newPhases.put(i, phaseCustom.getOrDefault(i, 50));
         }
-        phase = newPhases;
-        currPhase = Math.min(this.phase.size(), currPhase);
+        phaseCustom = newPhases;
+        currPhase = Math.min(this.phaseCustom.size(), currPhase);
     }
 
     private void verifyPhases() {
         Map<Integer, Integer> newPhases = new HashMap<>();
-        for (int i = 0; i < phase.size(); i++) {
-            newPhases.put(i, phase.getOrDefault(i, 50));
+        for (int i = 0; i < Math.min(phaseCustom.size(), 54); i++) {
+            newPhases.put(i, phaseCustom.getOrDefault(i, 50));
         }
-        phase = newPhases;
-        currPhase = Math.min(this.phase.size(), currPhase);
+        phaseCustom = newPhases;
+        currPhase = Math.min(this.phaseCustom.size(), currPhase);
     }
 
-    private Map<Integer, Integer> parsePhase(List<String> list){
+    private Map<Integer, Integer> parsePhase(List<String> list) {
         Map<Integer, Integer> map = new HashMap<>();
         for (String s : list) {
             String[] split = s.split(":");

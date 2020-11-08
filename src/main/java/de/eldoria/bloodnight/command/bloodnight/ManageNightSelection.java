@@ -24,6 +24,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -111,7 +112,8 @@ public class ManageNightSelection extends EldoCommand {
         }
 
         final NightSelection sel = worldSettings.getNightSelection();
-        if (TabCompleteUtil.isCommand(field, "interval", "intervalProbability", "probability")) {
+        if (TabCompleteUtil.isCommand(field, "interval", "intervalProbability", "probability", "phaseAmount",
+                "period", "minCurveVal", "maxCurveVal")) {
             OptionalInt optionalInt = Parser.parseInt(value);
             if (!optionalInt.isPresent()) {
                 messageSender().sendError(player, localizer().getMessage("error.invalidNumber"));
@@ -127,7 +129,7 @@ public class ManageNightSelection extends EldoCommand {
             if ("probability".equalsIgnoreCase(field)) {
                 sel.setProbability(EMath.clamp(1, 100, optionalInt.getAsInt()));
             }
-            if ("phase".equalsIgnoreCase(field)) {
+            if ("phaseAmount".equalsIgnoreCase(field)) {
                 sel.setPhaseCount(EMath.clamp(1, 54, optionalInt.getAsInt()));
             }
             if ("period".equalsIgnoreCase(field)) {
@@ -137,7 +139,7 @@ public class ManageNightSelection extends EldoCommand {
                 sel.setMinCurveVal(EMath.clamp(0, 100, optionalInt.getAsInt()));
             }
             if ("maxCurveVal".equalsIgnoreCase(field)) {
-                sel.setMinCurveVal(EMath.clamp(0, 100, optionalInt.getAsInt()));
+                sel.setMaxCurveVal(EMath.clamp(0, 100, optionalInt.getAsInt()));
             }
             optPage.ifPresent(p -> sendWorldPage(world, sender, p));
             configuration.saveConfig();
@@ -146,9 +148,9 @@ public class ManageNightSelection extends EldoCommand {
 
         if (TabCompleteUtil.isCommand(field, "moonPhase", "phase")) {
             boolean moonPhase = "moonPhase".equalsIgnoreCase(field);
-            Inventory inv = Bukkit.createInventory(player, 9,
+            Inventory inv = Bukkit.createInventory(player, moonPhase ? 9 : 54,
                     localizer().getMessage(moonPhase ? "nightSelection.title.moonPhase" : "nightSelection.title.phase"));
-            List<ItemStack> stacks = PhaseItem.getPhaseItems(moonPhase ? sel.getMoonPhase() : sel.getPhase(), moonPhase);
+            List<ItemStack> stacks = PhaseItem.getPhaseItems(moonPhase ? sel.getMoonPhase() : sel.getPhaseCustom(), moonPhase);
             inv.setContents(stacks.toArray(new ItemStack[0]));
             player.openInventory(inv);
             inventoryListener.registerModification(player, new InventoryListener.InventoryActionHandler() {
@@ -162,7 +164,7 @@ public class ManageNightSelection extends EldoCommand {
                                 if (moonPhase) {
                                     sel.setMoonPhase(s.first, s.second);
                                 } else {
-                                    sel.setPhase(s.first, s.second);
+                                    sel.setPhaseCustom(s.first, s.second);
                                 }
                             });
                     optPage.ifPresent(i -> sendWorldPage(world, sender, i));
@@ -224,11 +226,11 @@ public class ManageNightSelection extends EldoCommand {
                             localizer().getMessage("state.random")))
                     .append(Component.space())
                     .append(CommandUtil.getToggleField(ns.getNightSelectionType() == NightSelection.NightSelectionType.MOON_PHASE,
-                            cmd + "type moon",
+                            cmd + "type moon_phase",
                             localizer().getMessage("state.moonPhase")))
                     .append(Component.space())
                     .append(CommandUtil.getToggleField(ns.getNightSelectionType() == NightSelection.NightSelectionType.REAL_MOON_PHASE,
-                            cmd + "type real_moon",
+                            cmd + "type real_moon_phase",
                             localizer().getMessage("state.realMoonPhase")))
                     .append(Component.space())
                     .append(CommandUtil.getToggleField(ns.getNightSelectionType() == NightSelection.NightSelectionType.INTERVAL,
@@ -250,7 +252,9 @@ public class ManageNightSelection extends EldoCommand {
                     builder.append(Component.text(localizer().getMessage("field.probability") + ": ", NamedTextColor.AQUA))
                             .append(Component.text(ns.getProbability(), NamedTextColor.GOLD))
                             .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                                    .clickEvent(ClickEvent.suggestCommand(cmd + "probability ")));
+                                    .clickEvent(ClickEvent.suggestCommand(cmd + "probability ")))
+                            .append(Component.newline())
+                            .append(Component.newline());
                     break;
                 case REAL_MOON_PHASE:
                 case MOON_PHASE:
@@ -274,6 +278,7 @@ public class ManageNightSelection extends EldoCommand {
                                             )
                                     )
                             ));
+                    builder.append(Component.newline());
                     break;
                 case INTERVAL:
                     builder.append(Component.text(localizer().getMessage("field.interval") + ": ", NamedTextColor.AQUA))
@@ -284,22 +289,34 @@ public class ManageNightSelection extends EldoCommand {
                             .append(Component.text(localizer().getMessage("field.intervalProbability") + ": ", NamedTextColor.AQUA))
                             .append(Component.text(ns.getIntervalProbability(), NamedTextColor.GOLD))
                             .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                                    .clickEvent(ClickEvent.suggestCommand(cmd + "intervalProbability ")));
+                                    .clickEvent(ClickEvent.suggestCommand(cmd + "intervalProbability ")))
+                            .append(Component.newline());
+
                     break;
                 case PHASE:
-                    builder.append(Component.text(localizer().getMessage("field.phase") + ": ", NamedTextColor.AQUA))
+                    builder.append(Component.text(localizer().getMessage("field.amount") + ": ", NamedTextColor.AQUA))
+                            .append(Component.text(ns.getPhaseCustom().size(), NamedTextColor.GOLD))
                             .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                                    .clickEvent(ClickEvent.runCommand(cmd + "moonPhase none")));
+                                    .clickEvent(ClickEvent.suggestCommand(cmd + "phaseAmount ")))
+                            .append(Component.newline())
+                            .append(Component.text(localizer().getMessage("field.phase") + ": ", NamedTextColor.AQUA))
+                            .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
+                                    .clickEvent(ClickEvent.runCommand(cmd + "phase none")))
+                            .append(Component.newline());
                     break;
                 case CURVE:
                     builder.append(Component.text(localizer().getMessage("field.length") + ": ", NamedTextColor.AQUA))
                             .append(Component.text(ns.getPeriod(), NamedTextColor.GOLD))
                             .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                                    .clickEvent(ClickEvent.suggestCommand(cmd + "minCurveVal ")))
+                                    .clickEvent(ClickEvent.suggestCommand(cmd + "period ")))
                             .append(Component.newline())
                             .append(Component.text(localizer().getMessage("field.minProb") + ": ", NamedTextColor.AQUA))
                             .append(Component.text(ns.getMinCurveVal(), NamedTextColor.GOLD))
+                            .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
+                                    .clickEvent(ClickEvent.suggestCommand(cmd + "minCurveVal ")))
                             .append(Component.newline())
+                            .append(Component.text(localizer().getMessage("field.maxProb") + ": ", NamedTextColor.AQUA))
+                            .append(Component.text(ns.getMaxCurveVal(), NamedTextColor.GOLD))
                             .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                                     .clickEvent(ClickEvent.suggestCommand(cmd + "maxCurveVal ")));
                     break;
@@ -326,7 +343,7 @@ public class ManageNightSelection extends EldoCommand {
         if (TabCompleteUtil.isCommand(field, "intervalProbability", "probability", "minCurveVal", "maxCurveVal")) {
             return TabCompleteUtil.completeInt(value, 0, 100, localizer());
         }
-        if (TabCompleteUtil.isCommand(field, "phase")) {
+        if (TabCompleteUtil.isCommand(field, "phaseAmount")) {
             return TabCompleteUtil.completeInt(value, 0, 54, localizer());
         }
         if (TabCompleteUtil.isCommand(field, "period")) {
@@ -343,62 +360,66 @@ public class ManageNightSelection extends EldoCommand {
         return Collections.emptyList();
     }
 
-    private static class PhaseItem {
+    private static final class PhaseItem {
+        private static final NamespacedKey PHASE = BloodNight.getNamespacedKey("phase");
+        private static final NamespacedKey PROBABILITY = BloodNight.getNamespacedKey("probability");
+
         public static Pair<Integer, Integer> fromItemStack(ItemStack itemStack) {
             if (itemStack == null) return null;
             return Pair.of(getPhase(itemStack), getProbability(itemStack));
         }
 
+        private static ItemStack toPhaseItem(Map.Entry<Integer, Integer> entry, boolean moon) {
+            int phase = entry.getKey() + 1;
+            ILocalizer localizer = ILocalizer.getPluginLocalizer(BloodNight.class);
+            ItemStack stack = new ItemStack(Material.FIREWORK_STAR, phase);
+            ItemMeta itemMeta = stack.getItemMeta();
+            itemMeta.setDisplayName("§2" + localizer.getMessage("phaseItem.phase") + ": " + phase
+                    + (moon ? " (" + localizer.getMessage(getMoonPhaseName(entry.getKey())) + ")" : ""));
+            itemMeta.setLore(getLore(entry.getKey(), entry.getValue(), moon));
+            PersistentDataContainer container = itemMeta.getPersistentDataContainer();
+            container.set(PROBABILITY, PersistentDataType.INTEGER, entry.getValue());
+            container.set(PHASE, PersistentDataType.INTEGER, entry.getKey());
+            stack.setItemMeta(itemMeta);
+            return stack;
+        }
+
         private static int getPhase(ItemStack itemStack) {
-            return itemStack.getItemMeta().getPersistentDataContainer().get(BloodNight.getNamespacedKey("phase"), PersistentDataType.INTEGER);
+            return itemStack.getItemMeta().getPersistentDataContainer().get(PHASE, PersistentDataType.INTEGER);
         }
 
         private static int getProbability(ItemStack itemStack) {
-            return itemStack.getItemMeta().getPersistentDataContainer().get(BloodNight.getNamespacedKey("phase"), PersistentDataType.INTEGER);
+            return itemStack.getItemMeta().getPersistentDataContainer().get(PROBABILITY, PersistentDataType.INTEGER);
         }
 
-        public static void changeProbability(ItemStack item, int change, boolean moon) {
-            int currWeight = getProbability(item);
-            int phase = getPhase(item);
-            int newWeight = Math.min(Math.max(currWeight + change, 0), 100);
-            setWeight(item, newWeight);
-            ItemMeta itemMeta = item.getItemMeta();
-            assert itemMeta != null;
-            itemMeta.setLore(getLore(phase, newWeight, moon));
-            item.setItemMeta(itemMeta);
-        }
-
-        private static void setWeight(ItemStack item, int weight) {
+        private static void setProbability(ItemStack item, int weight) {
             ItemMeta itemMeta = item.hasItemMeta() ? item.getItemMeta() : Bukkit.getItemFactory().getItemMeta(item.getType());
             PersistentDataContainer dataContainer = itemMeta.getPersistentDataContainer();
-            dataContainer.set(BloodNight.getNamespacedKey("dropWeight"), PersistentDataType.INTEGER, weight);
+            dataContainer.set(PROBABILITY, PersistentDataType.INTEGER, weight);
             item.setItemMeta(itemMeta);
         }
 
         private static void setProbabilityIfAbstent(ItemStack item, int weight) {
             ItemMeta itemMeta = item.hasItemMeta() ? item.getItemMeta() : Bukkit.getItemFactory().getItemMeta(item.getType());
             PersistentDataContainer dataContainer = itemMeta.getPersistentDataContainer();
-            if (!dataContainer.has(BloodNight.getNamespacedKey("probability"), PersistentDataType.INTEGER)) {
-                setWeight(item, weight);
+            if (!dataContainer.has(PROBABILITY, PersistentDataType.INTEGER)) {
+                setProbability(item, weight);
             }
+        }
+
+        public static void changeProbability(ItemStack item, int change, boolean moon) {
+            int currProb = getProbability(item);
+            int phase = getPhase(item);
+            int newProb = Math.min(Math.max(currProb + change, 0), 100);
+            setProbability(item, newProb);
+            ItemMeta itemMeta = item.getItemMeta();
+            assert itemMeta != null;
+            itemMeta.setLore(getLore(phase, newProb, moon));
+            item.setItemMeta(itemMeta);
         }
 
         public static List<ItemStack> getPhaseItems(Map<Integer, Integer> selection, boolean moon) {
             return selection.entrySet().stream().map(e -> toPhaseItem(e, moon)).collect(Collectors.toList());
-        }
-
-        private static ItemStack toPhaseItem(Map.Entry<Integer, Integer> entry, boolean moon) {
-            ILocalizer localizer = ILocalizer.getPluginLocalizer(BloodNight.class);
-            ItemStack stack = new ItemStack(Material.FIREWORK_STAR, entry.getKey());
-            ItemMeta itemMeta = stack.getItemMeta();
-            itemMeta.setDisplayName("§2" + localizer.getMessage("phaseItem.phase") + ": " + entry.getKey()
-                    + (moon ? " (" + getMoonPhaseName(entry.getKey()) + ")" : ""));
-            itemMeta.setLore(getLore(entry.getKey(), entry.getValue(), moon));
-            PersistentDataContainer container = itemMeta.getPersistentDataContainer();
-            container.set(BloodNight.getNamespacedKey("probability"), PersistentDataType.INTEGER, entry.getValue());
-            container.set(BloodNight.getNamespacedKey("phase"), PersistentDataType.INTEGER, entry.getKey());
-            stack.setItemMeta(itemMeta);
-            return stack;
         }
 
         private static List<String> getLore(int phase, int probability, boolean moon) {

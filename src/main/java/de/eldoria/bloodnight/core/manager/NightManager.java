@@ -245,7 +245,7 @@ public class NightManager implements Listener, Runnable {
                     break;
                 case PHASE:
                     sel.upcountPhase();
-                    int phaseProb = sel.getPhase().get(sel.getCurrPhase());
+                    int phaseProb = sel.getPhaseCustom().get(sel.getCurrPhase());
                     if (phaseProb <= 0) return;
                     if (val > phaseProb) return;
                     break;
