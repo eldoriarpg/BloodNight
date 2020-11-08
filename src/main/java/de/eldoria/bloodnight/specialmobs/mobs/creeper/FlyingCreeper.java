@@ -39,7 +39,7 @@ public class FlyingCreeper extends AbstractCreeper {
             legacy = true;
         }
         bee.setCollidable(true);
-        AttributeUtil.setAttributeValue(bee, Attribute.GENERIC_FLYING_SPEED, 50);
+        AttributeUtil.setAttributeValue(bee, Attribute.GENERIC_FLYING_SPEED, 150);
     }
 
     @Override
