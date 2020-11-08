@@ -80,7 +80,7 @@ public class BloodNight extends EldoPlugin {
             if (configuration.getGeneralSettings().isUpdateReminder()) {
                 Updater.Butler(new ButlerUpdateData(this, Permissions.RELOAD, true,
                         configuration.getGeneralSettings().isAutoUpdater(), 4, "https://plugins.eldoria.de"))
-                        .runTaskTimerAsynchronously(this, 20 * 2, 20 * 60 * 60 * 6);
+                        .start();
             }
 
             new BukkitRunnable() {
