@@ -1,6 +1,5 @@
 package de.eldoria.bloodnight.command.bloodnight;
 
-import com.google.common.collect.Lists;
 import de.eldoria.bloodnight.command.InventoryListener;
 import de.eldoria.bloodnight.command.util.CommandUtil;
 import de.eldoria.bloodnight.config.Configuration;
@@ -13,6 +12,7 @@ import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
 import de.eldoria.eldoutilities.simplecommands.TabCompleteUtil;
 import de.eldoria.eldoutilities.utils.ArgumentUtils;
+import de.eldoria.eldoutilities.utils.EMath;
 import de.eldoria.eldoutilities.utils.EnumUtil;
 import de.eldoria.eldoutilities.utils.Parser;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -40,6 +40,7 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -109,38 +110,61 @@ public class ManageNightSelection extends EldoCommand {
             return true;
         }
 
+        final NightSelection sel = worldSettings.getNightSelection();
         if (TabCompleteUtil.isCommand(field, "interval", "intervalProbability", "probability")) {
             OptionalInt optionalInt = Parser.parseInt(value);
             if (!optionalInt.isPresent()) {
                 messageSender().sendError(player, localizer().getMessage("error.invalidNumber"));
                 return true;
             }
+
             if ("interval".equalsIgnoreCase(field)) {
-                worldSettings.getNightSelection().setInterval(optionalInt.getAsInt());
+                sel.setInterval(EMath.clamp(1, 100, optionalInt.getAsInt()));
             }
             if ("intervalProbability".equalsIgnoreCase(field)) {
-                worldSettings.getNightSelection().setInterval(optionalInt.getAsInt());
+                sel.setInterval(EMath.clamp(0, 100, optionalInt.getAsInt()));
             }
             if ("probability".equalsIgnoreCase(field)) {
-                worldSettings.getNightSelection().setProbability(optionalInt.getAsInt());
+                sel.setProbability(EMath.clamp(1, 100, optionalInt.getAsInt()));
+            }
+            if ("phase".equalsIgnoreCase(field)) {
+                sel.setPhaseCount(EMath.clamp(1, 54, optionalInt.getAsInt()));
+            }
+            if ("period".equalsIgnoreCase(field)) {
+                sel.setPeriod(EMath.clamp(3, 100, optionalInt.getAsInt()));
+            }
+            if ("minCurveVal".equalsIgnoreCase(field)) {
+                sel.setMinCurveVal(EMath.clamp(0, 100, optionalInt.getAsInt()));
+            }
+            if ("maxCurveVal".equalsIgnoreCase(field)) {
+                sel.setMinCurveVal(EMath.clamp(0, 100, optionalInt.getAsInt()));
             }
             optPage.ifPresent(p -> sendWorldPage(world, sender, p));
             configuration.saveConfig();
             return true;
         }
 
-        if (TabCompleteUtil.isCommand(field, "moonPhase")) {
-            Inventory inv = Bukkit.createInventory(player, 9, "Moon Phase Settings");
-            List<ItemStack> stacks = PhaseItem.getPhaseItems(worldSettings.getNightSelection());
+        if (TabCompleteUtil.isCommand(field, "moonPhase", "phase")) {
+            boolean moonPhase = "moonPhase".equalsIgnoreCase(field);
+            Inventory inv = Bukkit.createInventory(player, 9,
+                    localizer().getMessage(moonPhase ? "nightSelection.title.moonPhase" : "nightSelection.title.phase"));
+            List<ItemStack> stacks = PhaseItem.getPhaseItems(moonPhase ? sel.getMoonPhase() : sel.getPhase(), moonPhase);
             inv.setContents(stacks.toArray(new ItemStack[0]));
             player.openInventory(inv);
             inventoryListener.registerModification(player, new InventoryListener.InventoryActionHandler() {
                 @Override
                 public void onInventoryClose(InventoryCloseEvent event) {
                     Arrays.stream(event.getInventory().getContents())
+                            // Null check is required... Thanks spigot.
                             .filter(Objects::nonNull)
                             .map(PhaseItem::fromItemStack)
-                            .forEach(s -> worldSettings.getNightSelection().setPhase(s.first, s.second));
+                            .forEach(s -> {
+                                if (moonPhase) {
+                                    sel.setMoonPhase(s.first, s.second);
+                                } else {
+                                    sel.setPhase(s.first, s.second);
+                                }
+                            });
                     optPage.ifPresent(i -> sendWorldPage(world, sender, i));
                 }
 
@@ -154,16 +178,16 @@ public class ManageNightSelection extends EldoCommand {
 
                     switch (event.getClick()) {
                         case LEFT:
-                            PhaseItem.changeProbability(event.getCurrentItem(), 1);
+                            PhaseItem.changeProbability(event.getCurrentItem(), 1, moonPhase);
                             break;
                         case SHIFT_LEFT:
-                            PhaseItem.changeProbability(event.getCurrentItem(), 10);
+                            PhaseItem.changeProbability(event.getCurrentItem(), 10, moonPhase);
                             break;
                         case RIGHT:
-                            PhaseItem.changeProbability(event.getCurrentItem(), -1);
+                            PhaseItem.changeProbability(event.getCurrentItem(), -1, moonPhase);
                             break;
                         case SHIFT_RIGHT:
-                            PhaseItem.changeProbability(event.getCurrentItem(), -10);
+                            PhaseItem.changeProbability(event.getCurrentItem(), -10, moonPhase);
                             break;
                     }
                     event.setCancelled(true);
@@ -178,7 +202,7 @@ public class ManageNightSelection extends EldoCommand {
                 messageSender().sendLocalizedError(sender, "error.invalidValue");
                 return true;
             }
-            worldSettings.getNightSelection().setNightSelectionType(parse);
+            sel.setNightSelectionType(parse);
             configuration.saveConfig();
             optPage.ifPresent(p -> sendWorldPage(world, sender, p));
             return true;
@@ -200,12 +224,25 @@ public class ManageNightSelection extends EldoCommand {
                             localizer().getMessage("state.random")))
                     .append(Component.space())
                     .append(CommandUtil.getToggleField(ns.getNightSelectionType() == NightSelection.NightSelectionType.MOON_PHASE,
-                            cmd + "type moon_phase",
+                            cmd + "type moon",
                             localizer().getMessage("state.moonPhase")))
+                    .append(Component.space())
+                    .append(CommandUtil.getToggleField(ns.getNightSelectionType() == NightSelection.NightSelectionType.REAL_MOON_PHASE,
+                            cmd + "type real_moon",
+                            localizer().getMessage("state.realMoonPhase")))
                     .append(Component.space())
                     .append(CommandUtil.getToggleField(ns.getNightSelectionType() == NightSelection.NightSelectionType.INTERVAL,
                             cmd + "type interval",
                             localizer().getMessage("state.interval")))
+                    .append(Component.space())
+                    .append(CommandUtil.getToggleField(ns.getNightSelectionType() == NightSelection.NightSelectionType.PHASE,
+                            cmd + "type phase",
+                            localizer().getMessage("state.phase")))
+                    .append(Component.space())
+                    .append(CommandUtil.getToggleField(ns.getNightSelectionType() == NightSelection.NightSelectionType.CURVE,
+                            cmd + "type curve",
+                            localizer().getMessage("state.curve")))
+                    .append(Component.space())
                     .append(Component.newline());
 
             switch (ns.getNightSelectionType()) {
@@ -215,12 +252,13 @@ public class ManageNightSelection extends EldoCommand {
                             .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                                     .clickEvent(ClickEvent.suggestCommand(cmd + "probability ")));
                     break;
+                case REAL_MOON_PHASE:
                 case MOON_PHASE:
                     builder.append(Component.text(localizer().getMessage("field.moonPhase") + ": ", NamedTextColor.AQUA))
                             .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                                     .clickEvent(ClickEvent.runCommand(cmd + "moonPhase none")))
                             .append(Component.newline());
-                    ns.getPhases().forEach((key, value) ->
+                    ns.getMoonPhase().forEach((key, value) ->
                             builder.append(Component.text("| " + key + ":" + value + " |", NamedTextColor.GOLD)
                                     .hoverEvent(
                                             HoverEvent.showText(
@@ -232,7 +270,7 @@ public class ManageNightSelection extends EldoCommand {
                                                             .append(Component.text(getMoonPhaseSign(key)))
                                                             .append(Component.newline())
                                                             .append(Component.text(localizer().getMessage("field.probability") + ": " + value, NamedTextColor.GREEN))
-                                                    .build()
+                                                            .build()
                                             )
                                     )
                             ));
@@ -247,6 +285,23 @@ public class ManageNightSelection extends EldoCommand {
                             .append(Component.text(ns.getIntervalProbability(), NamedTextColor.GOLD))
                             .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                                     .clickEvent(ClickEvent.suggestCommand(cmd + "intervalProbability ")));
+                    break;
+                case PHASE:
+                    builder.append(Component.text(localizer().getMessage("field.phase") + ": ", NamedTextColor.AQUA))
+                            .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
+                                    .clickEvent(ClickEvent.runCommand(cmd + "moonPhase none")));
+                    break;
+                case CURVE:
+                    builder.append(Component.text(localizer().getMessage("field.length") + ": ", NamedTextColor.AQUA))
+                            .append(Component.text(ns.getPeriod(), NamedTextColor.GOLD))
+                            .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
+                                    .clickEvent(ClickEvent.suggestCommand(cmd + "minCurveVal ")))
+                            .append(Component.newline())
+                            .append(Component.text(localizer().getMessage("field.minProb") + ": ", NamedTextColor.AQUA))
+                            .append(Component.text(ns.getMinCurveVal(), NamedTextColor.GOLD))
+                            .append(Component.newline())
+                            .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
+                                    .clickEvent(ClickEvent.suggestCommand(cmd + "maxCurveVal ")));
                     break;
             }
             return builder.build();
@@ -268,11 +323,17 @@ public class ManageNightSelection extends EldoCommand {
         if (TabCompleteUtil.isCommand(field, "interval")) {
             return TabCompleteUtil.completeInt(value, 1, 100, localizer());
         }
-        if (TabCompleteUtil.isCommand(field, "intervalProbability", "probability")) {
+        if (TabCompleteUtil.isCommand(field, "intervalProbability", "probability", "minCurveVal", "maxCurveVal")) {
             return TabCompleteUtil.completeInt(value, 0, 100, localizer());
         }
+        if (TabCompleteUtil.isCommand(field, "phase")) {
+            return TabCompleteUtil.completeInt(value, 0, 54, localizer());
+        }
+        if (TabCompleteUtil.isCommand(field, "period")) {
+            return TabCompleteUtil.completeInt(value, 3, 100, localizer());
+        }
 
-        if (TabCompleteUtil.isCommand(field, "moonPhase")) {
+        if (TabCompleteUtil.isCommand(field, "moonPhase", "phase")) {
             return Collections.emptyList();
         }
 
@@ -296,14 +357,14 @@ public class ManageNightSelection extends EldoCommand {
             return itemStack.getItemMeta().getPersistentDataContainer().get(BloodNight.getNamespacedKey("phase"), PersistentDataType.INTEGER);
         }
 
-        public static void changeProbability(ItemStack item, int change) {
+        public static void changeProbability(ItemStack item, int change, boolean moon) {
             int currWeight = getProbability(item);
             int phase = getPhase(item);
             int newWeight = Math.min(Math.max(currWeight + change, 0), 100);
             setWeight(item, newWeight);
             ItemMeta itemMeta = item.getItemMeta();
             assert itemMeta != null;
-            itemMeta.setLore(getLore(phase, newWeight));
+            itemMeta.setLore(getLore(phase, newWeight, moon));
             item.setItemMeta(itemMeta);
         }
 
@@ -322,16 +383,17 @@ public class ManageNightSelection extends EldoCommand {
             }
         }
 
-        public static List<ItemStack> getPhaseItems(NightSelection selection) {
-            return selection.getPhases().entrySet().stream().map(PhaseItem::toPhaseItem).collect(Collectors.toList());
+        public static List<ItemStack> getPhaseItems(Map<Integer, Integer> selection, boolean moon) {
+            return selection.entrySet().stream().map(e -> toPhaseItem(e, moon)).collect(Collectors.toList());
         }
 
-        private static ItemStack toPhaseItem(Map.Entry<Integer, Integer> entry) {
+        private static ItemStack toPhaseItem(Map.Entry<Integer, Integer> entry, boolean moon) {
             ILocalizer localizer = ILocalizer.getPluginLocalizer(BloodNight.class);
             ItemStack stack = new ItemStack(Material.FIREWORK_STAR, entry.getKey());
             ItemMeta itemMeta = stack.getItemMeta();
-            itemMeta.setDisplayName("§2" + localizer.getMessage("phaseItem.phase") + ": " + entry.getKey() + " (" + getMoonPhaseName(entry.getKey()) + ")");
-            itemMeta.setLore(getLore(entry.getKey(), entry.getValue()));
+            itemMeta.setDisplayName("§2" + localizer.getMessage("phaseItem.phase") + ": " + entry.getKey()
+                    + (moon ? " (" + getMoonPhaseName(entry.getKey()) + ")" : ""));
+            itemMeta.setLore(getLore(entry.getKey(), entry.getValue(), moon));
             PersistentDataContainer container = itemMeta.getPersistentDataContainer();
             container.set(BloodNight.getNamespacedKey("probability"), PersistentDataType.INTEGER, entry.getValue());
             container.set(BloodNight.getNamespacedKey("phase"), PersistentDataType.INTEGER, entry.getKey());
@@ -339,9 +401,13 @@ public class ManageNightSelection extends EldoCommand {
             return stack;
         }
 
-        private static List<String> getLore(int phase, int probability) {
-            return Lists.newArrayList(getMoonPhaseSign(phase),
-                    "§6" + ILocalizer.getPluginLocalizer(BloodNight.class).getMessage("field.probability") + ": " + probability);
+        private static List<String> getLore(int phase, int probability, boolean moon) {
+            List<String> result = new ArrayList<>();
+            if (moon) {
+                result.add(getMoonPhaseSign(phase));
+            }
+            result.add("§6" + ILocalizer.getPluginLocalizer(BloodNight.class).getMessage("field.probability") + ": " + probability);
+            return result;
         }
     }
 

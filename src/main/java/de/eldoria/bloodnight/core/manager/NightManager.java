@@ -8,8 +8,11 @@ import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.core.events.BloodNightBeginEvent;
 import de.eldoria.bloodnight.core.events.BloodNightEndEvent;
+import de.eldoria.bloodnight.util.MoonPhase;
+import de.eldoria.eldoutilities.container.Pair;
 import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.messages.MessageSender;
+import de.eldoria.eldoutilities.utils.EMath;
 import de.eldoria.eldoutilities.utils.ObjUtil;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -34,7 +37,10 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.time.Instant;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -224,12 +230,12 @@ public class NightManager implements Listener, Runnable {
                     break;
                 case MOON_PHASE:
                     int moonPhase = getMoonPhase(world);
-                    if (!sel.getPhases().containsKey(moonPhase)) return;
+                    if (!sel.getMoonPhase().containsKey(moonPhase)) return;
                     if (sel.getPhaseProbability(moonPhase) <= 0) return;
                     if (val > sel.getPhaseProbability(moonPhase)) return;
                     break;
                 case INTERVAL:
-                    sel.setCurInterval(sel.getCurInterval() + 1);
+                    sel.upcountInterval();
                     if (sel.getCurInterval() != sel.getInterval()) {
                         return;
                     }
@@ -237,6 +243,38 @@ public class NightManager implements Listener, Runnable {
                     if (val > sel.getIntervalProbability()) return;
                     sel.setCurInterval(0);
                     break;
+                case PHASE:
+                    sel.upcountPhase();
+                    int phaseProb = sel.getPhase().get(sel.getCurrPhase());
+                    if (phaseProb <= 0) return;
+                    if (val > phaseProb) return;
+                    break;
+                case CURVE:
+                    double curveProb;
+                    // First half. Increasing curve.
+                    if (sel.getCurrCurvePos() <= sel.getPeriod() / 2) {
+                        curveProb = EMath.smoothCurveValue(Pair.of(0d, (double) sel.getMinCurveVal()),
+                                Pair.of((double) sel.getPeriod() / 2,
+                                        (double) sel.getMaxCurveVal()), sel.getCurrCurvePos());
+                    } else {
+                        curveProb = EMath.smoothCurveValue(Pair.of((double) sel.getPeriod() / 2, (double) sel.getMaxCurveVal()),
+                                Pair.of((double) sel.getPeriod(),
+                                        (double) sel.getMinCurveVal()), sel.getCurrCurvePos());
+                    }
+                    if (curveProb <= 0) return;
+                    if (val > curveProb) return;
+                    break;
+                case REAL_MOON_PHASE:
+                    Calendar cal = Calendar.getInstance();
+                    cal.setTime(Date.from(Instant.now()));
+                    // Get moon phase based on Server time. Convert to minecraft moon phase.
+                    int realMoonPhase = (MoonPhase.computePhaseIndex(cal) + 4) % 8;
+                    if (!sel.getMoonPhase().containsKey(realMoonPhase)) return;
+                    if (sel.getPhaseProbability(realMoonPhase) <= 0) return;
+                    if (val > sel.getPhaseProbability(realMoonPhase)) return;
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + sel.getNightSelectionType());
             }
         }
 
@@ -467,8 +505,6 @@ public class NightManager implements Listener, Runnable {
         for (World observedWorld : bloodWorlds.keySet()) {
             resolveBloodNight(observedWorld);
         }
-
-        cleanup();
 
         observedWorlds.clear();
         configuration.getWorldSettings().keySet().stream()

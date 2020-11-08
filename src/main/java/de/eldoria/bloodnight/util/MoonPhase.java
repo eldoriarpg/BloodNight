@@ -1,12 +1,12 @@
 package de.eldoria.bloodnight.util;
 
+import lombok.experimental.UtilityClass;
+
 import java.util.Calendar;
 
 // Proudly stolen from https://github.com/sighrobot/Moon/blob/master/src/com/abe/moon/MoonPhase.java
-public final class MoonPhase {
-
-    private MoonPhase() {
-    }
+@UtilityClass
+public class MoonPhase {
 
     /**
      * Computes the moon phase index as a value from 0 to 7 Used to display the phase name and the moon image for the
