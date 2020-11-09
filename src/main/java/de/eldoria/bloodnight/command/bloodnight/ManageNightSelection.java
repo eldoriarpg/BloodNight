@@ -349,7 +349,7 @@ public class ManageNightSelection extends EldoCommand {
                     break;
             }
             return builder.build();
-        }, "Night Selection", "/bloodNight nightSelection " + world.getName() + " page {page}");
+        }, localizer().getMessage("nightSelection.title.menu"), "/bloodNight nightSelection " + world.getName() + " page {page}");
         bukkitAudiences.sender(sender).sendMessage(page);
     }
 
