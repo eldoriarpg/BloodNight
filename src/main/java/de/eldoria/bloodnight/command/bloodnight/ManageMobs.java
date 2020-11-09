@@ -373,8 +373,6 @@ public class ManageMobs extends EldoCommand {
                     .append(Component.text(vms.getExtraDrops() + "x ", NamedTextColor.GOLD))
                     .append(Component.text("[" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                             .clickEvent(ClickEvent.suggestCommand(cmd + "vanillaDropAmount ")));
-
-
         }
         bukkitAudiences.sender(sender).sendMessage(Identity.nil(), message);
     }
