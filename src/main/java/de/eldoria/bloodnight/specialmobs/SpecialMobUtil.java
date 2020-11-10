@@ -170,7 +170,6 @@ public final class SpecialMobUtil {
      *
      * @return spawned passenger which is already mounted.
      */
-    @SuppressWarnings("unchecked")
     public static <T extends Entity> T spawnAndMount(Entity carrier, EntityType passengerType) {
         T passenger = spawnAndTagEntity(carrier.getLocation(), passengerType);
         assert passenger == null;
@@ -188,7 +187,6 @@ public final class SpecialMobUtil {
      *
      * @return spawned carrier with the rider mounted.
      */
-    @SuppressWarnings("unchecked")
     public static <T extends Entity> T spawnAndMount(EntityType carrierType, Entity rider) {
         T carrier = spawnAndTagEntity(rider.getLocation(), carrierType);
         assert carrier == null;
