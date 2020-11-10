@@ -68,7 +68,7 @@ public class BloodNight extends EldoPlugin {
 
             debug = configuration.getGeneralSettings().isDebug();
 
-            ILocalizer.create(this, configuration.getGeneralSettings().getLanguage(), "de_DE", "en_US", "es_ES", "tr");
+            ILocalizer.create(this, configuration.getGeneralSettings().getLanguage(), "de_DE", "en_US", "es_ES", "tr", "zh_CN");
             MessageSender.create(this, "§4[BN] ", '2', 'c');
             registerListener();
             bloodNightAPI = new BloodNightAPI(nightManager);
