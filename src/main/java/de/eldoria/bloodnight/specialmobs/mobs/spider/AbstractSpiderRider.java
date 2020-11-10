@@ -1,6 +1,7 @@
 package de.eldoria.bloodnight.specialmobs.mobs.spider;
 
 import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
+import de.eldoria.bloodnight.specialmobs.StatSource;
 import de.eldoria.bloodnight.specialmobs.mobs.ExtendedSpecialMob;
 import org.bukkit.Particle;
 import org.bukkit.entity.Mob;
@@ -8,7 +9,7 @@ import org.bukkit.entity.Mob;
 public abstract class AbstractSpiderRider extends ExtendedSpecialMob<Mob, Mob> {
 
     public AbstractSpiderRider(Mob carrier, Mob passenger) {
-        super(carrier, passenger);
+        super(carrier, passenger, StatSource.CARRIER);
     }
 
     @Override

@@ -2,9 +2,11 @@ package de.eldoria.bloodnight.specialmobs.mobs;
 
 import de.eldoria.bloodnight.specialmobs.SpecialMob;
 import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
+import de.eldoria.bloodnight.specialmobs.StatSource;
 import de.eldoria.eldoutilities.utils.AttributeUtil;
 import lombok.Getter;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -15,13 +17,46 @@ public class ExtendedSpecialMob<T extends Mob, U extends Mob> extends SpecialMob
     @Getter
     private final U passenger;
 
-    public ExtendedSpecialMob(T carrier, U passenger) {
+    /**
+     * Create a new special mob from a carrier and passender entity.
+     * <p>
+     * {@link ExtendedSpecialMob#ExtendedSpecialMob(Mob, EntityType)} and {@link ExtendedSpecialMob#ExtendedSpecialMob(EntityType,
+     * Mob)} take precendence.
+     *
+     * @param carrier    carrier
+     * @param passenger  passenger
+     * @param statSource definex which of the both entity should provide the stats for the other entity
+     */
+    public ExtendedSpecialMob(T carrier, U passenger, StatSource statSource) {
         super(carrier);
         this.passenger = passenger;
-        passenger.setCustomName(carrier.getCustomName());
-        passenger.setCustomNameVisible(carrier.isCustomNameVisible());
-        AttributeUtil.syncAttributeValue(carrier, passenger, Attribute.GENERIC_ATTACK_DAMAGE);
-        AttributeUtil.syncAttributeValue(carrier, passenger, Attribute.GENERIC_MAX_HEALTH);
+        Mob source = statSource == StatSource.PASSENGER ? passenger : carrier;
+        Mob target = statSource == StatSource.PASSENGER ? carrier : passenger;
+
+        target.setCustomName(carrier.getCustomName());
+        target.setCustomNameVisible(carrier.isCustomNameVisible());
+        AttributeUtil.syncAttributeValue(source, target, Attribute.GENERIC_ATTACK_DAMAGE);
+        AttributeUtil.syncAttributeValue(source, target, Attribute.GENERIC_MAX_HEALTH);
+    }
+
+    /**
+     * Create a new extended special mob from a carrier with a passenger.
+     *
+     * @param carrier   carrier to bind
+     * @param passenger to spawn
+     */
+    public ExtendedSpecialMob(T carrier, EntityType passenger) {
+        this(carrier, SpecialMobUtil.spawnAndMount(carrier, passenger), StatSource.CARRIER);
+    }
+
+    /**
+     * Create a new extended special mob from passenger with a carrier.
+     *
+     * @param carrier   carrier to spawn
+     * @param passenger passenger to bind
+     */
+    public ExtendedSpecialMob(EntityType carrier, U passenger) {
+        this(SpecialMobUtil.spawnAndMount(carrier, passenger), passenger, StatSource.PASSENGER);
     }
 
     /**
@@ -100,5 +135,16 @@ public class ExtendedSpecialMob<T extends Mob, U extends Mob> extends SpecialMob
     public void remove() {
         passenger.remove();
         super.remove();
+    }
+
+    /**
+     * {@inheritDoc} The extended special mob is only valid when the base entity has an passenger and the passenger is
+     * valid as well.
+     *
+     * @return true when the base entity and passenger is valid and the base entity has a passenger.
+     */
+    @Override
+    public boolean isValid() {
+        return super.isValid() && getPassenger().isValid() && !getBaseEntity().getPassengers().isEmpty();
     }
 }
