@@ -24,9 +24,9 @@ import java.util.regex.Pattern;
 @Getter
 @SerializableAs("bloodNightDrop")
 public class Drop implements ConfigurationSerializable {
+    private static final NamespacedKey WEIGHT_KEY = BloodNight.getNamespacedKey("dropWeight");
     private final ItemStack item;
     private final int weight;
-    private static final NamespacedKey WEIGHT_KEY = BloodNight.getNamespacedKey("dropWeight");
 
     public Drop(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);

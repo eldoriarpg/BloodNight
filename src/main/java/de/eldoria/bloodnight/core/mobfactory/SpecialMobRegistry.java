@@ -2,7 +2,7 @@ package de.eldoria.bloodnight.core.mobfactory;
 
 import de.eldoria.bloodnight.specialmobs.SpecialMob;
 import de.eldoria.bloodnight.specialmobs.mobs.creeper.EnderCreeper;
-import de.eldoria.bloodnight.specialmobs.mobs.creeper.FlyingCreeper;
+import de.eldoria.bloodnight.specialmobs.mobs.creeper.GhostCreeper;
 import de.eldoria.bloodnight.specialmobs.mobs.creeper.NervousPoweredCreeper;
 import de.eldoria.bloodnight.specialmobs.mobs.creeper.SpeedCreeper;
 import de.eldoria.bloodnight.specialmobs.mobs.creeper.ToxicCreeper;
@@ -56,7 +56,7 @@ public final class SpecialMobRegistry {
         Initialize default mobs.
          */
         registerMob(EntityType.CREEPER, EnderCreeper.class, e -> new EnderCreeper((Creeper) e));
-        registerMob(EntityType.CREEPER, FlyingCreeper.class, e -> new FlyingCreeper((Creeper) e));
+        registerMob(EntityType.CREEPER, GhostCreeper.class, e -> new GhostCreeper((Creeper) e));
         registerMob(EntityType.CREEPER, NervousPoweredCreeper.class, e -> new NervousPoweredCreeper((Creeper) e));
         registerMob(EntityType.CREEPER, SpeedCreeper.class, e -> new SpeedCreeper((Creeper) e));
         registerMob(EntityType.CREEPER, ToxicCreeper.class, e -> new ToxicCreeper((Creeper) e));

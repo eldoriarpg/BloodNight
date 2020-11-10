@@ -33,9 +33,9 @@ public final class MobFactory {
 
     private void applySettings(LivingEntity entity, MobSettings mobSettings, MobSetting mobSetting) {
         AttributeInstance damage = entity.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
-        AttributeUtil.setAttributeValue(damage, Math.min(mobSetting.applyDamage(damage.getValue(), mobSettings.getDamageMultiplier()), 2048));
+        AttributeUtil.setAttributeValue(entity, damage.getAttribute(), Math.min(mobSetting.applyDamage(damage.getValue(), mobSettings.getDamageMultiplier()), 2048));
         AttributeInstance health = entity.getAttribute(Attribute.GENERIC_MAX_HEALTH);
-        AttributeUtil.setAttributeValue(health, Math.min(mobSetting.applyHealth(health.getValue(), mobSettings.getHealthModifier()), 2048));
+        AttributeUtil.setAttributeValue(entity, health.getAttribute(), Math.min(mobSetting.applyHealth(health.getValue(), mobSettings.getHealthModifier()), 2048));
         SpecialMobUtil.setSpecialMobType(entity, mobSetting.getMobName());
         entity.setHealth(health.getValue());
         entity.setCustomName(mobSetting.getDisplayName());

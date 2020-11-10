@@ -17,7 +17,12 @@ import de.eldoria.eldoutilities.entityutils.ProjectileSender;
 import de.eldoria.eldoutilities.entityutils.ProjectileUtil;
 import de.eldoria.eldoutilities.threading.IteratingTask;
 import lombok.NonNull;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Beehive;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Bee;
 import org.bukkit.entity.Boss;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -27,11 +32,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.event.entity.ExplosionPrimeEvent;
@@ -42,6 +47,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +56,7 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
@@ -72,7 +79,7 @@ public class MobManager implements Listener, Runnable {
     }
 
     @EventHandler
-    public void onMobspawn(EntitySpawnEvent event) {
+    public void onMobSpawn(CreatureSpawnEvent event) {
         if (!nightManager.isBloodNightActive(event.getEntity().getWorld())) return;
         // This is most likely a mounted special mob. We wont change this.
         if (SpecialMobUtil.isSpecialMob(event.getEntity())) {
@@ -115,7 +122,7 @@ public class MobManager implements Listener, Runnable {
         SpecialMob<?> specialMob = mobFactory.wrap((LivingEntity) entity, mobSettings, mobSetting.get());
 
         if (BloodNight.isDebug()) {
-            BloodNight.logger().info("Special Mob " + mobSetting.get().getMobName() + " spawned in" + entity.getWorld().getName());
+            BloodNight.logger().info("Special Mob " + mobSetting.get().getMobName() + " spawned in " + entity.getWorld().getName());
         }
 
         getWorldMobs(entity.getWorld()).put(entity.getUniqueId(), specialMob);
@@ -486,9 +493,68 @@ public class MobManager implements Listener, Runnable {
         for (Entity entity : event.getChunk().getEntities()) {
             Optional<SpecialMob<?>> remove = worldMobs.remove(entity.getUniqueId());
             if (SpecialMobUtil.isSpecialMob(entity)) {
-                remove.ifPresent(SpecialMob::remove);
+                if (remove.isPresent()) {
+                    remove.get().remove();
+                } else {
+                    entity.remove();
+                }
             }
         }
+
+        if (!configuration.getGeneralSettings().isBeeFix()) return;
+        AtomicInteger hives = new AtomicInteger(0);
+        AtomicInteger entites = new AtomicInteger(0);
+
+        // Bugfix for the sin of flying creepers with bees.
+        IteratingTask<BlockState> blockStateIterator = new IteratingTask<>(
+                Arrays.asList(event.getChunk().getTileEntities()),
+                e -> {
+                    if (e instanceof Beehive) {
+                        Beehive state = (Beehive) e;
+                        hives.incrementAndGet();
+                        for (Bee entity : state.releaseEntities()) {
+                            entites.incrementAndGet();
+                            if (BloodNight.isDebug()) {
+                                BloodNight.logger().info("Checking entity with id " + entity.getEntityId() + " and " + entity.getUniqueId().toString());
+                            }
+                            if (SpecialMobUtil.isSpecialMob(entity)) {
+                                entity.remove();
+                            }
+                            return true;
+                        }
+                        e.update(true);
+
+                        Beehive newState = (Beehive) e.getBlock().getState();
+                        if (newState.getEntityCount() != 0) {
+                            if (BloodNight.isDebug()) {
+                                BloodNight.logger().warning("Bee Hive is not empty but should.");
+                            }
+                            BlockData blockData = e.getBlockData();
+                            e.getBlock().setType(Material.AIR);
+                            e.getBlock().setType(e.getType());
+                            e.setBlockData(blockData);
+
+                            newState = (Beehive) e.getBlock().getState();
+                            if (newState.getEntityCount() != 0) {
+                                if (BloodNight.isDebug()) {
+                                    BloodNight.logger().warning("§cBee Hive is still not empty but should.");
+                                }
+                            } else {
+                                if (BloodNight.isDebug()) {
+                                    BloodNight.logger().info("§2Bee Hive is empty now.");
+                                }
+                            }
+                        }
+                    }
+                    return false;
+                },
+                s -> {
+                    if (BloodNight.isDebug() && hives.get() != 0) {
+                        BloodNight.logger().info("Checked " + hives.get() + " Hive/s with " + entites.get() + " Entities and removed " + s.getProcessedElements() + " lost bees in " + s.getTime() + "ms.");
+                    }
+                });
+
+        blockStateIterator.runTaskTimer(BloodNight.getInstance(), 0, 1);
     }
 
     @NonNull

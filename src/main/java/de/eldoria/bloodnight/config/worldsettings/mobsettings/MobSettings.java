@@ -61,7 +61,7 @@ public class MobSettings implements ConfigurationSerializable {
     /**
      * The conversion rate of mobs. Higher numer -> more special mobs.
      */
-    private int spawnPercentage = 80;
+    private int spawnPercentage = 50;
 
     /**
      * The general drops during blood night.

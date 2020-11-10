@@ -68,7 +68,7 @@ public class BloodNight extends EldoPlugin {
 
             debug = configuration.getGeneralSettings().isDebug();
 
-            ILocalizer.create(this, configuration.getGeneralSettings().getLanguage(), "de_DE", "en_US", "es_ES", "tr");
+            ILocalizer.create(this, configuration.getGeneralSettings().getLanguage(), "de_DE", "en_US", "es_ES", "tr", "zh_CN");
             MessageSender.create(this, "§4[BN] ", '2', 'c');
             registerListener();
             bloodNightAPI = new BloodNightAPI(nightManager);
@@ -80,7 +80,7 @@ public class BloodNight extends EldoPlugin {
             if (configuration.getGeneralSettings().isUpdateReminder()) {
                 Updater.Butler(new ButlerUpdateData(this, Permissions.RELOAD, true,
                         configuration.getGeneralSettings().isAutoUpdater(), 4, "https://plugins.eldoria.de"))
-                        .runTaskTimerAsynchronously(this, 20 * 2, 20 * 60 * 60 * 6);
+                        .start();
             }
 
             new BukkitRunnable() {

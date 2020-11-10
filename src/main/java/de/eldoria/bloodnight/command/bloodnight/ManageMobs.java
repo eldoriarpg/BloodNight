@@ -60,7 +60,7 @@ public class ManageMobs extends EldoCommand {
     // world field value
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (isConsole(sender)){
+        if (isConsole(sender)) {
             messageSender().sendError(sender, localizer().getMessage("error.console"));
             return true;
         }
@@ -373,8 +373,6 @@ public class ManageMobs extends EldoCommand {
                     .append(Component.text(vms.getExtraDrops() + "x ", NamedTextColor.GOLD))
                     .append(Component.text("[" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                             .clickEvent(ClickEvent.suggestCommand(cmd + "vanillaDropAmount ")));
-
-
         }
         bukkitAudiences.sender(sender).sendMessage(Identity.nil(), message);
     }
