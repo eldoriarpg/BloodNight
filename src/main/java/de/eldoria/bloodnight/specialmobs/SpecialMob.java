@@ -170,4 +170,15 @@ public abstract class SpecialMob<T extends LivingEntity> {
      */
     public void onExtensionDeath(EntityDeathEvent event) {
     }
+
+    /**
+     * Checks if the entity is valid.
+     * <p>
+     * The entity is valid if the base entity is valid.
+     *
+     * @return true when the base entity is valid.
+     */
+    public boolean isValid() {
+        return baseEntity.isValid();
+    }
 }
