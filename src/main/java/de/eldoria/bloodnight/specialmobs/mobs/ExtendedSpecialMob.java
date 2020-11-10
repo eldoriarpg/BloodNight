@@ -25,7 +25,7 @@ public class ExtendedSpecialMob<T extends Mob, U extends Mob> extends SpecialMob
      *
      * @param carrier    carrier
      * @param passenger  passenger
-     * @param statSource definex which of the both entity should provide the stats for the other entity
+     * @param statSource defines which of the both entity should provide the stats for the other entity
      */
     public ExtendedSpecialMob(T carrier, U passenger, StatSource statSource) {
         super(carrier);
@@ -33,8 +33,8 @@ public class ExtendedSpecialMob<T extends Mob, U extends Mob> extends SpecialMob
         Mob source = statSource == StatSource.PASSENGER ? passenger : carrier;
         Mob target = statSource == StatSource.PASSENGER ? carrier : passenger;
 
-        target.setCustomName(carrier.getCustomName());
-        target.setCustomNameVisible(carrier.isCustomNameVisible());
+        target.setCustomName(source.getCustomName());
+        target.setCustomNameVisible(source.isCustomNameVisible());
         AttributeUtil.syncAttributeValue(source, target, Attribute.GENERIC_ATTACK_DAMAGE);
         AttributeUtil.syncAttributeValue(source, target, Attribute.GENERIC_MAX_HEALTH);
     }
