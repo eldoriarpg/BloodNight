@@ -44,6 +44,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -299,10 +300,7 @@ public class NightManager implements Listener, Runnable {
 
         bloodWorlds.put(world, new BloodNightData(bossBar));
 
-        for (String cmd : settings.getNightSettings().getStartCommands()) {
-            cmd = cmd.replace("{world}", world.getName());
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
-        }
+        dispatchCommands(settings.getNightSettings().getStartCommands(), world);
 
         if (settings.getNightSettings().isOverrideNightDuration()) {
             world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
@@ -314,7 +312,6 @@ public class NightManager implements Listener, Runnable {
     }
 
     private void resolveBloodNight(World world) {
-
         if (BloodNight.isDebug()) {
             BloodNight.logger().info("BloodNight in " + world.getName() + " resolved.");
         }
@@ -326,10 +323,7 @@ public class NightManager implements Listener, Runnable {
             customTimes.remove(world.getName());
         }
 
-        for (String cmd : settings.getNightSettings().getEndCommands()) {
-            cmd = cmd.replace("{world}", world.getName());
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
-        }
+        dispatchCommands(settings.getNightSettings().getEndCommands(), world);
 
         pluginManager.callEvent(new BloodNightEndEvent(world));
         for (Player player : world.getPlayers()) {
@@ -346,6 +340,19 @@ public class NightManager implements Listener, Runnable {
                 }
             }
         });
+    }
+
+    private void dispatchCommands(List<String> cmds, World world) {
+        for (String cmd : cmds) {
+            cmd = cmd.replace("{world}", world.getName());
+            if (cmd.contains("{player}")) {
+                for (Player player : world.getPlayers()) {
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd.replace("{player}", player.getName()));
+                }
+            } else {
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
+            }
+        }
     }
 
     private void enableBloodNightForPlayer(Player player, World world) {
