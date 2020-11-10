@@ -5,6 +5,7 @@ import de.eldoria.bloodnight.specialmobs.StatSource;
 import de.eldoria.bloodnight.specialmobs.mobs.ExtendedSpecialMob;
 import org.bukkit.Particle;
 import org.bukkit.entity.Mob;
+import org.bukkit.event.entity.EntityDamageEvent;
 
 public abstract class AbstractSpiderRider extends ExtendedSpecialMob<Mob, Mob> {
 
@@ -17,6 +18,15 @@ public abstract class AbstractSpiderRider extends ExtendedSpecialMob<Mob, Mob> {
         if (getBaseEntity().isDead() || !getBaseEntity().isValid()) {
             remove();
         }
+    }
+
+    @Override
+    public void onExtensionDamage(EntityDamageEvent event) {
+        if (event.getCause() == EntityDamageEvent.DamageCause.SUFFOCATION) {
+            event.setCancelled(true);
+            return;
+        }
+        super.onExtensionDamage(event);
     }
 
     @Override
