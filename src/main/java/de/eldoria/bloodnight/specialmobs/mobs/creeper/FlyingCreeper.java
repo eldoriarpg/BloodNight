@@ -4,6 +4,7 @@ import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
 import de.eldoria.eldoutilities.container.Triple;
 import de.eldoria.eldoutilities.crossversion.ServerVersion;
 import de.eldoria.eldoutilities.utils.AttributeUtil;
+import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.EntityType;
@@ -13,6 +14,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.Optional;
@@ -40,6 +42,7 @@ public class FlyingCreeper extends AbstractCreeper {
         }
         vex.setCollidable(false);
         vex.setInvulnerable(true);
+        vex.getEquipment().setItemInMainHand(new ItemStack(Material.AIR));
         //AttributeUtil.setAttributeValue(vex, Attribute.GENERIC_FLYING_SPEED, 100);
     }
 
