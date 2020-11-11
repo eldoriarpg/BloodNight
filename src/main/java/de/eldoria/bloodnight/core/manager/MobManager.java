@@ -378,8 +378,6 @@ public class MobManager implements Listener, Runnable {
 
         if (configuration.getGeneralSettings().isSpawnerDropSuppression()) {
             if (entity.getPersistentDataContainer().has(SPAWNER_SPAWNED, PersistentDataType.BYTE)) {
-                event.getDrops().clear();
-                event.setDroppedExp(0);
                 return;
             }
         }
