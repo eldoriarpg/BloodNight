@@ -5,6 +5,7 @@ import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.config.worldsettings.BossBarSettings;
 import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.core.BloodNight;
+import de.eldoria.bloodnight.util.C;
 import de.eldoria.bloodnight.util.Permissions;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
 import de.eldoria.eldoutilities.simplecommands.TabCompleteUtil;
@@ -139,7 +140,7 @@ public class ManageWorlds extends EldoCommand {
             }
 
             sendWorldPage(world, sender, optPage.getAsInt());
-            configuration.saveConfig();
+            configuration.save();
             return true;
         }
 
@@ -159,7 +160,7 @@ public class ManageWorlds extends EldoCommand {
                 worldSettings.setAlwaysManageCreepers(aBoolean.get());
             }
             sendWorldPage(world, sender, optPage.getAsInt());
-            configuration.saveConfig();
+            configuration.save();
             return true;
         }
         messageSender().sendError(sender, localizer().getMessage("error.invalidField"));

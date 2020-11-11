@@ -82,13 +82,6 @@ public class BloodNight extends EldoPlugin {
                         configuration.getGeneralSettings().isAutoUpdater(), 4, "https://plugins.eldoria.de"))
                         .start();
             }
-
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    configuration.cleanup();
-                }
-            }.runTaskLater(this, 20);
         }
 
         onReload();

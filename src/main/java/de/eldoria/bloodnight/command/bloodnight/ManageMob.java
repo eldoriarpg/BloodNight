@@ -12,6 +12,7 @@ import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.core.mobfactory.MobFactory;
 import de.eldoria.bloodnight.core.mobfactory.MobGroup;
 import de.eldoria.bloodnight.core.mobfactory.SpecialMobRegistry;
+import de.eldoria.bloodnight.util.C;
 import de.eldoria.bloodnight.util.Permissions;
 import de.eldoria.eldoutilities.localization.Replacement;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
@@ -172,7 +173,7 @@ public class ManageMob extends EldoCommand {
                 mob.setOverrideDefaultDrops(aBoolean.get());
             }
             optPage.ifPresent(i -> sendMobListPage(world, sender, mobGroup, i));
-            configuration.saveConfig();
+            configuration.save();
             return true;
         }
 
@@ -182,7 +183,7 @@ public class ManageMob extends EldoCommand {
                 mob.setDisplayName(s);
             }
             optPage.ifPresent(i -> sendMobListPage(world, sender, mobGroup, i));
-            configuration.saveConfig();
+            configuration.save();
             return true;
         }
 
@@ -199,7 +200,7 @@ public class ManageMob extends EldoCommand {
                 mob.setDropAmount(num.getAsInt());
             }
             optPage.ifPresent(i -> sendMobListPage(world, sender, mobGroup, i));
-            configuration.saveConfig();
+            configuration.save();
             return true;
         }
 
@@ -222,7 +223,7 @@ public class ManageMob extends EldoCommand {
                 mob.setDamage(num.getAsDouble());
             }
             optPage.ifPresent(i -> sendMobListPage(world, sender, mobGroup, i));
-            configuration.saveConfig();
+            configuration.save();
             return true;
         }
         if (ArrayUtil.arrayContains(new String[] {"healthModifier", "damageModifier"}, field)) {
@@ -238,7 +239,7 @@ public class ManageMob extends EldoCommand {
                 mob.setDamageModifier(val);
             }
             optPage.ifPresent(i -> sendMobListPage(world, sender, mobGroup, i));
-            configuration.saveConfig();
+            configuration.save();
             return true;
         }
 
@@ -314,7 +315,7 @@ public class ManageMob extends EldoCommand {
             if ("clear".equalsIgnoreCase(value)) {
                 mob.setDrops(new ArrayList<>());
                 optPage.ifPresent(i -> sendMobListPage(world, sender, mobGroup, i));
-                configuration.saveConfig();
+                configuration.save();
             }
             return true;
         }

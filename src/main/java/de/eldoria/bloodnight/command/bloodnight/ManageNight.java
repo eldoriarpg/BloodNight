@@ -5,6 +5,7 @@ import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.config.worldsettings.NightSettings;
 import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.core.BloodNight;
+import de.eldoria.bloodnight.util.C;
 import de.eldoria.bloodnight.util.Permissions;
 import de.eldoria.eldoutilities.localization.Replacement;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
@@ -98,7 +99,7 @@ public class ManageNight extends EldoCommand {
             if ("overrideDuration".equalsIgnoreCase(cmd)) {
                 nightSettings.setOverrideNightDuration(optionalBoolean.get());
             }
-            configuration.saveConfig();
+            configuration.save();
             sendNightSettings(sender, worldSettings);
             return true;
         }
@@ -126,7 +127,7 @@ public class ManageNight extends EldoCommand {
                 }
                 nightSettings.setNightDuration(optionalInt.getAsInt());
             }
-            configuration.saveConfig();
+            configuration.save();
             sendNightSettings(sender, worldSettings);
             return true;
         }

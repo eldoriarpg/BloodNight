@@ -9,6 +9,7 @@ import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSettings;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.VanillaDropMode;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.VanillaMobSettings;
 import de.eldoria.bloodnight.core.BloodNight;
+import de.eldoria.bloodnight.util.C;
 import de.eldoria.bloodnight.util.Permissions;
 import de.eldoria.eldoutilities.localization.Replacement;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
@@ -113,7 +114,7 @@ public class ManageMobs extends EldoCommand {
             if ("vanillaDropAmount".equalsIgnoreCase(field)) {
                 mobSettings.getVanillaMobSettings().setExtraDrops(optionalInt.getAsInt());
             }
-            configuration.saveConfig();
+            configuration.save();
             sendInfo(sender, worldSettings);
             return true;
         }
@@ -148,7 +149,7 @@ public class ManageMobs extends EldoCommand {
             if ("vanillaDropsMulti".equalsIgnoreCase(field)) {
                 mobSettings.getVanillaMobSettings().setDropMultiplier(optionalDouble.getAsDouble());
             }
-            configuration.saveConfig();
+            configuration.save();
             sendInfo(sender, worldSettings);
             return true;
         }
@@ -168,7 +169,7 @@ public class ManageMobs extends EldoCommand {
                 mobSettings.setNaturalDrops(optionalBoolean.get());
             }
             sendInfo(sender, worldSettings);
-            configuration.saveConfig();
+            configuration.save();
             return true;
         }
 
@@ -240,7 +241,7 @@ public class ManageMobs extends EldoCommand {
             }
             if ("clear".equalsIgnoreCase(value)) {
                 mobSettings.setDefaultDrops(new ArrayList<>());
-                configuration.saveConfig();
+                configuration.save();
                 sendInfo(sender, worldSettings);
                 return true;
             }
@@ -256,7 +257,7 @@ public class ManageMobs extends EldoCommand {
             }
             mobSettings.getVanillaMobSettings().setVanillaDropMode(parse);
             sendInfo(sender, worldSettings);
-            configuration.saveConfig();
+            configuration.save();
             return true;
         }
         messageSender().sendError(sender, localizer().getMessage("error.invalidField"));

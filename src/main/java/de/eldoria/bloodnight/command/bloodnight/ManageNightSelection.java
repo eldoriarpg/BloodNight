@@ -6,6 +6,7 @@ import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.config.worldsettings.NightSelection;
 import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.core.BloodNight;
+import de.eldoria.bloodnight.util.C;
 import de.eldoria.bloodnight.util.Permissions;
 import de.eldoria.eldoutilities.container.Pair;
 import de.eldoria.eldoutilities.localization.ILocalizer;
@@ -169,7 +170,7 @@ public class ManageNightSelection extends EldoCommand {
                 sel.setMaxCurveVal(EMath.clamp(0, 100, optionalInt.getAsInt()));
             }
             optPage.ifPresent(p -> sendWorldPage(world, sender, p));
-            configuration.saveConfig();
+            configuration.save();
             return true;
         }
 
@@ -232,7 +233,7 @@ public class ManageNightSelection extends EldoCommand {
                 return true;
             }
             sel.setNightSelectionType(parse);
-            configuration.saveConfig();
+            configuration.save();
             optPage.ifPresent(p -> sendWorldPage(world, sender, p));
             return true;
         }
