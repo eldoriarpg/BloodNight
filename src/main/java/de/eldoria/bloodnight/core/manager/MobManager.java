@@ -81,11 +81,6 @@ public class MobManager implements Listener, Runnable {
     @EventHandler
     public void onMobSpawn(CreatureSpawnEvent event) {
         if (!nightManager.isBloodNightActive(event.getEntity().getWorld())) return;
-        // This is most likely a mounted special mob. We wont change this.
-        if (SpecialMobUtil.isSpecialMob(event.getEntity())) {
-            BloodNight.logger().info("Will skip special mob");
-            return;
-        }
 
         World world = event.getLocation().getWorld();
 
@@ -107,6 +102,7 @@ public class MobManager implements Listener, Runnable {
     }
 
     public void wrapMob(Entity entity, MobFactory mobFactory) {
+        // This is most likely a mounted special mob. We wont change this.
         if (!(entity instanceof LivingEntity)) return;
 
         // I will not try to wrap a special mob
