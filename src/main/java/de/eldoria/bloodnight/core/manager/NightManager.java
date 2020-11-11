@@ -99,7 +99,7 @@ public class NightManager implements Listener, Runnable {
 
     @EventHandler
     public void onWorldLoad(WorldLoadEvent event) {
-        if (configuration.getWorldSettings(event.getWorld().getName()) != null) {
+        if (configuration.getWorldSettings(event.getWorld()) != null) {
             observedWorlds.add(event.getWorld());
             calcualteWorldState(event.getWorld());
         }
