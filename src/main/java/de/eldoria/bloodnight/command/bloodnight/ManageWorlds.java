@@ -61,7 +61,7 @@ public class ManageWorlds extends EldoCommand {
 
         Player player = (Player) sender;
 
-        World world = args.length > 0 ? Bukkit.getWorld(args[0]) : player.getWorld();
+        World world = args.length > 0 ? Bukkit.getWorld(C.unescapeWorldName(args[0])) : player.getWorld();
 
         if (world == null) {
             messageSender().sendError(sender, localizer().getMessage("error.invalidWorld"));
@@ -172,7 +172,7 @@ public class ManageWorlds extends EldoCommand {
                 page,
                 2, 7,
                 entry -> {
-                    String cmd = "/bloodnight manageWorlds " + entry.getWorldName() + " ";
+                    String cmd = "/bloodnight manageWorlds " + C.escapeWorldName(entry.getWorldName()) + " ";
                     BossBarSettings bbs = entry.getBossBarSettings();
                     return Component.text()
                             // World State
@@ -232,7 +232,7 @@ public class ManageWorlds extends EldoCommand {
                             .build();
                 },
                 localizer().getMessage("manageWorlds.title"),
-                "/bloodNight manageWorlds " + world.getName() + " page {page}");
+                "/bloodNight manageWorlds " + C.escapeWorldName(world) + " page {page}");
 
         bukkitAudiences.sender(sender).sendMessage(Identity.nil(), component);
     }

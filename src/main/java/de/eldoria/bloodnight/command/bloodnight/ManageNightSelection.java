@@ -103,7 +103,7 @@ public class ManageNightSelection extends EldoCommand {
 
         Player player = (Player) sender;
 
-        World world = args.length > 0 ? Bukkit.getWorld(args[0]) : player.getWorld();
+        World world = args.length > 0 ? Bukkit.getWorld(C.unescapeWorldName(args[0])) : player.getWorld();
 
         if (world == null) {
             messageSender().sendError(sender, localizer().getMessage("error.invalidWorld"));
@@ -242,7 +242,7 @@ public class ManageNightSelection extends EldoCommand {
     private void sendWorldPage(World world, CommandSender sender, int p) {
         TextComponent page = CommandUtil.getPage(configuration.getWorldSettings().values(), p, 3, 4, s -> {
             NightSelection ns = s.getNightSelection();
-            String cmd = "/bloodnight nightSelection " + s.getWorldName() + " ";
+            String cmd = "/bloodnight nightSelection " + C.escapeWorldName(s.getWorldName()) + " ";
             TextComponent.Builder builder = Component.text()
                     .append(Component.text(s.getWorldName(), NamedTextColor.GOLD, TextDecoration.BOLD))
                     .append(Component.newline())
@@ -349,7 +349,8 @@ public class ManageNightSelection extends EldoCommand {
                     break;
             }
             return builder.build();
-        }, localizer().getMessage("nightSelection.title.menu"), "/bloodNight nightSelection " + world.getName() + " page {page}");
+        }, localizer().getMessage("nightSelection.title.menu"),
+                "/bloodNight nightSelection " + C.escapeWorldName(world) + " page {page}");
         bukkitAudiences.sender(sender).sendMessage(page);
     }
 

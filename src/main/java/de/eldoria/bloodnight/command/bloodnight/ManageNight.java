@@ -55,7 +55,7 @@ public class ManageNight extends EldoCommand {
 
         Player player = (Player) sender;
 
-        World world = args.length > 0 ? Bukkit.getWorld(args[0]) : player.getWorld();
+        World world = args.length > 0 ? Bukkit.getWorld(C.unescapeWorldName(args[0])) : player.getWorld();
 
         if (world == null) {
             messageSender().sendError(sender, localizer().getMessage("error.invalidWorld"));
@@ -136,7 +136,7 @@ public class ManageNight extends EldoCommand {
 
     private void sendNightSettings(CommandSender sender, WorldSettings worldSettings) {
         NightSettings nightSettings = worldSettings.getNightSettings();
-        String cmd = "/bloodnight manageNight " + worldSettings.getWorldName() + " ";
+        String cmd = "/bloodnight manageNight " + C.escapeWorldName(worldSettings.getWorldName()) + " ";
         var builder = Component.text()
                 .append(Component.newline())
                 .append(Component.newline())

@@ -80,7 +80,7 @@ public class ManageMob extends EldoCommand {
 
         Player player = (Player) sender;
 
-        World world = args.length > 1 ? Bukkit.getWorld(args[1]) : player.getWorld();
+        World world = args.length > 1 ? Bukkit.getWorld(C.unescapeWorldName(args[1])) : player.getWorld();
 
         if (world == null) {
             messageSender().sendError(sender, localizer().getMessage("error.invalidWorld"));
@@ -331,7 +331,7 @@ public class ManageMob extends EldoCommand {
                 page,
                 2, 7,
                 entry -> {
-                    String cmd = "/bloodnight manageMob " + mobGroup.getKey() + " " + world.getName() + " " + entry.getMobName() + " ";
+                    String cmd = "/bloodnight manageMob " + mobGroup.getKey() + " " + C.escapeWorldName(world.getName()) + " " + entry.getMobName() + " ";
                     TextComponent.Builder builder = Component.text()
                             // Mob name
                             .append(Component.text(entry.getMobName(), NamedTextColor.GOLD, TextDecoration.BOLD))
@@ -435,7 +435,7 @@ public class ManageMob extends EldoCommand {
                 localizer().getMessage("manageMob.title",
                         Replacement.create("TYPE", mobGroup.getKey()),
                         Replacement.create("WORLD", world.getName())),
-                "/bloodNight manageMob " + mobGroup.getKey() + " " + world.getName() + " page {page}");
+                "/bloodNight manageMob " + mobGroup.getKey() + " " + C.escapeWorldName(world) + " page {page}");
 
         bukkitAudiences.sender(sender).sendMessage(Identity.nil(), component);
     }

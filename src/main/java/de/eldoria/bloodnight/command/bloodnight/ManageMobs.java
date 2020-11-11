@@ -71,7 +71,7 @@ public class ManageMobs extends EldoCommand {
 
         Player player = getPlayerFromSender(sender);
 
-        World world = args.length > 0 ? Bukkit.getWorld(args[0]) : player.getWorld();
+        World world = args.length > 0 ? Bukkit.getWorld(C.unescapeWorldName(args[0])) : player.getWorld();
 
         if (world == null) {
             messageSender().sendError(sender, localizer().getMessage("error.invalidWorld"));
@@ -267,7 +267,7 @@ public class ManageMobs extends EldoCommand {
     private void sendInfo(CommandSender sender, WorldSettings worldSettings) {
         MobSettings mSet = worldSettings.getMobSettings();
         VanillaMobSettings vms = worldSettings.getMobSettings().getVanillaMobSettings();
-        String cmd = "/bloodnight manageMobs " + worldSettings.getWorldName() + " ";
+        String cmd = "/bloodnight manageMobs " + C.escapeWorldName(worldSettings.getWorldName()) + " ";
         TextComponent.Builder message = Component.text()
                 .append(CommandUtil.getHeader(localizer().getMessage("manageMobs.title",
                         Replacement.create("WORLD", worldSettings.getWorldName()).addFormatting('6'))))
