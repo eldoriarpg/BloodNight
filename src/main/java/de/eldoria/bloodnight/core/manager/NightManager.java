@@ -437,7 +437,7 @@ public class NightManager implements Listener, Runnable {
 
     // <--- Night Listener ---> //
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onBedEnter(PlayerBedEnterEvent event) {
         if (!isBloodNightActive(event.getPlayer().getWorld())) return;
         NightSettings nightSettings = configuration.getWorldSettings(event.getPlayer().getWorld()).getNightSettings();
