@@ -17,6 +17,7 @@ import de.eldoria.eldoutilities.utils.ObjUtil;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
+import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Statistic;
 import org.bukkit.World;
@@ -25,6 +26,7 @@ import org.bukkit.boss.BossBar;
 import org.bukkit.boss.KeyedBossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
@@ -36,6 +38,7 @@ import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 
 import java.time.Instant;
 import java.util.Calendar;
@@ -140,6 +143,12 @@ public class NightManager implements Listener, Runnable {
             worldRefresh = 0;
         }
 
+        refreshTime();
+
+        playRandomSound();
+    }
+
+    private void refreshTime() {
         for (Map.Entry<World, BloodNightData> entry : bloodWorlds.entrySet()) {
             WorldSettings settings = configuration.getWorldSettings(entry.getKey().getName());
             NightSettings ns = settings.getNightSettings();
@@ -154,6 +163,18 @@ public class NightManager implements Listener, Runnable {
                 // This scheduler is called every 5 ticks.
                 entry.getKey().setFullTime(Math.round(time));
             }
+        }
+    }
+
+    private void playRandomSound() {
+        for (Map.Entry<World, BloodNightData> entry : bloodWorlds.entrySet()) {
+            World world = entry.getKey();
+
+            Player player = world.getPlayers().get(0);
+            Location location = player.getLocation();
+            Vector direction = player.getEyeLocation().toVector();
+            location.add(direction.multiply(-1));
+            //player.playSound(location, Sound.AMBIENT_CAVE, SoundCategory.AMBIENT, );
         }
     }
 
