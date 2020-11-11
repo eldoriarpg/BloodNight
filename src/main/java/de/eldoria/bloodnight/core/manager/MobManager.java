@@ -18,6 +18,7 @@ import de.eldoria.eldoutilities.entityutils.ProjectileUtil;
 import de.eldoria.eldoutilities.threading.IteratingTask;
 import lombok.NonNull;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.block.Beehive;
 import org.bukkit.block.BlockState;
@@ -44,6 +45,8 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -69,7 +72,8 @@ public class MobManager implements Listener, Runnable {
 
     private final List<Runnable> executeLater = new ArrayList<>();
     private final List<Runnable> executeNow = new ArrayList<>();
-    private final Cache<Integer, Player> lastDamage = CacheBuilder.newBuilder().expireAfterAccess(10L, TimeUnit.MINUTES).build();
+
+    private final static NamespacedKey SPAWNER_SPAWNED = BloodNight.getNamespacedKey("spawnerSpawned");
 
     private final Queue<Entity> lostEntities = new ArrayDeque<>();
 
@@ -82,8 +86,14 @@ public class MobManager implements Listener, Runnable {
     public void onMobSpawn(CreatureSpawnEvent event) {
         if (!nightManager.isBloodNightActive(event.getEntity().getWorld())) return;
 
-        World world = event.getLocation().getWorld();
+        if (event.getSpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER
+                && configuration.getGeneralSettings().isSpawnerDropSuppression()) {
+            PersistentDataContainer data = event.getEntity().getPersistentDataContainer();
+            data.set(SPAWNER_SPAWNED, PersistentDataType.BYTE, (byte) 1);
+            return;
+        }
 
+        World world = event.getLocation().getWorld();
         MobSettings mobSettings = configuration.getWorldSettings(world.getName()).getMobSettings();
 
         Optional<MobFactory> mobFactory = getWorldMobFactory(world).getRandomFactory(event.getEntity());
@@ -342,9 +352,6 @@ public class MobManager implements Listener, Runnable {
         Entity oponent = event.getEntity();
 
         if (damager.getType() != EntityType.PLAYER) {
-            if (!SpecialMobUtil.isSpecialMob(damager)) {
-                lastDamage.invalidate(oponent.getEntityId());
-            }
             return;
         }
 
@@ -358,21 +365,24 @@ public class MobManager implements Listener, Runnable {
             VanillaMobSettings vanillaMobSettings = configuration.getWorldSettings(oponent.getLocation().getWorld().getName()).getMobSettings().getVanillaMobSettings();
             event.setDamage(event.getDamage() / vanillaMobSettings.getHealthMultiplier());
         }
-
-        // Register player on entity
-        lastDamage.put(entityId, (Player) damager);
     }
 
     @EventHandler
     public void onEntityKill(EntityDeathEvent event) {
         LivingEntity entity = event.getEntity();
-        Player player = lastDamage.getIfPresent(entity.getEntityId());
-        lastDamage.invalidate(entity.getEntityId());
-
+        Player player = event.getEntity().getKiller();
 
         if (!(entity instanceof Monster || entity instanceof Boss)) return;
 
         if (!nightManager.isBloodNightActive(entity.getWorld())) return;
+
+        if (configuration.getGeneralSettings().isSpawnerDropSuppression()) {
+            if (entity.getPersistentDataContainer().has(SPAWNER_SPAWNED, PersistentDataType.BYTE)) {
+                event.getDrops().clear();
+                event.setDroppedExp(0);
+                return;
+            }
+        }
 
         MobSettings mobSettings = configuration.getWorldSettings(entity.getWorld()).getMobSettings();
         VanillaMobSettings vanillaMobSettings = mobSettings.getVanillaMobSettings();
@@ -394,12 +404,12 @@ public class MobManager implements Listener, Runnable {
             return;
         }
 
-        BloodNight.logger().info("Entity " + entity.getCustomName() + " was killed by " + player.getName());
-
-        BloodNight.logger().info("Attemt to drop items.");
+        if (BloodNight.isDebug()) {
+            BloodNight.logger().info("Entity " + entity.getCustomName() + " was killed by " + player.getName());
+            BloodNight.logger().info("Attemt to drop items.");
+        }
 
         if (SpecialMobUtil.isSpecialMob(entity)) {
-            BloodNight.logger().info("Mob is special mob.");
             if (!mobSettings.isNaturalDrops()) {
                 if (BloodNight.isDebug()) {
                     BloodNight.logger().info("Natural Drops are disabled. Clear loot.");
