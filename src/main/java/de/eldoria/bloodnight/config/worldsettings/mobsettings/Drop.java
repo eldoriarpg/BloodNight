@@ -127,10 +127,14 @@ public class Drop implements ConfigurationSerializable {
                 .build();
     }
 
-    public ItemStack getItem() {
+    public ItemStack getWeightedItem() {
         ItemStack newItem = item.clone();
         setWeight(newItem, weight);
         return newItem;
+    }
+
+    public ItemStack getItem() {
+        return item.clone();
     }
 
     public ItemStack getItemWithLoreWeight() {

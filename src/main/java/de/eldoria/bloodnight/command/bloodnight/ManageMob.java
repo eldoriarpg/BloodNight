@@ -249,7 +249,7 @@ public class ManageMob extends EldoCommand {
 
             if ("changeContent".equalsIgnoreCase(value)) {
                 Inventory inv = Bukkit.createInventory(player, 54, localizer().getMessage("drops.dropsTitle"));
-                inv.setContents(mob.getDrops().stream().map(Drop::getItem).toArray(ItemStack[]::new));
+                inv.setContents(mob.getDrops().stream().map(Drop::getWeightedItem).toArray(ItemStack[]::new));
                 player.openInventory(inv);
                 inventoryListener.registerModification(player, new InventoryListener.InventoryActionHandler() {
                     @Override

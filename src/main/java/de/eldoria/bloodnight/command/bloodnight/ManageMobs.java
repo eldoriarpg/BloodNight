@@ -175,7 +175,7 @@ public class ManageMobs extends EldoCommand {
         if ("defaultDrops".equalsIgnoreCase(field)) {
             if ("changeContent".equalsIgnoreCase(value)) {
                 Inventory inv = Bukkit.createInventory(player, 54, "Drops");
-                List<ItemStack> stacks = mobSettings.getDefaultDrops().stream().map(Drop::getItem).collect(Collectors.toList());
+                List<ItemStack> stacks = mobSettings.getDefaultDrops().stream().map(Drop::getWeightedItem).collect(Collectors.toList());
                 inv.setContents(stacks.toArray(new ItemStack[0]));
                 player.openInventory(inv);
                 inventoryListener.registerModification(player, new InventoryListener.InventoryActionHandler() {
