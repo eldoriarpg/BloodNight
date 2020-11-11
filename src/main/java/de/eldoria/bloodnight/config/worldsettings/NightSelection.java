@@ -90,7 +90,7 @@ public class NightSelection implements ConfigurationSerializable {
                 phaseCustom.entrySet().stream().map(e -> e.getKey() + ":" + e.getValue()).collect(Collectors.toList())));
         verifyPhases();
         currPhase = map.getValueOrDefault("currPhase", currPhase);
-        period = map.getValueOrDefault("currPhase", period);
+        period = map.getValueOrDefault("period", period);
         // curve
         currCurvePos = map.getValueOrDefault("currCurvePos", currCurvePos);
         minCurveVal = map.getValueOrDefault("minCurveVal", minCurveVal);
