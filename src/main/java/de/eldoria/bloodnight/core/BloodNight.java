@@ -33,6 +33,7 @@ import org.bukkit.plugin.PluginManager;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class BloodNight extends EldoPlugin {
 
@@ -67,7 +68,16 @@ public class BloodNight extends EldoPlugin {
 
             debug = configuration.getGeneralSettings().isDebug();
 
-            ILocalizer.create(this, configuration.getGeneralSettings().getLanguage(), "de_DE", "en_US", "es_ES", "tr", "zh_CN");
+            ILocalizer localizer = ILocalizer.create(this, "de_DE", "en_US", "es_ES", "tr", "zh_CN");
+
+            Map<String, String> mobLocaleCodes = SpecialMobRegistry.getRegisteredMobs().stream()
+                    .map(MobFactory::getMobName)
+                    .collect(Collectors.toMap(
+                            k -> "mob." + k,
+                            k -> String.join(" ", k.split("(?<=.)(?=\\p{Lu})"))));
+            localizer.addLocaleCodes(mobLocaleCodes);
+
+            localizer.setLocale(configuration.getGeneralSettings().getLanguage());
             MessageSender.create(this, "§4[BN] ", '2', 'c');
             registerListener();
             bloodNightAPI = new BloodNightAPI(nightManager);
