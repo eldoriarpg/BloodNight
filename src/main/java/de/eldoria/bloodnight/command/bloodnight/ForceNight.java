@@ -5,6 +5,7 @@ import de.eldoria.bloodnight.core.manager.NightManager;
 import de.eldoria.bloodnight.util.Permissions;
 import de.eldoria.eldoutilities.localization.Replacement;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
+import de.eldoria.eldoutilities.utils.ArgumentUtils;
 import de.eldoria.eldoutilities.utils.ArrayUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -45,9 +46,7 @@ public class ForceNight extends EldoCommand {
             }
         }
 
-        if (world == null) {
-            world = Bukkit.getWorld(args[0]);
-        }
+        world  = ArgumentUtils.getOrDefault(args, 1, Bukkit::getWorld, world);
 
         if (world == null) {
             messageSender().sendError(sender, localizer().getMessage("error.invalidWorld"));

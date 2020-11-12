@@ -9,11 +9,11 @@ import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSettings;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.VanillaDropMode;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.VanillaMobSettings;
 import de.eldoria.bloodnight.core.BloodNight;
-import de.eldoria.bloodnight.util.C;
 import de.eldoria.bloodnight.util.Permissions;
 import de.eldoria.eldoutilities.localization.Replacement;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
 import de.eldoria.eldoutilities.simplecommands.TabCompleteUtil;
+import de.eldoria.eldoutilities.utils.ArgumentUtils;
 import de.eldoria.eldoutilities.utils.ArrayUtil;
 import de.eldoria.eldoutilities.utils.EnumUtil;
 import de.eldoria.eldoutilities.utils.Parser;
@@ -72,7 +72,7 @@ public class ManageMobs extends EldoCommand {
 
         Player player = getPlayerFromSender(sender);
 
-        World world = args.length > 0 ? Bukkit.getWorld(C.unescapeWorldName(args[0])) : player.getWorld();
+        World world = ArgumentUtils.getOrDefault(args, 1, Bukkit::getWorld, player.getWorld());
 
         if (world == null) {
             messageSender().sendError(sender, localizer().getMessage("error.invalidWorld"));
@@ -268,7 +268,7 @@ public class ManageMobs extends EldoCommand {
     private void sendInfo(CommandSender sender, WorldSettings worldSettings) {
         MobSettings mSet = worldSettings.getMobSettings();
         VanillaMobSettings vms = worldSettings.getMobSettings().getVanillaMobSettings();
-        String cmd = "/bloodnight manageMobs " + C.escapeWorldName(worldSettings.getWorldName()) + " ";
+        String cmd = "/bloodnight manageMobs " + ArgumentUtils.escapeWorldName(worldSettings.getWorldName()) + " ";
         TextComponent.Builder message = Component.text()
                 .append(CommandUtil.getHeader(localizer().getMessage("manageMobs.title",
                         Replacement.create("WORLD", worldSettings.getWorldName()).addFormatting('6'))))

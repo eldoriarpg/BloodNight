@@ -5,7 +5,6 @@ import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.config.worldsettings.BossBarSettings;
 import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.core.BloodNight;
-import de.eldoria.bloodnight.util.C;
 import de.eldoria.bloodnight.util.Permissions;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
 import de.eldoria.eldoutilities.simplecommands.TabCompleteUtil;
@@ -60,9 +59,9 @@ public class ManageWorlds extends EldoCommand {
             return true;
         }
 
-        Player player = (Player) sender;
+        Player player = getPlayerFromSender(sender);
 
-        World world = args.length > 0 ? Bukkit.getWorld(C.unescapeWorldName(args[0])) : player.getWorld();
+        World world = ArgumentUtils.getOrDefault(args, 1, Bukkit::getWorld, player.getWorld());
 
         if (world == null) {
             messageSender().sendError(sender, localizer().getMessage("error.invalidWorld"));
@@ -173,7 +172,7 @@ public class ManageWorlds extends EldoCommand {
                 page,
                 2, 7,
                 entry -> {
-                    String cmd = "/bloodnight manageWorlds " + C.escapeWorldName(entry.getWorldName()) + " ";
+                    String cmd = "/bloodnight manageWorlds " + ArgumentUtils.escapeWorldName(entry.getWorldName()) + " ";
                     BossBarSettings bbs = entry.getBossBarSettings();
                     return Component.text()
                             // World State
@@ -233,7 +232,7 @@ public class ManageWorlds extends EldoCommand {
                             .build();
                 },
                 localizer().getMessage("manageWorlds.title"),
-                "/bloodNight manageWorlds " + C.escapeWorldName(world) + " page {page}");
+                "/bloodNight manageWorlds " + ArgumentUtils.escapeWorldName(world) + " page {page}");
 
         bukkitAudiences.sender(sender).sendMessage(Identity.nil(), component);
     }

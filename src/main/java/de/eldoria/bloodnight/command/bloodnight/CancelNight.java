@@ -5,6 +5,8 @@ import de.eldoria.bloodnight.core.manager.NightManager;
 import de.eldoria.bloodnight.util.Permissions;
 import de.eldoria.eldoutilities.localization.Replacement;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
+import de.eldoria.eldoutilities.simplecommands.TabCompleteUtil;
+import de.eldoria.eldoutilities.utils.ArgumentUtils;
 import de.eldoria.eldoutilities.utils.ArrayUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -45,9 +47,7 @@ public class CancelNight extends EldoCommand {
             }
         }
 
-        if (world == null) {
-            world = Bukkit.getWorld(args[0]);
-        }
+        world  = ArgumentUtils.getOrDefault(args, 1, Bukkit::getWorld, world);
 
         if (world == null) {
             messageSender().sendError(sender, localizer().getMessage("error.invalidWorld"));
@@ -75,8 +75,7 @@ public class CancelNight extends EldoCommand {
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command
             command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
-            String[] strings = nightManager.getBloodWorlds().stream().map(World::getName).toArray(String[]::new);
-            return ArrayUtil.startingWithInArray(args[0], strings).collect(Collectors.toList());
+            return TabCompleteUtil.completeWorlds(args[0]);
         }
         return Collections.emptyList();
     }

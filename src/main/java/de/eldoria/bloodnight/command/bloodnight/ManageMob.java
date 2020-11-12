@@ -12,7 +12,6 @@ import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.core.mobfactory.MobFactory;
 import de.eldoria.bloodnight.core.mobfactory.MobGroup;
 import de.eldoria.bloodnight.core.mobfactory.SpecialMobRegistry;
-import de.eldoria.bloodnight.util.C;
 import de.eldoria.bloodnight.util.Permissions;
 import de.eldoria.eldoutilities.localization.Replacement;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
@@ -81,7 +80,7 @@ public class ManageMob extends EldoCommand {
 
         Player player = (Player) sender;
 
-        World world = args.length > 1 ? Bukkit.getWorld(C.unescapeWorldName(args[1])) : player.getWorld();
+        World world = ArgumentUtils.getOrDefault(args, 1, Bukkit::getWorld, player.getWorld());
 
         if (world == null) {
             messageSender().sendError(sender, localizer().getMessage("error.invalidWorld"));
@@ -332,7 +331,7 @@ public class ManageMob extends EldoCommand {
                 page,
                 2, 7,
                 entry -> {
-                    String cmd = "/bloodnight manageMob " + mobGroup.getKey() + " " + C.escapeWorldName(world.getName()) + " " + entry.getMobName() + " ";
+                    String cmd = "/bloodnight manageMob " + mobGroup.getKey() + " " + ArgumentUtils.escapeWorldName(world.getName()) + " " + entry.getMobName() + " ";
                     TextComponent.Builder builder = Component.text()
                             // Mob name
                             .append(Component.text(entry.getMobName(), NamedTextColor.GOLD, TextDecoration.BOLD))
@@ -436,7 +435,7 @@ public class ManageMob extends EldoCommand {
                 localizer().getMessage("manageMob.title",
                         Replacement.create("TYPE", mobGroup.getKey()),
                         Replacement.create("WORLD", world.getName())),
-                "/bloodNight manageMob " + mobGroup.getKey() + " " + C.escapeWorldName(world) + " page {page}");
+                "/bloodNight manageMob " + mobGroup.getKey() + " " + ArgumentUtils.escapeWorldName(world) + " page {page}");
 
         bukkitAudiences.sender(sender).sendMessage(Identity.nil(), component);
     }
