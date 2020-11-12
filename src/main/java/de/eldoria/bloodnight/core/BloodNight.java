@@ -47,7 +47,7 @@ public class BloodNight extends EldoPlugin {
     private BloodNightAPI bloodNightAPI;
 
     public static NamespacedKey getNamespacedKey(String string) {
-        return new NamespacedKey(instance, string);
+        return new NamespacedKey(instance, string.replace(" ", "_"));
     }
 
     public static BloodNightAPI getBloodNightAPI() {
