@@ -40,6 +40,7 @@ public class GeneralSettings implements ConfigurationSerializable {
         updateReminder = map.getValueOrDefault("updateReminder", updateReminder);
         autoUpdater = map.getValueOrDefault("autoUpdater", autoUpdater);
         beeFix = map.getValueOrDefault("beeFix", beeFix);
+        spawnerDropSuppression = map.getValueOrDefault("spawnerDropSuppression", spawnerDropSuppression);
         if (beeFix) {
             BloodNight.logger().info("§4Bee Fix is enabled. This feature should be used with care.");
         }
@@ -61,6 +62,7 @@ public class GeneralSettings implements ConfigurationSerializable {
                 .add("updateReminder", updateReminder)
                 .add("autoUpdater", autoUpdater)
                 .add("beeFix", beeFix)
+                .add("spawnerDropSuppression", spawnerDropSuppression)
                 .build();
     }
 }
