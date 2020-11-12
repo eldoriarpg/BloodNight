@@ -29,7 +29,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -87,9 +86,9 @@ public class BloodNight extends EldoPlugin {
         onReload();
 
         if (initialized) {
-            logger().info("BloodNight reloaded!");
+            logger().info("§2BloodNight reloaded!");
         } else {
-            logger().info("BloodNight enabled!");
+            logger().info("§2BloodNight enabled!");
             initialized = true;
         }
     }

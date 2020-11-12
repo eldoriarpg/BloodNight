@@ -58,9 +58,9 @@ public class Configuration extends EldoConfig {
 
 
         if (getVersion() <= 1) {
-            BloodNight.logger().info("Migrating config to v2");
+            BloodNight.logger().info("§2Migrating config to v2");
             migrateToV2();
-            BloodNight.logger().info("Migration of config to v2 done.");
+            BloodNight.logger().info("§2Migration of config to v2 done.");
         }
 
         generalSettings = getConfig().getObject("generalSettings", GeneralSettings.class);
@@ -68,19 +68,20 @@ public class Configuration extends EldoConfig {
         for (World world : Bukkit.getWorlds()) {
             loadWorldSettings(world.getName(), true);
         }
+        save();
     }
 
     private void initV2() {
-        BloodNight.logger().info("Config is empty. Rebuilding config");
+        BloodNight.logger().info("§eConfig is empty. Rebuilding config");
         setVersion(2, false);
-        BloodNight.logger().info("Config version 2");
+        BloodNight.logger().info("§2Config version 2");
         generalSettings = new GeneralSettings();
-        BloodNight.logger().info("Added general settings");
-        BloodNight.logger().info("Config initialized");
+        BloodNight.logger().info("§2Added general settings");
+        BloodNight.logger().info("§2Config initialized");
     }
 
     private void migrateToV2() {
-        setVersion(1, false);
+        setVersion(2, false);
         getConfig().set("updateReminder", null);
         List<WorldSettings> worldList = ObjUtil.nonNull((List<WorldSettings>) getConfig().get("worldSettings", new ArrayList<>()), new ArrayList<>());
 
@@ -91,7 +92,7 @@ public class Configuration extends EldoConfig {
                 s.set("version", 1);
                 s.set("settings", settings);
             }, true);
-            BloodNight.logger().info("Migrated settings for " + settings.getWorldName());
+            BloodNight.logger().info("§2Migrated settings for " + settings.getWorldName());
         }
         getConfig().set("worldSettings", null);
     }
