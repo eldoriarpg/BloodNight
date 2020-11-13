@@ -24,24 +24,30 @@ public class WorldMobFactory {
     public Optional<MobFactory> getRandomFactory(Entity entity) {
         if (!(entity instanceof LivingEntity)) return Optional.empty();
 
-        Optional<MobGroup> mobGroup = getMobGroup(entity);
+        // Get the group of the mob
+        Optional<MobGroup> optionalMobGroup = getMobGroup(entity);
 
-        if (!mobGroup.isPresent()) return Optional.empty();
+        if (!optionalMobGroup.isPresent()) return Optional.empty();
 
-        MobGroup group = mobGroup.get();
+        MobGroup mobGroup = optionalMobGroup.get();
 
-        Set<MobSetting> mobTypes = settings.getMobSettings().getMobTypes().getSettings();
-        List<MobFactory> allowedMobs = group.getFactories().stream()
-                .filter(f -> mobTypes.stream()
-                        .filter(d -> d.getMobName().equalsIgnoreCase(f.getMobName()))
+        Set<MobSetting> settings = this.settings.getMobSettings().getMobTypes().getSettings();
+
+        // Search filter for factories with active mobs
+        List<MobFactory> allowedFactories = mobGroup.getFactories().stream()
+                .filter(factory -> settings.stream()
+                        // search for setting for factory
+                        .filter(setting -> setting.getMobName().equalsIgnoreCase(factory.getMobName()))
+                        // take first
                         .findFirst()
+                        // draw active value or false
                         .map(MobSetting::isActive)
                         .orElse(false))
                 .collect(Collectors.toList());
 
-        if (allowedMobs.isEmpty()) return Optional.empty();
+        if (allowedFactories.isEmpty()) return Optional.empty();
 
-        return Optional.of(allowedMobs.get(rand.nextInt(allowedMobs.size())));
+        return Optional.of(allowedFactories.get(rand.nextInt(allowedFactories.size())));
     }
 
 }

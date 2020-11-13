@@ -25,6 +25,7 @@ import org.bukkit.boss.BossBar;
 import org.bukkit.boss.KeyedBossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
@@ -99,7 +100,7 @@ public class NightManager implements Listener, Runnable {
 
     @EventHandler
     public void onWorldLoad(WorldLoadEvent event) {
-        if (configuration.getWorldSettings(event.getWorld().getName()) != null) {
+        if (configuration.getWorldSettings(event.getWorld()) != null) {
             observedWorlds.add(event.getWorld());
             calcualteWorldState(event.getWorld());
         }
@@ -437,7 +438,7 @@ public class NightManager implements Listener, Runnable {
 
     // <--- Night Listener ---> //
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOW)
     public void onBedEnter(PlayerBedEnterEvent event) {
         if (!isBloodNightActive(event.getPlayer().getWorld())) return;
         NightSettings nightSettings = configuration.getWorldSettings(event.getPlayer().getWorld()).getNightSettings();

@@ -9,6 +9,7 @@ import de.eldoria.bloodnight.util.Permissions;
 import de.eldoria.eldoutilities.localization.Replacement;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
 import de.eldoria.eldoutilities.simplecommands.TabCompleteUtil;
+import de.eldoria.eldoutilities.utils.ArgumentUtils;
 import de.eldoria.eldoutilities.utils.ArrayUtil;
 import de.eldoria.eldoutilities.utils.Parser;
 import lombok.var;
@@ -53,9 +54,9 @@ public class ManageNight extends EldoCommand {
             return true;
         }
 
-        Player player = (Player) sender;
+        Player player = getPlayerFromSender(sender);
 
-        World world = args.length > 0 ? Bukkit.getWorld(args[0]) : player.getWorld();
+        World world = ArgumentUtils.getOrDefault(args, 0, ArgumentUtils::getWorld, player.getWorld());
 
         if (world == null) {
             messageSender().sendError(sender, localizer().getMessage("error.invalidWorld"));
@@ -98,7 +99,7 @@ public class ManageNight extends EldoCommand {
             if ("overrideDuration".equalsIgnoreCase(cmd)) {
                 nightSettings.setOverrideNightDuration(optionalBoolean.get());
             }
-            configuration.saveConfig();
+            configuration.save();
             sendNightSettings(sender, worldSettings);
             return true;
         }
@@ -126,7 +127,7 @@ public class ManageNight extends EldoCommand {
                 }
                 nightSettings.setNightDuration(optionalInt.getAsInt());
             }
-            configuration.saveConfig();
+            configuration.save();
             sendNightSettings(sender, worldSettings);
             return true;
         }
@@ -136,7 +137,7 @@ public class ManageNight extends EldoCommand {
 
     private void sendNightSettings(CommandSender sender, WorldSettings worldSettings) {
         NightSettings nightSettings = worldSettings.getNightSettings();
-        String cmd = "/bloodnight manageNight " + worldSettings.getWorldName() + " ";
+        String cmd = "/bloodnight manageNight " + ArgumentUtils.escapeWorldName(worldSettings.getWorldName()) + " ";
         var builder = Component.text()
                 .append(Component.newline())
                 .append(Component.newline())

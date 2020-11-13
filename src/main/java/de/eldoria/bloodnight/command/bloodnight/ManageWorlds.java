@@ -59,9 +59,11 @@ public class ManageWorlds extends EldoCommand {
             return true;
         }
 
-        Player player = (Player) sender;
+        Player player = getPlayerFromSender(sender);
+        World world1 = player.getWorld();
 
-        World world = args.length > 0 ? Bukkit.getWorld(args[0]) : player.getWorld();
+        World world = ArgumentUtils.getOrDefault(args, 0, ArgumentUtils::getWorld, world1);
+
 
         if (world == null) {
             messageSender().sendError(sender, localizer().getMessage("error.invalidWorld"));
@@ -139,7 +141,7 @@ public class ManageWorlds extends EldoCommand {
             }
 
             sendWorldPage(world, sender, optPage.getAsInt());
-            configuration.saveConfig();
+            configuration.save();
             return true;
         }
 
@@ -159,7 +161,7 @@ public class ManageWorlds extends EldoCommand {
                 worldSettings.setAlwaysManageCreepers(aBoolean.get());
             }
             sendWorldPage(world, sender, optPage.getAsInt());
-            configuration.saveConfig();
+            configuration.save();
             return true;
         }
         messageSender().sendError(sender, localizer().getMessage("error.invalidField"));
@@ -172,7 +174,7 @@ public class ManageWorlds extends EldoCommand {
                 page,
                 2, 7,
                 entry -> {
-                    String cmd = "/bloodnight manageWorlds " + entry.getWorldName() + " ";
+                    String cmd = "/bloodnight manageWorlds " + ArgumentUtils.escapeWorldName(entry.getWorldName()) + " ";
                     BossBarSettings bbs = entry.getBossBarSettings();
                     return Component.text()
                             // World State
@@ -232,7 +234,7 @@ public class ManageWorlds extends EldoCommand {
                             .build();
                 },
                 localizer().getMessage("manageWorlds.title"),
-                "/bloodNight manageWorlds " + world.getName() + " page {page}");
+                "/bloodNight manageWorlds " + ArgumentUtils.escapeWorldName(world) + " page {page}");
 
         bukkitAudiences.sender(sender).sendMessage(Identity.nil(), component);
     }
