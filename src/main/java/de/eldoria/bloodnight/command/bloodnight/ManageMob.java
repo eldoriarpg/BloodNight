@@ -80,7 +80,7 @@ public class ManageMob extends EldoCommand {
 
         Player player = (Player) sender;
 
-        World world = ArgumentUtils.getOrDefault(args, 1, Bukkit::getWorld, player.getWorld());
+        World world = ArgumentUtils.getOrDefault(args, 1, ArgumentUtils::getWorld, player.getWorld());
 
         if (world == null) {
             messageSender().sendError(sender, localizer().getMessage("error.invalidWorld"));

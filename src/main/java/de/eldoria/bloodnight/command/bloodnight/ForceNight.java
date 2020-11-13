@@ -46,7 +46,7 @@ public class ForceNight extends EldoCommand {
             }
         }
 
-        world  = ArgumentUtils.getOrDefault(args, 1, Bukkit::getWorld, world);
+        world  = ArgumentUtils.getOrDefault(args, 0, ArgumentUtils::getWorld, world);
 
         if (world == null) {
             messageSender().sendError(sender, localizer().getMessage("error.invalidWorld"));
