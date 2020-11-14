@@ -40,11 +40,6 @@ public class SoundSettings implements ConfigurationSerializable {
             add(new SoundEntry(sound, new Double[]{0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6}, new Double[]{0.2, 0.4, 0.6, 0.8, 1.0}));
         }
     }};
-    private List<SoundEntry> loopSounds = new ArrayList<SoundEntry>() {{
-        for (Sound sound : Sounds.LOOPS) {
-            add(new SoundEntry(sound, new Double[]{0.8, 1.0}, new Double[]{1.0}));
-        }
-    }};
 
     public SoundSettings(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
@@ -59,7 +54,6 @@ public class SoundSettings implements ConfigurationSerializable {
         startSounds = map.getValueOrDefault("startSounds", startSounds);
         endSounds = map.getValueOrDefault("endSounds", endSounds);
         randomSounds = map.getValueOrDefault("randomSounds", randomSounds);
-        loopSounds = map.getValueOrDefault("loopSounds", loopSounds);
     }
 
     public void playRandomSound(Player player, Location location) {
@@ -96,7 +90,6 @@ public class SoundSettings implements ConfigurationSerializable {
                 .add("startSounds", startSounds)
                 .add("endSounds", endSounds)
                 .add("randomSounds", randomSounds)
-                .add("loopSounds", loopSounds)
                 .build();
     }
 }
