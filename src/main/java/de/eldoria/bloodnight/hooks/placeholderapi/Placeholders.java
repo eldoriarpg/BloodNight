@@ -100,7 +100,6 @@ public class Placeholders extends PlaceholderExpansion {
                             }
                         }
 
-
                         if ("percent_left".equalsIgnoreCase(params)) {
                             if (!nightManager.isBloodNightActive(world)) return "0";
                             return String.format("%.1f", NightUtil.getNightProgress(world, worldSettings) * 100);

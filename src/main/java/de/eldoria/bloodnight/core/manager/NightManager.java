@@ -8,12 +8,11 @@ import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.core.events.BloodNightBeginEvent;
 import de.eldoria.bloodnight.core.events.BloodNightEndEvent;
+import de.eldoria.bloodnight.core.manager.nightmanager.BloodNightData;
+import de.eldoria.bloodnight.core.manager.nightmanager.NightUtil;
 import de.eldoria.bloodnight.util.C;
-import de.eldoria.bloodnight.util.MoonPhase;
-import de.eldoria.eldoutilities.container.Pair;
 import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.messages.MessageSender;
-import de.eldoria.eldoutilities.utils.EMath;
 import de.eldoria.eldoutilities.utils.ObjUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
@@ -37,7 +36,6 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -137,14 +135,11 @@ public class NightManager implements Listener, Runnable {
             WorldSettings settings = configuration.getWorldSettings(entry.getKey().getName());
             NightSettings ns = settings.getNightSettings();
             if (ns.isOverrideNightDuration()) {
-                int nightDurationTicks = ns.getNightDuration() * 20;
-                long normalNightDuration = getDiff(ns.getNightBegin(), ns.getNightEnd());
-                double calcTicks = (double) normalNightDuration / nightDurationTicks;
+                double calcTicks = NightUtil.getNightTicksPerTick(entry.getKey(), settings);
 
-                long fullTime = entry.getKey().getFullTime();
-                double time = customTimes.compute(entry.getKey().getName(), (key, old) -> (old == null ? fullTime : old) + calcTicks);
+                double time = customTimes.compute(entry.getKey().getName(),
+                        (key, old) -> (old == null ? entry.getKey().getFullTime() : old) + calcTicks);
 
-                // This scheduler is called every 5 ticks.
                 entry.getKey().setFullTime(Math.round(time));
             }
         }
@@ -176,17 +171,14 @@ public class NightManager implements Listener, Runnable {
     }
 
     private void calcualteWorldState(World world) {
-        boolean current = isNight(world);
+        boolean current = NightUtil.isNight(world, configuration.getWorldSettings(world));
         boolean old = timeState.getOrDefault(world.getName(), false);
 
         if (current == old) {
             if (bloodWorlds.containsKey(world)) {
-                NightSettings settings = configuration.getWorldSettings(world.getName()).getNightSettings();
-                long total = getDiff(settings.getNightBegin(), settings.getNightEnd());
-                long left = getDiff(world.getFullTime(), settings.getNightEnd());
                 BloodNightData bloodNightData = bloodWorlds.get(world);
                 ObjUtil.nonNull(bloodNightData.getBossBar(), bossBar -> {
-                    bossBar.setProgress(Math.max(Math.min(left / (double) total, 1), 0));
+                    bossBar.setProgress(NightUtil.getNightProgress(world, configuration.getWorldSettings(world)));
                 });
             }
             return;
@@ -223,59 +215,11 @@ public class NightManager implements Listener, Runnable {
             NightSelection sel = settings.getNightSelection();
             int val = ThreadLocalRandom.current().nextInt(101);
 
-            switch (sel.getNightSelectionType()) {
-                case RANDOM:
-                    if (sel.getProbability() <= 0) return;
-                    if (val > sel.getProbability()) return;
-                    break;
-                case MOON_PHASE:
-                    int moonPhase = getMoonPhase(world);
-                    if (!sel.getMoonPhase().containsKey(moonPhase)) return;
-                    if (sel.getPhaseProbability(moonPhase) <= 0) return;
-                    if (val > sel.getPhaseProbability(moonPhase)) return;
-                    break;
-                case INTERVAL:
-                    sel.upcountInterval();
-                    if (sel.getCurInterval() != sel.getInterval()) {
-                        return;
-                    }
-                    if (sel.getIntervalProbability() <= 0) return;
-                    if (val > sel.getIntervalProbability()) return;
-                    sel.setCurInterval(0);
-                    break;
-                case PHASE:
-                    sel.upcountPhase();
-                    int phaseProb = sel.getPhaseCustom().get(sel.getCurrPhase());
-                    if (phaseProb <= 0) return;
-                    if (val > phaseProb) return;
-                    break;
-                case CURVE:
-                    double curveProb;
-                    // First half. Increasing curve.
-                    if (sel.getCurrCurvePos() <= sel.getPeriod() / 2) {
-                        curveProb = EMath.smoothCurveValue(Pair.of(0d, (double) sel.getMinCurveVal()),
-                                Pair.of((double) sel.getPeriod() / 2,
-                                        (double) sel.getMaxCurveVal()), sel.getCurrCurvePos());
-                    } else {
-                        curveProb = EMath.smoothCurveValue(Pair.of((double) sel.getPeriod() / 2, (double) sel.getMaxCurveVal()),
-                                Pair.of((double) sel.getPeriod(),
-                                        (double) sel.getMinCurveVal()), sel.getCurrCurvePos());
-                    }
-                    if (curveProb <= 0) return;
-                    if (val > curveProb) return;
-                    break;
-                case REAL_MOON_PHASE:
-                    Calendar cal = Calendar.getInstance();
-                    cal.setTime(Date.from(Instant.now()));
-                    // Get moon phase based on Server time. Convert to minecraft moon phase.
-                    int realMoonPhase = (MoonPhase.computePhaseIndex(cal) + 4) % 8;
-                    if (!sel.getMoonPhase().containsKey(realMoonPhase)) return;
-                    if (sel.getPhaseProbability(realMoonPhase) <= 0) return;
-                    if (val > sel.getPhaseProbability(realMoonPhase)) return;
-                    break;
-                default:
-                    throw new IllegalStateException("Unexpected value: " + sel.getNightSelectionType());
-            }
+            sel.upcount();
+
+            int probability = sel.getCurrentProbability(world);
+            if (probability <= 0) return;
+            if (val > probability) return;
         }
 
         if (!settings.isEnabled()) {
@@ -431,10 +375,6 @@ public class NightManager implements Listener, Runnable {
 
     // <--- Utility functions ---> //
 
-    private int getMoonPhase(World world) {
-        int days = (int) Math.floor(world.getFullTime() / 24000d);
-        return days % 8;
-    }
 
     /**
      * Check if a world is currenty in blood night mode.
@@ -446,23 +386,9 @@ public class NightManager implements Listener, Runnable {
         return bloodWorlds.containsKey(world);
     }
 
-    private boolean isNight(World world) {
-        WorldSettings worldSettings = configuration.getWorldSettings(world.getName());
-        long openInTicks = getDiff(world.getFullTime(), worldSettings.getNightSettings().getNightBegin());
-        long closedInTicks = getDiff(world.getFullTime(), worldSettings.getNightSettings().getNightEnd());
-        // check if door should be open
-        return openInTicks > closedInTicks;
-    }
-
-    private long getDiff(long fullTime, long nextTime) {
-        long currentTime = fullTime % 24000;
-        return currentTime > nextTime ? 24000 - currentTime + nextTime : nextTime - currentTime;
-    }
-
-
     public void forceNight(World world) {
         forceNight.add(world);
-        if (isNight(world)) {
+        if (NightUtil.isNight(world, configuration.getWorldSettings(world))) {
             initializeBloodNight(world);
         }
     }

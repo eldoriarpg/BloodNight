@@ -1,4 +1,4 @@
-package de.eldoria.bloodnight.core.manager;
+package de.eldoria.bloodnight.core.manager.nightmanager;
 
 import de.eldoria.bloodnight.config.worldsettings.sound.SoundSettings;
 import de.eldoria.bloodnight.core.BloodNight;
@@ -19,6 +19,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Getter
+public
 class BloodNightData {
     private final World world;
     private final BossBar bossBar;

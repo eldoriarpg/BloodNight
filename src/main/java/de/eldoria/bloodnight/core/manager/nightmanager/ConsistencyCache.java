@@ -1,4 +1,4 @@
-package de.eldoria.bloodnight.core.manager;
+package de.eldoria.bloodnight.core.manager.nightmanager;
 
 import lombok.Getter;
 import org.bukkit.OfflinePlayer;
