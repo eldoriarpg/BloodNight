@@ -1,7 +1,5 @@
 package de.eldoria.bloodnight.core.manager;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSetting;
@@ -11,6 +9,7 @@ import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.core.events.BloodNightEndEvent;
 import de.eldoria.bloodnight.core.mobfactory.MobFactory;
 import de.eldoria.bloodnight.core.mobfactory.WorldMobFactory;
+import de.eldoria.bloodnight.hooks.mythicmobs.MythicMobUtil;
 import de.eldoria.bloodnight.specialmobs.SpecialMob;
 import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
 import de.eldoria.eldoutilities.entityutils.ProjectileSender;
@@ -23,42 +22,18 @@ import org.bukkit.World;
 import org.bukkit.block.Beehive;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.Bee;
-import org.bukkit.entity.Boss;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Monster;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.EntityTargetEvent;
-import org.bukkit.event.entity.EntityTeleportEvent;
-import org.bukkit.event.entity.ExplosionPrimeEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -115,8 +90,10 @@ public class MobManager implements Listener, Runnable {
         // This is most likely a mounted special mob. We wont change this.
         if (!(entity instanceof LivingEntity)) return;
 
-        // I will not try to wrap a special mob
+        // I will not try to wrap a special or mythic mob
         if (SpecialMobUtil.isSpecialMob(entity)) return;
+        if (MythicMobUtil.isMythicMob(entity)) return;
+
         MobSettings mobSettings = configuration.getWorldSettings(entity.getWorld().getName()).getMobSettings();
         Optional<MobSetting> mobSetting = mobSettings.getMobByName(mobFactory.getMobName());
 
@@ -382,6 +359,11 @@ public class MobManager implements Listener, Runnable {
             }
         }
 
+        //TODO: Decide what to do on mythic mob death related to drops
+        if (MythicMobUtil.isMythicMob(event.getEntity())) {
+            return;
+        }
+
         MobSettings mobSettings = configuration.getWorldSettings(entity.getWorld()).getMobSettings();
         VanillaMobSettings vanillaMobSettings = mobSettings.getVanillaMobSettings();
         event.setDroppedExp((int) (event.getDroppedExp() * mobSettings.getExperienceMultiplier()));
@@ -620,7 +602,6 @@ public class MobManager implements Listener, Runnable {
          * Attemts to remove an entity from world mobs and the world.
          *
          * @param key uid of entity
-         *
          * @return special mob if present.
          */
         public Optional<SpecialMob<?>> remove(UUID key) {
