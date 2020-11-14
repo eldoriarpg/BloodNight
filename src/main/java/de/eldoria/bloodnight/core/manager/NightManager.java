@@ -351,16 +351,7 @@ public class NightManager implements Listener, Runnable {
             disableBloodNightForPlayer(player, world);
         }
 
-        bloodWorlds.remove(world);
-
-        ObjUtil.nonNull(Bukkit.getBossBar(getBossBarNamespace(world)), b -> {
-            b.removeAll();
-            if (!Bukkit.removeBossBar(getBossBarNamespace(world))) {
-                if (BloodNight.isDebug()) {
-                    BloodNight.logger().warning("Could not remove boss bar " + getBossBarNamespace(world));
-                }
-            }
-        });
+        bloodWorlds.remove(world).resolveAll();
     }
 
     private void dispatchCommands(List<String> cmds, World world) {
@@ -403,13 +394,7 @@ public class NightManager implements Listener, Runnable {
             BloodNight.logger().info("Resolving blood night for player " + player.getName());
         }
 
-        if (consistencyCache != null) {
-            consistencyCache.revert(player);
-        }
-
-        ObjUtil.nonNull(Bukkit.getBossBar(getBossBarNamespace(world)), b -> {
-            b.removePlayer(player);
-        });
+        bloodWorlds.get(world).removePlayer(player);
 
         if (configuration.getGeneralSettings().isBlindness()) {
             player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 5 * 20, 1, false, true));
@@ -441,9 +426,6 @@ public class NightManager implements Listener, Runnable {
 
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event) {
-        if (playerConsistencyMap.containsKey(event.getPlayer().getUniqueId())) {
-            playerConsistencyMap.get(event.getPlayer().getUniqueId()).revert(event.getPlayer());
-        }
         if (isBloodNightActive(event.getPlayer().getWorld())) {
             disableBloodNightForPlayer(event.getPlayer(), event.getPlayer().getWorld());
         }
@@ -514,13 +496,6 @@ public class NightManager implements Listener, Runnable {
     public void shutdown() {
         BloodNight.logger().info("Shutting down night manager.");
 
-        BloodNight.logger().info("Apply consistency cache.");
-        for (Map.Entry<UUID, ConsistencyCache> entry : playerConsistencyMap.entrySet()) {
-            Player player = Bukkit.getPlayer(entry.getKey());
-            if (player == null) continue;
-            entry.getValue().revert(player);
-        }
-
         BloodNight.logger().info("Resolving blood nights.");
         for (World world : bloodWorlds.keySet()) {
             resolveBloodNight(world);
@@ -549,31 +524,5 @@ public class NightManager implements Listener, Runnable {
 
     public Set<World> getObservedWorlds() {
         return observedWorlds;
-    }
-
-    public NamespacedKey getBossBarNamespace(World world) {
-        return BloodNight.getNamespacedKey("bossBar" + world.getName());
-    }
-
-    @Getter
-    private static class ConsistencyCache {
-        private final int timeSinceRest;
-
-        public ConsistencyCache(Player player) {
-            timeSinceRest = player.getStatistic(Statistic.TIME_SINCE_REST);
-        }
-
-        public void revert(Player player) {
-            player.setStatistic(Statistic.TIME_SINCE_REST, timeSinceRest);
-        }
-    }
-
-    @Getter
-    private static class BloodNightData {
-        private final BossBar bossBar;
-
-        public BloodNightData(BossBar bossBar) {
-            this.bossBar = bossBar;
-        }
     }
 }
