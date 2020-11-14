@@ -105,7 +105,7 @@ public class MobManager implements Listener, Runnable {
         SpecialMob<?> specialMob = mobFactory.wrap((LivingEntity) entity, mobSettings, mobSetting.get());
 
         if (BloodNight.isDebug()) {
-            BloodNight.logger().info("Special Mob " + mobSetting.get().getMobName() + " spawned in " + entity.getWorld().getName());
+            //BloodNight.logger().info("Special Mob " + mobSetting.get().getMobName() + " spawned in " + entity.getWorld().getName());
         }
 
         getWorldMobs(entity.getWorld()).put(entity.getUniqueId(), specialMob);
@@ -579,7 +579,7 @@ public class MobManager implements Listener, Runnable {
                     remove(poll.getBaseEntity().getUniqueId());
                     poll.remove();
                     if (BloodNight.isDebug()) {
-                        BloodNight.logger().info("Removed invalid entity.");
+                        //BloodNight.logger().info("Removed invalid entity.");
                     }
                 } else {
                     poll.tick();

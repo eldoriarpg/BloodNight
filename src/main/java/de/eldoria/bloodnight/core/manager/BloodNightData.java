@@ -36,6 +36,7 @@ class BloodNightData {
             b.addPlayer(player);
         });
         playerConsistencyMap.put(player.getUniqueId(), new ConsistencyCache(player));
+        playerSoundQueue.add(new PlayerSound(player));
     }
 
     public void removePlayer(Player player) {
@@ -45,6 +46,7 @@ class BloodNightData {
         if (playerConsistencyMap.containsKey(player.getUniqueId())) {
             playerConsistencyMap.remove(player.getUniqueId()).revert(player);
         }
+        playerSoundQueue.removeIf(e -> e.getPlayer().getUniqueId() == player.getUniqueId());
     }
 
     /**
@@ -60,6 +62,10 @@ class BloodNightData {
             Location location = player.getLocation();
             Vector direction = player.getEyeLocation().toVector();
             location.add(direction.multiply(-1));
+
+            if (BloodNight.isDebug()) {
+                BloodNight.logger().info("Played random sound to " + poll.player.getName());
+            }
 
             settings.playRandomSound(player, location);
 
@@ -94,7 +100,7 @@ class BloodNightData {
         }
 
         public boolean isNext() {
-            return next.isAfter(Instant.now());
+            return next.isBefore(Instant.now());
         }
 
         public void scheduleNext(int seconds) {
