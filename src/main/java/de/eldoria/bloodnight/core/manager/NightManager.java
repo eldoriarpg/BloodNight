@@ -475,7 +475,9 @@ public class NightManager implements Listener, Runnable {
         BloodNight.logger().info("Shutting down night manager.");
 
         BloodNight.logger().info("Resolving blood nights.");
-        for (World world : bloodWorlds.keySet()) {
+
+        // Copy to new collection since the blood worlds are removed on resolve.
+        for (World world : new HashSet<>(bloodWorlds.keySet())) {
             resolveBloodNight(world);
         }
 
