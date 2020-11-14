@@ -8,6 +8,7 @@ api-version: 1.16
 softdepend:
   - Multiverse-Core
   - Hyperverse
+  - MythicMobs
 
 commands:
   bloodnight:
