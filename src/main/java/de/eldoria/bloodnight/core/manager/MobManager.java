@@ -57,7 +57,7 @@ public class MobManager implements Listener, Runnable {
         this.configuration = configuration;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onMobSpawn(CreatureSpawnEvent event) {
         if (!nightManager.isBloodNightActive(event.getEntity().getWorld())) return;
 
