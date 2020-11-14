@@ -12,7 +12,7 @@ softdepend:
 commands:
   bloodnight:
     description: Main Blood Night command.
-    usage: "/boodnight help"
+    usage: "/bloodnight help"
     aliases:
       - bnight
       - bn
