@@ -19,6 +19,7 @@ import de.eldoria.bloodnight.core.manager.NightManager;
 import de.eldoria.bloodnight.core.manager.NotificationManager;
 import de.eldoria.bloodnight.core.mobfactory.MobFactory;
 import de.eldoria.bloodnight.core.mobfactory.SpecialMobRegistry;
+import de.eldoria.bloodnight.hooks.HookService;
 import de.eldoria.bloodnight.util.Permissions;
 import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.messages.MessageSender;
@@ -47,6 +48,7 @@ public class BloodNight extends EldoPlugin {
     private InventoryListener inventoryListener;
     private boolean initialized = false;
     private BloodNightAPI bloodNightAPI;
+    private HookService hookService;
 
     public static NamespacedKey getNamespacedKey(String string) {
         return new NamespacedKey(instance, string.replace(" ", "_"));
@@ -90,6 +92,9 @@ public class BloodNight extends EldoPlugin {
                         configuration.getGeneralSettings().isAutoUpdater(), 4, "https://plugins.eldoria.de"))
                         .start();
             }
+
+            HookService hookService = new HookService(this, configuration, nightManager);
+            hookService.setup();
         }
 
         onReload();
@@ -199,6 +204,9 @@ public class BloodNight extends EldoPlugin {
     public void onDisable() {
         if (nightManager != null) {
             nightManager.shutdown();
+        }
+        if (hookService != null) {
+            hookService.shutdown();
         }
         logger().info("Blood Night disabled!");
     }
