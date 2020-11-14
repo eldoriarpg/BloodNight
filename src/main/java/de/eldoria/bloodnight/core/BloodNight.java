@@ -39,7 +39,6 @@ public class BloodNight extends EldoPlugin {
 
     @Getter
     private static BloodNight instance;
-    private static boolean debug = false;
     private NightManager nightManager;
     private MobManager mobManager;
     private Configuration configuration;
@@ -56,7 +55,7 @@ public class BloodNight extends EldoPlugin {
     }
 
     public static boolean isDebug() {
-        return debug;
+        return Configuration.isDebug(BloodNight.class);
     }
 
     @Override
@@ -65,8 +64,6 @@ public class BloodNight extends EldoPlugin {
             instance = this;
             registerSerialization();
             configuration = new Configuration(this);
-
-            debug = configuration.getGeneralSettings().isDebug();
 
             ILocalizer localizer = ILocalizer.create(this, "de_DE", "en_US", "es_ES", "tr", "zh_CN");
 
@@ -106,9 +103,8 @@ public class BloodNight extends EldoPlugin {
     public void onReload() {
         configuration.reload();
         ILocalizer.getPluginLocalizer(this).setLocale(configuration.getGeneralSettings().getLanguage());
-        debug = configuration.getGeneralSettings().isDebug();
 
-        if (debug) {
+        if (isDebug()) {
             logger().info("§cDebug mode active");
         }
         nightManager.reload();
