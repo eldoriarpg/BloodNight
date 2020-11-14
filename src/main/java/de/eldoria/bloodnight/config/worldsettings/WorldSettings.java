@@ -38,6 +38,7 @@ public class WorldSettings implements ConfigurationSerializable {
         nightSelection = map.getValueOrDefault("nightSelection", nightSelection);
         nightSettings = map.getValueOrDefault("nightSettings", nightSettings);
         mobSettings = map.getValueOrDefault("mobSettings", mobSettings);
+        soundSettings = map.getValueOrDefault("soundSettings", soundSettings);
     }
 
     public WorldSettings(String world) {
@@ -55,6 +56,7 @@ public class WorldSettings implements ConfigurationSerializable {
                 .add("nightSelection", nightSelection)
                 .add("nightSettings", nightSettings)
                 .add("mobSettings", mobSettings)
+                .add("soundSettings", soundSettings)
                 .build();
     }
 }

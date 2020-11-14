@@ -5,21 +5,29 @@ import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
 import de.eldoria.eldoutilities.utils.EMath;
 import de.eldoria.eldoutilities.utils.EnumUtil;
-import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
+@SerializableAs("bloodNightSoundEntry")
 public class SoundEntry implements ConfigurationSerializable {
     private Sound sound = Sound.UI_BUTTON_CLICK;
-    private float[] pitch = {1};
-    private float[] volume = {1};
+    private List<Double> pitch = new ArrayList<Double>() {{
+        add(1d);
+    }};
+    private List<Double> volume = new ArrayList<Double>() {{
+        add(1d);
+    }};
 
     public SoundEntry(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
@@ -35,29 +43,30 @@ public class SoundEntry implements ConfigurationSerializable {
         clampArray(volume, 0.01f, 1);
     }
 
-    public SoundEntry(Sound sound, float[] pitch, float[] volume) {
+    public SoundEntry(Sound sound, Double[] pitch, Double[] volume) {
         this.sound = sound;
-        this.pitch = pitch;
-        this.volume = volume;
+        this.pitch = Arrays.asList(pitch);
+        this.volume = Arrays.asList(volume);
     }
 
-    private void clampArray(float[] values, float min, float max) {
-        for (int i = 0; i < values.length; i++) {
-            values[i] = EMath.clamp(min, max, values[i]);
+    private void clampArray(List<Double> values, double min, double max) {
+        for (int i = 0; i < values.size(); i++) {
+            values.set(i,EMath.clamp(min, max, values.get(i)));
         }
     }
 
-    public void play(Player player, Location location, SoundCategory channel){
-        player.playSound(location, sound, channel, getPitch(), getVolume());
+    public void play(Player player, Location location, SoundCategory channel) {
+        player.playSound(location, sound, channel, (float) getPitch(), (float) getVolume());
     }
 
-    private float getPitch() {
-        if(pitch.length == 0) return 1;
-        return pitch[ThreadLocalRandom.current().nextInt(pitch.length)];
+    private double getPitch() {
+        if (pitch.isEmpty()) return 1;
+        return pitch.get(ThreadLocalRandom.current().nextInt(pitch.size()));
     }
-    private float getVolume() {
-        if(volume.length == 0) return 1;
-        return volume[ThreadLocalRandom.current().nextInt(volume.length)];
+
+    private double getVolume() {
+        if (volume.isEmpty()) return 1;
+        return volume.get(ThreadLocalRandom.current().nextInt(volume.size()));
     }
 
     @Override

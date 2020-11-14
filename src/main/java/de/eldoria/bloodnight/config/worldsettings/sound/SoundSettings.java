@@ -10,6 +10,7 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
+@SerializableAs("bloodNightSoundSetting")
 public class SoundSettings implements ConfigurationSerializable {
     private int minInterval = 10;
     private int maxInterval = 40;
@@ -25,22 +27,22 @@ public class SoundSettings implements ConfigurationSerializable {
     private SoundCategory channel = SoundCategory.AMBIENT;
     private List<SoundEntry> startSounds = new ArrayList<SoundEntry>() {{
         for (Sound sound : Sounds.START) {
-            add(new SoundEntry(sound, new float[]{0.8f, 1}, new float[]{1}));
+            add(new SoundEntry(sound, new Double[]{0.8, 1d}, new Double[]{1.0}));
         }
     }};
     private List<SoundEntry> endSounds = new ArrayList<SoundEntry>() {{
         for (Sound sound : Sounds.START) {
-            add(new SoundEntry(sound, new float[]{0.8f, 1}, new float[]{1}));
+            add(new SoundEntry(sound, new Double[]{0.8, 1d}, new Double[]{1.0}));
         }
     }};
     private List<SoundEntry> randomSounds = new ArrayList<SoundEntry>() {{
         for (Sound sound : Sounds.SPOOKY) {
-            add(new SoundEntry(sound, new float[]{0.4f, 0.6f, 0.8f, 1, 1.2f, 1.4f, 1.6f}, new float[]{0.2f, 0.4f, 0.6f, 0.8f, 1}));
+            add(new SoundEntry(sound, new Double[]{0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6}, new Double[]{0.2, 0.4, 0.6, 0.8, 1.0}));
         }
     }};
     private List<SoundEntry> loopSounds = new ArrayList<SoundEntry>() {{
         for (Sound sound : Sounds.LOOPS) {
-            add(new SoundEntry(sound, new float[]{0.8f, 1}, new float[]{1}));
+            add(new SoundEntry(sound, new Double[]{0.8, 1.0}, new Double[]{1.0}));
         }
     }};
 
@@ -71,7 +73,7 @@ public class SoundSettings implements ConfigurationSerializable {
         }
     }
 
-    public void playEndsound(Player player){
+    public void playEndsound(Player player) {
         for (SoundEntry endSound : endSounds) {
             endSound.play(player, player.getLocation(), channel);
         }

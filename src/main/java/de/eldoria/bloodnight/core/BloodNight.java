@@ -11,6 +11,8 @@ import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.Drop;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSetting;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSettings;
+import de.eldoria.bloodnight.config.worldsettings.sound.SoundEntry;
+import de.eldoria.bloodnight.config.worldsettings.sound.SoundSettings;
 import de.eldoria.bloodnight.core.api.BloodNightAPI;
 import de.eldoria.bloodnight.core.manager.MobManager;
 import de.eldoria.bloodnight.core.manager.NightManager;
@@ -136,6 +138,8 @@ public class BloodNight extends EldoPlugin {
         ConfigurationSerialization.registerClass(Drop.class);
         ConfigurationSerialization.registerClass(BossBarSettings.class);
         ConfigurationSerialization.registerClass(MobSettings.MobTypes.class);
+        ConfigurationSerialization.registerClass(SoundSettings.class);
+        ConfigurationSerialization.registerClass(SoundEntry.class);
     }
 
     private void enableMetrics() {
