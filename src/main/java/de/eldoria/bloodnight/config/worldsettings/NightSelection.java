@@ -1,18 +1,22 @@
 package de.eldoria.bloodnight.config.worldsettings;
 
 import de.eldoria.bloodnight.core.BloodNight;
+import de.eldoria.bloodnight.core.manager.nightmanager.NightUtil;
+import de.eldoria.bloodnight.util.MoonPhase;
+import de.eldoria.eldoutilities.container.Pair;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
+import de.eldoria.eldoutilities.utils.EMath;
 import de.eldoria.eldoutilities.utils.EnumUtil;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.World;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.Instant;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -115,6 +119,11 @@ public class NightSelection implements ConfigurationSerializable {
         currPhase %= phaseCustom.size();
     }
 
+    public void upcountCurve() {
+        currCurvePos++;
+        currCurvePos %= period;
+    }
+
     public int getPhaseProbability(int phase) {
         return moonPhase.getOrDefault(phase, -1);
     }
@@ -215,5 +224,70 @@ public class NightSelection implements ConfigurationSerializable {
          * Determine bloodnight based on a smooth curve with a fixed length and a max and min probability.
          */
         CURVE
+    }
+
+    public int getCurrentProbability(World world) {
+        return getNextProbability(world, 0);
+    }
+
+    public int getNextProbability(World world, int nightOffset) {
+        switch (nightSelectionType) {
+            case RANDOM:
+                return probability;
+            case MOON_PHASE:
+                int moonPhase = NightUtil.getMoonPhase(world);
+                if (!getMoonPhase().containsKey(moonPhase)) return 0;
+                return getPhaseProbability((moonPhase + nightOffset) % 8);
+            case REAL_MOON_PHASE:
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(Date.from(Instant.now()));
+                // Get moon phase based on Server time. Convert to minecraft moon phase.
+                int realMoonPhase = (MoonPhase.computePhaseIndex(cal) + 4) % 8;
+                if (!getMoonPhase().containsKey(realMoonPhase)) return 0;
+                return getPhaseProbability(realMoonPhase);
+            case INTERVAL:
+                if ((getCurInterval() + nightOffset) % getInterval() != getInterval() - 1) {
+                    return 0;
+                }
+                return getIntervalProbability();
+            case PHASE:
+                getPhaseCustom().get((getCurrPhase() + nightOffset) % phaseCustom.size());
+                break;
+            case CURVE:
+                double curveProb;
+                int pos = (getCurrCurvePos() + nightOffset) % period;
+                // First half. Increasing curve.
+                if (pos <= getPeriod() / 2) {
+                    curveProb = EMath.smoothCurveValue(Pair.of(0d, (double) getMinCurveVal()),
+                            Pair.of((double) getPeriod() / 2,
+                                    (double) getMaxCurveVal()), pos);
+                } else {
+                    curveProb = EMath.smoothCurveValue(Pair.of((double) getPeriod() / 2, (double) getMaxCurveVal()),
+                            Pair.of((double) getPeriod(),
+                                    (double) getMinCurveVal()), pos);
+                }
+                return (int) curveProb;
+        }
+        return 0;
+    }
+
+    public void upcount() {
+        switch (nightSelectionType) {
+            case RANDOM:
+                break;
+            case MOON_PHASE:
+                break;
+            case REAL_MOON_PHASE:
+                break;
+            case INTERVAL:
+                upcountInterval();
+                break;
+            case PHASE:
+                upcountPhase();
+                break;
+            case CURVE:
+                upcountCurve();
+                break;
+        }
     }
 }

@@ -66,8 +66,7 @@ public class MobSetting implements ConfigurationSerializable {
         if (mobName == null) {
             throw new NullPointerException("Mob name is null. This is not allowed");
         }
-        setDisplayName(map.getValueOrDefault("displayName",
-                String.join(" ", mobName.split("(?<=.)(?=\\p{Lu})"))));
+        setDisplayName(map.getValueOrDefault("displayName", ""));
         active = map.getValueOrDefault("active", active);
         dropAmount = map.getValueOrDefault("dropAmount", dropAmount);
         overrideDefaultDrops = map.getValueOrDefault("overrideDefaultDrops", overrideDefaultDrops);
@@ -80,7 +79,7 @@ public class MobSetting implements ConfigurationSerializable {
 
     public MobSetting(String mobName) {
         this.mobName = mobName;
-        this.displayName = String.join(" ", mobName.split("(?<=.)(?=\\p{Lu})"));
+        this.displayName = "";
     }
 
     public int getOverridenDropAmount(int dropAmount) {

@@ -6,7 +6,7 @@
 
     <groupId>de.eldoria</groupId>
     <artifactId>bloodnight</artifactId>
-    <version>0.7.1c</version>
+    <version>0.8.0</version>
     <name>BloodNight</name>
     <url>https://www.spigotmc.org/resources/85095/</url>
     <description>Nights are not hard enough? Make them harder!</description>
@@ -74,11 +74,11 @@
             <id>jitpack.io</id> <!-- eldo utilities -->
             <url>https://jitpack.io</url>
         </repository>
-        <repository>
+        <repository> <!-- Spigot -->
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
-        <repository>
+        <repository> <!-- bStats-->
             <id>CodeMC</id>
             <url>https://repo.codemc.org/repository/maven-public</url>
         </repository>
@@ -86,19 +86,30 @@
             <id>sonatype-oss</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
         </repository>
+        <repository> <!-- Mythic Mobs -->
+            <id>nexus</id>
+            <name>Lumine Releases</name>
+            <url>https://mvn.lumine.io/repository/maven-public/</url>
+        </repository>
+        <repository> <!-- Placeholder api-->
+            <id>placeholderapi</id>
+            <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
+        </repository>
     </repositories>
 
     <dependencies>
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.12</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
             <version>1.16.3-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Annotations -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.12</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -107,6 +118,8 @@
             <version>16.0.2</version>
             <scope>provided</scope>
         </dependency>
+
+        <!-- Stuff to shade -->
         <dependency>
             <groupId>org.bstats</groupId>
             <artifactId>bstats-bukkit</artifactId>
@@ -119,9 +132,8 @@
             <version>v1.0.36</version>
             <scope>compile</scope>
         </dependency>
-
         <dependency>
-            <groupId>net.kyori</groupId>
+        <groupId>net.kyori</groupId>
             <artifactId>adventure-text-minimessage</artifactId>
             <version>4.0.0-SNAPSHOT</version>
             <scope>compile</scope>
@@ -148,13 +160,28 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
+        <!-- External plugins -->
+        <dependency>
+            <groupId>io.lumine.xikage</groupId>
+            <artifactId>MythicMobs</artifactId>
+            <version>4.9.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>me.clip</groupId>
+            <artifactId>placeholderapi</artifactId>
+            <version>2.10.9</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- unit testing -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>5.5.2</version>
             <scope>test</scope>
         </dependency>
-        <!-- unit testing -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

@@ -22,7 +22,6 @@ public class GeneralSettings implements ConfigurationSerializable {
     private int mobTick = 5;
     private boolean blindness = true;
     private boolean joinWorldWarning = true;
-    private boolean debug = false;
     private boolean updateReminder = true;
     private boolean autoUpdater = false;
     private boolean beeFix = false;
@@ -36,7 +35,6 @@ public class GeneralSettings implements ConfigurationSerializable {
         mobTick = map.getValueOrDefault("mobTick", mobTick);
         joinWorldWarning = map.getValueOrDefault("joinWorldWarning", joinWorldWarning);
         blindness = map.getValueOrDefault("blindness", blindness);
-        debug = map.getValueOrDefault("debug", debug);
         updateReminder = map.getValueOrDefault("updateReminder", updateReminder);
         autoUpdater = map.getValueOrDefault("autoUpdater", autoUpdater);
         beeFix = map.getValueOrDefault("beeFix", beeFix);
@@ -58,7 +56,6 @@ public class GeneralSettings implements ConfigurationSerializable {
                 .add("mobTick", mobTick)
                 .add("joinWorldWarning", joinWorldWarning)
                 .add("blindness", blindness)
-                .add("debug", debug)
                 .add("updateReminder", updateReminder)
                 .add("autoUpdater", autoUpdater)
                 .add("beeFix", beeFix)

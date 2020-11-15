@@ -63,7 +63,7 @@ public class Configuration extends EldoConfig {
             BloodNight.logger().info("§2Migration of config to v2 done.");
         }
 
-        generalSettings = getConfig().getObject("generalSettings", GeneralSettings.class);
+        generalSettings = getMainConfig().getObject("generalSettings", GeneralSettings.class);
 
         for (World world : Bukkit.getWorlds()) {
             loadWorldSettings(world.getName(), true);
@@ -82,8 +82,8 @@ public class Configuration extends EldoConfig {
 
     private void migrateToV2() {
         setVersion(2, false);
-        getConfig().set("updateReminder", null);
-        List<WorldSettings> worldList = ObjUtil.nonNull((List<WorldSettings>) getConfig().get("worldSettings", new ArrayList<>()), new ArrayList<>());
+        getMainConfig().set("updateReminder", null);
+        List<WorldSettings> worldList = ObjUtil.nonNull((List<WorldSettings>) getMainConfig().get("worldSettings", new ArrayList<>()), new ArrayList<>());
 
         Path worldSettings = Paths.get(plugin.getDataFolder().toPath().toString(), "worldSettings");
 
@@ -94,7 +94,7 @@ public class Configuration extends EldoConfig {
             }, true);
             BloodNight.logger().info("§2Migrated settings for " + settings.getWorldName());
         }
-        getConfig().set("worldSettings", null);
+        getMainConfig().set("worldSettings", null);
     }
 
     private WorldSettings loadWorldSettings(String world, boolean reload) {
@@ -118,7 +118,7 @@ public class Configuration extends EldoConfig {
 
     @Override
     protected void saveConfigs() {
-        getConfig().set("generalSettings", generalSettings);
+        getMainConfig().set("generalSettings", generalSettings);
 
         for (Map.Entry<String, WorldSettings> entry : worldSettings.entrySet()) {
             ObjUtil.nonNull(loadConfig(getWorldConfigPath(entry.getKey()), null, false),
@@ -127,7 +127,7 @@ public class Configuration extends EldoConfig {
                     });
         }
 
-        if (generalSettings.isDebug()) {
+        if (isDebug(BloodNight.class)) {
             BloodNight.logger().info("Saved config.");
         }
     }

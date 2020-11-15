@@ -11,12 +11,15 @@ import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.Drop;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSetting;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSettings;
+import de.eldoria.bloodnight.config.worldsettings.sound.SoundEntry;
+import de.eldoria.bloodnight.config.worldsettings.sound.SoundSettings;
 import de.eldoria.bloodnight.core.api.BloodNightAPI;
 import de.eldoria.bloodnight.core.manager.MobManager;
 import de.eldoria.bloodnight.core.manager.NightManager;
 import de.eldoria.bloodnight.core.manager.NotificationManager;
 import de.eldoria.bloodnight.core.mobfactory.MobFactory;
 import de.eldoria.bloodnight.core.mobfactory.SpecialMobRegistry;
+import de.eldoria.bloodnight.hooks.HookService;
 import de.eldoria.bloodnight.util.Permissions;
 import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.messages.MessageSender;
@@ -33,18 +36,19 @@ import org.bukkit.plugin.PluginManager;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class BloodNight extends EldoPlugin {
 
     @Getter
     private static BloodNight instance;
-    private static boolean debug = false;
     private NightManager nightManager;
     private MobManager mobManager;
     private Configuration configuration;
     private InventoryListener inventoryListener;
     private boolean initialized = false;
     private BloodNightAPI bloodNightAPI;
+    private HookService hookService;
 
     public static NamespacedKey getNamespacedKey(String string) {
         return new NamespacedKey(instance, string.replace(" ", "_"));
@@ -55,7 +59,7 @@ public class BloodNight extends EldoPlugin {
     }
 
     public static boolean isDebug() {
-        return debug;
+        return Configuration.isDebug(BloodNight.class);
     }
 
     @Override
@@ -65,9 +69,16 @@ public class BloodNight extends EldoPlugin {
             registerSerialization();
             configuration = new Configuration(this);
 
-            debug = configuration.getGeneralSettings().isDebug();
+            ILocalizer localizer = ILocalizer.create(this, "de_DE", "en_US", "es_ES", "tr", "zh_CN");
 
-            ILocalizer.create(this, configuration.getGeneralSettings().getLanguage(), "de_DE", "en_US", "es_ES", "tr", "zh_CN");
+            Map<String, String> mobLocaleCodes = SpecialMobRegistry.getRegisteredMobs().stream()
+                    .map(MobFactory::getMobName)
+                    .collect(Collectors.toMap(
+                            k -> "mob." + k,
+                            k -> String.join(" ", k.split("(?<=.)(?=\\p{Lu})"))));
+            localizer.addLocaleCodes(mobLocaleCodes);
+
+            localizer.setLocale(configuration.getGeneralSettings().getLanguage());
             MessageSender.create(this, "§4[BN] ", '2', 'c');
             registerListener();
             bloodNightAPI = new BloodNightAPI(nightManager);
@@ -81,6 +92,9 @@ public class BloodNight extends EldoPlugin {
                         configuration.getGeneralSettings().isAutoUpdater(), 4, "https://plugins.eldoria.de"))
                         .start();
             }
+
+            HookService hookService = new HookService(this, configuration, nightManager);
+            hookService.setup();
         }
 
         onReload();
@@ -96,9 +110,8 @@ public class BloodNight extends EldoPlugin {
     public void onReload() {
         configuration.reload();
         ILocalizer.getPluginLocalizer(this).setLocale(configuration.getGeneralSettings().getLanguage());
-        debug = configuration.getGeneralSettings().isDebug();
 
-        if (debug) {
+        if (isDebug()) {
             logger().info("§cDebug mode active");
         }
         nightManager.reload();
@@ -130,6 +143,8 @@ public class BloodNight extends EldoPlugin {
         ConfigurationSerialization.registerClass(Drop.class);
         ConfigurationSerialization.registerClass(BossBarSettings.class);
         ConfigurationSerialization.registerClass(MobSettings.MobTypes.class);
+        ConfigurationSerialization.registerClass(SoundSettings.class);
+        ConfigurationSerialization.registerClass(SoundEntry.class);
     }
 
     private void enableMetrics() {
@@ -189,6 +204,9 @@ public class BloodNight extends EldoPlugin {
     public void onDisable() {
         if (nightManager != null) {
             nightManager.shutdown();
+        }
+        if (hookService != null) {
+            hookService.shutdown();
         }
         logger().info("Blood Night disabled!");
     }

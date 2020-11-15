@@ -2,8 +2,10 @@ package de.eldoria.bloodnight.core.mobfactory;
 
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSetting;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSettings;
+import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.specialmobs.SpecialMob;
 import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
+import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.utils.AttributeUtil;
 import lombok.Getter;
 import org.bukkit.attribute.Attribute;
@@ -38,7 +40,11 @@ public final class MobFactory {
         AttributeUtil.setAttributeValue(entity, health.getAttribute(), Math.min(mobSetting.applyHealth(health.getValue(), mobSettings.getHealthModifier()), 2048));
         SpecialMobUtil.setSpecialMobType(entity, mobSetting.getMobName());
         entity.setHealth(health.getValue());
-        entity.setCustomName(mobSetting.getDisplayName());
+        String displayName = mobSetting.getDisplayName();
+        if (displayName.trim().isEmpty()) {
+            displayName = ILocalizer.getPluginLocalizer(BloodNight.class).getMessage("mob." + mobSetting.getMobName());
+        }
+        entity.setCustomName(displayName);
         entity.setCustomNameVisible(mobSettings.isDisplayMobNames());
     }
 }

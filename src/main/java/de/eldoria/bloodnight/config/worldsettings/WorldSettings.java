@@ -1,6 +1,7 @@
 package de.eldoria.bloodnight.config.worldsettings;
 
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSettings;
+import de.eldoria.bloodnight.config.worldsettings.sound.SoundSettings;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
 import lombok.Getter;
@@ -24,6 +25,7 @@ public class WorldSettings implements ConfigurationSerializable {
     private NightSelection nightSelection = new NightSelection();
     private NightSettings nightSettings = new NightSettings();
     private MobSettings mobSettings = new MobSettings();
+    private SoundSettings soundSettings = new SoundSettings();
 
     public WorldSettings(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
@@ -36,6 +38,7 @@ public class WorldSettings implements ConfigurationSerializable {
         nightSelection = map.getValueOrDefault("nightSelection", nightSelection);
         nightSettings = map.getValueOrDefault("nightSettings", nightSettings);
         mobSettings = map.getValueOrDefault("mobSettings", mobSettings);
+        soundSettings = map.getValueOrDefault("soundSettings", soundSettings);
     }
 
     public WorldSettings(String world) {
@@ -53,6 +56,7 @@ public class WorldSettings implements ConfigurationSerializable {
                 .add("nightSelection", nightSelection)
                 .add("nightSettings", nightSettings)
                 .add("mobSettings", mobSettings)
+                .add("soundSettings", soundSettings)
                 .build();
     }
 }
