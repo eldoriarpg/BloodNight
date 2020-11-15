@@ -31,7 +31,7 @@ public class NotificationManager implements Listener {
         this.messageSender = MessageSender.getPluginMessageSender(BloodNight.class);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onBloodNightEnd(BloodNightEndEvent event) {
         sendBroadcast(event.getWorld(),
                 localizer.getMessage("notify.nightEnd",
@@ -39,7 +39,7 @@ public class NotificationManager implements Listener {
         );
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBloodNightStart(BloodNightBeginEvent event) {
         sendBroadcast(event.getWorld(),
                 localizer.getMessage("notify.nightStart",

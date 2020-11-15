@@ -14,6 +14,7 @@ import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSettings;
 import de.eldoria.bloodnight.config.worldsettings.sound.SoundEntry;
 import de.eldoria.bloodnight.config.worldsettings.sound.SoundSettings;
 import de.eldoria.bloodnight.core.api.BloodNightAPI;
+import de.eldoria.bloodnight.core.api.IBloodNightAPI;
 import de.eldoria.bloodnight.core.manager.MobManager;
 import de.eldoria.bloodnight.core.manager.NightManager;
 import de.eldoria.bloodnight.core.manager.NotificationManager;
@@ -54,7 +55,7 @@ public class BloodNight extends EldoPlugin {
         return new NamespacedKey(instance, string.replace(" ", "_"));
     }
 
-    public static BloodNightAPI getBloodNightAPI() {
+    public static IBloodNightAPI getBloodNightAPI() {
         return instance.bloodNightAPI;
     }
 
@@ -81,7 +82,7 @@ public class BloodNight extends EldoPlugin {
             localizer.setLocale(configuration.getGeneralSettings().getLanguage());
             MessageSender.create(this, "§4[BN] ", '2', 'c');
             registerListener();
-            bloodNightAPI = new BloodNightAPI(nightManager);
+            bloodNightAPI = new BloodNightAPI(nightManager, configuration);
             registerCommand("bloodnight",
                     new BloodNightCommand(configuration, this, nightManager, mobManager, inventoryListener));
 
@@ -105,6 +106,8 @@ public class BloodNight extends EldoPlugin {
             logger().info("§2BloodNight enabled!");
             initialized = true;
         }
+
+        IBloodNightAPI bloodNightAPI = BloodNight.getBloodNightAPI();
     }
 
     public void onReload() {

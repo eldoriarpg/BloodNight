@@ -222,19 +222,21 @@ public class NightManager implements Listener, Runnable {
             if (val > probability) return;
         }
 
-        if (!settings.isEnabled()) {
+        BloodNightBeginEvent beginEvent = new BloodNightBeginEvent(world);
+        // A new blood night has begun.
+        pluginManager.callEvent(beginEvent);
+
+        if (beginEvent.isCancelled()) {
             if (BloodNight.isDebug()) {
-                BloodNight.logger().info("Blood night in world " + world.getName() + " is not enabled. Will not initialize.");
+                BloodNight.logger().info("BloodNight in " + world.getName() + " was canceled by another plugin.");
             }
             return;
         }
-
         if (BloodNight.isDebug()) {
             BloodNight.logger().info("BloodNight in " + world.getName() + " activated.");
         }
 
-        // A new blood night has begun.
-        pluginManager.callEvent(new BloodNightBeginEvent(world));
+
         BossBar bossBar = null;
         BossBarSettings bbS = settings.getBossBarSettings();
         if (bbS.isEnabled()) {
