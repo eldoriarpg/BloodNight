@@ -32,7 +32,6 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public final class SpecialMobUtil {
-    private static final ThreadLocalRandom RAND = ThreadLocalRandom.current();
     private static final NamespacedKey IS_SPECIAL_MOB = BloodNight.getNamespacedKey("isSpecialMob");
     private static final NamespacedKey IS_MOB_EXTENSION = BloodNight.getNamespacedKey("isMobExtension");
     private static final NamespacedKey BASE_UUID = BloodNight.getNamespacedKey("baseUUID");
@@ -105,22 +104,23 @@ public final class SpecialMobUtil {
     public static <T> void spawnParticlesAround(Location location, Particle particle, T data, int amount) {
         World world = location.getWorld();
         assert world != null;
+        ThreadLocalRandom rand = ThreadLocalRandom.current();
         for (int i = 0; i < amount; i++) {
             if (data != null) {
                 world.spawnParticle(particle,
                         location.clone()
                                 .add(
-                                        RAND.nextDouble(-3, 3),
-                                        RAND.nextDouble(0, 3),
-                                        RAND.nextDouble(-3, 3)),
+                                        rand.nextDouble(-3, 3),
+                                        rand.nextDouble(0, 3),
+                                        rand.nextDouble(-3, 3)),
                         1, data);
             } else {
                 world.spawnParticle(particle,
                         location.clone()
                                 .add(
-                                        RAND.nextDouble(-3, 3),
-                                        RAND.nextDouble(0, 3),
-                                        RAND.nextDouble(-3, 3)),
+                                        rand.nextDouble(-3, 3),
+                                        rand.nextDouble(0, 3),
+                                        rand.nextDouble(-3, 3)),
                         1);
             }
         }
@@ -170,7 +170,6 @@ public final class SpecialMobUtil {
      *
      * @return spawned passenger which is already mounted.
      */
-    @SuppressWarnings("unchecked")
     public static <T extends Entity> T spawnAndMount(Entity carrier, EntityType passengerType) {
         T passenger = spawnAndTagEntity(carrier.getLocation(), passengerType);
         assert passenger == null;
@@ -188,7 +187,6 @@ public final class SpecialMobUtil {
      *
      * @return spawned carrier with the rider mounted.
      */
-    @SuppressWarnings("unchecked")
     public static <T extends Entity> T spawnAndMount(EntityType carrierType, Entity rider) {
         T carrier = spawnAndTagEntity(rider.getLocation(), carrierType);
         assert carrier == null;

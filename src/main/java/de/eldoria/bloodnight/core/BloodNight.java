@@ -29,7 +29,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -48,7 +47,7 @@ public class BloodNight extends EldoPlugin {
     private BloodNightAPI bloodNightAPI;
 
     public static NamespacedKey getNamespacedKey(String string) {
-        return new NamespacedKey(instance, string);
+        return new NamespacedKey(instance, string.replace(" ", "_"));
     }
 
     public static BloodNightAPI getBloodNightAPI() {
@@ -68,7 +67,7 @@ public class BloodNight extends EldoPlugin {
 
             debug = configuration.getGeneralSettings().isDebug();
 
-            ILocalizer.create(this, configuration.getGeneralSettings().getLanguage(), "de_DE", "en_US", "es_ES", "tr");
+            ILocalizer.create(this, configuration.getGeneralSettings().getLanguage(), "de_DE", "en_US", "es_ES", "tr", "zh_CN");
             MessageSender.create(this, "§4[BN] ", '2', 'c');
             registerListener();
             bloodNightAPI = new BloodNightAPI(nightManager);
@@ -80,23 +79,16 @@ public class BloodNight extends EldoPlugin {
             if (configuration.getGeneralSettings().isUpdateReminder()) {
                 Updater.Butler(new ButlerUpdateData(this, Permissions.RELOAD, true,
                         configuration.getGeneralSettings().isAutoUpdater(), 4, "https://plugins.eldoria.de"))
-                        .runTaskTimerAsynchronously(this, 20 * 2, 20 * 60 * 60 * 6);
+                        .start();
             }
-
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    configuration.cleanup();
-                }
-            }.runTaskLater(this, 20);
         }
 
         onReload();
 
         if (initialized) {
-            logger().info("BloodNight reloaded!");
+            logger().info("§2BloodNight reloaded!");
         } else {
-            logger().info("BloodNight enabled!");
+            logger().info("§2BloodNight enabled!");
             initialized = true;
         }
     }

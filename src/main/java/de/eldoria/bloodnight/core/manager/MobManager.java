@@ -17,7 +17,13 @@ import de.eldoria.eldoutilities.entityutils.ProjectileSender;
 import de.eldoria.eldoutilities.entityutils.ProjectileUtil;
 import de.eldoria.eldoutilities.threading.IteratingTask;
 import lombok.NonNull;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
+import org.bukkit.block.Beehive;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Bee;
 import org.bukkit.entity.Boss;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -27,11 +33,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.event.entity.ExplosionPrimeEvent;
@@ -39,9 +45,12 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +59,7 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
@@ -62,7 +72,8 @@ public class MobManager implements Listener, Runnable {
 
     private final List<Runnable> executeLater = new ArrayList<>();
     private final List<Runnable> executeNow = new ArrayList<>();
-    private final Cache<Integer, Player> lastDamage = CacheBuilder.newBuilder().expireAfterAccess(10L, TimeUnit.MINUTES).build();
+
+    private final static NamespacedKey SPAWNER_SPAWNED = BloodNight.getNamespacedKey("spawnerSpawned");
 
     private final Queue<Entity> lostEntities = new ArrayDeque<>();
 
@@ -72,16 +83,17 @@ public class MobManager implements Listener, Runnable {
     }
 
     @EventHandler
-    public void onMobspawn(EntitySpawnEvent event) {
+    public void onMobSpawn(CreatureSpawnEvent event) {
         if (!nightManager.isBloodNightActive(event.getEntity().getWorld())) return;
-        // This is most likely a mounted special mob. We wont change this.
-        if (SpecialMobUtil.isSpecialMob(event.getEntity())) {
-            BloodNight.logger().info("Will skip special mob");
+
+        if (event.getSpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER
+                && configuration.getGeneralSettings().isSpawnerDropSuppression()) {
+            PersistentDataContainer data = event.getEntity().getPersistentDataContainer();
+            data.set(SPAWNER_SPAWNED, PersistentDataType.BYTE, (byte) 1);
             return;
         }
 
         World world = event.getLocation().getWorld();
-
         MobSettings mobSettings = configuration.getWorldSettings(world.getName()).getMobSettings();
 
         Optional<MobFactory> mobFactory = getWorldMobFactory(world).getRandomFactory(event.getEntity());
@@ -100,6 +112,7 @@ public class MobManager implements Listener, Runnable {
     }
 
     public void wrapMob(Entity entity, MobFactory mobFactory) {
+        // This is most likely a mounted special mob. We wont change this.
         if (!(entity instanceof LivingEntity)) return;
 
         // I will not try to wrap a special mob
@@ -115,7 +128,7 @@ public class MobManager implements Listener, Runnable {
         SpecialMob<?> specialMob = mobFactory.wrap((LivingEntity) entity, mobSettings, mobSetting.get());
 
         if (BloodNight.isDebug()) {
-            BloodNight.logger().info("Special Mob " + mobSetting.get().getMobName() + " spawned in" + entity.getWorld().getName());
+            BloodNight.logger().info("Special Mob " + mobSetting.get().getMobName() + " spawned in " + entity.getWorld().getName());
         }
 
         getWorldMobs(entity.getWorld()).put(entity.getUniqueId(), specialMob);
@@ -339,9 +352,6 @@ public class MobManager implements Listener, Runnable {
         Entity oponent = event.getEntity();
 
         if (damager.getType() != EntityType.PLAYER) {
-            if (!SpecialMobUtil.isSpecialMob(damager)) {
-                lastDamage.invalidate(oponent.getEntityId());
-            }
             return;
         }
 
@@ -355,21 +365,22 @@ public class MobManager implements Listener, Runnable {
             VanillaMobSettings vanillaMobSettings = configuration.getWorldSettings(oponent.getLocation().getWorld().getName()).getMobSettings().getVanillaMobSettings();
             event.setDamage(event.getDamage() / vanillaMobSettings.getHealthMultiplier());
         }
-
-        // Register player on entity
-        lastDamage.put(entityId, (Player) damager);
     }
 
     @EventHandler
     public void onEntityKill(EntityDeathEvent event) {
         LivingEntity entity = event.getEntity();
-        Player player = lastDamage.getIfPresent(entity.getEntityId());
-        lastDamage.invalidate(entity.getEntityId());
-
+        Player player = event.getEntity().getKiller();
 
         if (!(entity instanceof Monster || entity instanceof Boss)) return;
 
         if (!nightManager.isBloodNightActive(entity.getWorld())) return;
+
+        if (configuration.getGeneralSettings().isSpawnerDropSuppression()) {
+            if (entity.getPersistentDataContainer().has(SPAWNER_SPAWNED, PersistentDataType.BYTE)) {
+                return;
+            }
+        }
 
         MobSettings mobSettings = configuration.getWorldSettings(entity.getWorld()).getMobSettings();
         VanillaMobSettings vanillaMobSettings = mobSettings.getVanillaMobSettings();
@@ -391,12 +402,12 @@ public class MobManager implements Listener, Runnable {
             return;
         }
 
-        BloodNight.logger().info("Entity " + entity.getCustomName() + " was killed by " + player.getName());
-
-        BloodNight.logger().info("Attemt to drop items.");
+        if (BloodNight.isDebug()) {
+            BloodNight.logger().info("Entity " + entity.getCustomName() + " was killed by " + player.getName());
+            BloodNight.logger().info("Attemt to drop items.");
+        }
 
         if (SpecialMobUtil.isSpecialMob(entity)) {
-            BloodNight.logger().info("Mob is special mob.");
             if (!mobSettings.isNaturalDrops()) {
                 if (BloodNight.isDebug()) {
                     BloodNight.logger().info("Natural Drops are disabled. Clear loot.");
@@ -486,9 +497,68 @@ public class MobManager implements Listener, Runnable {
         for (Entity entity : event.getChunk().getEntities()) {
             Optional<SpecialMob<?>> remove = worldMobs.remove(entity.getUniqueId());
             if (SpecialMobUtil.isSpecialMob(entity)) {
-                remove.ifPresent(SpecialMob::remove);
+                if (remove.isPresent()) {
+                    remove.get().remove();
+                } else {
+                    entity.remove();
+                }
             }
         }
+
+        if (!configuration.getGeneralSettings().isBeeFix()) return;
+        AtomicInteger hives = new AtomicInteger(0);
+        AtomicInteger entites = new AtomicInteger(0);
+
+        // Bugfix for the sin of flying creepers with bees.
+        IteratingTask<BlockState> blockStateIterator = new IteratingTask<>(
+                Arrays.asList(event.getChunk().getTileEntities()),
+                e -> {
+                    if (e instanceof Beehive) {
+                        Beehive state = (Beehive) e;
+                        hives.incrementAndGet();
+                        for (Bee entity : state.releaseEntities()) {
+                            entites.incrementAndGet();
+                            if (BloodNight.isDebug()) {
+                                BloodNight.logger().info("Checking entity with id " + entity.getEntityId() + " and " + entity.getUniqueId().toString());
+                            }
+                            if (SpecialMobUtil.isSpecialMob(entity)) {
+                                entity.remove();
+                            }
+                            return true;
+                        }
+                        e.update(true);
+
+                        Beehive newState = (Beehive) e.getBlock().getState();
+                        if (newState.getEntityCount() != 0) {
+                            if (BloodNight.isDebug()) {
+                                BloodNight.logger().warning("Bee Hive is not empty but should.");
+                            }
+                            BlockData blockData = e.getBlockData();
+                            e.getBlock().setType(Material.AIR);
+                            e.getBlock().setType(e.getType());
+                            e.setBlockData(blockData);
+
+                            newState = (Beehive) e.getBlock().getState();
+                            if (newState.getEntityCount() != 0) {
+                                if (BloodNight.isDebug()) {
+                                    BloodNight.logger().warning("§cBee Hive is still not empty but should.");
+                                }
+                            } else {
+                                if (BloodNight.isDebug()) {
+                                    BloodNight.logger().info("§2Bee Hive is empty now.");
+                                }
+                            }
+                        }
+                    }
+                    return false;
+                },
+                s -> {
+                    if (BloodNight.isDebug() && hives.get() != 0) {
+                        BloodNight.logger().info("Checked " + hives.get() + " Hive/s with " + entites.get() + " Entities and removed " + s.getProcessedElements() + " lost bees in " + s.getTime() + "ms.");
+                    }
+                });
+
+        blockStateIterator.runTaskTimer(BloodNight.getInstance(), 0, 1);
     }
 
     @NonNull

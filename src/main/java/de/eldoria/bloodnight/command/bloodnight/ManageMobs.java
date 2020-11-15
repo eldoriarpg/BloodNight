@@ -13,6 +13,7 @@ import de.eldoria.bloodnight.util.Permissions;
 import de.eldoria.eldoutilities.localization.Replacement;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
 import de.eldoria.eldoutilities.simplecommands.TabCompleteUtil;
+import de.eldoria.eldoutilities.utils.ArgumentUtils;
 import de.eldoria.eldoutilities.utils.ArrayUtil;
 import de.eldoria.eldoutilities.utils.EnumUtil;
 import de.eldoria.eldoutilities.utils.Parser;
@@ -60,7 +61,7 @@ public class ManageMobs extends EldoCommand {
     // world field value
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (isConsole(sender)){
+        if (isConsole(sender)) {
             messageSender().sendError(sender, localizer().getMessage("error.console"));
             return true;
         }
@@ -71,7 +72,7 @@ public class ManageMobs extends EldoCommand {
 
         Player player = getPlayerFromSender(sender);
 
-        World world = args.length > 0 ? Bukkit.getWorld(args[0]) : player.getWorld();
+        World world = ArgumentUtils.getOrDefault(args, 0, ArgumentUtils::getWorld, player.getWorld());
 
         if (world == null) {
             messageSender().sendError(sender, localizer().getMessage("error.invalidWorld"));
@@ -113,7 +114,7 @@ public class ManageMobs extends EldoCommand {
             if ("vanillaDropAmount".equalsIgnoreCase(field)) {
                 mobSettings.getVanillaMobSettings().setExtraDrops(optionalInt.getAsInt());
             }
-            configuration.saveConfig();
+            configuration.save();
             sendInfo(sender, worldSettings);
             return true;
         }
@@ -148,7 +149,7 @@ public class ManageMobs extends EldoCommand {
             if ("vanillaDropsMulti".equalsIgnoreCase(field)) {
                 mobSettings.getVanillaMobSettings().setDropMultiplier(optionalDouble.getAsDouble());
             }
-            configuration.saveConfig();
+            configuration.save();
             sendInfo(sender, worldSettings);
             return true;
         }
@@ -168,14 +169,14 @@ public class ManageMobs extends EldoCommand {
                 mobSettings.setNaturalDrops(optionalBoolean.get());
             }
             sendInfo(sender, worldSettings);
-            configuration.saveConfig();
+            configuration.save();
             return true;
         }
 
         if ("defaultDrops".equalsIgnoreCase(field)) {
             if ("changeContent".equalsIgnoreCase(value)) {
                 Inventory inv = Bukkit.createInventory(player, 54, "Drops");
-                List<ItemStack> stacks = mobSettings.getDefaultDrops().stream().map(Drop::getItem).collect(Collectors.toList());
+                List<ItemStack> stacks = mobSettings.getDefaultDrops().stream().map(Drop::getWeightedItem).collect(Collectors.toList());
                 inv.setContents(stacks.toArray(new ItemStack[0]));
                 player.openInventory(inv);
                 inventoryListener.registerModification(player, new InventoryListener.InventoryActionHandler() {
@@ -240,7 +241,7 @@ public class ManageMobs extends EldoCommand {
             }
             if ("clear".equalsIgnoreCase(value)) {
                 mobSettings.setDefaultDrops(new ArrayList<>());
-                configuration.saveConfig();
+                configuration.save();
                 sendInfo(sender, worldSettings);
                 return true;
             }
@@ -256,7 +257,7 @@ public class ManageMobs extends EldoCommand {
             }
             mobSettings.getVanillaMobSettings().setVanillaDropMode(parse);
             sendInfo(sender, worldSettings);
-            configuration.saveConfig();
+            configuration.save();
             return true;
         }
         messageSender().sendError(sender, localizer().getMessage("error.invalidField"));
@@ -267,7 +268,7 @@ public class ManageMobs extends EldoCommand {
     private void sendInfo(CommandSender sender, WorldSettings worldSettings) {
         MobSettings mSet = worldSettings.getMobSettings();
         VanillaMobSettings vms = worldSettings.getMobSettings().getVanillaMobSettings();
-        String cmd = "/bloodnight manageMobs " + worldSettings.getWorldName() + " ";
+        String cmd = "/bloodnight manageMobs " + ArgumentUtils.escapeWorldName(worldSettings.getWorldName()) + " ";
         TextComponent.Builder message = Component.text()
                 .append(CommandUtil.getHeader(localizer().getMessage("manageMobs.title",
                         Replacement.create("WORLD", worldSettings.getWorldName()).addFormatting('6'))))
@@ -373,8 +374,6 @@ public class ManageMobs extends EldoCommand {
                     .append(Component.text(vms.getExtraDrops() + "x ", NamedTextColor.GOLD))
                     .append(Component.text("[" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                             .clickEvent(ClickEvent.suggestCommand(cmd + "vanillaDropAmount ")));
-
-
         }
         bukkitAudiences.sender(sender).sendMessage(Identity.nil(), message);
     }

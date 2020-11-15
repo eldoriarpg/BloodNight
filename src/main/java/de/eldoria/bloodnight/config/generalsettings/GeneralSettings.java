@@ -1,5 +1,6 @@
 package de.eldoria.bloodnight.config.generalsettings;
 
+import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
 import de.eldoria.eldoutilities.utils.EnumUtil;
@@ -24,6 +25,8 @@ public class GeneralSettings implements ConfigurationSerializable {
     private boolean debug = false;
     private boolean updateReminder = true;
     private boolean autoUpdater = false;
+    private boolean beeFix = false;
+    private boolean spawnerDropSuppression = false;
 
     public GeneralSettings(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
@@ -36,6 +39,11 @@ public class GeneralSettings implements ConfigurationSerializable {
         debug = map.getValueOrDefault("debug", debug);
         updateReminder = map.getValueOrDefault("updateReminder", updateReminder);
         autoUpdater = map.getValueOrDefault("autoUpdater", autoUpdater);
+        beeFix = map.getValueOrDefault("beeFix", beeFix);
+        spawnerDropSuppression = map.getValueOrDefault("spawnerDropSuppression", spawnerDropSuppression);
+        if (beeFix) {
+            BloodNight.logger().info("§4Bee Fix is enabled. This feature should be used with care.");
+        }
     }
 
     public GeneralSettings() {
@@ -53,6 +61,8 @@ public class GeneralSettings implements ConfigurationSerializable {
                 .add("debug", debug)
                 .add("updateReminder", updateReminder)
                 .add("autoUpdater", autoUpdater)
+                .add("beeFix", beeFix)
+                .add("spawnerDropSuppression", spawnerDropSuppression)
                 .build();
     }
 }

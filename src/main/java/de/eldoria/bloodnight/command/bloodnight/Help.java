@@ -25,7 +25,7 @@ public class Help extends EldoCommand {
                 + "§6/bn manageMobs§r\n" + localizer().getMessage("help.manageMobs") + "\n"
                 + "§6/bn manageNight§r\n" + localizer().getMessage("help.manageNight") + "\n"
                 + "§6/bn manageWorlds§r\n" + localizer().getMessage("help.manageWorlds") + "\n"
-                + "§6/bn manageWorlds§r\n" + localizer().getMessage("help.nightSelection") + "\n"
+                + "§6/bn nightSelection§r\n" + localizer().getMessage("help.nightSelection") + "\n"
                 + "§6/bn reload§r\n" + localizer().getMessage("help.reload") + "\n"
                 + "§6/bn spawnMob§r\n" + localizer().getMessage("help.spawnMob")
         );

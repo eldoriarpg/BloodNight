@@ -80,7 +80,7 @@ public class ManageMob extends EldoCommand {
 
         Player player = (Player) sender;
 
-        World world = args.length > 1 ? Bukkit.getWorld(args[1]) : player.getWorld();
+        World world = ArgumentUtils.getOrDefault(args, 1, ArgumentUtils::getWorld, player.getWorld());
 
         if (world == null) {
             messageSender().sendError(sender, localizer().getMessage("error.invalidWorld"));
@@ -172,7 +172,7 @@ public class ManageMob extends EldoCommand {
                 mob.setOverrideDefaultDrops(aBoolean.get());
             }
             optPage.ifPresent(i -> sendMobListPage(world, sender, mobGroup, i));
-            configuration.saveConfig();
+            configuration.save();
             return true;
         }
 
@@ -182,7 +182,7 @@ public class ManageMob extends EldoCommand {
                 mob.setDisplayName(s);
             }
             optPage.ifPresent(i -> sendMobListPage(world, sender, mobGroup, i));
-            configuration.saveConfig();
+            configuration.save();
             return true;
         }
 
@@ -199,7 +199,7 @@ public class ManageMob extends EldoCommand {
                 mob.setDropAmount(num.getAsInt());
             }
             optPage.ifPresent(i -> sendMobListPage(world, sender, mobGroup, i));
-            configuration.saveConfig();
+            configuration.save();
             return true;
         }
 
@@ -222,7 +222,7 @@ public class ManageMob extends EldoCommand {
                 mob.setDamage(num.getAsDouble());
             }
             optPage.ifPresent(i -> sendMobListPage(world, sender, mobGroup, i));
-            configuration.saveConfig();
+            configuration.save();
             return true;
         }
         if (ArrayUtil.arrayContains(new String[] {"healthModifier", "damageModifier"}, field)) {
@@ -238,7 +238,7 @@ public class ManageMob extends EldoCommand {
                 mob.setDamageModifier(val);
             }
             optPage.ifPresent(i -> sendMobListPage(world, sender, mobGroup, i));
-            configuration.saveConfig();
+            configuration.save();
             return true;
         }
 
@@ -249,7 +249,7 @@ public class ManageMob extends EldoCommand {
 
             if ("changeContent".equalsIgnoreCase(value)) {
                 Inventory inv = Bukkit.createInventory(player, 54, localizer().getMessage("drops.dropsTitle"));
-                inv.setContents(mob.getDrops().stream().map(Drop::getItem).toArray(ItemStack[]::new));
+                inv.setContents(mob.getDrops().stream().map(Drop::getWeightedItem).toArray(ItemStack[]::new));
                 player.openInventory(inv);
                 inventoryListener.registerModification(player, new InventoryListener.InventoryActionHandler() {
                     @Override
@@ -314,7 +314,7 @@ public class ManageMob extends EldoCommand {
             if ("clear".equalsIgnoreCase(value)) {
                 mob.setDrops(new ArrayList<>());
                 optPage.ifPresent(i -> sendMobListPage(world, sender, mobGroup, i));
-                configuration.saveConfig();
+                configuration.save();
             }
             return true;
         }
@@ -331,7 +331,7 @@ public class ManageMob extends EldoCommand {
                 page,
                 2, 7,
                 entry -> {
-                    String cmd = "/bloodnight manageMob " + mobGroup.getKey() + " " + world.getName() + " " + entry.getMobName() + " ";
+                    String cmd = "/bloodnight manageMob " + mobGroup.getKey() + " " + ArgumentUtils.escapeWorldName(world.getName()) + " " + entry.getMobName() + " ";
                     TextComponent.Builder builder = Component.text()
                             // Mob name
                             .append(Component.text(entry.getMobName(), NamedTextColor.GOLD, TextDecoration.BOLD))
@@ -435,7 +435,7 @@ public class ManageMob extends EldoCommand {
                 localizer().getMessage("manageMob.title",
                         Replacement.create("TYPE", mobGroup.getKey()),
                         Replacement.create("WORLD", world.getName())),
-                "/bloodNight manageMob " + mobGroup.getKey() + " " + world.getName() + " page {page}");
+                "/bloodNight manageMob " + mobGroup.getKey() + " " + ArgumentUtils.escapeWorldName(world) + " page {page}");
 
         bukkitAudiences.sender(sender).sendMessage(Identity.nil(), component);
     }

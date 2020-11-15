@@ -1,9 +1,11 @@
 package de.eldoria.bloodnight.util;
 
+import lombok.experimental.UtilityClass;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
-public final class VectorUtil {
+@UtilityClass
+public class VectorUtil {
 
     public static Vector getDirectionVector(Location start, Location target) {
         return getDirectionVector(start.toVector(), target.toVector());
