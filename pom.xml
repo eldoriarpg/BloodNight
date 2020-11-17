@@ -15,7 +15,10 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
         <java.version>8</java.version>
-        <shade.base>de.eldoria.bloodnight</shade.base>
+        <shade.base>de.eldoria.${artifactId}</shade.base>
+        <eldoutil.version>4f12944d</eldoutil.version>
+        <javadoc.version>3.2.0</javadoc.version>
+        <source.version>3.2.1</source.version>
     </properties>
 
     <build>
@@ -64,6 +67,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
+                <version>${source.version}</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -76,6 +80,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${javadoc.version}</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -120,6 +125,14 @@
             <id>placeholderapi</id>
             <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
         </repository>
+        <repository> <!-- Multiverse -->
+            <id>OnARandomBox</id>
+            <url>http://repo.onarandombox.com/content/groups/public</url>
+        </repository>
+        <repository> <!-- Hyperverse -->
+            <id>intellectualsites-snapshots</id>
+            <url>https://mvn.intellectualsites.com/content/repositories/snapshots</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -154,7 +167,7 @@
         <dependency>
             <groupId>de.eldoria</groupId>
             <artifactId>EldoUtilities</artifactId>
-            <version>v1.0.36</version>
+            <version>${eldoutil.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -199,6 +212,19 @@
             <version>2.10.9</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.onarandombox.multiversecore</groupId>
+            <artifactId>Multiverse-Core</artifactId>
+            <version>4.2.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>se.hyperver.hyperverse</groupId>
+            <artifactId>Core</artifactId>
+            <version>0.9.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
 
         <!-- unit testing -->
         <dependency>
