@@ -80,7 +80,8 @@ public class BloodNight extends EldoPlugin {
             localizer.addLocaleCodes(mobLocaleCodes);
 
             localizer.setLocale(configuration.getGeneralSettings().getLanguage());
-            MessageSender.create(this, "§4[BN] ", '2', 'c');
+            MessageSender.create(this, configuration.getGeneralSettings().getPrefix() + " ", '2', 'c');
+
             registerListener();
             bloodNightAPI = new BloodNightAPI(nightManager, configuration);
             registerCommand("bloodnight",
@@ -120,13 +121,17 @@ public class BloodNight extends EldoPlugin {
         nightManager.reload();
     }
 
+    private void lateInit(){
+        PluginManager pm = Bukkit.getPluginManager();
+        pm.registerEvents(new NotificationManager(configuration, nightManager, hookService), this);
+    }
+
     private void registerListener() {
         PluginManager pm = Bukkit.getPluginManager();
 
         MessageSender messageSender = MessageSender.getPluginMessageSender(this);
         nightManager = new NightManager(configuration);
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, nightManager, 100, 1);
-        pm.registerEvents(new NotificationManager(configuration, nightManager), this);
         pm.registerEvents(nightManager, this);
         mobManager = new MobManager(nightManager, configuration);
         inventoryListener = new InventoryListener(configuration);
