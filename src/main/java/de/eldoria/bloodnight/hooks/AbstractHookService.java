@@ -2,14 +2,13 @@ package de.eldoria.bloodnight.hooks;
 
 import lombok.Getter;
 import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
 
 /**
  * A hook for a plugin.
  *
  * @param <T> type of plugin hook.
  */
-public abstract class AbstractHookService<T extends Plugin> {
+public abstract class AbstractHookService<T> {
     private final String name;
 
     /**
