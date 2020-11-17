@@ -6,12 +6,12 @@ import org.bukkit.entity.Mob;
 import org.bukkit.potion.PotionEffectType;
 
 public class SpeedSkeletonRider extends AbstractSpiderRider {
-    public SpeedSkeletonRider(Mob carrier) {
-        super(carrier, SpecialMobUtil.spawnAndMount(carrier, EntityType.SKELETON));
-    }
+	public SpeedSkeletonRider(Mob carrier) {
+		super(carrier, SpecialMobUtil.spawnAndMount(carrier, EntityType.SKELETON));
+	}
 
-    @Override
-    public void tick() {
-        SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.SPEED, 1, true);
-    }
+	@Override
+	public void tick() {
+		SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.SPEED, 1, true);
+	}
 }

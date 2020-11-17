@@ -4,7 +4,7 @@ import com.onarandombox.MultiverseCore.MultiverseCore;
 import de.eldoria.bloodnight.hooks.AbstractHookService;
 import org.bukkit.World;
 
-public class MultiverseHook extends AbstractHookService<MultiverseCore> implements WorldManager{
+public class MultiverseHook extends AbstractHookService<MultiverseCore> implements WorldManager {
 	private MultiverseCore plugin = null;
 
 	public MultiverseHook() {

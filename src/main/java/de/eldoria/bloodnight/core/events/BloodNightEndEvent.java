@@ -12,23 +12,23 @@ import org.jetbrains.annotations.NotNull;
 @Getter
 public class BloodNightEndEvent extends WorldEvent {
 
-    private static final HandlerList HANDLERS = new HandlerList();
+	private static final HandlerList HANDLERS = new HandlerList();
 
-    /**
-     * Create a new Blood Night End Event.
-     *
-     * @param world world where the blood night has ended.
-     */
-    public BloodNightEndEvent(World world) {
-        super(world);
-    }
+	/**
+	 * Create a new Blood Night End Event.
+	 *
+	 * @param world world where the blood night has ended.
+	 */
+	public BloodNightEndEvent(World world) {
+		super(world);
+	}
 
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
-    }
+	public static HandlerList getHandlerList() {
+		return HANDLERS;
+	}
 
-    @Override
-    public @NotNull HandlerList getHandlers() {
-        return HANDLERS;
-    }
+	@Override
+	public @NotNull HandlerList getHandlers() {
+		return HANDLERS;
+	}
 }

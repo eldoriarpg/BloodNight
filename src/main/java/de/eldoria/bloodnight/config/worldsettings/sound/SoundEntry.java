@@ -21,60 +21,60 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @SerializableAs("bloodNightSoundEntry")
 public class SoundEntry implements ConfigurationSerializable {
-    private Sound sound = Sound.UI_BUTTON_CLICK;
-    private List<Double> pitch = new ArrayList<Double>() {{
-        add(1d);
-    }};
-    private List<Double> volume = new ArrayList<Double>() {{
-        add(1d);
-    }};
+	private Sound sound = Sound.UI_BUTTON_CLICK;
+	private List<Double> pitch = new ArrayList<Double>() {{
+		add(1d);
+	}};
+	private List<Double> volume = new ArrayList<Double>() {{
+		add(1d);
+	}};
 
-    public SoundEntry(Map<String, Object> objectMap) {
-        TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
-        String name = map.getValueOrDefault("sound", this.sound.name());
-        this.sound = EnumUtil.parse(name, Sound.class);
-        if (sound == null) {
-            sound = Sound.UI_BUTTON_CLICK;
-            BloodNight.logger().warning("§4Sound " + name + " is not a valid sound. Changed to " + sound.name());
-        }
-        pitch = map.getValueOrDefault("pitch", pitch);
-        clampArray(pitch, 0.01f, 2);
-        volume = map.getValueOrDefault("volume", volume);
-        clampArray(volume, 0.01f, 1);
-    }
+	public SoundEntry(Map<String, Object> objectMap) {
+		TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
+		String name = map.getValueOrDefault("sound", this.sound.name());
+		this.sound = EnumUtil.parse(name, Sound.class);
+		if (sound == null) {
+			sound = Sound.UI_BUTTON_CLICK;
+			BloodNight.logger().warning("§4Sound " + name + " is not a valid sound. Changed to " + sound.name());
+		}
+		pitch = map.getValueOrDefault("pitch", pitch);
+		clampArray(pitch, 0.01f, 2);
+		volume = map.getValueOrDefault("volume", volume);
+		clampArray(volume, 0.01f, 1);
+	}
 
-    public SoundEntry(Sound sound, Double[] pitch, Double[] volume) {
-        this.sound = sound;
-        this.pitch = Arrays.asList(pitch);
-        this.volume = Arrays.asList(volume);
-    }
+	public SoundEntry(Sound sound, Double[] pitch, Double[] volume) {
+		this.sound = sound;
+		this.pitch = Arrays.asList(pitch);
+		this.volume = Arrays.asList(volume);
+	}
 
-    private void clampArray(List<Double> values, double min, double max) {
-        for (int i = 0; i < values.size(); i++) {
-            values.set(i,EMath.clamp(min, max, values.get(i)));
-        }
-    }
+	private void clampArray(List<Double> values, double min, double max) {
+		for (int i = 0; i < values.size(); i++) {
+			values.set(i, EMath.clamp(min, max, values.get(i)));
+		}
+	}
 
-    public void play(Player player, Location location, SoundCategory channel) {
-        player.playSound(location, sound, channel, (float) getPitch(), (float) getVolume());
-    }
+	public void play(Player player, Location location, SoundCategory channel) {
+		player.playSound(location, sound, channel, (float) getPitch(), (float) getVolume());
+	}
 
-    private double getPitch() {
-        if (pitch.isEmpty()) return 1;
-        return pitch.get(ThreadLocalRandom.current().nextInt(pitch.size()));
-    }
+	private double getPitch() {
+		if (pitch.isEmpty()) return 1;
+		return pitch.get(ThreadLocalRandom.current().nextInt(pitch.size()));
+	}
 
-    private double getVolume() {
-        if (volume.isEmpty()) return 1;
-        return volume.get(ThreadLocalRandom.current().nextInt(volume.size()));
-    }
+	private double getVolume() {
+		if (volume.isEmpty()) return 1;
+		return volume.get(ThreadLocalRandom.current().nextInt(volume.size()));
+	}
 
-    @Override
-    public @NotNull Map<String, Object> serialize() {
-        return SerializationUtil.newBuilder()
-                .add("sound", sound.name())
-                .add("pitch", pitch)
-                .add("volume", volume)
-                .build();
-    }
+	@Override
+	public @NotNull Map<String, Object> serialize() {
+		return SerializationUtil.newBuilder()
+				.add("sound", sound.name())
+				.add("pitch", pitch)
+				.add("volume", volume)
+				.build();
+	}
 }

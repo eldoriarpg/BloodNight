@@ -22,58 +22,58 @@ import java.util.stream.Collectors;
 @Setter
 @SerializableAs("bloodNightBossBarSettings")
 public class BossBarSettings implements ConfigurationSerializable {
-    private boolean enabled = true;
-    /**
-     * Boss bar title with § as color identifier
-     */
-    private String title = "§c§lBlood Night";
-    private BarColor color = BarColor.RED;
-    private List<BarFlag> effects = new ArrayList<BarFlag>() {
-        {
-            add(BarFlag.CREATE_FOG);
-            add(BarFlag.DARKEN_SKY);
-        }
-    };
+	private boolean enabled = true;
+	/**
+	 * Boss bar title with § as color identifier
+	 */
+	private String title = "§c§lBlood Night";
+	private BarColor color = BarColor.RED;
+	private List<BarFlag> effects = new ArrayList<BarFlag>() {
+		{
+			add(BarFlag.CREATE_FOG);
+			add(BarFlag.DARKEN_SKY);
+		}
+	};
 
-    public BossBarSettings() {
-    }
+	public BossBarSettings() {
+	}
 
-    public BossBarSettings(Map<String, Object> objectMap) {
-        TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
-        this.enabled = map.getValue("enabled");
-        setTitle(map.getValue("title"));
-        this.color = map.getValue("color", v -> EnumUtil.parse(v, BarColor.class));
-        List<String> effects = map.getValue("effects");
-        this.effects = effects.stream().map(v -> EnumUtil.parse(v, BarFlag.class)).filter(Objects::nonNull).collect(Collectors.toList());
-    }
+	public BossBarSettings(Map<String, Object> objectMap) {
+		TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
+		this.enabled = map.getValue("enabled");
+		setTitle(map.getValue("title"));
+		this.color = map.getValue("color", v -> EnumUtil.parse(v, BarColor.class));
+		List<String> effects = map.getValue("effects");
+		this.effects = effects.stream().map(v -> EnumUtil.parse(v, BarFlag.class)).filter(Objects::nonNull).collect(Collectors.toList());
+	}
 
-    public void toggleEffect(BarFlag flag) {
-        if (effects.contains(flag)) {
-            effects.remove(flag);
-        } else {
-            effects.add(flag);
-        }
-    }
+	public void toggleEffect(BarFlag flag) {
+		if (effects.contains(flag)) {
+			effects.remove(flag);
+		} else {
+			effects.add(flag);
+		}
+	}
 
-    public BarFlag[] getEffects() {
-        return effects.toArray(new BarFlag[0]);
-    }
+	public BarFlag[] getEffects() {
+		return effects.toArray(new BarFlag[0]);
+	}
 
-    public boolean isEffectEnabled(BarFlag flag) {
-        return effects.contains(flag);
-    }
+	public boolean isEffectEnabled(BarFlag flag) {
+		return effects.contains(flag);
+	}
 
-    public void setTitle(String title) {
-        this.title = title.replace("&", "§");
-    }
+	public void setTitle(String title) {
+		this.title = title.replace("&", "§");
+	}
 
-    @Override
-    public @NotNull Map<String, Object> serialize() {
-        return SerializationUtil.newBuilder()
-                .add("enabled", enabled)
-                .add("title", title)
-                .add("color", color)
-                .add("effects", Lists.newArrayList(effects).stream().map(BarFlag::toString).collect(Collectors.toList()))
-                .build();
-    }
+	@Override
+	public @NotNull Map<String, Object> serialize() {
+		return SerializationUtil.newBuilder()
+				.add("enabled", enabled)
+				.add("title", title)
+				.add("color", color)
+				.add("effects", Lists.newArrayList(effects).stream().map(BarFlag::toString).collect(Collectors.toList()))
+				.build();
+	}
 }

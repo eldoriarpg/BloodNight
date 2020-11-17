@@ -15,34 +15,34 @@ import org.jetbrains.annotations.NotNull;
 @Getter
 public class BloodNightBeginEvent extends WorldEvent implements Cancellable {
 
-    private static final HandlerList HANDLERS = new HandlerList();
-    private boolean cancelled;
+	private static final HandlerList HANDLERS = new HandlerList();
+	private boolean cancelled;
 
-    /**
-     * Create a new Blood Night Begin Event.
-     *
-     * @param world world where the blood night has begun.
-     */
-    public BloodNightBeginEvent(World world) {
-        super(world);
-    }
+	/**
+	 * Create a new Blood Night Begin Event.
+	 *
+	 * @param world world where the blood night has begun.
+	 */
+	public BloodNightBeginEvent(World world) {
+		super(world);
+	}
 
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
-    }
+	public static HandlerList getHandlerList() {
+		return HANDLERS;
+	}
 
-    @Override
-    public @NotNull HandlerList getHandlers() {
-        return HANDLERS;
-    }
+	@Override
+	public @NotNull HandlerList getHandlers() {
+		return HANDLERS;
+	}
 
-    @Override
-    public boolean isCancelled() {
-        return cancelled;
-    }
+	@Override
+	public boolean isCancelled() {
+		return cancelled;
+	}
 
-    @Override
-    public void setCancelled(boolean cancelled) {
-        this.cancelled = cancelled;
-    }
+	@Override
+	public void setCancelled(boolean cancelled) {
+		this.cancelled = cancelled;
+	}
 }

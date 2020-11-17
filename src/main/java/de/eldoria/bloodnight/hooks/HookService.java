@@ -1,6 +1,5 @@
 package de.eldoria.bloodnight.hooks;
 
-import com.onarandombox.MultiverseCore.MultiverseCore;
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.core.manager.NightManager;
@@ -12,7 +11,6 @@ import de.eldoria.bloodnight.hooks.worldmanager.WorldManager;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
-import se.hyperver.hyperverse.Hyperverse;
 
 import java.util.HashMap;
 import java.util.Map;
