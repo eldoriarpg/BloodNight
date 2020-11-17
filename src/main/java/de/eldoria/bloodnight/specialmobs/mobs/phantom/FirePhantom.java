@@ -14,41 +14,41 @@ import org.bukkit.event.entity.EntityTargetEvent;
 
 public class FirePhantom extends AbstractPhantom {
 
-    private final Blaze blaze;
+	private final Blaze blaze;
 
-    public FirePhantom(Phantom phantom) {
-        super(phantom);
-        blaze = SpecialMobUtil.spawnAndMount(getBaseEntity(), EntityType.BLAZE);
-        AttributeUtil.syncAttributeValue(phantom, blaze, Attribute.GENERIC_ATTACK_DAMAGE);
-        AttributeUtil.syncAttributeValue(phantom, blaze, Attribute.GENERIC_MAX_HEALTH);
-    }
+	public FirePhantom(Phantom phantom) {
+		super(phantom);
+		blaze = SpecialMobUtil.spawnAndMount(getBaseEntity(), EntityType.BLAZE);
+		AttributeUtil.syncAttributeValue(phantom, blaze, Attribute.GENERIC_ATTACK_DAMAGE);
+		AttributeUtil.syncAttributeValue(phantom, blaze, Attribute.GENERIC_MAX_HEALTH);
+	}
 
-    @Override
-    public void onEnd() {
-        blaze.remove();
-    }
+	@Override
+	public void onEnd() {
+		blaze.remove();
+	}
 
-    @Override
-    public void onDamageByEntity(EntityDamageByEntityEvent event) {
-    }
+	@Override
+	public void onDamageByEntity(EntityDamageByEntityEvent event) {
+	}
 
-    @Override
-    public void onDamage(EntityDamageEvent event) {
-        SpecialMobUtil.handleExtendedEntityDamage(getBaseEntity(), blaze, event);
-    }
+	@Override
+	public void onDamage(EntityDamageEvent event) {
+		SpecialMobUtil.handleExtendedEntityDamage(getBaseEntity(), blaze, event);
+	}
 
-    @Override
-    public void onExtensionDamage(EntityDamageEvent event) {
-        SpecialMobUtil.handleExtendedEntityDamage(blaze, getBaseEntity(), event);
-    }
+	@Override
+	public void onExtensionDamage(EntityDamageEvent event) {
+		SpecialMobUtil.handleExtendedEntityDamage(blaze, getBaseEntity(), event);
+	}
 
-    @Override
-    public void onTargetEvent(EntityTargetEvent event) {
-        blaze.setTarget(event.getTarget() == null ? null : (LivingEntity) event.getTarget());
-    }
+	@Override
+	public void onTargetEvent(EntityTargetEvent event) {
+		blaze.setTarget(event.getTarget() == null ? null : (LivingEntity) event.getTarget());
+	}
 
-    @Override
-    public void onDeath(EntityDeathEvent event) {
-        blaze.damage(blaze.getHealth(), getBaseEntity());
-    }
+	@Override
+	public void onDeath(EntityDeathEvent event) {
+		blaze.damage(blaze.getHealth(), getBaseEntity());
+	}
 }

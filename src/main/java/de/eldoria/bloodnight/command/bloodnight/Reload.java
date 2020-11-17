@@ -10,18 +10,18 @@ import org.jetbrains.annotations.NotNull;
 
 public class Reload extends EldoCommand {
 
-    public Reload(Plugin plugin) {
-        super(plugin);
-    }
+	public Reload(Plugin plugin) {
+		super(plugin);
+	}
 
-    @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (denyAccess(sender, Permissions.RELOAD)) {
-            return true;
-        }
-        BloodNight.getInstance().onReload();
-        messageSender().sendMessage(sender, localizer().getMessage("reload.success"));
-        BloodNight.logger().info("BloodNight reloaded!");
-        return true;
-    }
+	@Override
+	public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+		if (denyAccess(sender, Permissions.RELOAD)) {
+			return true;
+		}
+		BloodNight.getInstance().onReload();
+		messageSender().sendMessage(sender, localizer().getMessage("reload.success"));
+		BloodNight.logger().info("BloodNight reloaded!");
+		return true;
+	}
 }

@@ -5,12 +5,12 @@ import org.bukkit.entity.Skeleton;
 import org.bukkit.potion.PotionEffectType;
 
 public class InvisibleSkeleton extends AbstractSkeleton {
-    public InvisibleSkeleton(Skeleton skeleton) {
-        super(skeleton);
-    }
+	public InvisibleSkeleton(Skeleton skeleton) {
+		super(skeleton);
+	}
 
-    @Override
-    public void tick() {
-        SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.INVISIBILITY, 1, false);
-    }
+	@Override
+	public void tick() {
+		SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.INVISIBILITY, 1, false);
+	}
 }
