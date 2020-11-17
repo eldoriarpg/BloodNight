@@ -22,599 +22,620 @@ import org.bukkit.World;
 import org.bukkit.block.Beehive;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Bee;
+import org.bukkit.entity.Boss;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Monster;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.*;
+import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.EntityTargetEvent;
+import org.bukkit.event.entity.EntityTeleportEvent;
+import org.bukkit.event.entity.ExplosionPrimeEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
 public class MobManager implements Listener, Runnable {
-    private final Map<String, WorldMobs> mobRegistry = new HashMap<>();
-    private final NightManager nightManager;
-    private final Configuration configuration;
-    private final ThreadLocalRandom random = ThreadLocalRandom.current();
-    private final Map<String, WorldMobFactory> worldFucktories = new HashMap<>();
+	private static final NamespacedKey SPAWNER_SPAWNED = BloodNight.getNamespacedKey("spawnerSpawned");
+	private final Map<String, WorldMobs> mobRegistry = new HashMap<>();
+	private final NightManager nightManager;
+	private final Configuration configuration;
+	private final ThreadLocalRandom random = ThreadLocalRandom.current();
+	private final Map<String, WorldMobFactory> worldFucktories = new HashMap<>();
+	private final List<Runnable> executeLater = new ArrayList<>();
+	private final List<Runnable> executeNow = new ArrayList<>();
+	private final Queue<Entity> lostEntities = new ArrayDeque<>();
 
-    private final List<Runnable> executeLater = new ArrayList<>();
-    private final List<Runnable> executeNow = new ArrayList<>();
+	public MobManager(NightManager nightManager, Configuration configuration) {
+		this.nightManager = nightManager;
+		this.configuration = configuration;
+	}
 
-    private final static NamespacedKey SPAWNER_SPAWNED = BloodNight.getNamespacedKey("spawnerSpawned");
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void onMobSpawn(CreatureSpawnEvent event) {
+		if (!nightManager.isBloodNightActive(event.getEntity().getWorld())) return;
 
-    private final Queue<Entity> lostEntities = new ArrayDeque<>();
+		if (event.getSpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER
+				&& configuration.getGeneralSettings().isSpawnerDropSuppression()) {
+			PersistentDataContainer data = event.getEntity().getPersistentDataContainer();
+			data.set(SPAWNER_SPAWNED, PersistentDataType.BYTE, (byte) 1);
+			return;
+		}
 
-    public MobManager(NightManager nightManager, Configuration configuration) {
-        this.nightManager = nightManager;
-        this.configuration = configuration;
-    }
+		World world = event.getLocation().getWorld();
+		MobSettings mobSettings = configuration.getWorldSettings(world.getName()).getMobSettings();
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onMobSpawn(CreatureSpawnEvent event) {
-        if (!nightManager.isBloodNightActive(event.getEntity().getWorld())) return;
+		Optional<MobFactory> mobFactory = getWorldMobFactory(world).getRandomFactory(event.getEntity());
 
-        if (event.getSpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER
-                && configuration.getGeneralSettings().isSpawnerDropSuppression()) {
-            PersistentDataContainer data = event.getEntity().getPersistentDataContainer();
-            data.set(SPAWNER_SPAWNED, PersistentDataType.BYTE, (byte) 1);
-            return;
-        }
+		if (!mobFactory.isPresent()) {
+			return;
+		}
 
-        World world = event.getLocation().getWorld();
-        MobSettings mobSettings = configuration.getWorldSettings(world.getName()).getMobSettings();
+		if (mobSettings.getSpawnPercentage() < random.nextInt(101)) {
+			return;
+		}
 
-        Optional<MobFactory> mobFactory = getWorldMobFactory(world).getRandomFactory(event.getEntity());
+		mobSettings.getMobByName(mobFactory.get().getMobName());
 
-        if (!mobFactory.isPresent()) {
-            return;
-        }
+		executeLater.add(() -> wrapMob(event.getEntity(), mobFactory.get()));
+	}
 
-        if (mobSettings.getSpawnPercentage() < random.nextInt(101)) {
-            return;
-        }
+	public void wrapMob(Entity entity, MobFactory mobFactory) {
+		// This is most likely a mounted special mob. We wont change this.
+		if (!(entity instanceof LivingEntity)) return;
 
-        mobSettings.getMobByName(mobFactory.get().getMobName());
+		// I will not try to wrap a special or mythic mob
+		if (SpecialMobUtil.isSpecialMob(entity)) return;
+		if (MythicMobUtil.isMythicMob(entity)) return;
 
-        executeLater.add(() -> wrapMob(event.getEntity(), mobFactory.get()));
-    }
+		MobSettings mobSettings = configuration.getWorldSettings(entity.getWorld().getName()).getMobSettings();
+		Optional<MobSetting> mobSetting = mobSettings.getMobByName(mobFactory.getMobName());
 
-    public void wrapMob(Entity entity, MobFactory mobFactory) {
-        // This is most likely a mounted special mob. We wont change this.
-        if (!(entity instanceof LivingEntity)) return;
+		if (!mobSetting.isPresent()) {
+			BloodNight.logger().warning("Tried to create " + mobFactory.getMobName() + " but no settings were present.");
+			return;
+		}
 
-        // I will not try to wrap a special or mythic mob
-        if (SpecialMobUtil.isSpecialMob(entity)) return;
-        if (MythicMobUtil.isMythicMob(entity)) return;
+		SpecialMob<?> specialMob = mobFactory.wrap((LivingEntity) entity, mobSettings, mobSetting.get());
 
-        MobSettings mobSettings = configuration.getWorldSettings(entity.getWorld().getName()).getMobSettings();
-        Optional<MobSetting> mobSetting = mobSettings.getMobByName(mobFactory.getMobName());
+		if (BloodNight.isDebug()) {
+			//BloodNight.logger().info("Special Mob " + mobSetting.get().getMobName() + " spawned in " + entity.getWorld().getName());
+		}
 
-        if (!mobSetting.isPresent()) {
-            BloodNight.logger().warning("Tried to create " + mobFactory.getMobName() + " but no settings were present.");
-            return;
-        }
+		getWorldMobs(entity.getWorld()).put(entity.getUniqueId(), specialMob);
+	}
 
-        SpecialMob<?> specialMob = mobFactory.wrap((LivingEntity) entity, mobSettings, mobSetting.get());
+	private WorldMobFactory getWorldMobFactory(World world) {
+		return worldFucktories.computeIfAbsent(world.getName(),
+				k -> new WorldMobFactory(configuration.getWorldSettings(world)));
+	}
 
-        if (BloodNight.isDebug()) {
-            //BloodNight.logger().info("Special Mob " + mobSetting.get().getMobName() + " spawned in " + entity.getWorld().getName());
-        }
+	@Override
+	public void run() {
+		for (World bloodWorld : nightManager.getBloodWorlds()) {
+			getWorldMobs(bloodWorld).tick(configuration.getGeneralSettings().getMobTick());
+		}
 
-        getWorldMobs(entity.getWorld()).put(entity.getUniqueId(), specialMob);
-    }
+		// run runnables which should be executed this tick
+		executeNow.forEach(Runnable::run);
+		// clear executed runnables
+		executeNow.clear();
+		// schedule runnables for next tick
+		executeNow.addAll(executeLater);
+		// clear the queue
+		executeLater.clear();
 
-    private WorldMobFactory getWorldMobFactory(World world) {
-        return worldFucktories.computeIfAbsent(world.getName(),
-                k -> new WorldMobFactory(configuration.getWorldSettings(world)));
-    }
+		for (int i = 0; i < Math.min(lostEntities.size(), 10); i++) {
+			Entity poll = lostEntities.poll();
+			if (poll.isValid()) {
+				poll.remove();
+			}
+		}
+	}
 
-    @Override
-    public void run() {
-        for (World bloodWorld : nightManager.getBloodWorlds()) {
-            getWorldMobs(bloodWorld).tick(configuration.getGeneralSettings().getMobTick());
-        }
+	@EventHandler
+	public void onBloodNightEnd(BloodNightEndEvent event) {
+		WorldMobs worldMobs = getWorldMobs(event.getWorld());
+		worldMobs.invokeAll(SpecialMob::onEnd);
+		worldMobs.invokeAll(SpecialMob::remove);
+		worldMobs.clear();
+		IteratingTask<Entity> iteratingTask = new IteratingTask<>(event.getWorld().getEntities(), (e) ->
+		{
+			if (!(e instanceof LivingEntity)) {
+				return false;
+			}
+			if (SpecialMobUtil.isSpecialMob(e)) {
+				lostEntities.add(e);
+				return true;
+			}
+			return false;
+		}, stats -> {
+			if (BloodNight.isDebug()) {
+				BloodNight.logger().info(String.format("Marked %d lost enties for removal in %dms",
+						stats.getProcessedElements(),
+						stats.getTime()));
+			}
+		});
 
-        // run runnables which should be executed this tick
-        executeNow.forEach(Runnable::run);
-        // clear executed runnables
-        executeNow.clear();
-        // schedule runnables for next tick
-        executeNow.addAll(executeLater);
-        // clear the queue
-        executeLater.clear();
+		iteratingTask.runTaskTimer(BloodNight.getInstance(), 5, 1);
+	}
 
-        for (int i = 0; i < Math.min(lostEntities.size(), 10); i++) {
-            Entity poll = lostEntities.poll();
-            if (poll.isValid()) {
-                poll.remove();
-            }
-        }
-    }
+	/*
+	START OF EVENT REDIRECTING SECTION
+	 */
+	@EventHandler
+	public void onEntityTeleport(EntityTeleportEvent event) {
+		getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(event.getEntity(), v -> v.onTeleport(event));
+	}
 
-    @EventHandler
-    public void onBloodNightEnd(BloodNightEndEvent event) {
-        WorldMobs worldMobs = getWorldMobs(event.getWorld());
-        worldMobs.invokeAll(SpecialMob::onEnd);
-        worldMobs.invokeAll(SpecialMob::remove);
-        worldMobs.clear();
-        IteratingTask<Entity> iteratingTask = new IteratingTask<>(event.getWorld().getEntities(), (e) ->
-        {
-            if (!(e instanceof LivingEntity)) {
-                return false;
-            }
-            if (SpecialMobUtil.isSpecialMob(e)) {
-                lostEntities.add(e);
-                return true;
-            }
-            return false;
-        }, stats -> {
-            if (BloodNight.isDebug()) {
-                BloodNight.logger().info(String.format("Marked %d lost enties for removal in %dms",
-                        stats.getProcessedElements(),
-                        stats.getTime()));
-            }
-        });
+	@EventHandler
+	public void onProjectileShoot(ProjectileLaunchEvent event) {
+		ProjectileSender projectileSource = ProjectileUtil.getProjectileSource(event.getEntity());
+		if (projectileSource.isEntity()) {
+			getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(projectileSource.getEntity(), v -> v.onProjectileShoot(event));
+		}
+	}
 
-        iteratingTask.runTaskTimer(BloodNight.getInstance(), 5, 1);
-    }
+	@EventHandler
+	public void onProjectileHit(ProjectileHitEvent event) {
+		ProjectileSender projectileSource = ProjectileUtil.getProjectileSource(event.getEntity());
+		if (projectileSource.isEntity()) {
+			getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(projectileSource.getEntity(), m -> m.onProjectileHit(event));
+		}
+	}
 
-    /*
-    START OF EVENT REDIRECTING SECTION
-     */
-    @EventHandler
-    public void onEntityTeleport(EntityTeleportEvent event) {
-        getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(event.getEntity(), v -> v.onTeleport(event));
-    }
+	@EventHandler
+	public void onDeath(EntityDeathEvent event) {
+		if (SpecialMobUtil.isSpecialMob(event.getEntity())) {
+			if (SpecialMobUtil.isExtension(event.getEntity())) {
+				Optional<UUID> baseUUID = SpecialMobUtil.getBaseUUID(event.getEntity());
+				if (!baseUUID.isPresent()) {
+					return;
+				}
+				getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(baseUUID.get(), m -> m.onExtensionDeath(event));
+			} else {
+				getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(event.getEntity(), m -> m.onDeath(event));
+			}
+		}
+	}
 
-    @EventHandler
-    public void onProjectileShoot(ProjectileLaunchEvent event) {
-        ProjectileSender projectileSource = ProjectileUtil.getProjectileSource(event.getEntity());
-        if (projectileSource.isEntity()) {
-            getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(projectileSource.getEntity(), v -> v.onProjectileShoot(event));
-        }
-    }
+	@EventHandler
+	public void onKill(EntityDeathEvent event) {
+		getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(event.getEntity(), m -> m.onKill(event));
+	}
 
-    @EventHandler
-    public void onProjectileHit(ProjectileHitEvent event) {
-        ProjectileSender projectileSource = ProjectileUtil.getProjectileSource(event.getEntity());
-        if (projectileSource.isEntity()) {
-            getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(projectileSource.getEntity(), m -> m.onProjectileHit(event));
-        }
-    }
+	@EventHandler
+	public void onExplosionPrimeEvent(ExplosionPrimeEvent event) {
+		getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(event.getEntity(), m -> m.onExplosionPrimeEvent(event));
+	}
 
-    @EventHandler
-    public void onDeath(EntityDeathEvent event) {
-        if (SpecialMobUtil.isSpecialMob(event.getEntity())) {
-            if (SpecialMobUtil.isExtension(event.getEntity())) {
-                Optional<UUID> baseUUID = SpecialMobUtil.getBaseUUID(event.getEntity());
-                if (!baseUUID.isPresent()) {
-                    return;
-                }
-                getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(baseUUID.get(), m -> m.onExtensionDeath(event));
-            } else {
-                getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(event.getEntity(), m -> m.onDeath(event));
-            }
-        }
-    }
+	@EventHandler
+	public void onExplosionEvent(EntityExplodeEvent event) {
+		getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(event.getEntity(), m -> m.onExplosionEvent(event));
+	}
 
-    @EventHandler
-    public void onKill(EntityDeathEvent event) {
-        getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(event.getEntity(), m -> m.onKill(event));
-    }
+	@EventHandler
+	public void onTargetEvent(EntityTargetEvent event) {
+		if (event.getTarget() != null && SpecialMobUtil.isSpecialMob(event.getTarget())) {
+			event.setCancelled(true);
+			return;
+		}
 
-    @EventHandler
-    public void onExplosionPrimeEvent(ExplosionPrimeEvent event) {
-        getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(event.getEntity(), m -> m.onExplosionPrimeEvent(event));
-    }
+		if (!SpecialMobUtil.isSpecialMob(event.getEntity())) {
+			return;
+		}
 
-    @EventHandler
-    public void onExplosionEvent(EntityExplodeEvent event) {
-        getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(event.getEntity(), m -> m.onExplosionEvent(event));
-    }
+		// Block that special mobs target something else than players.
+		// Otherwise they will probably kill each other.
+		if (event.getTarget() != null && event.getTarget().getType() != EntityType.PLAYER) {
+			event.setCancelled(true);
+			return;
+		}
+		if (event.getTarget() == null || event.getTarget() instanceof LivingEntity) {
+			getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(event.getEntity(), m -> m.onTargetEvent(event));
+		}
+	}
 
-    @EventHandler
-    public void onTargetEvent(EntityTargetEvent event) {
-        if (event.getTarget() != null && SpecialMobUtil.isSpecialMob(event.getTarget())) {
-            event.setCancelled(true);
-            return;
-        }
+	@EventHandler
+	public void onDamage(EntityDamageEvent event) {
+		if (SpecialMobUtil.isSpecialMob(event.getEntity())) {
+			if (SpecialMobUtil.isExtension(event.getEntity())) {
+				Optional<UUID> baseUUID = SpecialMobUtil.getBaseUUID(event.getEntity());
+				if (!baseUUID.isPresent()) {
+					return;
+				}
+				getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(baseUUID.get(), m -> m.onExtensionDamage(event));
+			} else {
+				getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(event.getEntity(), m -> m.onDamage(event));
+			}
+		}
+	}
 
-        if (!SpecialMobUtil.isSpecialMob(event.getEntity())) {
-            return;
-        }
+	@EventHandler
+	public void onDamageByEntity(EntityDamageByEntityEvent event) {
+		if (SpecialMobUtil.isSpecialMob(event.getEntity())) {
+			if (SpecialMobUtil.isExtension(event.getEntity())) {
+				Optional<UUID> baseUUID = SpecialMobUtil.getBaseUUID(event.getEntity());
+				if (!baseUUID.isPresent()) {
+					return;
+				}
+				getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(baseUUID.get(), m -> m.onDamageByEntity(event));
+			} else {
+				getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(event.getEntity(), m -> m.onDamageByEntity(event));
+			}
+		}
+	}
 
-        // Block that special mobs target something else than players.
-        // Otherwise they will probably kill each other.
-        if (event.getTarget() != null && event.getTarget().getType() != EntityType.PLAYER) {
-            event.setCancelled(true);
-            return;
-        }
-        if (event.getTarget() == null || event.getTarget() instanceof LivingEntity) {
-            getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(event.getEntity(), m -> m.onTargetEvent(event));
-        }
-    }
-
-    @EventHandler
-    public void onDamage(EntityDamageEvent event) {
-        if (SpecialMobUtil.isSpecialMob(event.getEntity())) {
-            if (SpecialMobUtil.isExtension(event.getEntity())) {
-                Optional<UUID> baseUUID = SpecialMobUtil.getBaseUUID(event.getEntity());
-                if (!baseUUID.isPresent()) {
-                    return;
-                }
-                getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(baseUUID.get(), m -> m.onExtensionDamage(event));
-            } else {
-                getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(event.getEntity(), m -> m.onDamage(event));
-            }
-        }
-    }
-
-    @EventHandler
-    public void onDamageByEntity(EntityDamageByEntityEvent event) {
-        if (SpecialMobUtil.isSpecialMob(event.getEntity())) {
-            if (SpecialMobUtil.isExtension(event.getEntity())) {
-                Optional<UUID> baseUUID = SpecialMobUtil.getBaseUUID(event.getEntity());
-                if (!baseUUID.isPresent()) {
-                    return;
-                }
-                getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(baseUUID.get(), m -> m.onDamageByEntity(event));
-            } else {
-                getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(event.getEntity(), m -> m.onDamageByEntity(event));
-            }
-        }
-    }
-
-    @EventHandler
-    public void onHit(EntityDamageByEntityEvent event) {
-        getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(event.getDamager(), m -> m.onHit(event));
-    }
+	@EventHandler
+	public void onHit(EntityDamageByEntityEvent event) {
+		getWorldMobs(event.getEntity().getWorld()).invokeIfPresent(event.getDamager(), m -> m.onHit(event));
+	}
 
     /*
     END OF EVENT REDIRECTION SECTION
      */
 
-    /*
-     * Handling of vanilla mobs damaging to players during a blood night
-     */
-    @EventHandler
-    public void onPlayerDamage(EntityDamageByEntityEvent event) {
-        // If no blood night is active in this world we dont care at all.
-        if (!nightManager.isBloodNightActive(event.getDamager().getWorld())) return;
+	/*
+	 * Handling of vanilla mobs damaging to players during a blood night
+	 */
+	@EventHandler
+	public void onPlayerDamage(EntityDamageByEntityEvent event) {
+		// If no blood night is active in this world we dont care at all.
+		if (!nightManager.isBloodNightActive(event.getDamager().getWorld())) return;
 
-        // Check if the entity is a projectile.
-        ProjectileSender sender = ProjectileUtil.getProjectileSource(event.getDamager());
+		// Check if the entity is a projectile.
+		ProjectileSender sender = ProjectileUtil.getProjectileSource(event.getDamager());
 
-        Entity damager = sender.isEntity() ? sender.getEntity() : event.getDamager();
-        Entity oponent = event.getEntity();
+		Entity damager = sender.isEntity() ? sender.getEntity() : event.getDamager();
+		Entity oponent = event.getEntity();
 
-        MobSettings settings = configuration.getWorldSettings(oponent.getLocation().getWorld().getName()).getMobSettings();
+		MobSettings settings = configuration.getWorldSettings(oponent.getLocation().getWorld().getName()).getMobSettings();
 
-        // If it is a special mob it already has a custom health.
-        if (SpecialMobUtil.isSpecialMob(damager)) return;
+		// If it is a special mob it already has a custom health.
+		if (SpecialMobUtil.isSpecialMob(damager)) return;
 
-        if (oponent.getType() != EntityType.PLAYER) return;
+		if (oponent.getType() != EntityType.PLAYER) return;
 
-        VanillaMobSettings vanillaMobSettings = settings.getVanillaMobSettings();
+		VanillaMobSettings vanillaMobSettings = settings.getVanillaMobSettings();
 
         /*
         This is a important section.
         The damage should only be changed on monsters and boss entities not on general entities.
          */
-        if (damager instanceof Monster || damager instanceof Boss) {
-            // the damager is hostile monster. Multiply damage by damage multiplier
-            event.setDamage(event.getDamage() * vanillaMobSettings.getDamageMultiplier());
-        }
-    }
+		if (damager instanceof Monster || damager instanceof Boss) {
+			// the damager is hostile monster. Multiply damage by damage multiplier
+			event.setDamage(event.getDamage() * vanillaMobSettings.getDamageMultiplier());
+		}
+	}
 
-    /*
-    Handling of players dealing damage to entities during blood night.
-     */
-    @EventHandler
-    public void onEntityDamage(EntityDamageByEntityEvent event) {
+	/*
+	Handling of players dealing damage to entities during blood night.
+	 */
+	@EventHandler
+	public void onEntityDamage(EntityDamageByEntityEvent event) {
 
-        if (!nightManager.isBloodNightActive(event.getDamager().getWorld())) return;
+		if (!nightManager.isBloodNightActive(event.getDamager().getWorld())) return;
 
-        // Check if the entity is a projectile.
-        ProjectileSender sender = ProjectileUtil.getProjectileSource(event.getDamager());
+		// Check if the entity is a projectile.
+		ProjectileSender sender = ProjectileUtil.getProjectileSource(event.getDamager());
 
-        Entity damager = sender.isEntity() ? sender.getEntity() : event.getDamager();
-        Entity oponent = event.getEntity();
+		Entity damager = sender.isEntity() ? sender.getEntity() : event.getDamager();
+		Entity oponent = event.getEntity();
 
-        if (damager.getType() != EntityType.PLAYER) {
-            return;
-        }
+		if (damager.getType() != EntityType.PLAYER) {
+			return;
+		}
 
-        int entityId = oponent.getEntityId();
+		int entityId = oponent.getEntityId();
 
-        // We just care about monsters and boss monsters
-        if (!(oponent instanceof Monster || oponent instanceof Boss)) return;
+		// We just care about monsters and boss monsters
+		if (!(oponent instanceof Monster || oponent instanceof Boss)) return;
 
-        // Reduce damage for vanilla mobs
-        if (!SpecialMobUtil.isSpecialMob(oponent)) {
-            VanillaMobSettings vanillaMobSettings = configuration.getWorldSettings(oponent.getLocation().getWorld().getName()).getMobSettings().getVanillaMobSettings();
-            event.setDamage(event.getDamage() / vanillaMobSettings.getHealthMultiplier());
-        }
-    }
+		// Reduce damage for vanilla mobs
+		if (!SpecialMobUtil.isSpecialMob(oponent)) {
+			VanillaMobSettings vanillaMobSettings = configuration.getWorldSettings(oponent.getLocation().getWorld().getName()).getMobSettings().getVanillaMobSettings();
+			event.setDamage(event.getDamage() / vanillaMobSettings.getHealthMultiplier());
+		}
+	}
 
-    @EventHandler
-    public void onEntityKill(EntityDeathEvent event) {
-        LivingEntity entity = event.getEntity();
-        Player player = event.getEntity().getKiller();
+	@EventHandler
+	public void onEntityKill(EntityDeathEvent event) {
+		LivingEntity entity = event.getEntity();
+		Player player = event.getEntity().getKiller();
 
-        if (!(entity instanceof Monster || entity instanceof Boss)) return;
+		if (!(entity instanceof Monster || entity instanceof Boss)) return;
 
-        if (!nightManager.isBloodNightActive(entity.getWorld())) return;
+		if (!nightManager.isBloodNightActive(entity.getWorld())) return;
 
-        if (configuration.getGeneralSettings().isSpawnerDropSuppression()) {
-            if (entity.getPersistentDataContainer().has(SPAWNER_SPAWNED, PersistentDataType.BYTE)) {
-                return;
-            }
-        }
+		if (configuration.getGeneralSettings().isSpawnerDropSuppression()) {
+			if (entity.getPersistentDataContainer().has(SPAWNER_SPAWNED, PersistentDataType.BYTE)) {
+				return;
+			}
+		}
 
-        //TODO: Decide what to do on mythic mob death related to drops
-        if (MythicMobUtil.isMythicMob(event.getEntity())) {
-            return;
-        }
+		//TODO: Decide what to do on mythic mob death related to drops
+		if (MythicMobUtil.isMythicMob(event.getEntity())) {
+			return;
+		}
 
-        MobSettings mobSettings = configuration.getWorldSettings(entity.getWorld()).getMobSettings();
-        VanillaMobSettings vanillaMobSettings = mobSettings.getVanillaMobSettings();
-        event.setDroppedExp((int) (event.getDroppedExp() * mobSettings.getExperienceMultiplier()));
+		MobSettings mobSettings = configuration.getWorldSettings(entity.getWorld()).getMobSettings();
+		VanillaMobSettings vanillaMobSettings = mobSettings.getVanillaMobSettings();
+		event.setDroppedExp((int) (event.getDroppedExp() * mobSettings.getExperienceMultiplier()));
 
-        // Just remove the entity.
-        if (player == null) {
-            if (BloodNight.isDebug()) {
-                BloodNight.logger().info("Entity " + entity.getCustomName() + " was not killed by a player.");
-            }
-            getWorldMobs(event.getEntity().getWorld()).remove(event.getEntity().getUniqueId());
-            return;
-        }
+		// Just remove the entity.
+		if (player == null) {
+			if (BloodNight.isDebug()) {
+				BloodNight.logger().info("Entity " + entity.getCustomName() + " was not killed by a player.");
+			}
+			getWorldMobs(event.getEntity().getWorld()).remove(event.getEntity().getUniqueId());
+			return;
+		}
 
-        if (SpecialMobUtil.isExtension(entity)) {
-            if (BloodNight.isDebug()) {
-                BloodNight.logger().info("Mob is extension. Ignore.");
-            }
-            return;
-        }
+		if (SpecialMobUtil.isExtension(entity)) {
+			if (BloodNight.isDebug()) {
+				BloodNight.logger().info("Mob is extension. Ignore.");
+			}
+			return;
+		}
 
-        if (BloodNight.isDebug()) {
-            BloodNight.logger().info("Entity " + entity.getCustomName() + " was killed by " + player.getName());
-            BloodNight.logger().info("Attemt to drop items.");
-        }
+		if (BloodNight.isDebug()) {
+			BloodNight.logger().info("Entity " + entity.getCustomName() + " was killed by " + player.getName());
+			BloodNight.logger().info("Attemt to drop items.");
+		}
 
-        if (SpecialMobUtil.isSpecialMob(entity)) {
-            if (!mobSettings.isNaturalDrops()) {
-                if (BloodNight.isDebug()) {
-                    BloodNight.logger().info("Natural Drops are disabled. Clear loot.");
-                }
-                event.getDrops().clear();
-            } else {
-                if (BloodNight.isDebug()) {
-                    BloodNight.logger().info("Natural Drops are enabled. Multiply loot.");
-                }
-                // Raise amount of drops by multiplier
-                for (ItemStack drop : event.getDrops()) {
-                    drop.setAmount((int) (drop.getAmount() * vanillaMobSettings.getDropMultiplier()));
-                }
-            }
+		if (SpecialMobUtil.isSpecialMob(entity)) {
+			if (!mobSettings.isNaturalDrops()) {
+				if (BloodNight.isDebug()) {
+					BloodNight.logger().info("Natural Drops are disabled. Clear loot.");
+				}
+				event.getDrops().clear();
+			} else {
+				if (BloodNight.isDebug()) {
+					BloodNight.logger().info("Natural Drops are enabled. Multiply loot.");
+				}
+				// Raise amount of drops by multiplier
+				for (ItemStack drop : event.getDrops()) {
+					drop.setAmount((int) (drop.getAmount() * vanillaMobSettings.getDropMultiplier()));
+				}
+			}
 
-            // add custom drops
-            Optional<String> specialMob = SpecialMobUtil.getSpecialMobType(entity);
-            if (!specialMob.isPresent()) {
-                BloodNight.logger().log(Level.WARNING, "No special type name was received from special mob.", new IllegalStateException());
-                return;
-            }
-            Optional<MobSetting> mobByName = mobSettings.getMobByName(specialMob.get());
-            if (mobByName.isPresent()) {
-                List<ItemStack> drops = mobSettings.getDrops(mobByName.get());
-                if (BloodNight.isDebug()) {
-                    BloodNight.logger().info("Added " + drops.size() + " drops to " + event.getDrops().size() + " drops.");
-                }
-                event.getDrops().addAll(drops);
-            } else {
-                if (BloodNight.isDebug()) {
-                    BloodNight.logger().info("No mob found for " + specialMob.get() + " in group ");
-                }
-            }
-        } else {
-            // If it is a vanilla mob just increase the drops.
-            switch (vanillaMobSettings.getVanillaDropMode()) {
-                case VANILLA:
-                    for (ItemStack drop : event.getDrops()) {
-                        drop.setAmount((int) (drop.getAmount() * vanillaMobSettings.getDropMultiplier()));
-                    }
-                    break;
-                case COMBINE:
-                    for (ItemStack drop : event.getDrops()) {
-                        drop.setAmount((int) (drop.getAmount() * vanillaMobSettings.getDropMultiplier()));
-                    }
-                    event.getDrops().addAll(mobSettings.getDrops(vanillaMobSettings.getExtraDrops()));
-                    break;
-                case CUSTOM:
-                    event.getDrops().clear();
-                    event.getDrops().addAll(mobSettings.getDrops(vanillaMobSettings.getExtraDrops()));
-                    break;
-            }
-            // Add extra drops
-            if (vanillaMobSettings.getExtraDrops() > 0) {
-                List<ItemStack> drops = mobSettings.getDrops(vanillaMobSettings.getExtraDrops());
-                event.getDrops().addAll(drops);
-            }
-        }
-    }
+			// add custom drops
+			Optional<String> specialMob = SpecialMobUtil.getSpecialMobType(entity);
+			if (!specialMob.isPresent()) {
+				BloodNight.logger().log(Level.WARNING, "No special type name was received from special mob.", new IllegalStateException());
+				return;
+			}
+			Optional<MobSetting> mobByName = mobSettings.getMobByName(specialMob.get());
+			if (mobByName.isPresent()) {
+				List<ItemStack> drops = mobSettings.getDrops(mobByName.get());
+				if (BloodNight.isDebug()) {
+					BloodNight.logger().info("Added " + drops.size() + " drops to " + event.getDrops().size() + " drops.");
+				}
+				event.getDrops().addAll(drops);
+			} else {
+				if (BloodNight.isDebug()) {
+					BloodNight.logger().info("No mob found for " + specialMob.get() + " in group ");
+				}
+			}
+		} else {
+			// If it is a vanilla mob just increase the drops.
+			switch (vanillaMobSettings.getVanillaDropMode()) {
+				case VANILLA:
+					for (ItemStack drop : event.getDrops()) {
+						drop.setAmount((int) (drop.getAmount() * vanillaMobSettings.getDropMultiplier()));
+					}
+					break;
+				case COMBINE:
+					for (ItemStack drop : event.getDrops()) {
+						drop.setAmount((int) (drop.getAmount() * vanillaMobSettings.getDropMultiplier()));
+					}
+					event.getDrops().addAll(mobSettings.getDrops(vanillaMobSettings.getExtraDrops()));
+					break;
+				case CUSTOM:
+					event.getDrops().clear();
+					event.getDrops().addAll(mobSettings.getDrops(vanillaMobSettings.getExtraDrops()));
+					break;
+			}
+			// Add extra drops
+			if (vanillaMobSettings.getExtraDrops() > 0) {
+				List<ItemStack> drops = mobSettings.getDrops(vanillaMobSettings.getExtraDrops());
+				event.getDrops().addAll(drops);
+			}
+		}
+	}
 
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onEntityExplode(EntityExplodeEvent event) {
-        WorldSettings worldSettings = configuration.getWorldSettings(event.getLocation().getWorld());
-        if (!worldSettings.isEnabled()) return;
+	@EventHandler(priority = EventPriority.HIGH)
+	public void onEntityExplode(EntityExplodeEvent event) {
+		WorldSettings worldSettings = configuration.getWorldSettings(event.getLocation().getWorld());
+		if (!worldSettings.isEnabled()) return;
 
-        if (event.getEntity().getType() != EntityType.CREEPER) return;
+		if (event.getEntity().getType() != EntityType.CREEPER) return;
 
-        boolean bloodNightActive = nightManager.isBloodNightActive(event.getLocation().getWorld());
-        if (worldSettings.isAlwaysManageCreepers() || bloodNightActive) {
-            if (!worldSettings.isCreeperBlockDamage()) {
-                int size = event.blockList().size();
-                event.blockList().clear();
-                if (BloodNight.isDebug()) {
-                    BloodNight.logger().info("Explosion is canceled? " + event.isCancelled());
-                    BloodNight.logger().info("Prevented " + size + " from destruction");
-                }
-            }
-        }
-        executeLater.add(() ->
-                getWorldMobs(event.getLocation().getWorld())
-                        .remove(event.getEntity().getUniqueId()));
-    }
+		boolean bloodNightActive = nightManager.isBloodNightActive(event.getLocation().getWorld());
+		if (worldSettings.isAlwaysManageCreepers() || bloodNightActive) {
+			if (!worldSettings.isCreeperBlockDamage()) {
+				int size = event.blockList().size();
+				event.blockList().clear();
+				if (BloodNight.isDebug()) {
+					BloodNight.logger().info("Explosion is canceled? " + event.isCancelled());
+					BloodNight.logger().info("Prevented " + size + " from destruction");
+				}
+			}
+		}
+		executeLater.add(() ->
+				getWorldMobs(event.getLocation().getWorld())
+						.remove(event.getEntity().getUniqueId()));
+	}
 
-    @EventHandler
-    private void onChunkLoad(ChunkLoadEvent event) {
-        WorldMobs worldMobs = getWorldMobs(event.getWorld());
-        for (Entity entity : event.getChunk().getEntities()) {
-            Optional<SpecialMob<?>> remove = worldMobs.remove(entity.getUniqueId());
-            if (SpecialMobUtil.isSpecialMob(entity)) {
-                if (remove.isPresent()) {
-                    remove.get().remove();
-                } else {
-                    entity.remove();
-                }
-            }
-        }
+	@EventHandler
+	private void onChunkLoad(ChunkLoadEvent event) {
+		WorldMobs worldMobs = getWorldMobs(event.getWorld());
+		for (Entity entity : event.getChunk().getEntities()) {
+			Optional<SpecialMob<?>> remove = worldMobs.remove(entity.getUniqueId());
+			if (SpecialMobUtil.isSpecialMob(entity)) {
+				if (remove.isPresent()) {
+					remove.get().remove();
+				} else {
+					entity.remove();
+				}
+			}
+		}
 
-        if (!configuration.getGeneralSettings().isBeeFix()) return;
-        AtomicInteger hives = new AtomicInteger(0);
-        AtomicInteger entites = new AtomicInteger(0);
+		if (!configuration.getGeneralSettings().isBeeFix()) return;
+		AtomicInteger hives = new AtomicInteger(0);
+		AtomicInteger entites = new AtomicInteger(0);
 
-        // Bugfix for the sin of flying creepers with bees.
-        IteratingTask<BlockState> blockStateIterator = new IteratingTask<>(
-                Arrays.asList(event.getChunk().getTileEntities()),
-                e -> {
-                    if (e instanceof Beehive) {
-                        Beehive state = (Beehive) e;
-                        hives.incrementAndGet();
-                        for (Bee entity : state.releaseEntities()) {
-                            entites.incrementAndGet();
-                            if (BloodNight.isDebug()) {
-                                BloodNight.logger().info("Checking entity with id " + entity.getEntityId() + " and " + entity.getUniqueId().toString());
-                            }
-                            if (SpecialMobUtil.isSpecialMob(entity)) {
-                                entity.remove();
-                            }
-                            return true;
-                        }
-                        e.update(true);
+		// Bugfix for the sin of flying creepers with bees.
+		IteratingTask<BlockState> blockStateIterator = new IteratingTask<>(
+				Arrays.asList(event.getChunk().getTileEntities()),
+				e -> {
+					if (e instanceof Beehive) {
+						Beehive state = (Beehive) e;
+						hives.incrementAndGet();
+						for (Bee entity : state.releaseEntities()) {
+							entites.incrementAndGet();
+							if (BloodNight.isDebug()) {
+								BloodNight.logger().info("Checking entity with id " + entity.getEntityId() + " and " + entity.getUniqueId().toString());
+							}
+							if (SpecialMobUtil.isSpecialMob(entity)) {
+								entity.remove();
+							}
+							return true;
+						}
+						e.update(true);
 
-                        Beehive newState = (Beehive) e.getBlock().getState();
-                        if (newState.getEntityCount() != 0) {
-                            if (BloodNight.isDebug()) {
-                                BloodNight.logger().warning("Bee Hive is not empty but should.");
-                            }
-                            BlockData blockData = e.getBlockData();
-                            e.getBlock().setType(Material.AIR);
-                            e.getBlock().setType(e.getType());
-                            e.setBlockData(blockData);
+						Beehive newState = (Beehive) e.getBlock().getState();
+						if (newState.getEntityCount() != 0) {
+							if (BloodNight.isDebug()) {
+								BloodNight.logger().warning("Bee Hive is not empty but should.");
+							}
+							BlockData blockData = e.getBlockData();
+							e.getBlock().setType(Material.AIR);
+							e.getBlock().setType(e.getType());
+							e.setBlockData(blockData);
 
-                            newState = (Beehive) e.getBlock().getState();
-                            if (newState.getEntityCount() != 0) {
-                                if (BloodNight.isDebug()) {
-                                    BloodNight.logger().warning("§cBee Hive is still not empty but should.");
-                                }
-                            } else {
-                                if (BloodNight.isDebug()) {
-                                    BloodNight.logger().info("§2Bee Hive is empty now.");
-                                }
-                            }
-                        }
-                    }
-                    return false;
-                },
-                s -> {
-                    if (BloodNight.isDebug() && hives.get() != 0) {
-                        BloodNight.logger().info("Checked " + hives.get() + " Hive/s with " + entites.get() + " Entities and removed " + s.getProcessedElements() + " lost bees in " + s.getTime() + "ms.");
-                    }
-                });
+							newState = (Beehive) e.getBlock().getState();
+							if (newState.getEntityCount() != 0) {
+								if (BloodNight.isDebug()) {
+									BloodNight.logger().warning("§cBee Hive is still not empty but should.");
+								}
+							} else {
+								if (BloodNight.isDebug()) {
+									BloodNight.logger().info("§2Bee Hive is empty now.");
+								}
+							}
+						}
+					}
+					return false;
+				},
+				s -> {
+					if (BloodNight.isDebug() && hives.get() != 0) {
+						BloodNight.logger().info("Checked " + hives.get() + " Hive/s with " + entites.get() + " Entities and removed " + s.getProcessedElements() + " lost bees in " + s.getTime() + "ms.");
+					}
+				});
 
-        blockStateIterator.runTaskTimer(BloodNight.getInstance(), 0, 1);
-    }
+		blockStateIterator.runTaskTimer(BloodNight.getInstance(), 0, 1);
+	}
 
-    @NonNull
-    private WorldMobs getWorldMobs(World world) {
-        return mobRegistry.computeIfAbsent(world.getName(), k -> new WorldMobs());
-    }
+	@NonNull
+	private WorldMobs getWorldMobs(World world) {
+		return mobRegistry.computeIfAbsent(world.getName(), k -> new WorldMobs());
+	}
 
-    private static class WorldMobs {
-        private final Map<UUID, SpecialMob<?>> mobs = new HashMap<>();
-        private final Queue<SpecialMob<?>> tickQueue = new ArrayDeque<>();
+	private static class WorldMobs {
+		private final Map<UUID, SpecialMob<?>> mobs = new HashMap<>();
+		private final Queue<SpecialMob<?>> tickQueue = new ArrayDeque<>();
 
-        private double entityTick = 0;
+		private double entityTick = 0;
 
-        public void invokeIfPresent(Entity entity, Consumer<SpecialMob<?>> invoke) {
-            invokeIfPresent(entity.getUniqueId(), invoke);
-        }
+		public void invokeIfPresent(Entity entity, Consumer<SpecialMob<?>> invoke) {
+			invokeIfPresent(entity.getUniqueId(), invoke);
+		}
 
-        public void invokeIfPresent(UUID uuid, Consumer<SpecialMob<?>> invoke) {
-            SpecialMob<?> specialMob = mobs.get(uuid);
-            if (specialMob != null) {
-                invoke.accept(specialMob);
-            }
-        }
+		public void invokeIfPresent(UUID uuid, Consumer<SpecialMob<?>> invoke) {
+			SpecialMob<?> specialMob = mobs.get(uuid);
+			if (specialMob != null) {
+				invoke.accept(specialMob);
+			}
+		}
 
-        public void invokeAll(Consumer<SpecialMob<?>> invoke) {
-            mobs.values().forEach(invoke);
-        }
+		public void invokeAll(Consumer<SpecialMob<?>> invoke) {
+			mobs.values().forEach(invoke);
+		}
 
-        public void tick(int tickDelay) {
-            if (tickQueue.isEmpty()) return;
-            entityTick += tickQueue.size() / (double) tickDelay;
-            while (entityTick > 0) {
-                if (tickQueue.isEmpty()) return;
-                SpecialMob<?> poll = tickQueue.poll();
-                if (!poll.getBaseEntity().isValid()) {
-                    remove(poll.getBaseEntity().getUniqueId());
-                    poll.remove();
-                    if (BloodNight.isDebug()) {
-                        //BloodNight.logger().info("Removed invalid entity.");
-                    }
-                } else {
-                    poll.tick();
-                    tickQueue.add(poll);
-                }
-                entityTick--;
-            }
-        }
+		public void tick(int tickDelay) {
+			if (tickQueue.isEmpty()) return;
+			entityTick += tickQueue.size() / (double) tickDelay;
+			while (entityTick > 0) {
+				if (tickQueue.isEmpty()) return;
+				SpecialMob<?> poll = tickQueue.poll();
+				if (!poll.getBaseEntity().isValid()) {
+					remove(poll.getBaseEntity().getUniqueId());
+					poll.remove();
+					if (BloodNight.isDebug()) {
+						//BloodNight.logger().info("Removed invalid entity.");
+					}
+				} else {
+					poll.tick();
+					tickQueue.add(poll);
+				}
+				entityTick--;
+			}
+		}
 
-        public boolean isEmpty() {
-            return mobs.isEmpty();
-        }
+		public boolean isEmpty() {
+			return mobs.isEmpty();
+		}
 
-        public void put(UUID key, SpecialMob<?> value) {
-            mobs.put(key, value);
-            tickQueue.add(value);
-        }
+		public void put(UUID key, SpecialMob<?> value) {
+			mobs.put(key, value);
+			tickQueue.add(value);
+		}
 
-        /**
-         * Attemts to remove an entity from world mobs and the world.
-         *
-         * @param key uid of entity
-         * @return special mob if present.
-         */
-        public Optional<SpecialMob<?>> remove(UUID key) {
-            if (!mobs.containsKey(key)) return Optional.empty();
-            SpecialMob<?> removed = mobs.remove(key);
-            tickQueue.remove(removed);
-            removed.remove();
-            return Optional.of(removed);
-        }
+		/**
+		 * Attemts to remove an entity from world mobs and the world.
+		 *
+		 * @param key uid of entity
+		 *
+		 * @return special mob if present.
+		 */
+		public Optional<SpecialMob<?>> remove(UUID key) {
+			if (!mobs.containsKey(key)) return Optional.empty();
+			SpecialMob<?> removed = mobs.remove(key);
+			tickQueue.remove(removed);
+			removed.remove();
+			return Optional.of(removed);
+		}
 
-        public void clear() {
-            mobs.clear();
-            tickQueue.clear();
-        }
-    }
+		public void clear() {
+			mobs.clear();
+			tickQueue.clear();
+		}
+	}
 }

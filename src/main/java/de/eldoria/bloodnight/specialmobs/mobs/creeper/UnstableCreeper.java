@@ -9,22 +9,22 @@ import org.bukkit.event.entity.EntityDamageEvent;
  * Unstable creeper explodes on damage. Can only be killed by critical attacks.
  */
 public class UnstableCreeper extends AbstractCreeper {
-    public UnstableCreeper(Creeper creeper) {
-        super(creeper);
-        setExplosionRadius(10);
-        setPowered(true);
-        setMaxFuseTicks(50);
-    }
+	public UnstableCreeper(Creeper creeper) {
+		super(creeper);
+		setExplosionRadius(10);
+		setPowered(true);
+		setMaxFuseTicks(50);
+	}
 
-    @Override
-    public void tick() {
-        SpecialMobUtil.spawnParticlesAround(getBaseEntity().getLocation(), Particle.END_ROD, 2);
-    }
+	@Override
+	public void tick() {
+		SpecialMobUtil.spawnParticlesAround(getBaseEntity().getLocation(), Particle.END_ROD, 2);
+	}
 
-    @Override
-    public void onDamage(EntityDamageEvent event) {
-        if (event.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK || event.getCause() == EntityDamageEvent.DamageCause.PROJECTILE) {
-            explode();
-        }
-    }
+	@Override
+	public void onDamage(EntityDamageEvent event) {
+		if (event.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK || event.getCause() == EntityDamageEvent.DamageCause.PROJECTILE) {
+			explode();
+		}
+	}
 }

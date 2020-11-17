@@ -7,13 +7,13 @@ import org.bukkit.entity.Player;
 
 @Getter
 class ConsistencyCache {
-    private final int timeSinceRest;
+	private final int timeSinceRest;
 
-    public ConsistencyCache(Player player) {
-        timeSinceRest = player.getStatistic(Statistic.TIME_SINCE_REST);
-    }
+	public ConsistencyCache(Player player) {
+		timeSinceRest = player.getStatistic(Statistic.TIME_SINCE_REST);
+	}
 
-    public void revert(OfflinePlayer player) {
-        player.setStatistic(Statistic.TIME_SINCE_REST, timeSinceRest);
-    }
+	public void revert(OfflinePlayer player) {
+		player.setStatistic(Statistic.TIME_SINCE_REST, timeSinceRest);
+	}
 }

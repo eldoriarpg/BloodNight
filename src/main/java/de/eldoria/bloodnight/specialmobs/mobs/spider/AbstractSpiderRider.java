@@ -9,28 +9,28 @@ import org.bukkit.event.entity.EntityDamageEvent;
 
 public abstract class AbstractSpiderRider extends ExtendedSpecialMob<Mob, Mob> {
 
-    public AbstractSpiderRider(Mob carrier, Mob passenger) {
-        super(carrier, passenger, StatSource.CARRIER);
-    }
+	public AbstractSpiderRider(Mob carrier, Mob passenger) {
+		super(carrier, passenger, StatSource.CARRIER);
+	}
 
-    @Override
-    public void tick() {
-        if (getBaseEntity().isDead() || !getBaseEntity().isValid()) {
-            remove();
-        }
-    }
+	@Override
+	public void tick() {
+		if (getBaseEntity().isDead() || !getBaseEntity().isValid()) {
+			remove();
+		}
+	}
 
-    @Override
-    public void onExtensionDamage(EntityDamageEvent event) {
-        if (event.getCause() == EntityDamageEvent.DamageCause.SUFFOCATION) {
-            event.setCancelled(true);
-            return;
-        }
-        super.onExtensionDamage(event);
-    }
+	@Override
+	public void onExtensionDamage(EntityDamageEvent event) {
+		if (event.getCause() == EntityDamageEvent.DamageCause.SUFFOCATION) {
+			event.setCancelled(true);
+			return;
+		}
+		super.onExtensionDamage(event);
+	}
 
-    @Override
-    public void onEnd() {
-        SpecialMobUtil.spawnParticlesAround(getBaseEntity(), Particle.CAMPFIRE_COSY_SMOKE, 30);
-    }
+	@Override
+	public void onEnd() {
+		SpecialMobUtil.spawnParticlesAround(getBaseEntity(), Particle.CAMPFIRE_COSY_SMOKE, 30);
+	}
 }

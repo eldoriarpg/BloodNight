@@ -7,12 +7,12 @@ import org.bukkit.entity.Phantom;
 
 public abstract class AbstractPhantom extends SpecialMob<Phantom> {
 
-    protected AbstractPhantom(Phantom phantom) {
-        super(phantom);
-    }
+	protected AbstractPhantom(Phantom phantom) {
+		super(phantom);
+	}
 
-    @Override
-    public void onEnd() {
-        SpecialMobUtil.spawnParticlesAround(getBaseEntity(), Particle.CAMPFIRE_COSY_SMOKE, 30);
-    }
+	@Override
+	public void onEnd() {
+		SpecialMobUtil.spawnParticlesAround(getBaseEntity(), Particle.CAMPFIRE_COSY_SMOKE, 30);
+	}
 }

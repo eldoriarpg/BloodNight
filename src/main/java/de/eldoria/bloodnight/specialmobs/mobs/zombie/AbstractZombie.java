@@ -5,7 +5,7 @@ import org.bukkit.entity.Zombie;
 
 public abstract class AbstractZombie extends SpecialMob<Zombie> {
 
-    protected AbstractZombie(Zombie zombie) {
-        super(zombie);
-    }
+	protected AbstractZombie(Zombie zombie) {
+		super(zombie);
+	}
 }

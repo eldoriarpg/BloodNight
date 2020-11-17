@@ -6,12 +6,12 @@ import org.bukkit.Particle;
 import org.bukkit.entity.Skeleton;
 
 public abstract class AbstractSkeleton extends SpecialMob<Skeleton> {
-    public AbstractSkeleton(Skeleton skeleton) {
-        super(skeleton);
-    }
+	public AbstractSkeleton(Skeleton skeleton) {
+		super(skeleton);
+	}
 
-    @Override
-    public void onEnd() {
-        SpecialMobUtil.spawnParticlesAround(getBaseEntity(), Particle.CAMPFIRE_COSY_SMOKE, 30);
-    }
+	@Override
+	public void onEnd() {
+		SpecialMobUtil.spawnParticlesAround(getBaseEntity(), Particle.CAMPFIRE_COSY_SMOKE, 30);
+	}
 }

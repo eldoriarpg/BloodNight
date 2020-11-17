@@ -11,24 +11,24 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 
 public class WitherWizard extends AbstractWitch {
-    public WitherWizard(Witch witch) {
-        super(witch);
-    }
+	public WitherWizard(Witch witch) {
+		super(witch);
+	}
 
-    @Override
-    public void tick() {
-        EntityEquipment equipment = getBaseEntity().getEquipment();
-        equipment.setItemInMainHand(new ItemStack(Material.WITHER_SKELETON_SKULL));
-        SpecialMobUtil.spawnParticlesAround(getBaseEntity(), Particle.SPELL_INSTANT, 15);
-        if (canShoot(5)) {
-            SpecialMobUtil.launchProjectileOnTarget(getBaseEntity(), WitherSkull.class, 4);
-            shot();
-        }
-    }
+	@Override
+	public void tick() {
+		EntityEquipment equipment = getBaseEntity().getEquipment();
+		equipment.setItemInMainHand(new ItemStack(Material.WITHER_SKELETON_SKULL));
+		SpecialMobUtil.spawnParticlesAround(getBaseEntity(), Particle.SPELL_INSTANT, 15);
+		if (canShoot(5)) {
+			SpecialMobUtil.launchProjectileOnTarget(getBaseEntity(), WitherSkull.class, 4);
+			shot();
+		}
+	}
 
-    @Override
-    public void onProjectileShoot(ProjectileLaunchEvent event) {
-        if (event.getEntity().getType() == EntityType.WITHER_SKULL) return;
-        event.setCancelled(true);
-    }
+	@Override
+	public void onProjectileShoot(ProjectileLaunchEvent event) {
+		if (event.getEntity().getType() == EntityType.WITHER_SKULL) return;
+		event.setCancelled(true);
+	}
 }
