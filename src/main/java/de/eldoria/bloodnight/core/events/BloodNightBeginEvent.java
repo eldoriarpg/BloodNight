@@ -9,12 +9,14 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * Event which is fired when a blood nights begins.
+ * <p>
+ * This event is {@link Cancellable}. If the event is canceled, no Blood Night will be initialized.
  */
 @Getter
 public class BloodNightBeginEvent extends WorldEvent implements Cancellable {
 
     private static final HandlerList HANDLERS = new HandlerList();
-    private boolean cancel;
+    private boolean cancelled;
 
     /**
      * Create a new Blood Night Begin Event.
@@ -36,11 +38,11 @@ public class BloodNightBeginEvent extends WorldEvent implements Cancellable {
 
     @Override
     public boolean isCancelled() {
-        return cancel;
+        return cancelled;
     }
 
     @Override
-    public void setCancelled(boolean cancel) {
-        this.cancel = cancel;
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
     }
 }
