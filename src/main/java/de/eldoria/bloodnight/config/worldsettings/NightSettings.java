@@ -103,7 +103,7 @@ public class NightSettings implements ConfigurationSerializable {
 				currentDuration = nightDuration * 20;
 				break;
 			case RANGE:
-				currentDuration = ThreadLocalRandom.current().nextInt(nightDuration, maxNightDuration) * 20;
+				currentDuration = ThreadLocalRandom.current().nextInt(nightDuration, maxNightDuration + 1) * 20;
 				break;
 			default:
 				throw new IllegalStateException("Unexpected value: " + nightDurationMode);

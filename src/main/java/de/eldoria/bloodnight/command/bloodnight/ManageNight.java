@@ -124,7 +124,7 @@ public class ManageNight extends EldoCommand {
 				}
 				nightSettings.setNightDuration(optionalInt.getAsInt());
 			}
-			if ("nightDuration".equalsIgnoreCase(cmd)) {
+			if ("maxNightDuration".equalsIgnoreCase(cmd)) {
 				if (invalidRange(sender, optionalInt.getAsInt(), nightSettings.getNightDuration(), 86400)) {
 					return true;
 				}
@@ -142,6 +142,9 @@ public class ManageNight extends EldoCommand {
 				return true;
 			}
 			nightSettings.setNightDurationMode(parse);
+			configuration.save();
+			sendNightSettings(sender, worldSettings);
+			return true;
 		}
 
 		messageSender().sendError(player, localizer().getMessage("error.invalidField"));
@@ -202,16 +205,18 @@ public class ManageNight extends EldoCommand {
 				.append(Component.newline());
 		switch (durationMode) {
 			case NORMAL:
-				builder.append(Component.newline())
-						.append(Component.newline());
+				builder.append(Component.text(">",NamedTextColor.GOLD))
+						.append(Component.newline())
+						.append(Component.text(">", NamedTextColor.GOLD));
 				break;
 			case EXTENDED:
 				//night duration
 				builder.append(Component.text(localizer().getMessage("field.nightDuration") + ": ", NamedTextColor.AQUA))
-						.append(Component.text(nightSettings.getCurrentNightDuration() + " " + localizer().getMessage("value.seconds"), NamedTextColor.GOLD))
+						.append(Component.text(nightSettings.getNightDuration() + " " + localizer().getMessage("value.seconds"), NamedTextColor.GOLD))
 						.append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
 								.clickEvent(ClickEvent.suggestCommand(cmd + "nightDuration ")))
-						.append(Component.newline());
+						.append(Component.newline())
+						.append(Component.text(">",NamedTextColor.GOLD));
 				break;
 			case RANGE:
 				builder.append(Component.text(localizer().getMessage("field.minDuration") + ": ", NamedTextColor.AQUA))
@@ -241,14 +246,18 @@ public class ManageNight extends EldoCommand {
 
 		String field = args[1];
 		String value = args[2];
-		if (TabCompleteUtil.isCommand(field, "nightBegin", "nightEnd", "nightDuration")) {
+		if (TabCompleteUtil.isCommand(field, "nightBegin", "nightEnd", "nightDuration", "maxNightDuration")) {
 			return TabCompleteUtil.isCommand(field, "nightBegin", "nightEnd")
 					? TabCompleteUtil.completeInt(value, 1, 24000, localizer())
 					: TabCompleteUtil.completeInt(value, 1, 86400, localizer());
 		}
 
-		if (TabCompleteUtil.isCommand(field, "enable", "skippable", "overrideDuration")) {
+		if (TabCompleteUtil.isCommand(field, "enable", "skippable")) {
 			return TabCompleteUtil.completeBoolean(value);
+		}
+
+		if(TabCompleteUtil.isCommand(field, "durationMode")){
+			return TabCompleteUtil.complete(value, NightSettings.NightDuration.class);
 		}
 		return Collections.emptyList();
 	}

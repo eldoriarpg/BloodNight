@@ -85,7 +85,7 @@ public class Placeholders extends PlaceholderExpansion {
 						if ("seconds_left".equalsIgnoreCase(params)) {
 							if (!nightManager.isBloodNightActive(world)) return "0:00";
 
-							int seconds = NightUtil.getNightSecondsRemaining(world, worldSettings);
+							int seconds = NightUtil.getTicksRemaining(world, worldSettings) / 20;
 							if (seconds > 3600) {
 								return String.format(
 										"%d:%02d:%02d",

@@ -27,7 +27,7 @@ public class NightUtil {
 		return Math.max(Math.min(left / (double) total, 1), 0);
 	}
 
-	public int getNightSecondsRemaining(World world, WorldSettings worldSettings) {
+	public int getTicksRemaining(World world, WorldSettings worldSettings) {
 		double nightProgress = getNightProgress(world, worldSettings);
 		NightSettings ns = worldSettings.getNightSettings();
 
