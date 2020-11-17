@@ -144,7 +144,7 @@ public class MobSetting implements ConfigurationSerializable {
     /**
      * Sets the display name.
      * <p>
-     * This will replace & with §
+     * This will replace &amp; with §
      *
      * @param displayName display name to set.
      */

@@ -39,6 +39,8 @@ public interface IBloodNightAPI {
     /**
      * Returns how many seconds of the blood night are left.
      *
+     * @param world the world to check
+     *
      * @return the amount of seconds or 0 if not blood night is active.
      */
     int getSecondsLeft(World world);
@@ -50,7 +52,9 @@ public interface IBloodNightAPI {
      * <p>
      * If no blood night is active this method will always return 0.
      *
-     * @return the percten between 100 and 0.
+     * @param world the world to check
+     *
+     * @return the percent between 100 and 0.
      */
     double getPercentleft(World world);
 

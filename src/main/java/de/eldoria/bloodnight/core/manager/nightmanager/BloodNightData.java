@@ -52,6 +52,8 @@ class BloodNightData {
 
     /**
      * Plays a random sound to the player in the queue.
+     *
+     * @param settings sound settings for the current world
      */
     public void playRandomSound(SoundSettings settings) {
         if (playerSoundQueue.isEmpty()) return;

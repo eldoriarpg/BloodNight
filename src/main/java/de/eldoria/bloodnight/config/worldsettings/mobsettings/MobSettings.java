@@ -146,6 +146,7 @@ public class MobSettings implements ConfigurationSerializable {
      *
      * @param totalDrops list of drops
      * @param dropAmount max amount of drops
+     * @param minDrops the min amount of drops
      *
      * @return item stack list of length between 1 and drop amount
      */

@@ -41,18 +41,25 @@ public abstract class SpecialMob<T extends LivingEntity> {
 
     /**
      * Called when the special mob teleports.
+     *
+     * @param event Event which was dispatched for this mob
      */
     public void onTeleport(EntityTeleportEvent event) {
     }
 
     /**
      * Called when the special mob launches a projectile.
+     *
+     * @param event Event which was dispatched for this mob
      */
     public void onProjectileShoot(ProjectileLaunchEvent event) {
     }
 
     /**
      * Called when a projectile launched by the special mob hit something.
+     *
+     * @param event Event which was dispatched for this mob
+
      */
     public void onProjectileHit(ProjectileHitEvent event) {
     }
