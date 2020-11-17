@@ -15,8 +15,8 @@ public class NightUtil {
     /**
      * Get the progress of the night
      *
-     * @param world
-     * @param worldSettings
+     * @param world world which refers to the settings
+     * @param worldSettings settings of the world
      * @return the night progress where 0 ist the end and 1 ist the start.
      */
     public double getNightProgress(World world, WorldSettings worldSettings) {
@@ -30,20 +30,15 @@ public class NightUtil {
         double nightProgress = getNightProgress(world, worldSettings);
         NightSettings ns = worldSettings.getNightSettings();
 
-        int nightSeconds;
-        if (ns.isOverrideNightDuration()) {
-            nightSeconds = ns.getNightDuration();
-        } else {
-            nightSeconds = (int) getDiff(ns.getNightBegin(), ns.getNightEnd());
-        }
+        int nightSeconds = ns.getCurrentNightDuration();
         return (int) (nightSeconds * getNightProgress(world, worldSettings));
     }
 
     public double getNightTicksPerTick(World world, WorldSettings worldSettings) {
         NightSettings ns = worldSettings.getNightSettings();
         long nightDurationTicks;
-        if (ns.isOverrideNightDuration()) {
-            nightDurationTicks = ns.getNightDuration() * 20;
+        if (ns.isCustomNightDuration()) {
+            nightDurationTicks = ns.getCurrentNightDuration() * 20;
         } else {
             nightDurationTicks = getDiff(ns.getNightBegin(), ns.getNightEnd());
         }
