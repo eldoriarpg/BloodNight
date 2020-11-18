@@ -43,7 +43,7 @@ public class BloodNightAPI implements IBloodNightAPI {
 	@Override
 	public int getSecondsLeft(World world) {
 		if (!isBloodNightActive(world)) return 0;
-		return NightUtil.getTicksRemaining(world, configuration.getWorldSettings(world)) / 20;
+		return NightUtil.getSecondsRemaining(world, configuration.getWorldSettings(world));
 	}
 
 	@Override
