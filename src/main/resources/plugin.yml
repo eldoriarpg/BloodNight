@@ -9,6 +9,7 @@ softdepend:
   - Multiverse-Core
   - Hyperverse
   - MythicMobs
+  - PlaceholderAPI
 
 commands:
   bloodnight:
