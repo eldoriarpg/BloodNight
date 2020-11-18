@@ -6,7 +6,7 @@
 
     <groupId>de.eldoria</groupId>
     <artifactId>bloodnight</artifactId>
-    <version>0.8.1</version>
+    <version>0.8.2</version>
     <name>BloodNight</name>
     <url>https://www.spigotmc.org/resources/85095/</url>
     <description>Nights are not hard enough? Make them harder!</description>
@@ -15,7 +15,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
         <java.version>8</java.version>
-        <shade.base>de.eldoria.${artifactId}</shade.base>
+        <shade.base>de.eldoria.${project.artifactId}</shade.base>
         <eldoutil.version>1.0.38</eldoutil.version>
         <javadoc.version>3.2.0</javadoc.version>
         <source.version>3.2.1</source.version>
