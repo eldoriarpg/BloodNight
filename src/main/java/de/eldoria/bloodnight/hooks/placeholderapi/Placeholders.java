@@ -2,12 +2,7 @@ package de.eldoria.bloodnight.hooks.placeholderapi;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import de.eldoria.bloodnight.config.Configuration;
-import de.eldoria.bloodnight.config.worldsettings.NightSelection;
-import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.core.BloodNight;
-import de.eldoria.bloodnight.core.manager.NightManager;
-import de.eldoria.bloodnight.core.manager.nightmanager.NightUtil;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -22,17 +17,9 @@ public class Placeholders extends PlaceholderExpansion {
 
 	private final Pattern probability = Pattern.compile("probability(?:_([0-9]))?");
 
-	private final NightManager nightManager;
-	private final Configuration configuration;
 	private final Cache<String, String> worldCache = CacheBuilder.newBuilder()
 			.expireAfterWrite(2, TimeUnit.SECONDS)
 			.build();
-
-	public Placeholders(NightManager nightManager, Configuration configuration) {
-		this.nightManager = nightManager;
-		this.configuration = configuration;
-	}
-
 
 	@Override
 	public @NotNull String getIdentifier() {
@@ -62,8 +49,6 @@ public class Placeholders extends PlaceholderExpansion {
 	@Override
 	public String onPlaceholderRequest(Player player, @NotNull String params) {
 		World world = player.getWorld();
-		WorldSettings worldSettings = configuration.getWorldSettings(world);
-		NightSelection sel = worldSettings.getNightSelection();
 		try {
 			return worldCache.get(world.getName() + "_" + params,
 					() -> {
@@ -71,7 +56,7 @@ public class Placeholders extends PlaceholderExpansion {
 						if (matcher.matches()) {
 							String group = matcher.group(1);
 							if (group == null) {
-								return String.valueOf(sel.getNextProbability(world, 1));
+								return String.valueOf(BloodNight.getBloodNightAPI().nextProbability(world, 1));
 							}
 							int i;
 							try {
@@ -79,13 +64,13 @@ public class Placeholders extends PlaceholderExpansion {
 							} catch (NumberFormatException e) {
 								return "0";
 							}
-							return String.valueOf(sel.getNextProbability(world, i));
+							return String.valueOf(BloodNight.getBloodNightAPI().nextProbability(world, i));
 						}
 
 						if ("seconds_left".equalsIgnoreCase(params)) {
-							if (!nightManager.isBloodNightActive(world)) return "0:00";
+							if (!BloodNight.getBloodNightAPI().isBloodNightActive(world)) return "0:00";
 
-							int seconds = NightUtil.getTicksRemaining(world, worldSettings) / 20;
+							int seconds = BloodNight.getBloodNightAPI().getSecondsLeft(world);
 							if (seconds > 3600) {
 								return String.format(
 										"%d:%02d:%02d",
@@ -101,12 +86,12 @@ public class Placeholders extends PlaceholderExpansion {
 						}
 
 						if ("percent_left".equalsIgnoreCase(params)) {
-							if (!nightManager.isBloodNightActive(world)) return "0";
-							return String.format("%.1f", NightUtil.getNightProgress(world, worldSettings) * 100);
+							if (!BloodNight.getBloodNightAPI().isBloodNightActive(world)) return "0";
+							return String.format("%.1f", BloodNight.getBloodNightAPI().getPercentleft(world));
 						}
 
 						if ("active".equalsIgnoreCase(params)) {
-							return String.valueOf(nightManager.isBloodNightActive(world));
+							return String.valueOf(BloodNight.getBloodNightAPI().isBloodNightActive(world));
 						}
 						BloodNight.logger().info("Could not calc placeholder settings for " + "bloodnight_" + params);
 						return "";
