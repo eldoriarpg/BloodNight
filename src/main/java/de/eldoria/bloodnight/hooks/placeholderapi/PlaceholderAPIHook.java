@@ -1,19 +1,13 @@
 package de.eldoria.bloodnight.hooks.placeholderapi;
 
-import de.eldoria.bloodnight.config.Configuration;
-import de.eldoria.bloodnight.core.manager.NightManager;
 import de.eldoria.bloodnight.hooks.AbstractHookService;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 
 public class PlaceholderAPIHook extends AbstractHookService<PlaceholderAPIPlugin> {
-	private final Configuration configuration;
-	private final NightManager nightManager;
 	private Placeholders placeholders;
 
-	public PlaceholderAPIHook(Configuration configuration, NightManager nightManager) {
+	public PlaceholderAPIHook() {
 		super("PlaceholderAPI");
-		this.configuration = configuration;
-		this.nightManager = nightManager;
 	}
 
 	@Override
@@ -23,7 +17,7 @@ public class PlaceholderAPIHook extends AbstractHookService<PlaceholderAPIPlugin
 
 	@Override
 	public void setup() {
-		placeholders = new Placeholders(nightManager, configuration);
+		placeholders = new Placeholders();
 		placeholders.register();
 	}
 

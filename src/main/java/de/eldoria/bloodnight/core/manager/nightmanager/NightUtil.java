@@ -2,6 +2,7 @@ package de.eldoria.bloodnight.core.manager.nightmanager;
 
 import de.eldoria.bloodnight.config.worldsettings.NightSettings;
 import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
+import de.eldoria.eldoutilities.utils.EMath;
 import lombok.experimental.UtilityClass;
 import org.bukkit.World;
 
@@ -24,25 +25,18 @@ public class NightUtil {
 		NightSettings settings = worldSettings.getNightSettings();
 		long total = getDiff(settings.getNightBegin(), settings.getNightEnd());
 		long left = getDiff(world.getFullTime(), settings.getNightEnd());
-		return Math.max(Math.min(left / (double) total, 1), 0);
+		return EMath.clamp(0, 1, left / (double) total);
 	}
 
-	public int getTicksRemaining(World world, WorldSettings worldSettings) {
-		double nightProgress = getNightProgress(world, worldSettings);
+	public int getSecondsRemaining(World world, WorldSettings worldSettings) {
 		NightSettings ns = worldSettings.getNightSettings();
-
-		int nightSeconds = ns.getCurrentNightDuration();
+		int nightSeconds = ns.getCurrentNightDuration() / 20;
 		return (int) (nightSeconds * getNightProgress(world, worldSettings));
 	}
 
 	public double getNightTicksPerTick(World world, WorldSettings worldSettings) {
 		NightSettings ns = worldSettings.getNightSettings();
-		long nightDurationTicks;
-		if (ns.isCustomNightDuration()) {
-			nightDurationTicks = ns.getCurrentNightDuration() * 20;
-		} else {
-			nightDurationTicks = getDiff(ns.getNightBegin(), ns.getNightEnd());
-		}
+		long nightDurationTicks = ns.getCurrentNightDuration();
 		long normalTicks = getDiff(ns.getNightBegin(), ns.getNightEnd());
 		return (double) normalTicks / nightDurationTicks;
 	}

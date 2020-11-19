@@ -26,7 +26,7 @@ public class GeneralSettings implements ConfigurationSerializable {
 	private boolean updateReminder = true;
 	private boolean autoUpdater = false;
 	private boolean beeFix = false;
-	private boolean spawnerDropSuppression = false;
+	private boolean spawnerDropSuppression = true;
 
 	public GeneralSettings(Map<String, Object> objectMap) {
 		TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
