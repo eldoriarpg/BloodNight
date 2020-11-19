@@ -18,7 +18,7 @@ public class Placeholders extends PlaceholderExpansion {
 	private final Pattern probability = Pattern.compile("probability(?:_([0-9]))?");
 
 	private final Cache<String, String> worldCache = CacheBuilder.newBuilder()
-			.expireAfterWrite(2, TimeUnit.SECONDS)
+			.expireAfterWrite(500, TimeUnit.MILLISECONDS)
 			.build();
 
 	@Override
