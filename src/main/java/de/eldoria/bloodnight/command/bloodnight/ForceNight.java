@@ -5,8 +5,10 @@ import de.eldoria.bloodnight.core.manager.NightManager;
 import de.eldoria.bloodnight.util.Permissions;
 import de.eldoria.eldoutilities.localization.Replacement;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
+import de.eldoria.eldoutilities.simplecommands.TabCompleteUtil;
 import de.eldoria.eldoutilities.utils.ArgumentUtils;
 import de.eldoria.eldoutilities.utils.ArrayUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -58,7 +60,7 @@ public class ForceNight extends EldoCommand {
 					Replacement.create("WORLD", world.getName()).addFormatting('6')));
 			return true;
 		}
-		if (!nightManager.getBloodWorlds().contains(world)) {
+		if (!nightManager.getBloodWorldsSet().contains(world)) {
 			nightManager.forceNight(world);
 			messageSender().sendMessage(sender, localizer().getMessage("forceNight.enabeld",
 					Replacement.create("WORLD", world.getName()).addFormatting('6')));
@@ -72,8 +74,7 @@ public class ForceNight extends EldoCommand {
 	@Override
 	public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
 		if (args.length == 1) {
-			String[] strings = nightManager.getObservedWorlds().stream().map(World::getName).toArray(String[]::new);
-			return ArrayUtil.startingWithInArray(args[0], strings).collect(Collectors.toList());
+			return TabCompleteUtil.completeWorlds(args[0]);
 		}
 		return Collections.emptyList();
 	}

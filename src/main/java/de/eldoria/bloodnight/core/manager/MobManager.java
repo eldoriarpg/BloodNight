@@ -142,7 +142,7 @@ public class MobManager implements Listener, Runnable {
 
 	@Override
 	public void run() {
-		for (World bloodWorld : nightManager.getBloodWorlds()) {
+		for (World bloodWorld : nightManager.getBloodWorldsSet()) {
 			getWorldMobs(bloodWorld).tick(configuration.getGeneralSettings().getMobTick());
 		}
 
