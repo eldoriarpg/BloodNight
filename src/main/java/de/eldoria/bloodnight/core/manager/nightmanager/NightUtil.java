@@ -49,7 +49,6 @@ public class NightUtil {
 	public boolean isNight(World world, WorldSettings worldSettings) {
 		long openInTicks = getDiff(world.getFullTime(), worldSettings.getNightSettings().getNightBegin());
 		long closedInTicks = getDiff(world.getFullTime(), worldSettings.getNightSettings().getNightEnd());
-		// check if door should be open
 		return openInTicks > closedInTicks;
 	}
 }
