@@ -24,7 +24,8 @@ public class PlayerDeathActions extends DeathActions {
 	/**
 	 * Probability of the player to lose and not drop its inventory.
 	 */
-	private int loseInventoryProbability = 100;
+	private int loseInvProbability = 0;
+	private int loseExpProbability = 0;
 
 	private List<PotionEffectType> respawnEffects = new ArrayList<PotionEffectType>() {{
 		add(PotionEffectType.WEAKNESS);
@@ -36,7 +37,8 @@ public class PlayerDeathActions extends DeathActions {
 		super(objectMap);
 		TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
 		deathCommands = map.getValueOrDefault("deathCommands", deathCommands);
-		loseInventoryProbability = map.getValueOrDefault("loseInventoryProbability", loseInventoryProbability);
+		loseInvProbability = map.getValueOrDefault("loseInvProbability", loseInvProbability);
+		loseExpProbability = map.getValueOrDefault("loseExpProbability", loseInvProbability);
 		respawnEffects = map.getValueOrDefault("respawnEffects", respawnEffects);
 		effectDuration = map.getValueOrDefault("effectDuration", effectDuration);
 	}
@@ -48,7 +50,8 @@ public class PlayerDeathActions extends DeathActions {
 	public @NotNull Map<String, Object> serialize() {
 		return SerializationUtil.newBuilder(super.serialize())
 				.add("deathCommands", deathCommands)
-				.add("loseInventoryProbability", loseInventoryProbability)
+				.add("loseInvProbability", loseInvProbability)
+				.add("loseExpProbability", loseExpProbability)
 				.add("respawnEffects", respawnEffects)
 				.add("effectDuration", effectDuration)
 				.build();

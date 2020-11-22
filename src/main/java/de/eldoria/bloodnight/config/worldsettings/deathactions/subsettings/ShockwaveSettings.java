@@ -6,12 +6,17 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Getter
 @Setter
@@ -36,7 +41,7 @@ public class ShockwaveSettings implements ConfigurationSerializable {
 	 */
 	protected int shockwaveRange = 10;
 
-	protected List<PotionEffectType> shockwaveEffect = new ArrayList<PotionEffectType>() {{
+	protected List<PotionEffectType> shockwaveEffects = new ArrayList<PotionEffectType>() {{
 		add(PotionEffectType.CONFUSION);
 	}};
 
@@ -55,7 +60,7 @@ public class ShockwaveSettings implements ConfigurationSerializable {
 		shockwaveProbability = map.getValueOrDefault("shockwaveProbability", shockwaveProbability);
 		shockwavePower = map.getValueOrDefault("shockwavePower", shockwavePower);
 		shockwaveRange = map.getValueOrDefault("shockwaveRange", shockwaveRange);
-		shockwaveEffect = map.getValueOrDefault("shockwaveEffect", shockwaveEffect);
+		shockwaveEffects = map.getValueOrDefault("shockwaveEffects", shockwaveEffects);
 		minDuration = map.getValueOrDefault("minDuration", minDuration);
 		maxDuration = map.getValueOrDefault("maxDuration", maxDuration);
 	}
@@ -69,9 +74,25 @@ public class ShockwaveSettings implements ConfigurationSerializable {
 				.add("shockwaveProbability", shockwaveProbability)
 				.add("shockwavePower", shockwavePower)
 				.add("shockwaveRange", shockwaveRange)
-				.add("shockwaveEffect", shockwaveEffect)
+				.add("shockwaveEffect", shockwaveEffects)
 				.add("minDuration", minDuration)
 				.add("maxDuration", maxDuration)
 				.build();
+	}
+
+	public double getPower(Vector vector) {
+		double range = Math.pow(shockwaveRange, 2);
+		double dist = vector.length();
+		if (dist >= range) return 0;
+		return (1 - range / dist) * shockwavePower;
+	}
+
+	public void applyEffects(Entity entity) {
+		if (!(entity instanceof LivingEntity)) return;
+		LivingEntity livingEntity = (LivingEntity) entity;
+		int duration = ThreadLocalRandom.current().nextInt(minDuration, maxDuration) * 20;
+		for (PotionEffectType potionEffectType : shockwaveEffects) {
+			livingEntity.addPotionEffect(new PotionEffect(potionEffectType, duration, 1));
+		}
 	}
 }

@@ -2,6 +2,7 @@ package de.eldoria.bloodnight.core.manager;
 
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
+import de.eldoria.bloodnight.config.worldsettings.deathactions.subsettings.ShockwaveSettings;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSetting;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSettings;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.VanillaMobSettings;
@@ -394,6 +395,10 @@ public class MobManager implements Listener, Runnable {
 			return;
 		}
 
+		WorldSettings worldSettings = configuration.getWorldSettings(entity.getWorld());
+		ShockwaveSettings shockwaveSettings = worldSettings.getDeathActionSettings().getMobDeathActions().getShockwaveSettings();
+		SpecialMobUtil.dispatchShockwave(shockwaveSettings, event.getEntity().getLocation());
+
 		if (configuration.getGeneralSettings().isSpawnerDropSuppression()) {
 			if (entity.getPersistentDataContainer().has(SPAWNER_SPAWNED, PersistentDataType.BYTE)) {
 				return;
@@ -405,7 +410,7 @@ public class MobManager implements Listener, Runnable {
 			return;
 		}
 
-		MobSettings mobSettings = configuration.getWorldSettings(entity.getWorld()).getMobSettings();
+		MobSettings mobSettings = worldSettings.getMobSettings();
 		VanillaMobSettings vanillaMobSettings = mobSettings.getVanillaMobSettings();
 		event.setDroppedExp((int) (event.getDroppedExp() * mobSettings.getExperienceMultiplier()));
 

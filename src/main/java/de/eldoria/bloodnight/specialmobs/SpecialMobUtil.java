@@ -1,5 +1,7 @@
 package de.eldoria.bloodnight.specialmobs;
 
+import de.eldoria.bloodnight.config.worldsettings.deathactions.subsettings.LightningSettings;
+import de.eldoria.bloodnight.config.worldsettings.deathactions.subsettings.ShockwaveSettings;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.specialmobs.effects.ParticleCloud;
 import de.eldoria.bloodnight.specialmobs.effects.PotionCloud;
@@ -10,6 +12,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -27,6 +31,8 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -339,6 +345,46 @@ public final class SpecialMobUtil {
 		}
 		other.setHealth(newHealth);
 		other.playEffect(EntityEffect.HURT);
+	}
+
+	/**
+	 * Dispatch a shockwave at a location when probability is given.
+	 *
+	 * @param settings shockwave settings
+	 * @param location location of shockwave
+	 */
+	public static void dispatchShockwave(ShockwaveSettings settings, Location location) {
+		if (settings.getShockwaveProbability() < ThreadLocalRandom.current().nextInt(101)
+				|| settings.getShockwaveProbability() == 0) return;
+
+		for (Entity entity : getEntitiesAround(location, settings.getShockwaveRange())) {
+			Vector directionVector = VectorUtil.getDirectionVector(location, entity.getLocation());
+			double power = settings.getPower(directionVector);
+			entity.setVelocity(directionVector.normalize().multiply(power));
+			settings.applyEffects(entity);
+		}
+	}
+
+	public static void dispatchLightning(LightningSettings settings, Location location) {
+		if (location.getWorld() == null) return;
+		if (settings.isDoLightning() && settings.getLightning() != 0) {
+			if (ThreadLocalRandom.current().nextInt(101) <= settings.getLightning()) {
+				location.getWorld().strikeLightningEffect(location.clone().add(0, 20, 0));
+				return;
+			}
+		}
+
+		if (settings.isDoThunder() && settings.getThunder() != 0) {
+			if (ThreadLocalRandom.current().nextInt(101) <= settings.getThunder()) {
+				location.getWorld().getPlayers().forEach(p ->
+						p.playSound(p.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.WEATHER, 1, 1));
+			}
+		}
+	}
+
+	public static Collection<Entity> getEntitiesAround(Location location, double range) {
+		if (location.getWorld() == null) return Collections.emptyList();
+		return location.getWorld().getNearbyEntities(location, range, range, range);
 	}
 
 	/**

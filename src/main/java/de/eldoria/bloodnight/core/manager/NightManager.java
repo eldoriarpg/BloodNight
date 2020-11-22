@@ -5,11 +5,13 @@ import de.eldoria.bloodnight.config.worldsettings.BossBarSettings;
 import de.eldoria.bloodnight.config.worldsettings.NightSelection;
 import de.eldoria.bloodnight.config.worldsettings.NightSettings;
 import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
+import de.eldoria.bloodnight.config.worldsettings.deathactions.PlayerDeathActions;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.core.events.BloodNightBeginEvent;
 import de.eldoria.bloodnight.core.events.BloodNightEndEvent;
 import de.eldoria.bloodnight.core.manager.nightmanager.BloodNightData;
 import de.eldoria.bloodnight.core.manager.nightmanager.NightUtil;
+import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
 import de.eldoria.bloodnight.util.C;
 import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.messages.MessageSender;
@@ -25,10 +27,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.world.TimeSkipEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.plugin.PluginManager;
@@ -187,14 +191,12 @@ public class NightManager implements Listener, Runnable {
 		if (current) {
 			// A new night has begun.
 			startNight.add(world);
-			//initializeBloodNight(world);
 			return;
 		}
 
 		if (isBloodNightActive(world)) {
 			// A blood night has ended.
 			endNight.add(world);
-			//resolveBloodNight(world);
 		}
 	}
 
@@ -396,6 +398,35 @@ public class NightManager implements Listener, Runnable {
 		if (nightSettings.isSkippable()) return;
 		messageSender.sendMessage(event.getPlayer(), localizer.getMessage("notify.youCantSleep"));
 		event.setCancelled(true);
+	}
+
+	@EventHandler
+	public void onPlayerDeath(PlayerDeathEvent event) {
+		PlayerDeathActions actions = configuration.getWorldSettings(event.getEntity().getWorld())
+				.getDeathActionSettings()
+				.getPlayerDeathActions();
+		SpecialMobUtil.dispatchShockwave(actions.getShockwaveSettings(), event.getEntity().getLocation());
+		SpecialMobUtil.dispatchLightning(actions.getLightningSettings(), event.getEntity().getLocation());
+
+		if (actions.getLoseInvProbability() < ThreadLocalRandom.current().nextInt(101)) {
+			event.getDrops().clear();
+		}
+		if (actions.getLoseExpProbability() < ThreadLocalRandom.current().nextInt(101)) {
+			event.getDrops().clear();
+		}
+		for (String deathCommand : actions.getDeathCommands()) {
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), deathCommand.replace("{player}", event.getEntity().getName()));
+		}
+	}
+
+	@EventHandler
+	public void onPlayerRespawn(PlayerRespawnEvent event) {
+		PlayerDeathActions actions = configuration.getWorldSettings(event.getPlayer().getWorld())
+				.getDeathActionSettings()
+				.getPlayerDeathActions();
+		for (PotionEffectType respawnEffect : actions.getRespawnEffects()) {
+			event.getPlayer().addPotionEffect(new PotionEffect(respawnEffect, actions.getEffectDuration(), 1));
+		}
 	}
 
 
