@@ -36,7 +36,9 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityDropItemEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.event.entity.ExplosionPrimeEvent;
@@ -44,6 +46,7 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
@@ -63,6 +66,7 @@ import java.util.logging.Level;
 
 public class MobManager implements Listener, Runnable {
 	private static final NamespacedKey SPAWNER_SPAWNED = BloodNight.getNamespacedKey("spawnerSpawned");
+	private static final NamespacedKey PICKED_UP = BloodNight.getNamespacedKey("pickedUp");
 	private final Map<String, WorldMobs> mobRegistry = new HashMap<>();
 	private final NightManager nightManager;
 	private final Configuration configuration;
@@ -138,7 +142,7 @@ public class MobManager implements Listener, Runnable {
 
 	@Override
 	public void run() {
-		for (World bloodWorld : nightManager.getBloodWorlds()) {
+		for (World bloodWorld : nightManager.getBloodWorldsSet()) {
 			getWorldMobs(bloodWorld).tick(configuration.getGeneralSettings().getMobTick());
 		}
 
@@ -364,14 +368,31 @@ public class MobManager implements Listener, Runnable {
 		}
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void onItemPickup(EntityPickupItemEvent event) {
+		if (!(event.getEntity() instanceof Monster) && !(event.getEntity() instanceof Boss)) return;
+		if (!configuration.getWorldSettings(event.getEntity().getWorld()).isEnabled()) return;
+		addPickupTag(event.getItem().getItemStack());
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void onItemPickup(EntityDropItemEvent event) {
+		if (!(event.getEntity() instanceof Monster) && !(event.getEntity() instanceof Boss)) return;
+		if (!configuration.getWorldSettings(event.getEntity().getWorld()).isEnabled()) return;
+		removePickupTag(event.getItemDrop().getItemStack());
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onEntityKill(EntityDeathEvent event) {
 		LivingEntity entity = event.getEntity();
 		Player player = event.getEntity().getKiller();
 
 		if (!(entity instanceof Monster || entity instanceof Boss)) return;
 
-		if (!nightManager.isBloodNightActive(entity.getWorld())) return;
+		if (!nightManager.isBloodNightActive(entity.getWorld())) {
+			event.getDrops().forEach(this::removePickupTag);
+			return;
+		}
 
 		if (configuration.getGeneralSettings().isSpawnerDropSuppression()) {
 			if (entity.getPersistentDataContainer().has(SPAWNER_SPAWNED, PersistentDataType.BYTE)) {
@@ -421,6 +442,7 @@ public class MobManager implements Listener, Runnable {
 				}
 				// Raise amount of drops by multiplier
 				for (ItemStack drop : event.getDrops()) {
+					if (isPickedUp(drop)) continue;
 					drop.setAmount((int) (drop.getAmount() * vanillaMobSettings.getDropMultiplier()));
 				}
 			}
@@ -448,11 +470,13 @@ public class MobManager implements Listener, Runnable {
 			switch (vanillaMobSettings.getVanillaDropMode()) {
 				case VANILLA:
 					for (ItemStack drop : event.getDrops()) {
+						if (isPickedUp(drop)) continue;
 						drop.setAmount((int) (drop.getAmount() * vanillaMobSettings.getDropMultiplier()));
 					}
 					break;
 				case COMBINE:
 					for (ItemStack drop : event.getDrops()) {
+						if (isPickedUp(drop)) continue;
 						drop.setAmount((int) (drop.getAmount() * vanillaMobSettings.getDropMultiplier()));
 					}
 					event.getDrops().addAll(mobSettings.getDrops(vanillaMobSettings.getExtraDrops()));
@@ -566,6 +590,40 @@ public class MobManager implements Listener, Runnable {
 	@NonNull
 	private WorldMobs getWorldMobs(World world) {
 		return mobRegistry.computeIfAbsent(world.getName(), k -> new WorldMobs());
+	}
+
+	private void addPickupTag(ItemStack itemStack) {
+		ItemMeta itemMeta = itemStack.getItemMeta();
+		if (itemMeta != null) {
+			if (BloodNight.isDebug()) {
+				BloodNight.logger().info("Marked item as Pickup.");
+			}
+			PersistentDataContainer container = itemMeta.getPersistentDataContainer();
+			container.set(PICKED_UP, PersistentDataType.BYTE, (byte) 1);
+		}
+		itemStack.setItemMeta(itemMeta);
+	}
+
+	private void removePickupTag(ItemStack itemStack) {
+		ItemMeta itemMeta = itemStack.getItemMeta();
+		if (itemMeta != null) {
+			if (BloodNight.isDebug()) {
+				BloodNight.logger().info("Removed pickup tag from item.");
+			}
+			PersistentDataContainer container = itemMeta.getPersistentDataContainer();
+			if (container.has(PICKED_UP, PersistentDataType.BYTE))
+				container.remove(PICKED_UP);
+		}
+		itemStack.setItemMeta(itemMeta);
+	}
+
+	private boolean isPickedUp(ItemStack itemStack) {
+		ItemMeta itemMeta = itemStack.getItemMeta();
+		if (itemMeta != null) {
+			PersistentDataContainer container = itemMeta.getPersistentDataContainer();
+			return container.has(PICKED_UP, PersistentDataType.BYTE);
+		}
+		return false;
 	}
 
 	private static class WorldMobs {

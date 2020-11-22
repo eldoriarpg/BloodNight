@@ -37,13 +37,13 @@ public class BloodNightAPI implements IBloodNightAPI {
 
 	@Override
 	public Set<World> getBloodWorlds() {
-		return nightManager.getBloodWorlds();
+		return nightManager.getBloodWorldsSet();
 	}
 
 	@Override
 	public int getSecondsLeft(World world) {
 		if (!isBloodNightActive(world)) return 0;
-		return NightUtil.getTicksRemaining(world, configuration.getWorldSettings(world)) / 20;
+		return NightUtil.getSecondsRemaining(world, configuration.getWorldSettings(world));
 	}
 
 	@Override
@@ -54,8 +54,8 @@ public class BloodNightAPI implements IBloodNightAPI {
 
 	@Override
 	public int nextProbability(World world, int offset) {
-		if (!isBloodNightActive(world)) return 0;
+		//if (!isBloodNightActive(world)) return 0;
 		NightSelection ns = configuration.getWorldSettings(world).getNightSelection();
-		return ns.getNextProbability(world, 1);
+		return ns.getNextProbability(world, offset);
 	}
 }
