@@ -1,5 +1,6 @@
 package de.eldoria.bloodnight.config.worldsettings;
 
+import de.eldoria.bloodnight.config.worldsettings.deathactions.DeathActionSettings;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSettings;
 import de.eldoria.bloodnight.config.worldsettings.sound.SoundSettings;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
@@ -26,6 +27,7 @@ public class WorldSettings implements ConfigurationSerializable {
 	private NightSettings nightSettings = new NightSettings();
 	private MobSettings mobSettings = new MobSettings();
 	private SoundSettings soundSettings = new SoundSettings();
+	private DeathActionSettings deathActionSettings = new DeathActionSettings();
 
 	public WorldSettings(Map<String, Object> objectMap) {
 		TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
@@ -39,6 +41,7 @@ public class WorldSettings implements ConfigurationSerializable {
 		nightSettings = map.getValueOrDefault("nightSettings", nightSettings);
 		mobSettings = map.getValueOrDefault("mobSettings", mobSettings);
 		soundSettings = map.getValueOrDefault("soundSettings", soundSettings);
+		deathActionSettings = map.getValueOrDefault("deathActionSettings", deathActionSettings);
 	}
 
 	public WorldSettings(String world) {
@@ -57,6 +60,7 @@ public class WorldSettings implements ConfigurationSerializable {
 				.add("nightSettings", nightSettings)
 				.add("mobSettings", mobSettings)
 				.add("soundSettings", soundSettings)
+				.add("deathActionSettings", deathActionSettings)
 				.build();
 	}
 }
