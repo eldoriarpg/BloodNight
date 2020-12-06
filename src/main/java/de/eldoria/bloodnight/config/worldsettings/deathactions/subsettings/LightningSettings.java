@@ -1,11 +1,17 @@
 package de.eldoria.bloodnight.config.worldsettings.deathactions.subsettings;
 
+import de.eldoria.bloodnight.util.InvMenuUtil;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -53,5 +59,12 @@ public class LightningSettings implements ConfigurationSerializable {
 				.add("doThunder", doThunder)
 				.add("thunder", thunder)
 				.build();
+	}
+
+	public Inventory getInventoryRepresentation(Player inventoryHolder) {
+		Inventory inventory = Bukkit.createInventory(inventoryHolder, 9);
+		Material type;
+		ItemStack lightingState = new ItemStack(InvMenuUtil.getBooleanMaterial(doLightning));
+		return null;
 	}
 }

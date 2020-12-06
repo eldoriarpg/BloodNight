@@ -18,6 +18,8 @@ import java.util.Map;
 public class PlayerDeathActions extends DeathActions {
 	/**
 	 * Commands which will be executed when a player dies.
+	 * <p>
+	 * Should support the {@code {player}} placeholder.
 	 */
 	private List<String> deathCommands = new ArrayList<>();
 
