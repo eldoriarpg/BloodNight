@@ -595,9 +595,6 @@ public class MobManager implements Listener, Runnable {
 	private void addPickupTag(ItemStack itemStack) {
 		ItemMeta itemMeta = itemStack.getItemMeta();
 		if (itemMeta != null) {
-			if (BloodNight.isDebug()) {
-				BloodNight.logger().info("Marked item as Pickup.");
-			}
 			PersistentDataContainer container = itemMeta.getPersistentDataContainer();
 			container.set(PICKED_UP, PersistentDataType.BYTE, (byte) 1);
 		}
@@ -607,9 +604,6 @@ public class MobManager implements Listener, Runnable {
 	private void removePickupTag(ItemStack itemStack) {
 		ItemMeta itemMeta = itemStack.getItemMeta();
 		if (itemMeta != null) {
-			if (BloodNight.isDebug()) {
-				BloodNight.logger().info("Removed pickup tag from item.");
-			}
 			PersistentDataContainer container = itemMeta.getPersistentDataContainer();
 			if (container.has(PICKED_UP, PersistentDataType.BYTE))
 				container.remove(PICKED_UP);
@@ -656,9 +650,6 @@ public class MobManager implements Listener, Runnable {
 				if (!poll.getBaseEntity().isValid()) {
 					remove(poll.getBaseEntity().getUniqueId());
 					poll.remove();
-					if (BloodNight.isDebug()) {
-						//BloodNight.logger().info("Removed invalid entity.");
-					}
 				} else {
 					poll.tick();
 					tickQueue.add(poll);
