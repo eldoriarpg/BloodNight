@@ -205,7 +205,7 @@ public class ManageNight extends EldoCommand {
 				.append(Component.newline());
 		switch (durationMode) {
 			case NORMAL:
-				builder.append(Component.text(">",NamedTextColor.GOLD))
+				builder.append(Component.text(">", NamedTextColor.GOLD))
 						.append(Component.newline())
 						.append(Component.text(">", NamedTextColor.GOLD));
 				break;
@@ -216,7 +216,7 @@ public class ManageNight extends EldoCommand {
 						.append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
 								.clickEvent(ClickEvent.suggestCommand(cmd + "nightDuration ")))
 						.append(Component.newline())
-						.append(Component.text(">",NamedTextColor.GOLD));
+						.append(Component.text(">", NamedTextColor.GOLD));
 				break;
 			case RANGE:
 				builder.append(Component.text(localizer().getMessage("field.minDuration") + ": ", NamedTextColor.AQUA))
@@ -256,7 +256,7 @@ public class ManageNight extends EldoCommand {
 			return TabCompleteUtil.completeBoolean(value);
 		}
 
-		if(TabCompleteUtil.isCommand(field, "durationMode")){
+		if (TabCompleteUtil.isCommand(field, "durationMode")) {
 			return TabCompleteUtil.complete(value, NightSettings.NightDuration.class);
 		}
 		return Collections.emptyList();
