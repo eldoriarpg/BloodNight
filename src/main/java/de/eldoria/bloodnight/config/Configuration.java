@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -97,7 +98,7 @@ public class Configuration extends EldoConfig {
 		getMainConfig().set("worldSettings", null);
 	}
 
-	private WorldSettings loadWorldSettings(String world, boolean reload) {
+	private @NotNull WorldSettings loadWorldSettings(String world, boolean reload) {
 		if (reload) {
 			return worldSettings.compute(world, (k, v) -> {
 				FileConfiguration config = loadConfig(getWorldConfigPath(world), c -> {
@@ -132,7 +133,7 @@ public class Configuration extends EldoConfig {
 		}
 	}
 
-	private String getWorldConfigPath(String world) {
+	private @NotNull String getWorldConfigPath(String world) {
 		return "worldSettings/" + world;
 	}
 }
