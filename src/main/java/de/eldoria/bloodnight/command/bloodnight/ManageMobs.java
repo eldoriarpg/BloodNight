@@ -119,8 +119,8 @@ public class ManageMobs extends EldoCommand {
 			return true;
 		}
 
-		if (ArrayUtil.arrayContains(new String[]{"monsterDamage", "vanillaMonsterDamage", "monsterHealth",
-				"vanillaPlayerHealth", "experience", "drops"}, field)) {
+		if (ArrayUtil.arrayContains(new String[]{"monsterDamage", "vanillaMonsterDamage", "vanillaMonsterHealth",
+				"monsterHealth", "experience", "vanillaDropsMulti"}, field)) {
 			OptionalDouble optionalDouble = Parser.parseDouble(value);
 			if (!optionalDouble.isPresent()) {
 				messageSender().sendError(sender, localizer().getMessage("error.invalidNumber"));
@@ -134,13 +134,13 @@ public class ManageMobs extends EldoCommand {
 			if ("monsterDamage".equalsIgnoreCase(field)) {
 				mobSettings.setDamageMultiplier(optionalDouble.getAsDouble());
 			}
-			if ("vanillaMonsterDamage".equalsIgnoreCase(field)) {
-				mobSettings.getVanillaMobSettings().setDamageMultiplier(optionalDouble.getAsDouble());
-			}
 			if ("monsterHealth".equalsIgnoreCase(field)) {
 				mobSettings.setHealthModifier(optionalDouble.getAsDouble());
 			}
-			if ("vanillaPlayerHealth".equalsIgnoreCase(field)) {
+			if ("vanillaMonsterDamage".equalsIgnoreCase(field)) {
+				mobSettings.getVanillaMobSettings().setDamageMultiplier(optionalDouble.getAsDouble());
+			}
+			if ("vanillaMonsterHealth".equalsIgnoreCase(field)) {
 				mobSettings.getVanillaMobSettings().setHealthMultiplier(optionalDouble.getAsDouble());
 			}
 			if ("experience".equalsIgnoreCase(field)) {
@@ -347,7 +347,7 @@ public class ManageMobs extends EldoCommand {
 				.append(Component.text(localizer().getMessage("field.monsterHealth") + ": ", NamedTextColor.AQUA))
 				.append(Component.text(vms.getHealthMultiplier() + "x ", NamedTextColor.GOLD))
 				.append(Component.text("[" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-						.clickEvent(ClickEvent.suggestCommand(cmd + "vanillaPlayerDamage ")))
+						.clickEvent(ClickEvent.suggestCommand(cmd + "vanillaMonsterHealth ")))
 				.append(Component.newline().append(Component.text("  ")))
 				// drops
 				.append(Component.text(localizer().getMessage("field.dropsMultiplier") + ": ", NamedTextColor.AQUA))
@@ -385,18 +385,18 @@ public class ManageMobs extends EldoCommand {
 		}
 		if (args.length == 2) {
 			return TabCompleteUtil.complete(args[1], "spawnPercentage", "dropAmount", "monsterDamage",
-					"vanillaMonsterDamage", "monsterHealth", "vanillaPlayerHealth", "experience", "drops",
+					"vanillaMonsterDamage", "vanillaMonsterHealth", "experience", "drops",
 					"forcePhantoms", "displayName");
 		}
 
 		String field = args[1];
 		String value = args[2];
-		if (TabCompleteUtil.isCommand(field, "spawnPercentage", "dropAmount", "vanillaDropAmount")) {
+		if (TabCompleteUtil.isCommand(field, "spawnPercentage", "dropAmount", "vanillaDropAmount", "vanillaDropAmount")) {
 			return TabCompleteUtil.completeInt(value, 1, 100, localizer());
 		}
 
-		if (TabCompleteUtil.isCommand(field, "monsterDamage", "vanillaMonsterDamage", "monsterHealth",
-				"vanillaPlayerHealth", "experience", "drops")) {
+		if (TabCompleteUtil.isCommand(field, "monsterDamage", "vanillaMonsterDamage", "vanillaMonsterHealth", "monsterHealth",
+				"experience", "drops")) {
 			return TabCompleteUtil.completeDouble(value, 1, 200, localizer());
 		}
 		if (TabCompleteUtil.isCommand(field, "forcePhantoms", "displayName", "naturalDrops")) {
