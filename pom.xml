@@ -6,7 +6,7 @@
 
     <groupId>de.eldoria</groupId>
     <artifactId>bloodnight</artifactId>
-    <version>0.8.4</version>
+    <version>0.8.5</version>
     <name>BloodNight</name>
     <url>https://www.spigotmc.org/resources/85095/</url>
     <description>Nights are not hard enough? Make them harder!</description>
@@ -172,8 +172,8 @@
         </dependency>
         <dependency>
             <groupId>net.kyori</groupId>
-            <artifactId>adventure-text-minimessage</artifactId>
-            <version>4.0.0-SNAPSHOT</version>
+            <artifactId>adventure-api</artifactId>
+            <version>4.2.0</version>
             <scope>compile</scope>
             <exclusions>
                 <exclusion>

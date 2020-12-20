@@ -6,12 +6,14 @@ import de.eldoria.eldoutilities.utils.EnumUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.SerializableAs;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
 @Setter
 @Getter
+@SerializableAs("bloodNightVanillaMobSettings")
 public class VanillaMobSettings implements ConfigurationSerializable {
 	/**
 	 * The modifier which will be multiplied with monster damage when a non special mob deals damage to players.

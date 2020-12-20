@@ -104,9 +104,10 @@ public class MobSettings implements ConfigurationSerializable {
 	@Override
 	public @NotNull Map<String, Object> serialize() {
 		return SerializationUtil.newBuilder()
+				.add("vanillaMobSettings", vanillaMobSettings)
 				.add("displayMobNames", displayMobNames)
-				.add("monsterDamageMultiplier", damageMultiplier)
-				.add("playerDamageMultiplier", healthModifier)
+				.add("damageMultiplier", damageMultiplier)
+				.add("healthMultiplier", healthModifier)
 				.add("experienceMultiplier", experienceMultiplier)
 				.add("forcePhantoms", forcePhantoms)
 				.add("spawnPercentage", spawnPercentage)

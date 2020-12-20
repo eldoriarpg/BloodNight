@@ -11,6 +11,7 @@ import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.Drop;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSetting;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSettings;
+import de.eldoria.bloodnight.config.worldsettings.mobsettings.VanillaMobSettings;
 import de.eldoria.bloodnight.config.worldsettings.sound.SoundEntry;
 import de.eldoria.bloodnight.config.worldsettings.sound.SoundSettings;
 import de.eldoria.bloodnight.core.api.BloodNightAPI;
@@ -149,6 +150,7 @@ public class BloodNight extends EldoPlugin {
 		ConfigurationSerialization.registerClass(NightSettings.class);
 		ConfigurationSerialization.registerClass(MobSettings.class);
 		ConfigurationSerialization.registerClass(MobSetting.class);
+		ConfigurationSerialization.registerClass(VanillaMobSettings.class);
 		ConfigurationSerialization.registerClass(WorldSettings.class);
 		ConfigurationSerialization.registerClass(Drop.class);
 		ConfigurationSerialization.registerClass(BossBarSettings.class);
