@@ -53,8 +53,8 @@ public class CancelNight extends EldoCommand {
 
 		boolean enabled = configuration.getWorldSettings(world).isEnabled();
 		if (!enabled) {
-			messageSender().sendError(sender, localizer().getMessage("error.worldNotEnabled",
-					Replacement.create("WORLD", world.getName()).addFormatting('6')));
+			messageSender().sendLocalizedError(sender,"error.worldNotEnabled",
+					Replacement.create("WORLD", world.getName(), '6'));
 			return true;
 		}
 		if (nightManager.isBloodNightActive(world)) {

@@ -57,7 +57,6 @@ public class Configuration extends EldoConfig {
 			return;
 		}
 
-
 		if (getVersion() <= 1) {
 			BloodNight.logger().info("§2Migrating config to v2");
 			migrateToV2();

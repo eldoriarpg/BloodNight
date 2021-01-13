@@ -15,7 +15,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
         <java.version>8</java.version>
-        <shade.base>de.eldoria.${project.artifactId}</shade.base>
+        <shade.base>de.eldoria.${project.parent.artifactId}</shade.base>
         <eldoutil.version>1.0.38</eldoutil.version>
         <javadoc.version>3.2.0</javadoc.version>
         <source.version>3.2.1</source.version>
@@ -147,7 +147,7 @@
         <dependency>
             <groupId>org.bstats</groupId>
             <artifactId>bstats-bukkit</artifactId>
-            <version>1.7</version>
+            <version>1.8</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
