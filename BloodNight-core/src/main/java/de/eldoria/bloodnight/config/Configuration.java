@@ -20,120 +20,119 @@ import java.util.List;
 import java.util.Map;
 
 public class Configuration extends EldoConfig {
-	private Map<String, WorldSettings> worldSettings;
-	@Getter
-	private GeneralSettings generalSettings;
+    private Map<String, WorldSettings> worldSettings;
+    @Getter
+    private GeneralSettings generalSettings;
 
 
-	public Configuration(Plugin plugin) {
-		super(plugin);
-	}
+    public Configuration(Plugin plugin) {
+        super(plugin);
+    }
 
-	@Override
-	protected void init() {
-		worldSettings = new HashMap<>();
-	}
+    @Override
+    protected void init() {
+        worldSettings = new HashMap<>();
+    }
 
-	public WorldSettings getWorldSettings(World key) {
-		return loadWorldSettings(key.getName(), false);
-	}
+    public WorldSettings getWorldSettings(World key) {
+        return loadWorldSettings(key.getName(), false);
+    }
 
-	public WorldSettings getWorldSettings(String key) {
-		return loadWorldSettings(key, false);
-	}
+    public WorldSettings getWorldSettings(String key) {
+        return loadWorldSettings(key, false);
+    }
 
-	public Map<String, WorldSettings> getWorldSettings() {
-		return worldSettings;
-	}
+    public Map<String, WorldSettings> getWorldSettings() {
+        return worldSettings;
+    }
 
-	@Override
-	protected void reloadConfigs() {
-		BloodNight.logger().info("Loading config.");
+    @Override
+    protected void reloadConfigs() {
+        BloodNight.logger().info("Loading config.");
 
-		if (getVersion() == -1) {
-			initV2();
-			save();
-			reloadConfigs();
-			return;
-		}
+        if (getVersion() == -1) {
+            initV2();
+            save();
+            reloadConfigs();
+            return;
+        }
 
-		if (getVersion() <= 1) {
-			BloodNight.logger().info("§2Migrating config to v2");
-			migrateToV2();
-			BloodNight.logger().info("§2Migration of config to v2 done.");
-		}
+        if (getVersion() <= 1) {
+            BloodNight.logger().info("§2Migrating config to v2");
+            migrateToV2();
+            BloodNight.logger().info("§2Migration of config to v2 done.");
+        }
 
-		generalSettings = getMainConfig().getObject("generalSettings", GeneralSettings.class);
+        generalSettings = getMainConfig().getConfig().getObject("generalSettings", GeneralSettings.class);
 
-		for (World world : Bukkit.getWorlds()) {
-			loadWorldSettings(world.getName(), true);
-		}
-		save();
-	}
+        for (World world : Bukkit.getWorlds()) {
+            loadWorldSettings(world.getName(), true);
+        }
+        save();
+    }
 
-	private void initV2() {
-		BloodNight.logger().info("§eConfig is empty. Rebuilding config");
-		setVersion(2, false);
-		BloodNight.logger().info("§2Config version 2");
-		generalSettings = new GeneralSettings();
-		BloodNight.logger().info("§2Added general settings");
-		BloodNight.logger().info("§2Config initialized");
-	}
+    private void initV2() {
+        BloodNight.logger().info("§eConfig is empty. Rebuilding config");
+        setVersion(2, false);
+        BloodNight.logger().info("§2Config version 2");
+        generalSettings = new GeneralSettings();
+        BloodNight.logger().info("§2Added general settings");
+        BloodNight.logger().info("§2Config initialized");
+    }
 
-	private void migrateToV2() {
-		setVersion(2, false);
-		getMainConfig().set("updateReminder", null);
-		List<WorldSettings> worldList = ObjUtil.nonNull((List<WorldSettings>) getMainConfig().get("worldSettings", new ArrayList<>()), new ArrayList<>());
+    private void migrateToV2() {
+        setVersion(2, false);
+        getMainConfig().getConfig().set("updateReminder", null);
+        List<WorldSettings> worldList = ObjUtil.nonNull((List<WorldSettings>) getMainConfig().getConfig().get("worldSettings", new ArrayList<>()), new ArrayList<>());
 
-		Path worldSettings = Paths.get(plugin.getDataFolder().toPath().toString(), "worldSettings");
+        Path worldSettings = Paths.get(plugin.getDataFolder().toPath().toString(), "worldSettings");
 
-		for (WorldSettings settings : worldList) {
-			loadConfig(getWorldConfigPath(settings.getWorldName()), s -> {
-				s.set("version", 1);
-				s.set("settings", settings);
-			}, true);
-			BloodNight.logger().info("§2Migrated settings for " + settings.getWorldName());
-		}
-		getMainConfig().set("worldSettings", null);
-	}
+        for (WorldSettings settings : worldList) {
+            loadConfig(getWorldConfigPath(settings.getWorldName()), s -> {
+                s.set("version", 1);
+                s.set("settings", settings);
+            }, true);
+            BloodNight.logger().info("§2Migrated settings for " + settings.getWorldName());
+        }
+        getMainConfig().getConfig().set("worldSettings", null);
+    }
 
-	private @NotNull
-	WorldSettings loadWorldSettings(String world, boolean reload) {
-		if (reload) {
-			return worldSettings.compute(world, (k, v) -> {
-				FileConfiguration config = loadConfig(getWorldConfigPath(world), c -> {
-					c.set("version", 1);
-					c.set("settings", new WorldSettings(world));
-				}, true);
-				return config.getObject("settings", WorldSettings.class);
-			});
-		}
-		return worldSettings.computeIfAbsent(world, k -> {
-			FileConfiguration config = loadConfig(getWorldConfigPath(world), c -> {
-				c.set("version", 1);
-				c.set("settings", new WorldSettings(world));
-			}, false);
-			return config.getObject("settings", WorldSettings.class);
-		});
-	}
+    private @NotNull
+    WorldSettings loadWorldSettings(String world, boolean reload) {
+        if (reload) {
+            return worldSettings.compute(world, (k, v) -> {
+                FileConfiguration config = loadConfig(getWorldConfigPath(world), c -> {
+                    c.set("version", 1);
+                    c.set("settings", new WorldSettings(world));
+                }, true);
+                return config.getObject("settings", WorldSettings.class);
+            });
+        }
+        return worldSettings.computeIfAbsent(world, k -> {
+            FileConfiguration config = loadConfig(getWorldConfigPath(world), c -> {
+                c.set("version", 1);
+                c.set("settings", new WorldSettings(world));
+            }, false);
+            return config.getObject("settings", WorldSettings.class);
+        });
+    }
 
-	@Override
-	protected void saveConfigs() {
-		getMainConfig().set("generalSettings", generalSettings);
-		
-		for (Map.Entry<String, WorldSettings> entry : worldSettings.entrySet()) {
-			ObjUtil.nonNull(loadConfig(getWorldConfigPath(entry.getKey()), null, false),
-					configuration -> {
-						configuration.set("settings", entry.getValue());
-					});
-		}
+    @Override
+    protected void saveConfigs() {
+        getMainConfig().getConfig().set("generalSettings", generalSettings);
 
-		if (isDebug(BloodNight.class)) {
-			BloodNight.logger().info("Saved config.");
-		}
-	}
+        for (Map.Entry<String, WorldSettings> entry : worldSettings.entrySet()) {
+            ObjUtil.nonNull(loadConfig(getWorldConfigPath(entry.getKey()), null, false),
+                    configuration -> {
+                        configuration.set("settings", entry.getValue());
+                    });
+        }
 
-	private @NotNull String getWorldConfigPath(String world) {
-		return "worldSettings/" + world;
-	}
+        BloodNight.logger().config("Saved config.");
+
+    }
+
+    private @NotNull String getWorldConfigPath(String world) {
+        return "worldSettings/" + world;
+    }
 }

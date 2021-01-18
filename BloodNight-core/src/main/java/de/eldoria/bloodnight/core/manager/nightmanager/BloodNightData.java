@@ -1,7 +1,7 @@
 package de.eldoria.bloodnight.core.manager.nightmanager;
 
-import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.config.worldsettings.sound.SoundSettings;
+import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.util.C;
 import de.eldoria.eldoutilities.utils.ObjUtil;
 import lombok.Getter;
@@ -16,109 +16,103 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.UUID;
+import java.util.*;
 
 @Getter
 public
 class BloodNightData {
-	private final World world;
-	private final BossBar bossBar;
-	private final Queue<PlayerSound> playerSoundQueue = new PriorityQueue<>(PlayerSound::compareTo);
-	private final Map<UUID, ConsistencyCache> playerConsistencyMap = new HashMap<>();
+    private final World world;
+    private final BossBar bossBar;
+    private final Queue<PlayerSound> playerSoundQueue = new PriorityQueue<>(PlayerSound::compareTo);
+    private final Map<UUID, ConsistencyCache> playerConsistencyMap = new HashMap<>();
 
 
-	public BloodNightData(World world, BossBar bossBar) {
-		this.world = world;
-		this.bossBar = bossBar;
-	}
+    public BloodNightData(World world, BossBar bossBar) {
+        this.world = world;
+        this.bossBar = bossBar;
+    }
 
-	public void addPlayer(Player player) {
-		ObjUtil.nonNull(bossBar, b -> {
-			b.addPlayer(player);
-		});
-		playerConsistencyMap.put(player.getUniqueId(), new ConsistencyCache(player));
-		playerSoundQueue.add(new PlayerSound(player));
-	}
+    public void addPlayer(Player player) {
+        ObjUtil.nonNull(bossBar, b -> {
+            b.addPlayer(player);
+        });
+        playerConsistencyMap.put(player.getUniqueId(), new ConsistencyCache(player));
+        playerSoundQueue.add(new PlayerSound(player));
+    }
 
-	public void removePlayer(Player player) {
-		ObjUtil.nonNull(Bukkit.getBossBar(C.getBossBarNamespace(world)), b -> {
-			b.removePlayer(player);
-		});
-		if (playerConsistencyMap.containsKey(player.getUniqueId())) {
-			playerConsistencyMap.remove(player.getUniqueId()).revert(player);
-		}
-		playerSoundQueue.removeIf(e -> e.getPlayer().getUniqueId() == player.getUniqueId());
-	}
+    public void removePlayer(Player player) {
+        ObjUtil.nonNull(Bukkit.getBossBar(C.getBossBarNamespace(world)), b -> {
+            b.removePlayer(player);
+        });
+        if (playerConsistencyMap.containsKey(player.getUniqueId())) {
+            playerConsistencyMap.remove(player.getUniqueId()).revert(player);
+        }
+        playerSoundQueue.removeIf(e -> e.getPlayer().getUniqueId() == player.getUniqueId());
+    }
 
-	/**
-	 * Plays a random sound to the player in the queue.
-	 *
-	 * @param settings sound settings for the current world
-	 */
-	public void playRandomSound(SoundSettings settings) {
-		if (playerSoundQueue.isEmpty()) return;
+    /**
+     * Plays a random sound to the player in the queue.
+     *
+     * @param settings sound settings for the current world
+     */
+    public void playRandomSound(SoundSettings settings) {
+        if (playerSoundQueue.isEmpty()) return;
 
-		while (!playerSoundQueue.isEmpty() && playerSoundQueue.peek().isNext()) {
-			PlayerSound poll = playerSoundQueue.poll();
+        while (!playerSoundQueue.isEmpty() && playerSoundQueue.peek().isNext()) {
+            PlayerSound sound = playerSoundQueue.poll();
 
-			Player player = poll.getPlayer();
-			Location location = player.getLocation();
-			Vector direction = player.getEyeLocation().toVector();
-			location.add(direction.multiply(-1));
+            if (!sound.getPlayer().isOnline()) continue;
 
-			if (BloodNight.isDebug()) {
-				BloodNight.logger().info("Played random sound to " + poll.player.getName());
-			}
+            Player player = sound.getPlayer();
+            Location location = player.getLocation();
+            Vector direction = player.getEyeLocation().toVector();
+            location.add(direction.multiply(-1));
 
-			settings.playRandomSound(player, location);
+            BloodNight.logger().config("Played random sound to " + sound.player.getName());
 
-			poll.scheduleNext(settings.getWaitSeconds());
+            settings.playRandomSound(player, location);
 
-			playerSoundQueue.offer(poll);
-		}
-	}
+            sound.scheduleNext(settings.getWaitSeconds());
 
-	public void resolveAll() {
-		NamespacedKey key = C.getBossBarNamespace(world);
-		ObjUtil.nonNull(Bukkit.getBossBar(key), b -> {
-			b.removeAll();
-			if (!Bukkit.removeBossBar(key)) {
-				if (BloodNight.isDebug()) {
-					BloodNight.logger().warning("Could not remove boss bar " + key);
-				}
-			}
-		});
+            playerSoundQueue.offer(sound);
+        }
+    }
 
-		playerConsistencyMap.forEach((uuid, cache) -> cache.revert(Bukkit.getOfflinePlayer(uuid)));
-	}
+    public void resolveAll() {
+        NamespacedKey key = C.getBossBarNamespace(world);
+        ObjUtil.nonNull(Bukkit.getBossBar(key), b -> {
+            b.removeAll();
+            if (!Bukkit.removeBossBar(key)) {
+                BloodNight.logger().config("Could not remove boss bar " + key);
+            }
+        });
 
-	private static class PlayerSound implements Comparable<PlayerSound> {
-		@Getter
-		private final Player player;
-		private Instant next;
+        playerConsistencyMap.forEach((uuid, cache) -> cache.revert(Bukkit.getOfflinePlayer(uuid)));
+    }
 
-		public PlayerSound(@NotNull Player player) {
-			this.player = player;
-			next = Instant.now().plus(10, ChronoUnit.SECONDS);
-		}
+    private static class PlayerSound implements Comparable<PlayerSound> {
+        @Getter
+        private final Player player;
+        private Instant next;
 
-		public boolean isNext() {
-			return next.isBefore(Instant.now());
-		}
+        public PlayerSound(@NotNull Player player) {
+            this.player = player;
+            next = Instant.now().plus(10, ChronoUnit.SECONDS);
+        }
 
-		public void scheduleNext(int seconds) {
-			next = next.plus(seconds, ChronoUnit.SECONDS);
-		}
+        public boolean isNext() {
+            return next.isBefore(Instant.now());
+        }
+
+        public void scheduleNext(int seconds) {
+            next = next.plus(seconds, ChronoUnit.SECONDS);
+        }
 
 
-		@Override
-		public int compareTo(@NotNull PlayerSound o) {
-			if (o.next == next) return 0;
-			return o.next.isAfter(next) ? 1 : -1;
-		}
-	}
+        @Override
+        public int compareTo(@NotNull PlayerSound o) {
+            if (o.next == next) return 0;
+            return o.next.isAfter(next) ? 1 : -1;
+        }
+    }
 }
