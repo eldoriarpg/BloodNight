@@ -11,6 +11,7 @@ import java.util.Set;
 
 /**
  * Provides safe to use methods to interact with Blood Night.
+ * @since 0.8
  */
 public class BloodNightAPI implements IBloodNightAPI {
 	private final NightManager nightManager;

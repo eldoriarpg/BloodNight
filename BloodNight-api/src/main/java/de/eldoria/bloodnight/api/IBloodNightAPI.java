@@ -4,6 +4,9 @@ import org.bukkit.World;
 
 import java.util.Set;
 
+/**
+ * @since 0.8
+ */
 public interface IBloodNightAPI {
 	/**
 	 * Checks if a blood night is active.

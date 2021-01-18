@@ -11,6 +11,7 @@ public class Permissions {
 	public static final String MANAGE_MOBS = ADMIN + ".managemobs";
 	public static final String MANAGE_NIGHT = ADMIN + ".managenight";
 	public static final String MANAGE_WORLDS = ADMIN + ".manageworlds";
+	public static final String MANAGE_DEATH_ACTION = ADMIN + ".managedeathactions";
 	public static final String RELOAD = ADMIN + ".reload";
 	public static final String SPAWN_MOB = ADMIN + ".spawnmob";
 }

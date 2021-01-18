@@ -30,7 +30,8 @@ public class DeathActions implements ConfigurationSerializable {
 	}
 
 	@Override
-	public @NotNull Map<String, Object> serialize() {
+	@NotNull
+	public Map<String, Object> serialize() {
 		return SerializationUtil.newBuilder()
 				.add("lightningSettings", lightningSettings)
 				.add("shockwaveSettings", shockwaveSettings)
