@@ -5,12 +5,14 @@ import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
 import de.eldoria.eldoutilities.utils.EnumUtil;
 import lombok.Getter;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
 @Getter
+@SerializableAs("bloodNightPotionEffectSettings")
 public class PotionEffectSettings implements ConfigurationSerializable {
     private PotionType effectType;
     private int duration = 10;
