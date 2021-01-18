@@ -154,7 +154,7 @@
             <groupId>de.eldoria</groupId>
             <artifactId>EldoUtilities</artifactId>
             <version>${eldoutil.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>net.kyori</groupId>
