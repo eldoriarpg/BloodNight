@@ -42,7 +42,7 @@ public class ShockwaveSettings implements ConfigurationSerializable {
      */
     protected int shockwaveRange = 10;
 
-    Map<PotionType, PotionEffectSettings> shockwaveEffects = new HashMap<PotionType, PotionEffectSettings>() {{
+    private Map<PotionType, PotionEffectSettings> shockwaveEffects = new HashMap<PotionType, PotionEffectSettings>() {{
         put(PotionType.MUNDANE, new PotionEffectSettings(PotionType.MUNDANE, 10));
     }};
 
@@ -77,15 +77,16 @@ public class ShockwaveSettings implements ConfigurationSerializable {
 
     public double getPower(Vector vector) {
         double range = Math.pow(shockwaveRange, 2);
-        double dist = vector.length();
+        double dist = vector.lengthSquared();
         if (dist >= range) return 0;
-        return (1 - range / dist) * shockwavePower;
+        return (1 - dist / range) * shockwavePower;
     }
 
     public void applyEffects(Entity entity) {
         if (!(entity instanceof LivingEntity)) return;
         LivingEntity livingEntity = (LivingEntity) entity;
         for (PotionEffectSettings potionEffectType : shockwaveEffects.values()) {
+            if(potionEffectType.getEffectType().getEffectType() == null) continue;
             double duration = ThreadLocalRandom.current().nextDouble(minDuration, potionEffectType.getDuration()) * 20;
             livingEntity.addPotionEffect(new PotionEffect(potionEffectType.getEffectType().getEffectType(),
                     (int) duration, 1));
