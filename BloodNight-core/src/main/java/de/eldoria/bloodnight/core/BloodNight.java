@@ -150,7 +150,9 @@ public class BloodNight extends EldoPlugin {
     public List<Class<? extends ConfigurationSerializable>> getConfigSerialization() {
         return Arrays.asList(GeneralSettings.class, NightSelection.class, NightSettings.class, MobSettings.class,
                 MobSetting.class, VanillaMobSettings.class, WorldSettings.class, Drop.class, BossBarSettings.class,
-                MobSettings.MobTypes.class, SoundSettings.class, SoundEntry.class, PotionEffectSettings.class);
+                MobSettings.MobTypes.class, SoundSettings.class, SoundEntry.class, PotionEffectSettings.class,
+                PlayerDeathActions.class, MobDeathActions.class, LightningSettings.class, ShockwaveSettings.class,
+                DeathActionSettings.class);
     }
 
     private void enableMetrics() {
