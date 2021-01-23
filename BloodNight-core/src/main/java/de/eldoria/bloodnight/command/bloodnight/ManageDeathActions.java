@@ -16,10 +16,10 @@ public class ManageDeathActions extends EldoCommand {
     private final Configuration configuration;
     private final ConversationRequester conversationRequester;
 
-    public ManageDeathActions(Plugin plugin, Configuration configuration, ConversationRequester conversationRequester) {
+    public ManageDeathActions(Plugin plugin, Configuration configuration) {
         super(plugin);
         this.configuration = configuration;
-        this.conversationRequester = conversationRequester;
+        this.conversationRequester = ConversationRequester.start(plugin);
 
         BukkitAudiences bukkitAudiences = BukkitAudiences.create(getPlugin());
 
