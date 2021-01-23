@@ -383,9 +383,11 @@ public class NightManager implements Listener, Runnable {
         if (actions.getLoseInvProbability() < ThreadLocalRandom.current().nextInt(101)) {
             event.getDrops().clear();
         }
+
         if (actions.getLoseExpProbability() < ThreadLocalRandom.current().nextInt(101)) {
-            event.getDrops().clear();
+            event.setDroppedExp(0);
         }
+
         for (String deathCommand : actions.getDeathCommands()) {
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), deathCommand.replace("{player}", event.getEntity().getName()));
         }
