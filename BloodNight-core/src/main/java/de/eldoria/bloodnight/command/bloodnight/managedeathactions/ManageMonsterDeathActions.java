@@ -37,6 +37,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class ManageMonsterDeathActions extends EldoCommand {
     private final Configuration configuration;
@@ -52,17 +53,26 @@ public class ManageMonsterDeathActions extends EldoCommand {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         Player player = (Player) sender;
 
-        World world = ArgumentUtils.getOrDefault(args, 1, ArgumentUtils::getWorld, player.getWorld());
+        World world = ArgumentUtils.getOrDefault(args, 0, ArgumentUtils::getWorld, player.getWorld());
 
         if (world == null) {
             messageSender().sendLocalizedError(sender, "error.invalidWorld");
             return true;
         }
 
+        MobDeathActions mobDeathActions = configuration.getWorldSettings(world).getDeathActionSettings().getMobDeathActions();
+
+        if (args.length < 2) {
+            sendMobDeathActions(player, world, mobDeathActions);
+            return true;
+        }
+
+        if (argumentsInvalid(sender, args, 1,
+                "<monster|player> <$syntax.worldName$> [<$syntax.field$> <$syntax.value$>]")) return true;
+
         String field = args[1];
         String value = ArgumentUtils.getOrDefault(args, 2, "none");
 
-        MobDeathActions mobDeathActions = configuration.getWorldSettings(world).getDeathActionSettings().getMobDeathActions();
 
         if ("lightning".equalsIgnoreCase(field)) {
             LightningSettings lightningSettings = mobDeathActions.getLightningSettings();
@@ -148,7 +158,7 @@ public class ManageMonsterDeathActions extends EldoCommand {
                                                     PersistentDataType.INTEGER,
                                                     lightningSettings.getThunder()))
                                     .build(),
-                            12,
+                            14,
                             ActionConsumer.getIntRange(valueKey, 0, 100),
                             stack -> {
                                 int fieldValue = DataContainerUtil.compute(stack, valueKey, PersistentDataType.INTEGER, s -> s);
@@ -170,6 +180,8 @@ public class ManageMonsterDeathActions extends EldoCommand {
                 sendMobDeathActions(player, world, mobDeathActions);
             });
 
+            player.openInventory(inventory);
+
             // dont look at this O///O
             NamespacedKey valueKey = new NamespacedKey(getPlugin(), "valueKey");
             actions.addAction(
@@ -178,11 +190,11 @@ public class ManageMonsterDeathActions extends EldoCommand {
                             .withMetaValue(PotionMeta.class, m -> m.setColor(Color.RED))
                             .withDisplayName(localizer().getMessage("manageDeathActions.inventory.shockwave.effects"))
                             .build(),
-                    1,
+                    2,
                     event -> {
                         player.closeInventory();
                         EldoUtilities.getDelayedActions().schedule(() -> {
-                            Inventory effectInventory = Bukkit.createInventory(player, 56,
+                            Inventory effectInventory = Bukkit.createInventory(player, 54,
                                     localizer().getMessage("manageDeathActions.inventory.shockwave.effects"));
                             InventoryActions effectActions = EldoUtilities.getInventoryActions().wrap(player, effectInventory,
                                     e -> {
@@ -191,36 +203,39 @@ public class ManageMonsterDeathActions extends EldoCommand {
                                     });
                             Map<PotionType, PotionEffectSettings> respawnEffects = shockwave.getShockwaveEffects();
 
+                            player.openInventory(effectInventory);
+
                             // this is always such a mess qwq
                             int pos = 0;
                             for (PotionType potionType : PotionType.values()) {
                                 if (potionType.getEffectType() == null) continue;
-                                pos++;
+
                                 @Nullable PotionEffectSettings settings = respawnEffects.get(potionType);
                                 effectActions.addAction(new ActionItem(
                                         ItemStackBuilder
                                                 .of(Material.POTION)
                                                 .withDisplayName(potionType.getEffectType().getName())
                                                 .withMetaValue(PotionMeta.class, m -> {
-                                                    m.setBasePotionData(new PotionData(PotionType.WATER_BREATHING));
+                                                    m.setBasePotionData(new PotionData(potionType));
                                                     m.setColor(potionType.getEffectType().getColor());
                                                 })
                                                 .withNBTData(c ->
                                                         c.set(valueKey, PersistentDataType.INTEGER, settings == null ? 0 : settings.getDuration()))
+                                                .withLore(String.valueOf(settings == null ? 0 : settings.getDuration()))
                                                 .build(),
                                         pos,
                                         ActionConsumer.getIntRange(valueKey, 0, 600),
                                         stack -> {
-                                            PersistentDataContainer container = stack.getItemMeta().getPersistentDataContainer();
-                                            int duration = container.get(valueKey, PersistentDataType.INTEGER);
-                                            if (duration == 0) return;
+                                            Optional<Integer> integer = DataContainerUtil.get(stack, valueKey, PersistentDataType.INTEGER);
+                                            if (!integer.isPresent() || integer.get() == 0) return;
                                             PotionMeta itemMeta = (PotionMeta) stack.getItemMeta();
                                             PotionType type = itemMeta.getBasePotionData().getType();
-                                            shockwave.getShockwaveEffects().compute(type, (k, v) -> new PotionEffectSettings(type, duration));
+                                            shockwave.getShockwaveEffects().compute(type, (k, v) -> new PotionEffectSettings(type, integer.get()));
                                         }));
+                                pos++;
                             }
 
-                        }, 1);
+                        }, 2);
                     },
                     event -> {
                     }
@@ -231,9 +246,10 @@ public class ManageMonsterDeathActions extends EldoCommand {
                             .of(Material.CLOCK)
                             .withDisplayName(
                                     localizer().getMessage("manageDeathActions.inventory.shockwave.minEffectDuration"))
+                            .withLore(String.format("%.2f", shockwave.getMinDuration()))
                             .withNBTData(c -> c.set(valueKey, PersistentDataType.DOUBLE, shockwave.getMinDuration()))
                             .build(),
-                    2,
+                    3,
                     ActionConsumer.getDoubleRange(valueKey, 0, 60),
                     item -> {
                         Double aDouble = item.getItemMeta().getPersistentDataContainer().get(valueKey,
@@ -244,11 +260,12 @@ public class ManageMonsterDeathActions extends EldoCommand {
 
             actions.addAction(
                     ItemStackBuilder
-                            .of(Material.CLOCK)
+                            .of(Material.BOW)
                             .withDisplayName(localizer().getMessage("field.range"))
+                            .withLore(String.valueOf(shockwave.getShockwaveRange()))
                             .withNBTData(c -> c.set(valueKey, PersistentDataType.INTEGER, shockwave.getShockwaveRange()))
                             .build(),
-                    3,
+                    4,
                     ActionConsumer.getIntRange(valueKey, 0, 60),
                     item -> {
                         shockwave.setShockwaveRange(DataContainerUtil.getOrDefault(item, valueKey, PersistentDataType.INTEGER, 0));
@@ -259,9 +276,10 @@ public class ManageMonsterDeathActions extends EldoCommand {
                     ItemStackBuilder
                             .of(Material.BLAZE_POWDER)
                             .withDisplayName(localizer().getMessage("field.power"))
+                            .withLore(String.valueOf(shockwave.getShockwavePower()))
                             .withNBTData(c -> c.set(valueKey, PersistentDataType.INTEGER, shockwave.getShockwavePower()))
                             .build(),
-                    4,
+                    5,
                     ActionConsumer.getIntRange(valueKey, 0, 60),
                     item -> {
                         shockwave.setShockwavePower(DataContainerUtil.getOrDefault(item, valueKey, PersistentDataType.INTEGER, 0));
@@ -270,11 +288,12 @@ public class ManageMonsterDeathActions extends EldoCommand {
 
             actions.addAction(
                     ItemStackBuilder
-                            .of(Material.BLAZE_POWDER)
+                            .of(Material.LEVER)
                             .withDisplayName(localizer().getMessage("field.probability"))
+                            .withLore(String.valueOf(shockwave.getShockwaveProbability()))
                             .withNBTData(c -> c.set(valueKey, PersistentDataType.INTEGER, shockwave.getShockwaveProbability()))
                             .build(),
-                    5,
+                    6,
                     ActionConsumer.getIntRange(valueKey, 0, 100),
                     item -> {
                         shockwave.setShockwaveProbability(DataContainerUtil.getOrDefault(item, valueKey, PersistentDataType.INTEGER, 0));
@@ -291,7 +310,7 @@ public class ManageMonsterDeathActions extends EldoCommand {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
-            TabCompleteUtil.completeWorlds(args[0]);
+            return TabCompleteUtil.completeWorlds(args[0]);
         }
 
         if (args.length == 2) {
@@ -301,9 +320,9 @@ public class ManageMonsterDeathActions extends EldoCommand {
     }
 
     private void sendMobDeathActions(Player player, World world, MobDeathActions mobDeathActions) {
-        String cmd = "/bloodnight manageDeathActions player " + ArgumentUtils.escapeWorldName(world.getName()) + " ";
+        String cmd = "/bloodnight deathActions monster " + ArgumentUtils.escapeWorldName(world.getName()) + " ";
         TextComponent build = Component.text()
-                .append(CommandUtil.getHeader(localizer().getMessage("manageDeathActions.player.title")))
+                .append(CommandUtil.getHeader(localizer().getMessage("manageDeathActions.monster.title")))
                 .append(Component.newline())
                 .append(Component.text(localizer().getMessage("field.lightningSettings"), NamedTextColor.AQUA))
                 .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)

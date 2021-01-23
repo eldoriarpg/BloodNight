@@ -67,9 +67,15 @@ public class ManagePlayerDeathActions extends EldoCommand {
 
         PlayerDeathActions playerDeathActions = configuration.getWorldSettings(world).getDeathActionSettings().getPlayerDeathActions();
 
-        if (argumentsInvalid(sender, args, 2, "<$monster|player$> <$syntax.worldName$> [<$syntax.field$> <$syntax.value$>]")) {
+        if (args.length < 2) {
+            sendPlayerDeathActions(player, world, playerDeathActions);
             return true;
         }
+
+        if (argumentsInvalid(sender, args, 2, "<monster|player> <$syntax.worldName$> [<$syntax.field$> <$syntax.value$>]")) {
+            return true;
+        }
+
 
         String field = args[1];
         String value = ArgumentUtils.getOrDefault(args, 2, "none");
@@ -283,7 +289,7 @@ public class ManagePlayerDeathActions extends EldoCommand {
                                                     PersistentDataType.INTEGER,
                                                     lightningSettings.getThunder()))
                                     .build(),
-                            12,
+                            14,
                             ActionConsumer.getIntRange(valueKey, 0, 100),
                             stack -> {
                                 int fieldValue = DataContainerUtil.compute(stack, valueKey, PersistentDataType.INTEGER, s -> s);
@@ -297,13 +303,15 @@ public class ManagePlayerDeathActions extends EldoCommand {
         if ("shockwave".equalsIgnoreCase(field)) {
             ShockwaveSettings shockwave = playerDeathActions.getShockwaveSettings();
 
-            Inventory inventory = Bukkit.createInventory(player, 56,
+            Inventory inventory = Bukkit.createInventory(player, 9,
                     localizer().getMessage("manageDeathActions.inventory.shockwave.title"));
 
             InventoryActions actions = EldoUtilities.getInventoryActions().wrap(player, inventory, e -> {
                 configuration.save();
                 sendPlayerDeathActions(player, world, playerDeathActions);
             });
+
+            player.openInventory(inventory);
 
             // dont look at this O///O
             NamespacedKey valueKey = new NamespacedKey(getPlugin(), "valueKey");
@@ -313,11 +321,11 @@ public class ManagePlayerDeathActions extends EldoCommand {
                             .withMetaValue(PotionMeta.class, m -> m.setColor(Color.RED))
                             .withDisplayName(localizer().getMessage("manageDeathActions.inventory.shockwave.effects"))
                             .build(),
-                    1,
+                    2,
                     event -> {
                         player.closeInventory();
                         EldoUtilities.getDelayedActions().schedule(() -> {
-                            Inventory effectInventory = Bukkit.createInventory(player, 56,
+                            Inventory effectInventory = Bukkit.createInventory(player, 54,
                                     localizer().getMessage("manageDeathActions.inventory.shockwave.effects"));
                             InventoryActions effectActions = EldoUtilities.getInventoryActions().wrap(player, effectInventory,
                                     e -> {
@@ -325,6 +333,8 @@ public class ManagePlayerDeathActions extends EldoCommand {
                                         sendPlayerDeathActions(player, world, playerDeathActions);
                                     });
                             Map<PotionType, PotionEffectSettings> respawnEffects = shockwave.getShockwaveEffects();
+
+                            player.openInventory(effectInventory);
 
                             // this is always such a mess qwq
                             int pos = 0;
@@ -337,11 +347,12 @@ public class ManagePlayerDeathActions extends EldoCommand {
                                                 .of(Material.POTION)
                                                 .withDisplayName(potionType.getEffectType().getName())
                                                 .withMetaValue(PotionMeta.class, m -> {
-                                                    m.setBasePotionData(new PotionData(PotionType.WATER_BREATHING));
+                                                    m.setBasePotionData(new PotionData(potionType));
                                                     m.setColor(potionType.getEffectType().getColor());
                                                 })
                                                 .withNBTData(c ->
                                                         c.set(valueKey, PersistentDataType.INTEGER, settings == null ? 0 : settings.getDuration()))
+                                                .withLore(String.valueOf(settings == null ? 0 : settings.getDuration()))
                                                 .build(),
                                         pos,
                                         ActionConsumer.getIntRange(valueKey, 0, 600),
@@ -366,9 +377,10 @@ public class ManagePlayerDeathActions extends EldoCommand {
                             .of(Material.CLOCK)
                             .withDisplayName(
                                     localizer().getMessage("manageDeathActions.inventory.shockwave.minEffectDuration"))
+                            .withLore(String.format("%.2f", shockwave.getMinDuration()))
                             .withNBTData(c -> c.set(valueKey, PersistentDataType.DOUBLE, shockwave.getMinDuration()))
                             .build(),
-                    2,
+                    3,
                     ActionConsumer.getDoubleRange(valueKey, 0, 60),
                     item -> {
                         Double aDouble = item.getItemMeta().getPersistentDataContainer().get(valueKey,
@@ -379,11 +391,12 @@ public class ManagePlayerDeathActions extends EldoCommand {
 
             actions.addAction(
                     ItemStackBuilder
-                            .of(Material.CLOCK)
+                            .of(Material.BOW)
                             .withDisplayName(localizer().getMessage("field.range"))
+                            .withLore(String.valueOf(shockwave.getShockwaveRange()))
                             .withNBTData(c -> c.set(valueKey, PersistentDataType.INTEGER, shockwave.getShockwaveRange()))
                             .build(),
-                    3,
+                    4,
                     ActionConsumer.getIntRange(valueKey, 0, 60),
                     item -> {
                         shockwave.setShockwaveRange(DataContainerUtil.getOrDefault(item, valueKey, PersistentDataType.INTEGER, 0));
@@ -394,9 +407,10 @@ public class ManagePlayerDeathActions extends EldoCommand {
                     ItemStackBuilder
                             .of(Material.BLAZE_POWDER)
                             .withDisplayName(localizer().getMessage("field.power"))
+                            .withLore(String.valueOf(shockwave.getShockwavePower()))
                             .withNBTData(c -> c.set(valueKey, PersistentDataType.INTEGER, shockwave.getShockwavePower()))
                             .build(),
-                    4,
+                    5,
                     ActionConsumer.getIntRange(valueKey, 0, 60),
                     item -> {
                         shockwave.setShockwavePower(DataContainerUtil.getOrDefault(item, valueKey, PersistentDataType.INTEGER, 0));
@@ -405,11 +419,12 @@ public class ManagePlayerDeathActions extends EldoCommand {
 
             actions.addAction(
                     ItemStackBuilder
-                            .of(Material.BLAZE_POWDER)
+                            .of(Material.LEVER)
                             .withDisplayName(localizer().getMessage("field.probability"))
+                            .withLore(String.valueOf(shockwave.getShockwaveProbability()))
                             .withNBTData(c -> c.set(valueKey, PersistentDataType.INTEGER, shockwave.getShockwaveProbability()))
                             .build(),
-                    5,
+                    6,
                     ActionConsumer.getIntRange(valueKey, 0, 100),
                     item -> {
                         shockwave.setShockwaveProbability(DataContainerUtil.getOrDefault(item, valueKey, PersistentDataType.INTEGER, 0));
@@ -423,7 +438,7 @@ public class ManagePlayerDeathActions extends EldoCommand {
     }
 
     private void sendPlayerDeathActions(Player player, World world, PlayerDeathActions playerDeathActions) {
-        String cmd = "/bloodnight manageDeathActions player " + ArgumentUtils.escapeWorldName(world.getName()) + " ";
+        String cmd = "/bloodnight deathActions player " + ArgumentUtils.escapeWorldName(world.getName()) + " ";
         TextComponent build = Component.text()
                 .append(CommandUtil.getHeader(localizer().getMessage("manageDeathActions.player.title")))
                 .append(Component.newline())
@@ -464,7 +479,7 @@ public class ManagePlayerDeathActions extends EldoCommand {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
-            TabCompleteUtil.completeWorlds(args[0]);
+            return TabCompleteUtil.completeWorlds(args[0]);
         }
 
         if (args.length == 2) {
@@ -477,7 +492,7 @@ public class ManagePlayerDeathActions extends EldoCommand {
             }
 
             if (TabCompleteUtil.isCommand("loseExp", "loseInv")) {
-                TabCompleteUtil.completeInt(args[2], 0, 100, localizer());
+                return TabCompleteUtil.completeInt(args[2], 0, 100, localizer());
             }
             return Collections.emptyList();
         }
