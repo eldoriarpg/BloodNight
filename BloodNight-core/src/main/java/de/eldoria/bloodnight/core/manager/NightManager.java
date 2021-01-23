@@ -6,6 +6,7 @@ import de.eldoria.bloodnight.config.worldsettings.NightSelection;
 import de.eldoria.bloodnight.config.worldsettings.NightSettings;
 import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.config.worldsettings.deathactions.PlayerDeathActions;
+import de.eldoria.bloodnight.config.worldsettings.deathactions.PotionEffectSettings;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.core.manager.nightmanager.BloodNightData;
 import de.eldoria.bloodnight.core.manager.nightmanager.NightUtil;
@@ -395,11 +396,16 @@ public class NightManager implements Listener, Runnable {
 
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent event) {
-        PlayerDeathActions actions = configuration.getWorldSettings(event.getPlayer().getWorld())
+        Player player = event.getPlayer();
+        PlayerDeathActions actions = configuration.getWorldSettings(player.getWorld())
                 .getDeathActionSettings()
                 .getPlayerDeathActions();
-        for (PotionEffectType respawnEffect : actions.getRespawnEffects()) {
-            event.getPlayer().addPotionEffect(new PotionEffect(respawnEffect, actions.getEffectDuration(), 1));
+        if (!isBloodNightActive(player.getWorld())) {
+            return;
+        }
+
+        for (PotionEffectSettings value : actions.getRespawnEffects().values()) {
+            player.addPotionEffect(new PotionEffect(value.getEffectType().getEffectType(), value.getDuration(), 1, false));
         }
     }
 
