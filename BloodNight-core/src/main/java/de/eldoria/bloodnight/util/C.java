@@ -7,8 +7,8 @@ import org.bukkit.World;
 
 @UtilityClass
 public class C {
-	public static NamespacedKey getBossBarNamespace(World world) {
-		return BloodNight.getNamespacedKey("bossBar" + world.getName());
-	}
+    public static NamespacedKey getBossBarNamespace(World world) {
+        return BloodNight.getNamespacedKey("bossBar" + world.getName());
+    }
 
 }

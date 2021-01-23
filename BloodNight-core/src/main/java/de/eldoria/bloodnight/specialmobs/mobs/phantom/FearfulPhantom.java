@@ -9,19 +9,19 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public class FearfulPhantom extends AbstractPhantom {
-	public FearfulPhantom(Phantom phantom) {
-		super(phantom);
-	}
+    public FearfulPhantom(Phantom phantom) {
+        super(phantom);
+    }
 
-	@Override
-	public void tick() {
-		SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.GLOWING, 1, true);
-	}
+    @Override
+    public void tick() {
+        SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.GLOWING, 1, true);
+    }
 
-	@Override
-	public void onHit(EntityDamageByEntityEvent event) {
-		if (event.getEntity().getType() == EntityType.PLAYER) {
-			((LivingEntity) event.getEntity()).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 7 * 20, 2, true, true));
-		}
-	}
+    @Override
+    public void onHit(EntityDamageByEntityEvent event) {
+        if (event.getEntity().getType() == EntityType.PLAYER) {
+            ((LivingEntity) event.getEntity()).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 7 * 20, 2, true, true));
+        }
+    }
 }

@@ -5,12 +5,12 @@ import org.bukkit.entity.Zombie;
 import org.bukkit.potion.PotionEffectType;
 
 public class SpeedZombie extends AbstractZombie {
-	public SpeedZombie(Zombie zombie) {
-		super(zombie);
-	}
+    public SpeedZombie(Zombie zombie) {
+        super(zombie);
+    }
 
-	@Override
-	public void tick() {
-		SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.SPEED, 4, true);
-	}
+    @Override
+    public void tick() {
+        SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.SPEED, 4, true);
+    }
 }

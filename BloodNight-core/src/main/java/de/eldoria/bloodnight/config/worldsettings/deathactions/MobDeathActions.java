@@ -11,10 +11,10 @@ import java.util.Map;
 @SerializableAs("bloodNightMobDeathActions")
 public class MobDeathActions extends DeathActions {
 
-	public MobDeathActions(Map<String, Object> objectMap) {
-		super(objectMap);
-	}
+    public MobDeathActions(Map<String, Object> objectMap) {
+        super(objectMap);
+    }
 
-	public MobDeathActions() {
-	}
+    public MobDeathActions() {
+    }
 }

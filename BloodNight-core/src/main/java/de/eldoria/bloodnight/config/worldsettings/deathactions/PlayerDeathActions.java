@@ -18,22 +18,20 @@ import java.util.Map;
 @Setter
 @SerializableAs("bloodNightPlayerDeathActions")
 public class PlayerDeathActions extends DeathActions {
+    Map<PotionType, PotionEffectSettings> respawnEffects = new HashMap<PotionType, PotionEffectSettings>() {{
+        put(PotionType.WEAKNESS, new PotionEffectSettings(PotionType.WEAKNESS, 10));
+    }};
     /**
      * Commands which will be executed when a player dies.
      * <p>
      * Should support the {@code {player}} placeholder.
      */
     private List<String> deathCommands = new ArrayList<>();
-
     /**
      * Probability of the player to lose and not drop its inventory.
      */
     private int loseInvProbability = 0;
     private int loseExpProbability = 0;
-
-    Map<PotionType, PotionEffectSettings> respawnEffects = new HashMap<PotionType, PotionEffectSettings>() {{
-        put(PotionType.WEAKNESS, new PotionEffectSettings(PotionType.WEAKNESS, 10));
-    }};
 
     public PlayerDeathActions(Map<String, Object> objectMap) {
         super(objectMap);

@@ -18,49 +18,49 @@ import java.util.Map;
 @SerializableAs("bloodNightWorldSettings")
 public class WorldSettings implements ConfigurationSerializable {
 
-	private String worldName;
-	private boolean enabled = false;
-	private boolean creeperBlockDamage = false;
-	private boolean alwaysManageCreepers = true;
-	private BossBarSettings bossBarSettings = new BossBarSettings();
-	private NightSelection nightSelection = new NightSelection();
-	private NightSettings nightSettings = new NightSettings();
-	private MobSettings mobSettings = new MobSettings();
-	private SoundSettings soundSettings = new SoundSettings();
-	private DeathActionSettings deathActionSettings = new DeathActionSettings();
+    private String worldName;
+    private boolean enabled = false;
+    private boolean creeperBlockDamage = false;
+    private boolean alwaysManageCreepers = true;
+    private BossBarSettings bossBarSettings = new BossBarSettings();
+    private NightSelection nightSelection = new NightSelection();
+    private NightSettings nightSettings = new NightSettings();
+    private MobSettings mobSettings = new MobSettings();
+    private SoundSettings soundSettings = new SoundSettings();
+    private DeathActionSettings deathActionSettings = new DeathActionSettings();
 
-	public WorldSettings(Map<String, Object> objectMap) {
-		TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
-		worldName = map.getValue("world");
-		assert worldName == null : "World is null. This should not happen";
-		enabled = map.getValueOrDefault("enabled", enabled);
-		creeperBlockDamage = map.getValueOrDefault("creeperBlockDamage", creeperBlockDamage);
-		alwaysManageCreepers = map.getValueOrDefault("alwaysManageCreepers", alwaysManageCreepers);
-		bossBarSettings = map.getValueOrDefault("bossBar", bossBarSettings);
-		nightSelection = map.getValueOrDefault("nightSelection", nightSelection);
-		nightSettings = map.getValueOrDefault("nightSettings", nightSettings);
-		mobSettings = map.getValueOrDefault("mobSettings", mobSettings);
-		soundSettings = map.getValueOrDefault("soundSettings", soundSettings);
-		deathActionSettings = map.getValueOrDefault("deathActionSettings", deathActionSettings);
-	}
+    public WorldSettings(Map<String, Object> objectMap) {
+        TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
+        worldName = map.getValue("world");
+        assert worldName == null : "World is null. This should not happen";
+        enabled = map.getValueOrDefault("enabled", enabled);
+        creeperBlockDamage = map.getValueOrDefault("creeperBlockDamage", creeperBlockDamage);
+        alwaysManageCreepers = map.getValueOrDefault("alwaysManageCreepers", alwaysManageCreepers);
+        bossBarSettings = map.getValueOrDefault("bossBar", bossBarSettings);
+        nightSelection = map.getValueOrDefault("nightSelection", nightSelection);
+        nightSettings = map.getValueOrDefault("nightSettings", nightSettings);
+        mobSettings = map.getValueOrDefault("mobSettings", mobSettings);
+        soundSettings = map.getValueOrDefault("soundSettings", soundSettings);
+        deathActionSettings = map.getValueOrDefault("deathActionSettings", deathActionSettings);
+    }
 
-	public WorldSettings(String world) {
-		this.worldName = world;
-	}
+    public WorldSettings(String world) {
+        this.worldName = world;
+    }
 
-	@Override
-	public @NotNull Map<String, Object> serialize() {
-		return SerializationUtil.newBuilder()
-				.add("world", worldName)
-				.add("enabled", enabled)
-				.add("creeperBlockDamage", creeperBlockDamage)
-				.add("alwaysManageCreepers", alwaysManageCreepers)
-				.add("bossBar", bossBarSettings)
-				.add("nightSelection", nightSelection)
-				.add("nightSettings", nightSettings)
-				.add("mobSettings", mobSettings)
-				.add("soundSettings", soundSettings)
-				.add("deathActionSettings", deathActionSettings)
-				.build();
-	}
+    @Override
+    public @NotNull Map<String, Object> serialize() {
+        return SerializationUtil.newBuilder()
+                .add("world", worldName)
+                .add("enabled", enabled)
+                .add("creeperBlockDamage", creeperBlockDamage)
+                .add("alwaysManageCreepers", alwaysManageCreepers)
+                .add("bossBar", bossBarSettings)
+                .add("nightSelection", nightSelection)
+                .add("nightSettings", nightSettings)
+                .add("mobSettings", mobSettings)
+                .add("soundSettings", soundSettings)
+                .add("deathActionSettings", deathActionSettings)
+                .build();
+    }
 }

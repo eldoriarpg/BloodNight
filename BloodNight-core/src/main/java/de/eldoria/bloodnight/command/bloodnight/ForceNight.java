@@ -19,61 +19,61 @@ import java.util.Collections;
 import java.util.List;
 
 public class ForceNight extends EldoCommand {
-	private final NightManager nightManager;
-	private final Configuration configuration;
+    private final NightManager nightManager;
+    private final Configuration configuration;
 
-	public ForceNight(Plugin plugin, NightManager nightManager, Configuration configuration) {
-		super(plugin);
-		this.nightManager = nightManager;
-		this.configuration = configuration;
-	}
+    public ForceNight(Plugin plugin, NightManager nightManager, Configuration configuration) {
+        super(plugin);
+        this.nightManager = nightManager;
+        this.configuration = configuration;
+    }
 
-	@Override
-	public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-		if (denyAccess(sender, Permissions.FORCE_NIGHT)) {
-			return true;
-		}
+    @Override
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        if (denyAccess(sender, Permissions.FORCE_NIGHT)) {
+            return true;
+        }
 
-		World world = null;
-		if (sender instanceof Player) {
-			Player player = (Player) sender;
-			world = player.getWorld();
-		} else {
-			if (argumentsInvalid(sender, args, 1, "[" + localizer().getMessage("syntax.worldName") + "]")) {
-				return true;
-			}
-		}
+        World world = null;
+        if (sender instanceof Player) {
+            Player player = (Player) sender;
+            world = player.getWorld();
+        } else {
+            if (argumentsInvalid(sender, args, 1, "[" + localizer().getMessage("syntax.worldName") + "]")) {
+                return true;
+            }
+        }
 
-		world = ArgumentUtils.getOrDefault(args, 0, ArgumentUtils::getWorld, world);
+        world = ArgumentUtils.getOrDefault(args, 0, ArgumentUtils::getWorld, world);
 
-		if (world == null) {
-			messageSender().sendError(sender, localizer().getMessage("error.invalidWorld"));
-			return true;
-		}
+        if (world == null) {
+            messageSender().sendError(sender, localizer().getMessage("error.invalidWorld"));
+            return true;
+        }
 
-		boolean enabled = configuration.getWorldSettings(world).isEnabled();
-		if (!enabled) {
-			messageSender().sendError(sender, localizer().getMessage("error.worldNotEnabled",
-					Replacement.create("WORLD", world.getName()).addFormatting('6')));
-			return true;
-		}
-		if (!nightManager.getBloodWorldsSet().contains(world)) {
-			nightManager.forceNight(world);
-			messageSender().sendMessage(sender, localizer().getMessage("forceNight.enabeld",
-					Replacement.create("WORLD", world.getName()).addFormatting('6')));
-		} else {
-			messageSender().sendError(sender, localizer().getMessage("forceNight.alreadyActive",
-					Replacement.create("WORLD", world.getName()).addFormatting('6')));
-		}
-		return true;
-	}
+        boolean enabled = configuration.getWorldSettings(world).isEnabled();
+        if (!enabled) {
+            messageSender().sendError(sender, localizer().getMessage("error.worldNotEnabled",
+                    Replacement.create("WORLD", world.getName()).addFormatting('6')));
+            return true;
+        }
+        if (!nightManager.getBloodWorldsSet().contains(world)) {
+            nightManager.forceNight(world);
+            messageSender().sendMessage(sender, localizer().getMessage("forceNight.enabeld",
+                    Replacement.create("WORLD", world.getName()).addFormatting('6')));
+        } else {
+            messageSender().sendError(sender, localizer().getMessage("forceNight.alreadyActive",
+                    Replacement.create("WORLD", world.getName()).addFormatting('6')));
+        }
+        return true;
+    }
 
-	@Override
-	public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-		if (args.length == 1) {
-			return TabCompleteUtil.completeWorlds(args[0]);
-		}
-		return Collections.emptyList();
-	}
+    @Override
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+        if (args.length == 1) {
+            return TabCompleteUtil.completeWorlds(args[0]);
+        }
+        return Collections.emptyList();
+    }
 
 }

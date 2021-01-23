@@ -84,7 +84,7 @@ public class ManageMob extends EldoCommand {
         }
 
         // group world mob value [page]
-        if (argumentsInvalid(sender, args, 1, "<$syntax.mobGroup$>")){
+        if (argumentsInvalid(sender, args, 1, "<$syntax.mobGroup$>")) {
             return true;
         }
 

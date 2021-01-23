@@ -27,7 +27,7 @@ public class PlaceholderAPIHook extends AbstractHookService<PlaceholderAPIPlugin
         try {
             placeholders.unregister();
         } catch (NoSuchMethodError e) {
-			BloodNight.logger().warning("You are using a legacy version of PlaceholderAPI. Please consider updating.");
+            BloodNight.logger().warning("You are using a legacy version of PlaceholderAPI. Please consider updating.");
         }
     }
 }

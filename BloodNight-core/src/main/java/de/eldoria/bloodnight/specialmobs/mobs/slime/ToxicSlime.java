@@ -7,13 +7,13 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public class ToxicSlime extends AbstractSlime {
-	public ToxicSlime(Slime slime) {
-		super(slime);
-	}
+    public ToxicSlime(Slime slime) {
+        super(slime);
+    }
 
-	@Override
-	public void onDeath(EntityDeathEvent event) {
-		SpecialMobUtil.spawnLingeringPotionAt(event.getEntity().getLocation(),
-				new PotionEffect(PotionEffectType.POISON, 5 * 20, 2, true, true));
-	}
+    @Override
+    public void onDeath(EntityDeathEvent event) {
+        SpecialMobUtil.spawnLingeringPotionAt(event.getEntity().getLocation(),
+                new PotionEffect(PotionEffectType.POISON, 5 * 20, 2, true, true));
+    }
 }

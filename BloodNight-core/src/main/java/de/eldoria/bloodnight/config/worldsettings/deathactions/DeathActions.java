@@ -16,25 +16,25 @@ import java.util.Map;
 @Setter
 @SerializableAs("bloodNightDeathActions")
 public class DeathActions implements ConfigurationSerializable {
-	protected LightningSettings lightningSettings = new LightningSettings();
+    protected LightningSettings lightningSettings = new LightningSettings();
 
-	protected ShockwaveSettings shockwaveSettings = new ShockwaveSettings();
+    protected ShockwaveSettings shockwaveSettings = new ShockwaveSettings();
 
-	public DeathActions(Map<String, Object> objectMap) {
-		TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
-		lightningSettings = map.getValueOrDefault("lightningSettings", lightningSettings);
-		shockwaveSettings = map.getValueOrDefault("shockwaveSettings", shockwaveSettings);
-	}
+    public DeathActions(Map<String, Object> objectMap) {
+        TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
+        lightningSettings = map.getValueOrDefault("lightningSettings", lightningSettings);
+        shockwaveSettings = map.getValueOrDefault("shockwaveSettings", shockwaveSettings);
+    }
 
-	public DeathActions() {
-	}
+    public DeathActions() {
+    }
 
-	@Override
-	@NotNull
-	public Map<String, Object> serialize() {
-		return SerializationUtil.newBuilder()
-				.add("lightningSettings", lightningSettings)
-				.add("shockwaveSettings", shockwaveSettings)
-				.build();
-	}
+    @Override
+    @NotNull
+    public Map<String, Object> serialize() {
+        return SerializationUtil.newBuilder()
+                .add("lightningSettings", lightningSettings)
+                .add("shockwaveSettings", shockwaveSettings)
+                .build();
+    }
 }

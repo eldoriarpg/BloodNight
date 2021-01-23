@@ -14,23 +14,23 @@ import java.util.Map;
 @Setter
 @SerializableAs("bloodNightDeathActionSettings")
 public class DeathActionSettings implements ConfigurationSerializable {
-	private MobDeathActions mobDeathActions = new MobDeathActions();
-	private PlayerDeathActions playerDeathActions = new PlayerDeathActions();
+    private MobDeathActions mobDeathActions = new MobDeathActions();
+    private PlayerDeathActions playerDeathActions = new PlayerDeathActions();
 
-	public DeathActionSettings(Map<String, Object> objectMap) {
-	    TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
-	    mobDeathActions = map.getValueOrDefault("mobDeathActions",mobDeathActions);
-		playerDeathActions = map.getValueOrDefault("playerDeathActions",playerDeathActions);
-	}
+    public DeathActionSettings(Map<String, Object> objectMap) {
+        TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
+        mobDeathActions = map.getValueOrDefault("mobDeathActions", mobDeathActions);
+        playerDeathActions = map.getValueOrDefault("playerDeathActions", playerDeathActions);
+    }
 
-	public DeathActionSettings() {
-	}
+    public DeathActionSettings() {
+    }
 
-	@Override
-	public @NotNull Map<String, Object> serialize() {
-		return SerializationUtil.newBuilder()
-				.add("mobDeathActions", mobDeathActions)
-				.add("playerDeathActions", playerDeathActions)
-				.build();
-	}
+    @Override
+    public @NotNull Map<String, Object> serialize() {
+        return SerializationUtil.newBuilder()
+                .add("mobDeathActions", mobDeathActions)
+                .add("playerDeathActions", playerDeathActions)
+                .build();
+    }
 }
