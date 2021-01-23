@@ -105,7 +105,7 @@ public class Configuration extends EldoConfig {
                     c.set("version", 1);
                     c.set("settings", new WorldSettings(world));
                 }, true);
-                return config.getObject("settings", WorldSettings.class);
+                return config.getObject("settings", WorldSettings.class, new WorldSettings(world));
             });
         }
         return worldSettings.computeIfAbsent(world, k -> {
@@ -113,7 +113,7 @@ public class Configuration extends EldoConfig {
                 c.set("version", 1);
                 c.set("settings", new WorldSettings(world));
             }, false);
-            return config.getObject("settings", WorldSettings.class);
+            return config.getObject("settings", WorldSettings.class, new WorldSettings(world));
         });
     }
 
