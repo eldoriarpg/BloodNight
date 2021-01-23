@@ -87,7 +87,7 @@ public class BloodNight extends EldoPlugin {
 
             registerListener();
             bloodNightAPI = new BloodNightAPI(nightManager, configuration);
-            registerCommand("de/eldoria/bloodnight",
+            registerCommand("bloodnight",
                     new BloodNightCommand(configuration, this, nightManager, mobManager, inventoryListener));
 
             enableMetrics();
