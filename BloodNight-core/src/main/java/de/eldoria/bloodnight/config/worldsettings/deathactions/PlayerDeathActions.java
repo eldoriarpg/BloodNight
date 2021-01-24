@@ -2,11 +2,10 @@ package de.eldoria.bloodnight.config.worldsettings.deathactions;
 
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
-import de.eldoria.eldoutilities.utils.EnumUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.configuration.serialization.SerializableAs;
-import org.bukkit.potion.PotionType;
+import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -18,8 +17,8 @@ import java.util.Map;
 @Setter
 @SerializableAs("bloodNightPlayerDeathActions")
 public class PlayerDeathActions extends DeathActions {
-    Map<PotionType, PotionEffectSettings> respawnEffects = new HashMap<PotionType, PotionEffectSettings>() {{
-        put(PotionType.WEAKNESS, new PotionEffectSettings(PotionType.WEAKNESS, 10));
+    Map<PotionEffectType, PotionEffectSettings> respawnEffects = new HashMap<PotionEffectType, PotionEffectSettings>() {{
+        put(PotionEffectType.CONFUSION, new PotionEffectSettings(PotionEffectType.CONFUSION, 5));
     }};
     /**
      * Commands which will be executed when a player dies.
@@ -38,8 +37,8 @@ public class PlayerDeathActions extends DeathActions {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
         deathCommands = map.getValueOrDefault("deathCommands", deathCommands);
         loseInvProbability = map.getValueOrDefault("loseInvProbability", loseInvProbability);
-        loseExpProbability = map.getValueOrDefault("loseExpProbability", loseInvProbability);
-        respawnEffects = map.getMap("respawnEffects", (key, potionEffectSettings) -> EnumUtil.parse(key, PotionType.class));
+        loseExpProbability = map.getValueOrDefault("loseExpProbability", loseExpProbability);
+        respawnEffects = map.getMap("respawnEffects", (key, potionEffectSettings) -> PotionEffectType.getByName(key));
     }
 
     public PlayerDeathActions() {
@@ -52,7 +51,7 @@ public class PlayerDeathActions extends DeathActions {
                 .add("loseInvProbability", loseInvProbability)
                 .add("loseExpProbability", loseExpProbability)
                 .addMap("respawnEffects", respawnEffects,
-                        (potionEffectType, potionEffectSettings) -> potionEffectType.name())
+                        (potionEffectType, potionEffectSettings) -> potionEffectType.getName())
                 .build();
     }
 }

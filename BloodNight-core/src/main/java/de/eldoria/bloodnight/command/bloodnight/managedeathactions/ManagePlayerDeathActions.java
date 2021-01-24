@@ -4,8 +4,6 @@ import de.eldoria.bloodnight.command.util.CommandUtil;
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.config.worldsettings.deathactions.PlayerDeathActions;
 import de.eldoria.bloodnight.config.worldsettings.deathactions.PotionEffectSettings;
-import de.eldoria.bloodnight.config.worldsettings.deathactions.subsettings.LightningSettings;
-import de.eldoria.bloodnight.config.worldsettings.deathactions.subsettings.ShockwaveSettings;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.eldoutilities.conversation.ConversationRequester;
 import de.eldoria.eldoutilities.core.EldoUtilities;
@@ -26,17 +24,18 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.potion.PotionData;
-import org.bukkit.potion.PotionType;
+import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -81,54 +80,63 @@ public class ManagePlayerDeathActions extends EldoCommand {
         String value = ArgumentUtils.getOrDefault(args, 2, "none");
 
         if ("effects".equalsIgnoreCase(field)) {
-            // TODO
-            Inventory inventory = Bukkit.createInventory(player, 56,
+            Inventory inventory = Bukkit.createInventory(player, 54,
                     localizer().getMessage("manageDeathActions.inventory.respawnEffects.title"));
             InventoryActions actions = EldoUtilities.getInventoryActions().wrap(player, inventory,
                     e -> {
                         configuration.save();
                         sendPlayerDeathActions(player, world, playerDeathActions);
                     });
-            Map<PotionType, PotionEffectSettings> respawnEffects = playerDeathActions.getRespawnEffects();
+            Map<PotionEffectType, PotionEffectSettings> respawnEffects = playerDeathActions.getRespawnEffects();
 
             // this is always such a mess qwq
             int pos = 0;
-            for (PotionType potionType : PotionType.values()) {
-                if (potionType.getEffectType() == null) continue;
-                pos++;
+            @NotNull PotionEffectType[] values = PotionEffectType.values();
+            Arrays.sort(values, Comparator.comparing(PotionEffectType::getName));
+            for (@NotNull PotionEffectType potionType : values) {
                 @Nullable PotionEffectSettings settings = respawnEffects.get(potionType);
                 NamespacedKey valueKey = new NamespacedKey(BloodNight.getInstance(), "value");
+                NamespacedKey typeKey = new NamespacedKey(BloodNight.getInstance(), "type");
                 actions.addAction(new ActionItem(
                         ItemStackBuilder
                                 .of(Material.POTION)
-                                .withDisplayName(potionType.getEffectType().getName())
+                                .withDisplayName(potionType.getName())
                                 .withMetaValue(PotionMeta.class, m -> {
-                                    m.setBasePotionData(new PotionData(PotionType.WATER_BREATHING));
-                                    m.setColor(potionType.getEffectType().getColor());
+                                    m.setColor(potionType.getColor());
                                 })
-                                .withNBTData(c ->
-                                        c.set(valueKey, PersistentDataType.INTEGER, settings == null ? 0 : settings.getDuration()))
+                                .withLore(String.valueOf(settings == null ? 0 : settings.getDuration()))
+                                .withNBTData(c -> {
+                                    c.set(typeKey, PersistentDataType.STRING, potionType.getName());
+                                    c.set(valueKey, PersistentDataType.INTEGER, settings == null ? 0 : settings.getDuration());
+                                })
                                 .build(),
                         pos,
                         ActionConsumer.getIntRange(valueKey, 0, 600),
                         stack -> {
-                            PersistentDataContainer container = stack.getItemMeta().getPersistentDataContainer();
-                            int duration = container.get(valueKey, PersistentDataType.INTEGER);
-                            if (duration == 0) return;
-                            PotionMeta itemMeta = (PotionMeta) stack.getItemMeta();
-                            PotionType type = itemMeta.getBasePotionData().getType();
-                            respawnEffects.compute(type, (k, v) -> new PotionEffectSettings(type, duration));
+                            Optional<Integer> integer = DataContainerUtil.get(stack, valueKey, PersistentDataType.INTEGER);
+                            if (!integer.isPresent()) return;
+                            Optional<String> optionalName = DataContainerUtil.get(stack, typeKey, PersistentDataType.STRING);
+                            optionalName.ifPresent(name -> {
+                                PotionEffectType type = PotionEffectType.getByName(name);
+                                if(integer.get() == 0){
+                                    respawnEffects.remove(type);
+                                    return;
+                                }
+                                respawnEffects.compute(type, (k, v) -> new PotionEffectSettings(type, integer.get()));
+                            });
                         }));
+                pos++;
             }
+
+            player.openInventory(inventory);
             return true;
         }
 
         if ("commands".equalsIgnoreCase(field)) {
             List<String> deathCommands = playerDeathActions.getDeathCommands();
-            Inventory inventory = Bukkit.createInventory(player, 56, "Manage Death Commands");
+            Inventory inventory = Bukkit.createInventory(player, 54, "Manage Death Commands");
             InventoryActions actions = EldoUtilities.getInventoryActions().wrap(player, inventory, e -> {
                 configuration.save();
-                sendPlayerDeathActions(player, world, playerDeathActions);
             });
 
             int pos = 0;
@@ -147,22 +155,27 @@ public class ManagePlayerDeathActions extends EldoCommand {
                                         case SHIFT_LEFT:
                                             conversationRequester.requestInput(
                                                     player,
-                                                    localizer().getMessage("phrase.commandPlayer"),
+                                                    "phrase.commandPlayer",
                                                     s -> true, 0, i -> {
                                                         deathCommands.set(pos, i);
                                                         player.closeInventory();
+                                                        sendPlayerDeathActions(player, world, playerDeathActions);
                                                     });
+                                            player.closeInventory();
                                             return;
                                         case RIGHT:
                                         case SHIFT_RIGHT:
                                             deathCommands.remove(pos);
                                             player.closeInventory();
+                                            sendPlayerDeathActions(player, world, playerDeathActions);
                                     }
                                 },
                                 e -> {
                                 }));
 
             }
+
+            player.openInventory(inventory);
             return true;
         }
 
@@ -190,7 +203,7 @@ public class ManagePlayerDeathActions extends EldoCommand {
             if ("loseExp".equalsIgnoreCase(field)) {
                 playerDeathActions.setLoseExpProbability(optionalInt.getAsInt());
             }
-            if ("loseInventory".equalsIgnoreCase(field)) {
+            if ("loseInv".equalsIgnoreCase(field)) {
                 playerDeathActions.setLoseInvProbability(optionalInt.getAsInt());
             }
             configuration.save();
@@ -263,12 +276,12 @@ public class ManagePlayerDeathActions extends EldoCommand {
             return TabCompleteUtil.complete(args[1], "effects", "commands", "addCommand", "loseExp", "loseInv", "lightning", "shockwave");
         }
 
-        if (args.length == 3) {
-            if (TabCompleteUtil.isCommand(args[2], "addCommand")) {
-                return TabCompleteUtil.completeFreeInput(args[2], 140, localizer().getMessage("syntax.commandPlayer"), localizer());
+        if (args.length >= 3) {
+            if (TabCompleteUtil.isCommand(args[1], "addCommand")) {
+                return TabCompleteUtil.completeFreeInput(String.join(" ", Arrays.copyOfRange(args, 2, args.length)), 140, localizer().getMessage("syntax.commandPlayer"), localizer());
             }
 
-            if (TabCompleteUtil.isCommand("loseExp", "loseInv")) {
+            if (TabCompleteUtil.isCommand(args[1], "loseExp", "loseInv")) {
                 return TabCompleteUtil.completeInt(args[2], 0, 100, localizer());
             }
             return Collections.emptyList();
