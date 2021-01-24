@@ -3,7 +3,6 @@ package de.eldoria.bloodnight.config.worldsettings.deathactions.subsettings;
 import de.eldoria.bloodnight.config.worldsettings.deathactions.PotionEffectSettings;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
-import de.eldoria.eldoutilities.utils.EnumUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -11,13 +10,12 @@ import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionType;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
 
 @Getter
 @Setter
@@ -45,8 +43,8 @@ public class ShockwaveSettings implements ConfigurationSerializable {
      * min duration of effects when on the edge of range
      */
     protected double minDuration = 0.1;
-    private Map<PotionType, PotionEffectSettings> shockwaveEffects = new HashMap<PotionType, PotionEffectSettings>() {{
-        put(PotionType.MUNDANE, new PotionEffectSettings(PotionType.MUNDANE, 10));
+    private Map<PotionEffectType, PotionEffectSettings> shockwaveEffects = new HashMap<PotionEffectType, PotionEffectSettings>() {{
+        put(PotionEffectType.CONFUSION, new PotionEffectSettings(PotionEffectType.CONFUSION, 5));
     }};
 
     public ShockwaveSettings(Map<String, Object> objectMap) {
@@ -54,7 +52,7 @@ public class ShockwaveSettings implements ConfigurationSerializable {
         shockwaveProbability = map.getValueOrDefault("shockwaveProbability", shockwaveProbability);
         shockwavePower = map.getValueOrDefault("shockwavePower", shockwavePower);
         shockwaveRange = map.getValueOrDefault("shockwaveRange", shockwaveRange);
-        shockwaveEffects = map.getMap("shockwaveEffects", (key, potionEffectSettings) -> EnumUtil.parse(key, PotionType.class));
+        shockwaveEffects = map.getMap("shockwaveEffects", (key, potionEffectSettings) -> PotionEffectType.getByName(key));
         minDuration = map.getValueOrDefault("minDuration", minDuration);
     }
 
@@ -68,7 +66,7 @@ public class ShockwaveSettings implements ConfigurationSerializable {
                 .add("shockwavePower", shockwavePower)
                 .add("shockwaveRange", shockwaveRange)
                 .addMap("shockwaveEffects", shockwaveEffects,
-                        (potionEffectType, potionEffectSettings) -> potionEffectType.name())
+                        (potionEffectType, potionEffectSettings) -> potionEffectType.getName())
                 .add("minDuration", minDuration)
                 .build();
     }
@@ -77,17 +75,18 @@ public class ShockwaveSettings implements ConfigurationSerializable {
         double range = Math.pow(shockwaveRange, 2);
         double dist = vector.lengthSquared();
         if (dist >= range) return 0;
-        return (1 - dist / range) * shockwavePower;
+        return (1 - dist / range) * (shockwavePower / 10d);
     }
 
-    public void applyEffects(Entity entity) {
+    public void applyEffects(Entity entity, double power) {
         if (!(entity instanceof LivingEntity)) return;
         LivingEntity livingEntity = (LivingEntity) entity;
         for (PotionEffectSettings potionEffectType : shockwaveEffects.values()) {
-            if (potionEffectType.getEffectType().getEffectType() == null) continue;
-            double duration = ThreadLocalRandom.current().nextDouble(minDuration, potionEffectType.getDuration()) * 20;
-            livingEntity.addPotionEffect(new PotionEffect(potionEffectType.getEffectType().getEffectType(),
-                    (int) duration, 1));
+            if (potionEffectType.getEffectType() == null) continue;
+            double percent = power / (shockwavePower / 10d);
+            double duration = Math.max(minDuration, potionEffectType.getDuration() * percent) * 20;
+            livingEntity.addPotionEffect(new PotionEffect(potionEffectType.getEffectType(),
+                    (int) duration, 1, false, true));
         }
     }
 }
