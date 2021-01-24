@@ -14,6 +14,7 @@ import de.eldoria.bloodnight.events.BloodNightBeginEvent;
 import de.eldoria.bloodnight.events.BloodNightEndEvent;
 import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
 import de.eldoria.bloodnight.util.C;
+import de.eldoria.eldoutilities.core.EldoUtilities;
 import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.messages.MessageSender;
 import de.eldoria.eldoutilities.utils.ObjUtil;
@@ -62,7 +63,7 @@ public class NightManager implements Listener, Runnable {
     private final ILocalizer localizer;
     private final MessageSender messageSender;
 
-    private int worldRefresh = 0;
+    private int slowTick = 0;
 
     private boolean initialized = false;
 
@@ -105,17 +106,18 @@ public class NightManager implements Listener, Runnable {
             initialized = true;
         }
 
-        worldRefresh++;
-        if (worldRefresh == 5) {
+        slowTick++;
+        if (slowTick == 5) {
             for (World observedWorld : Bukkit.getWorlds()) {
                 calcualteWorldState(observedWorld);
             }
-            worldRefresh = 0;
+            slowTick = 0;
+
+            playRandomSound();
+
+            refreshTime();
         }
 
-        refreshTime();
-
-        playRandomSound();
 
         changeNightStates();
     }
@@ -381,11 +383,11 @@ public class NightManager implements Listener, Runnable {
         SpecialMobUtil.dispatchShockwave(actions.getShockwaveSettings(), event.getEntity().getLocation());
         SpecialMobUtil.dispatchLightning(actions.getLightningSettings(), event.getEntity().getLocation());
 
-        if (actions.getLoseInvProbability() < ThreadLocalRandom.current().nextInt(101)) {
+        if (actions.getLoseInvProbability() > ThreadLocalRandom.current().nextInt(100)) {
             event.getDrops().clear();
         }
 
-        if (actions.getLoseExpProbability() < ThreadLocalRandom.current().nextInt(101)) {
+        if (actions.getLoseExpProbability() > ThreadLocalRandom.current().nextInt(100)) {
             event.setDroppedExp(0);
         }
 
@@ -400,13 +402,15 @@ public class NightManager implements Listener, Runnable {
         PlayerDeathActions actions = configuration.getWorldSettings(player.getWorld())
                 .getDeathActionSettings()
                 .getPlayerDeathActions();
-        if (!isBloodNightActive(player.getWorld())) {
+        if (!isBloodNightActive(player.getWorld()) || event.isBedSpawn() || event.isAnchorSpawn()) {
             return;
         }
 
-        for (PotionEffectSettings value : actions.getRespawnEffects().values()) {
-            player.addPotionEffect(new PotionEffect(value.getEffectType().getEffectType(), value.getDuration(), 1, false));
-        }
+        EldoUtilities.getDelayedActions().schedule(() -> {
+            for (PotionEffectSettings value : actions.getRespawnEffects().values()) {
+                player.addPotionEffect(new PotionEffect(value.getEffectType(), value.getDuration() * 20, 1, false));
+            }
+        }, 1);
     }
 
 
