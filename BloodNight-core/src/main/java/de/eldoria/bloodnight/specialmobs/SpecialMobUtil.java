@@ -7,6 +7,7 @@ import de.eldoria.bloodnight.specialmobs.effects.ParticleCloud;
 import de.eldoria.bloodnight.specialmobs.effects.PotionCloud;
 import de.eldoria.bloodnight.util.VectorUtil;
 import de.eldoria.eldoutilities.serialization.TypeConversion;
+import de.eldoria.eldoutilities.utils.ERandom;
 import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -336,12 +337,24 @@ public final class SpecialMobUtil {
         if (settings.getShockwaveProbability() < ThreadLocalRandom.current().nextInt(101)
                 || settings.getShockwaveProbability() == 0) return;
 
+
+        Collection<Vector> randomVector = ERandom.getRandomVector(100);
+
+        World world = location.getWorld();
+
+        for (Vector vector : randomVector) {
+            vector.multiply(settings.getShockwaveRange());
+            world.spawnParticle(Particle.EXPLOSION_NORMAL, location, 0, vector.getX(), vector.getY(), vector.getZ(),
+                    settings.getShockwaveRange() / 100d);
+        }
+
+
         for (Entity entity : getEntitiesAround(location, settings.getShockwaveRange())) {
             if (entity.getLocation().equals(location)) continue;
             Vector directionVector = VectorUtil.getDirectionVector(location, entity.getLocation());
             double power = settings.getPower(directionVector);
-            entity.setVelocity(directionVector.normalize().add(new Vector(0, 0.05, 0)).multiply(power));
-            settings.applyEffects(entity);
+            entity.setVelocity(directionVector.normalize().add(new Vector(0, 0.1, 0)).multiply(power));
+            settings.applyEffects(entity, power);
         }
     }
 
@@ -349,7 +362,7 @@ public final class SpecialMobUtil {
         if (location.getWorld() == null) return;
         if (settings.isDoLightning() && settings.getLightning() != 0) {
             if (ThreadLocalRandom.current().nextInt(101) <= settings.getLightning()) {
-                location.getWorld().strikeLightningEffect(location.clone().add(0, 20, 0));
+                location.getWorld().strikeLightningEffect(location.clone().add(0, 10, 0));
                 return;
             }
         }
