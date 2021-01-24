@@ -38,7 +38,7 @@ public class ManageDeathActions extends EldoCommand {
             return true;
         }
 
-        if (argumentsInvalid(sender, args, 1, "<$monster|player$> <$syntax.worldName$> [<$syntax.field$> <$syntax.value$>]")) {
+        if (argumentsInvalid(sender, args, 1, "<monster|player> <$syntax.worldName$> [<$syntax.field$> <$syntax.value$>]")) {
             return true;
         }
 
