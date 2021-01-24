@@ -367,6 +367,7 @@ public class MobManager implements Listener, Runnable {
         WorldSettings worldSettings = configuration.getWorldSettings(entity.getWorld());
         ShockwaveSettings shockwaveSettings = worldSettings.getDeathActionSettings().getMobDeathActions().getShockwaveSettings();
         SpecialMobUtil.dispatchShockwave(shockwaveSettings, event.getEntity().getLocation());
+        SpecialMobUtil.dispatchLightning(worldSettings.getDeathActionSettings().getMobDeathActions().getLightningSettings(), event.getEntity().getLocation());
 
         if (configuration.getGeneralSettings().isSpawnerDropSuppression()) {
             if (entity.getPersistentDataContainer().has(SPAWNER_SPAWNED, PersistentDataType.BYTE)) {
