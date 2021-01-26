@@ -1,12 +1,10 @@
-name: ${project.name}
-description: ${project.description}
+name: ${plugin.name}
+description: ${plugin.description}
 author: Hadde
-version: ${project.version}
+version: ${revision}
 main: de.eldoria.bloodnight.core.BloodNight
-website: https://www.spigotmc.org/resources/85095/
+website: ${plugin.url}
 api-version: 1.16
-depend:
-  - EldoUtilities
 softdepend:
   - Multiverse-Core
   - Hyperverse
