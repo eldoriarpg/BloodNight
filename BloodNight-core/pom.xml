@@ -45,6 +45,10 @@
                             <pattern>net.kyori</pattern>
                             <shadedPattern>${shade.base}.kyori</shadedPattern>
                         </relocation>
+                        <relocation>
+                            <pattern>de.eldoria.eldoutilities</pattern>
+                            <shadedPattern>${shade.base}.eldoutilities</shadedPattern>
+                        </relocation>
                     </relocations>
                 </configuration>
                 <executions>
@@ -136,13 +140,19 @@
         <dependency>
             <groupId>de.eldoria</groupId>
             <artifactId>BloodNight-api</artifactId>
-            <version>0.9.0</version>
+            <version>${revision}</version>
         </dependency>
         <dependency>
-            <groupId>de.eldoria</groupId>
-            <artifactId>EldoUtilities</artifactId>
+            <groupId>de.eldoria.EldoUtilities</groupId>
+            <artifactId>EldoUtilitiesCore</artifactId>
             <version>${eldoutil.version}</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bstats</groupId>
+                    <artifactId>bstats-bukkit</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>net.kyori</groupId>
