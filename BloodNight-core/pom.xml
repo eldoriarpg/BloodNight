@@ -12,7 +12,7 @@
     <artifactId>BloodNight-core</artifactId>
 
     <properties>
-        <eldoutil.version>1.6.9</eldoutil.version>
+        <eldoutil.version>1.7.3</eldoutil.version>
         <plugin.name>BloodNight</plugin.name>
         <plugin.description>Nights are not hard enough? Make them harder!</plugin.description>
         <plugin.url>https://www.spigotmc.org/resources/85095/</plugin.url>
@@ -53,6 +53,7 @@
                 <version>3.2.0</version>
                 <configuration>
                     <outputDirectory>..\..\minecraft Testserver\1.16.5\plugins</outputDirectory>
+                    <finalName>BloodNight-${revision}</finalName>
                 </configuration>
             </plugin>
         </plugins>
