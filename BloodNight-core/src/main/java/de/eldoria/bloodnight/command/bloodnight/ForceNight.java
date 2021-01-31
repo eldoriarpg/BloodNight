@@ -1,7 +1,7 @@
 package de.eldoria.bloodnight.command.bloodnight;
 
 import de.eldoria.bloodnight.config.Configuration;
-import de.eldoria.bloodnight.core.manager.NightManager;
+import de.eldoria.bloodnight.core.manager.nightmanager.NightManager;
 import de.eldoria.bloodnight.util.Permissions;
 import de.eldoria.eldoutilities.localization.Replacement;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;

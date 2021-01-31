@@ -1,7 +1,7 @@
 package de.eldoria.bloodnight.config.worldsettings;
 
 import de.eldoria.bloodnight.core.BloodNight;
-import de.eldoria.bloodnight.core.manager.nightmanager.NightUtil;
+import de.eldoria.bloodnight.core.manager.nightmanager.util.NightUtil;
 import de.eldoria.bloodnight.util.MoonPhase;
 import de.eldoria.eldoutilities.container.Pair;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;

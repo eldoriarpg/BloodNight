@@ -2,7 +2,7 @@ package de.eldoria.bloodnight.hooks;
 
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.core.BloodNight;
-import de.eldoria.bloodnight.core.manager.NightManager;
+import de.eldoria.bloodnight.core.manager.nightmanager.NightManager;
 import de.eldoria.bloodnight.hooks.mythicmobs.MythicMobsHook;
 import de.eldoria.bloodnight.hooks.placeholderapi.PlaceholderAPIHook;
 import de.eldoria.bloodnight.hooks.worldmanager.HyperverseHook;
