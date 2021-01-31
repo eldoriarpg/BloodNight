@@ -22,9 +22,10 @@ import de.eldoria.bloodnight.config.worldsettings.mobsettings.VanillaMobSettings
 import de.eldoria.bloodnight.config.worldsettings.sound.SoundEntry;
 import de.eldoria.bloodnight.config.worldsettings.sound.SoundSettings;
 import de.eldoria.bloodnight.core.api.BloodNightAPI;
-import de.eldoria.bloodnight.core.manager.nightmanager.NightManager;
 import de.eldoria.bloodnight.core.manager.NotificationManager;
 import de.eldoria.bloodnight.core.manager.mobmanager.MobManager;
+import de.eldoria.bloodnight.core.manager.nightmanager.CommandBlocker;
+import de.eldoria.bloodnight.core.manager.nightmanager.NightManager;
 import de.eldoria.bloodnight.core.mobfactory.MobFactory;
 import de.eldoria.bloodnight.core.mobfactory.SpecialMobRegistry;
 import de.eldoria.bloodnight.hooks.HookService;
@@ -36,10 +37,8 @@ import de.eldoria.eldoutilities.plugin.EldoPlugin;
 import de.eldoria.eldoutilities.updater.Updater;
 import de.eldoria.eldoutilities.updater.butlerupdater.ButlerUpdateData;
 import lombok.Getter;
-import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
-import org.bukkit.plugin.PluginManager;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -131,21 +130,16 @@ public class BloodNight extends EldoPlugin {
     }
 
     private void lateInit() {
-        PluginManager pm = Bukkit.getPluginManager();
-        pm.registerEvents(new NotificationManager(configuration, nightManager, hookService), this);
+        registerListener(new NotificationManager(configuration, nightManager, hookService));
     }
 
     private void registerListener() {
-        PluginManager pm = Bukkit.getPluginManager();
-
-        MessageSender messageSender = MessageSender.getPluginMessageSender(this);
         nightManager = new NightManager(configuration);
         nightManager.runTaskTimer(this, 100, 1);
-        pm.registerEvents(nightManager, this);
         mobManager = new MobManager(nightManager, configuration);
         inventoryListener = new InventoryListener(configuration);
-        pm.registerEvents(inventoryListener, this);
-        pm.registerEvents(mobManager, this);
+        CommandBlocker commandBlocker = new CommandBlocker(nightManager, configuration);
+        registerListener(commandBlocker, inventoryListener, mobManager, nightManager);
     }
 
     @Override
