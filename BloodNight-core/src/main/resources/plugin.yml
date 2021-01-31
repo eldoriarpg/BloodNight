@@ -1,0 +1,20 @@
+name: ${plugin.name}
+description: ${plugin.description}
+author: Hadde
+version: ${revision}
+main: de.eldoria.bloodnight.core.BloodNight
+website: ${plugin.url}
+api-version: 1.16
+softdepend:
+  - Multiverse-Core
+  - Hyperverse
+  - MythicMobs
+  - PlaceholderAPI
+
+commands:
+  bloodnight:
+    description: Main Blood Night command.
+    usage: "/bloodnight help"
+    aliases:
+      - bnight
+      - bn
