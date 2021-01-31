@@ -27,6 +27,7 @@ public class GeneralSettings implements ConfigurationSerializable {
     private boolean autoUpdater = false;
     private boolean beeFix = false;
     private boolean spawnerDropSuppression = true;
+    private boolean ignoreSpawnerMobs = false;
 
     public GeneralSettings(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
@@ -42,6 +43,7 @@ public class GeneralSettings implements ConfigurationSerializable {
         autoUpdater = map.getValueOrDefault("autoUpdater", autoUpdater);
         beeFix = map.getValueOrDefault("beeFix", beeFix);
         spawnerDropSuppression = map.getValueOrDefault("spawnerDropSuppression", spawnerDropSuppression);
+        ignoreSpawnerMobs = map.getValueOrDefault("ignoreSpawnerMobs", ignoreSpawnerMobs);
         if (beeFix) {
             BloodNight.logger().info("§4Bee Fix is enabled. This feature should be used with care.");
         }
@@ -65,6 +67,7 @@ public class GeneralSettings implements ConfigurationSerializable {
                 .add("autoUpdater", autoUpdater)
                 .add("beeFix", beeFix)
                 .add("spawnerDropSuppression", spawnerDropSuppression)
+                .add("ignoreSpawnerMobs", ignoreSpawnerMobs)
                 .build();
     }
 }
