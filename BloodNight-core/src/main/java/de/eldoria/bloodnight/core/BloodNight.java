@@ -22,9 +22,9 @@ import de.eldoria.bloodnight.config.worldsettings.mobsettings.VanillaMobSettings
 import de.eldoria.bloodnight.config.worldsettings.sound.SoundEntry;
 import de.eldoria.bloodnight.config.worldsettings.sound.SoundSettings;
 import de.eldoria.bloodnight.core.api.BloodNightAPI;
-import de.eldoria.bloodnight.core.manager.MobManager;
-import de.eldoria.bloodnight.core.manager.NightManager;
+import de.eldoria.bloodnight.core.manager.nightmanager.NightManager;
 import de.eldoria.bloodnight.core.manager.NotificationManager;
+import de.eldoria.bloodnight.core.manager.mobmanager.MobManager;
 import de.eldoria.bloodnight.core.mobfactory.MobFactory;
 import de.eldoria.bloodnight.core.mobfactory.SpecialMobRegistry;
 import de.eldoria.bloodnight.hooks.HookService;
@@ -140,14 +140,12 @@ public class BloodNight extends EldoPlugin {
 
         MessageSender messageSender = MessageSender.getPluginMessageSender(this);
         nightManager = new NightManager(configuration);
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, nightManager, 100, 1);
+        nightManager.runTaskTimer(this, 100, 1);
         pm.registerEvents(nightManager, this);
         mobManager = new MobManager(nightManager, configuration);
         inventoryListener = new InventoryListener(configuration);
         pm.registerEvents(inventoryListener, this);
         pm.registerEvents(mobManager, this);
-        // Schedule mobManager
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, mobManager, 100, 1);
     }
 
     @Override
