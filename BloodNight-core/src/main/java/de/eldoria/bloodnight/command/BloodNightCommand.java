@@ -28,6 +28,6 @@ public class BloodNightCommand extends EldoCommand {
         registerCommand("nightSelection", new ManageNightSelection(plugin, configuration, inventoryListener));
         registerCommand("deathActions", new ManageDeathActions(plugin, configuration));
         registerCommand("reload", new Reload(plugin));
-        registerCommand("debug", new DefaultDebug(plugin, Permissions.RELOAD));
+        registerCommand("debug", new DefaultDebug(plugin, Permissions.Admin.RELOAD));
     }
 }

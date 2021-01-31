@@ -30,7 +30,7 @@ public class CancelNight extends EldoCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (denyAccess(sender, Permissions.CANCEL_NIGHT)) {
+        if (denyAccess(sender, Permissions.Admin.CANCEL_NIGHT)) {
             return true;
         }
 

@@ -30,7 +30,7 @@ public class ForceNight extends EldoCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (denyAccess(sender, Permissions.FORCE_NIGHT)) {
+        if (denyAccess(sender, Permissions.Admin.FORCE_NIGHT)) {
             return true;
         }
 

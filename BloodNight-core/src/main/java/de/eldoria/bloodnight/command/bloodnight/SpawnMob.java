@@ -39,7 +39,7 @@ public class SpawnMob extends EldoCommand {
             return true;
         }
 
-        if (denyAccess(sender, Permissions.SPAWN_MOB)) {
+        if (denyAccess(sender, Permissions.Admin.SPAWN_MOB)) {
             return true;
         }
 
