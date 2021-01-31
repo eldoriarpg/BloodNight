@@ -7,6 +7,7 @@ import de.eldoria.bloodnight.specialmobs.effects.ParticleCloud;
 import de.eldoria.bloodnight.specialmobs.effects.PotionCloud;
 import de.eldoria.bloodnight.util.VectorUtil;
 import de.eldoria.eldoutilities.serialization.TypeConversion;
+import de.eldoria.eldoutilities.utils.EMath;
 import de.eldoria.eldoutilities.utils.ERandom;
 import org.bukkit.*;
 import org.bukkit.entity.*;
@@ -18,6 +19,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
 import java.util.Collection;
@@ -25,6 +27,7 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.logging.Level;
 
 public final class SpecialMobUtil {
     private static final NamespacedKey IS_SPECIAL_MOB = BloodNight.getNamespacedKey("isSpecialMob");
@@ -353,7 +356,19 @@ public final class SpecialMobUtil {
             if (entity.getLocation().equals(location)) continue;
             Vector directionVector = VectorUtil.getDirectionVector(location, entity.getLocation());
             double power = settings.getPower(directionVector);
-            entity.setVelocity(directionVector.normalize().add(new Vector(0, 0.1, 0)).multiply(power));
+            Vector normalize = directionVector.clone().normalize();
+            if (Math.abs(normalize.getY()) <= 0.1) {
+                BloodNight.logger().log(Level.FINE, "Adjusting shockwave direction. Vector is too flat.");
+                normalize.add(new Vector(0, 0.1, 0));
+            }
+            normalize.multiply(power);
+            if (!NumberConversions.isFinite(normalize.getX()) || !NumberConversions.isFinite(normalize.getZ())) {
+                continue;
+            }
+            normalize.setY(EMath.clamp(-0.2, 0.2, normalize.getY()));
+            BloodNight.logger().log(Level.FINE, "Launching entity in direction " + normalize.toString()
+                    + " | Power: " + power + " | Initial direction: " + directionVector);
+            entity.setVelocity(normalize);
             settings.applyEffects(entity, power);
         }
     }
