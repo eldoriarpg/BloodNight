@@ -4,7 +4,9 @@ import de.eldoria.bloodnight.command.bloodnight.*;
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.core.manager.MobManager;
 import de.eldoria.bloodnight.core.manager.NightManager;
+import de.eldoria.bloodnight.util.Permissions;
 import de.eldoria.eldoutilities.simplecommands.EldoCommand;
+import de.eldoria.eldoutilities.simplecommands.commands.DefaultDebug;
 import org.bukkit.plugin.Plugin;
 
 public class BloodNightCommand extends EldoCommand {
@@ -26,5 +28,6 @@ public class BloodNightCommand extends EldoCommand {
         registerCommand("nightSelection", new ManageNightSelection(plugin, configuration, inventoryListener));
         registerCommand("deathActions", new ManageDeathActions(plugin, configuration));
         registerCommand("reload", new Reload(plugin));
+        registerCommand("debug", new DefaultDebug(plugin, Permissions.RELOAD));
     }
 }

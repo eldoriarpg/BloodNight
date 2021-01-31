@@ -3,36 +3,23 @@
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>bloodnight</artifactId>
+        <artifactId>BloodNight</artifactId>
         <groupId>de.eldoria</groupId>
-        <version>0.9.0</version>
+        <version>${revision}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>BloodNight-core</artifactId>
-    <name>BloodNight</name>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
-        <java.version>8</java.version>
-        <shade.base>de.eldoria.${project.parent.artifactId}</shade.base>
-        <eldoutil.version>1.5.0</eldoutil.version>
-        <javadoc.version>3.2.0</javadoc.version>
-        <source.version>3.2.1</source.version>
+        <eldoutil.version>1.6.9</eldoutil.version>
+        <plugin.name>BloodNight</plugin.name>
+        <plugin.description>Nights are not hard enough? Make them harder!</plugin.description>
+        <plugin.url>https://www.spigotmc.org/resources/85095/</plugin.url>
     </properties>
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -45,6 +32,10 @@
                             <pattern>net.kyori</pattern>
                             <shadedPattern>${shade.base}.kyori</shadedPattern>
                         </relocation>
+                        <relocation>
+                            <pattern>de.eldoria.eldoutilities</pattern>
+                            <shadedPattern>${shade.base}.eldoutilities</shadedPattern>
+                        </relocation>
                     </relocations>
                 </configuration>
                 <executions>
@@ -52,33 +43,6 @@
                         <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- Javadocs and sources -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>${source.version}</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>${javadoc.version}</version>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -92,12 +56,6 @@
                 </configuration>
             </plugin>
         </plugins>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
     </build>
 
     <repositories>
@@ -136,13 +94,19 @@
         <dependency>
             <groupId>de.eldoria</groupId>
             <artifactId>BloodNight-api</artifactId>
-            <version>0.9.0</version>
+            <version>${revision}</version>
         </dependency>
         <dependency>
-            <groupId>de.eldoria</groupId>
-            <artifactId>EldoUtilities</artifactId>
+            <groupId>de.eldoria.EldoUtilities</groupId>
+            <artifactId>EldoUtilitiesCore</artifactId>
             <version>${eldoutil.version}</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bstats</groupId>
+                    <artifactId>bstats-bukkit</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>net.kyori</groupId>

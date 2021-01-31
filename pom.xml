@@ -5,11 +5,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.eldoria</groupId>
-    <artifactId>bloodnight</artifactId>
+    <artifactId>BloodNight</artifactId>
+    <name>BloodNight</name>
     <packaging>pom</packaging>
-    <version>0.9.0</version>
-    <url>https://www.spigotmc.org/resources/85095/</url>
-    <description>Nights are not hard enough? Make them harder!</description>
+    <version>${revision}</version>
 
     <modules>
         <module>BloodNight-core</module>
@@ -24,13 +23,13 @@
     </distributionManagement>
 
     <properties>
+        <revision>0.9.1</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
         <java.version>8</java.version>
-        <shade.base>de.eldoria.${project.artifactId}</shade.base>
+        <shade.base>de.eldoria.bloodnight</shade.base>
         <javadoc.version>3.2.0</javadoc.version>
         <source.version>3.2.1</source.version>
-        <bn-version>0.9.0</bn-version>
     </properties>
 
     <build>
@@ -43,37 +42,6 @@
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.4</version>
-                <!-- Do not include the <configuration>...</configuration> part if you are using Sponge! -->
-                <configuration>
-                    <createDependencyReducedPom>false</createDependencyReducedPom>
-                    <relocations>
-                        <relocation>
-                            <pattern>org.bstats.bukkit</pattern>
-                            <shadedPattern>${shade.base}.bstats</shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>de.eldoria.eldoutilities</pattern>
-                            <shadedPattern>${shade.base}.eldoutilities</shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>net.kyori</pattern>
-                            <shadedPattern>${shade.base}.kyori</shadedPattern>
-                        </relocation>
-                    </relocations>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <!-- Javadocs and sources -->
             <plugin>
@@ -125,7 +93,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.16.4-R0.1-SNAPSHOT</version>
+            <version>1.16.5-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
