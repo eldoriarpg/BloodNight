@@ -1,6 +1,6 @@
 package de.eldoria.bloodnight.config.worldsettings;
 
-import de.eldoria.bloodnight.core.manager.nightmanager.NightUtil;
+import de.eldoria.bloodnight.core.manager.nightmanager.util.NightUtil;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
 import lombok.Getter;

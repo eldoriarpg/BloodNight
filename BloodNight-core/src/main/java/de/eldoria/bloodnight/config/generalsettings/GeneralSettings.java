@@ -9,6 +9,8 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -27,6 +29,8 @@ public class GeneralSettings implements ConfigurationSerializable {
     private boolean autoUpdater = false;
     private boolean beeFix = false;
     private boolean spawnerDropSuppression = true;
+    private boolean ignoreSpawnerMobs = false;
+    private List<String> blockedCommands = new ArrayList<>();
 
     public GeneralSettings(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
@@ -42,6 +46,8 @@ public class GeneralSettings implements ConfigurationSerializable {
         autoUpdater = map.getValueOrDefault("autoUpdater", autoUpdater);
         beeFix = map.getValueOrDefault("beeFix", beeFix);
         spawnerDropSuppression = map.getValueOrDefault("spawnerDropSuppression", spawnerDropSuppression);
+        ignoreSpawnerMobs = map.getValueOrDefault("ignoreSpawnerMobs", ignoreSpawnerMobs);
+        blockedCommands = map.getValueOrDefault("blockedCommands", blockedCommands);
         if (beeFix) {
             BloodNight.logger().info("§4Bee Fix is enabled. This feature should be used with care.");
         }
@@ -65,6 +71,8 @@ public class GeneralSettings implements ConfigurationSerializable {
                 .add("autoUpdater", autoUpdater)
                 .add("beeFix", beeFix)
                 .add("spawnerDropSuppression", spawnerDropSuppression)
+                .add("ignoreSpawnerMobs", ignoreSpawnerMobs)
+                .add("blockedCommands", blockedCommands)
                 .build();
     }
 }

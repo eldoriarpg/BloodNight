@@ -90,7 +90,7 @@ public class ManageNightSelection extends EldoCommand {
             return true;
         }
 
-        if (denyAccess(sender, Permissions.MANAGE_WORLDS)) {
+        if (denyAccess(sender, Permissions.Admin.MANAGE_WORLDS)) {
             return true;
         }
 
