@@ -120,16 +120,18 @@ public class NightManager extends BukkitRunnable implements Listener {
 
     // <--- BloodNight activation and deactivation --->
 
-    private boolean initializeBloodNight(World world) {
-        return initializeBloodNight(world, false);
+    private void initializeBloodNight(World world) {
+        initializeBloodNight(world, false);
     }
 
-    private boolean initializeBloodNight(World world, boolean force) {
+    private void initializeBloodNight(World world, boolean force) {
         WorldSettings settings = configuration.getWorldSettings(world.getName());
+
+        if (isBloodNightActive(world)) return;
 
         if (!settings.isEnabled()) {
             BloodNight.logger().fine("Blood night in world " + world.getName() + " is not enabled. Will not initialize.");
-            return true;
+            return;
         }
 
         // skip the calculation if a night should be forced.
@@ -140,8 +142,8 @@ public class NightManager extends BukkitRunnable implements Listener {
             sel.upcount();
 
             int probability = sel.getCurrentProbability(world);
-            if (probability <= 0) return true;
-            if (val > probability) return true;
+            if (probability <= 0) return;
+            if (val > probability) return;
         }
         BloodNightBeginEvent beginEvent = new BloodNightBeginEvent(world);
         // A new blood night has begun.
@@ -149,7 +151,7 @@ public class NightManager extends BukkitRunnable implements Listener {
 
         if (beginEvent.isCancelled()) {
             BloodNight.logger().fine("BloodNight in " + world.getName() + " was canceled by another plugin.");
-            return true;
+            return;
         }
         BloodNight.logger().fine("BloodNight in " + world.getName() + " activated.");
 
@@ -173,7 +175,7 @@ public class NightManager extends BukkitRunnable implements Listener {
         for (Player player : world.getPlayers()) {
             enableBloodNightForPlayer(player, world);
         }
-        return true;
+        return;
     }
 
     private void resolveBloodNight(World world) {
