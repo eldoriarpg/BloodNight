@@ -138,10 +138,14 @@ public class NightManager extends BukkitRunnable implements Listener {
         if (!force) {
             NightSelection sel = settings.getNightSelection();
             int val = ThreadLocalRandom.current().nextInt(101);
-
             sel.upcount();
 
+            BloodNight.logger().config("Evaluating Blood Night State.");
+            BloodNight.logger().config(sel.toString());
+
             int probability = sel.getCurrentProbability(world);
+
+            BloodNight.logger().config("Current probability: " + probability);
             if (probability <= 0) return;
             if (val > probability) return;
         }
@@ -150,10 +154,10 @@ public class NightManager extends BukkitRunnable implements Listener {
         pluginManager.callEvent(beginEvent);
 
         if (beginEvent.isCancelled()) {
-            BloodNight.logger().fine("BloodNight in " + world.getName() + " was canceled by another plugin.");
+            BloodNight.logger().fine("BloodNight in " + world.getName() + " was cancelled by another plugin.");
             return;
         }
-        BloodNight.logger().fine("BloodNight in " + world.getName() + " activated.");
+        BloodNight.logger().config("BloodNight in " + world.getName() + " activated.");
 
 
         BossBar bossBar = null;

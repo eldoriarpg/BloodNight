@@ -129,7 +129,8 @@ public class NightSelection implements ConfigurationSerializable {
     }
 
     @Override
-    public @NotNull Map<String, Object> serialize() {
+    @NotNull
+    public Map<String, Object> serialize() {
         List<String> phases = this.moonPhase.entrySet().stream().map(e -> e.getKey() + ":" + e.getValue()).collect(Collectors.toList());
         List<String> phasesCustom = this.phaseCustom.entrySet().stream().map(e -> e.getKey() + ":" + e.getValue()).collect(Collectors.toList());
 
@@ -290,5 +291,30 @@ public class NightSelection implements ConfigurationSerializable {
          * Determine bloodnight based on a smooth curve with a fixed length and a max and min probability.
          */
         CURVE
+    }
+
+    @Override
+    public String toString() {
+        String phases;
+        switch (nightSelectionType) {
+            case RANDOM:
+                return String.format("Mode: %s | Prob: %s", nightSelectionType, probability);
+            case MOON_PHASE:
+            case REAL_MOON_PHASE:
+                phases = getMoonPhase().entrySet().stream()
+                        .map(e -> e.getKey() + ":" + e.getValue())
+                        .collect(Collectors.joining(" | "));
+                return String.format("Mode: %s | Phases: %s", nightSelectionType, phases);
+            case INTERVAL:
+                return String.format("Mode: %s | Interval %d of %d with Prob %d", nightSelectionType, curInterval, interval - 1, intervalProbability);
+            case PHASE:
+                phases = getPhaseCustom().entrySet().stream()
+                        .map(e -> e.getKey() + ":" + e.getValue())
+                        .collect(Collectors.joining(" | "));
+                return String.format("Mode: %s | Phases: %s", nightSelectionType, phases);
+            case CURVE:
+                return String.format("Mode: %s | Pos %d on curve between %d and %d", nightSelectionType, currCurvePos, minCurveVal, maxCurveVal);
+        }
+        return "NightSelection{}";
     }
 }
