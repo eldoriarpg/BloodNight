@@ -144,6 +144,7 @@ public class NightSelection implements ConfigurationSerializable {
                 .add("minCurveVal", minCurveVal)
                 .add("maxCurveVal", maxCurveVal)
                 .add("interval", interval)
+                .add("intervalProbability", intervalProbability)
                 .add("curInterval", curInterval)
                 .build();
     }
