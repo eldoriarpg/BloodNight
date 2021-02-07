@@ -46,9 +46,9 @@ public class TimeManager extends BukkitRunnable implements Listener {
      *
      * @param event time skip event
      */
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onTimeSkip(TimeSkipEvent event) {
-        calcualteWorldState(event.getWorld());
+        customTimes.computeIfPresent(event.getWorld().getName(), (k, v) -> v + event.getSkipAmount());
     }
 
     @Override
