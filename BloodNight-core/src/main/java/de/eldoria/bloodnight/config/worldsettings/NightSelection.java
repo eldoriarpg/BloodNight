@@ -220,7 +220,7 @@ public class NightSelection implements ConfigurationSerializable {
                 if (!getMoonPhase().containsKey(realMoonPhase)) return 0;
                 return getPhaseProbability(realMoonPhase);
             case INTERVAL:
-                if ((getCurInterval() + nightOffset) % getInterval() != getInterval() - 1) {
+                if ((getCurInterval() + nightOffset) % getInterval() != 0) {
                     return 0;
                 }
                 return getIntervalProbability();
