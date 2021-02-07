@@ -57,7 +57,6 @@ public class BloodNightAPI implements IBloodNightAPI {
 
     @Override
     public int nextProbability(World world, int offset) {
-        //if (!isBloodNightActive(world)) return 0;
         NightSelection ns = configuration.getWorldSettings(world).getNightSelection();
         return ns.getNextProbability(world, offset);
     }
