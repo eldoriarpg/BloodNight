@@ -175,10 +175,11 @@ public class NightManager extends BukkitRunnable implements Listener {
         for (Player player : world.getPlayers()) {
             enableBloodNightForPlayer(player, world);
         }
-        return;
     }
 
     private void resolveBloodNight(World world) {
+        if (!isBloodNightActive(world)) return;
+
         BloodNight.logger().fine("BloodNight in " + world.getName() + " resolved.");
 
         WorldSettings settings = configuration.getWorldSettings(world.getName());
