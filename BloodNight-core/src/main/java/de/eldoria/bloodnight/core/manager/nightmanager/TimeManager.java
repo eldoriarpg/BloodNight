@@ -9,6 +9,7 @@ import de.eldoria.eldoutilities.utils.ObjUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.TimeSkipEvent;
 import org.bukkit.event.world.WorldLoadEvent;
@@ -46,9 +47,9 @@ public class TimeManager extends BukkitRunnable implements Listener {
      *
      * @param event time skip event
      */
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onTimeSkip(TimeSkipEvent event) {
-        calcualteWorldState(event.getWorld());
+        customTimes.computeIfPresent(event.getWorld().getName(), (k, v) -> v + event.getSkipAmount());
     }
 
     @Override
@@ -60,9 +61,10 @@ public class TimeManager extends BukkitRunnable implements Listener {
         refreshTime();
     }
 
+
     private void calcualteWorldState(World world) {
         boolean current = NightUtil.isNight(world, configuration.getWorldSettings(world));
-        boolean old = timeState.getOrDefault(world.getName(), false);
+        boolean old = timeState.getOrDefault(world.getName(), !current);
 
         if (current == old) {
             return;
