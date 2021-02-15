@@ -21,6 +21,7 @@ import java.util.Map;
 public class TimeManager extends BukkitRunnable implements Listener {
     private final Configuration configuration;
     private final NightManager nightManager;
+    private boolean ignoreSkip = false;
     /**
      * Map contains for every active world a boolean if it is currently night.
      */
@@ -49,6 +50,10 @@ public class TimeManager extends BukkitRunnable implements Listener {
      */
     @EventHandler(priority = EventPriority.MONITOR)
     public void onTimeSkip(TimeSkipEvent event) {
+        if (ignoreSkip) {
+            ignoreSkip = false;
+            return;
+        }
         customTimes.computeIfPresent(event.getWorld().getName(), (k, v) -> v + event.getSkipAmount());
     }
 
@@ -95,7 +100,11 @@ public class TimeManager extends BukkitRunnable implements Listener {
                 double time = customTimes.compute(world.getName(),
                         (key, old) -> (old == null ? world.getFullTime() : old) + calcTicks);
 
-                world.setFullTime(Math.round(time));
+                long newTime = Math.round(time);
+                if (world.getFullTime() != newTime) {
+                    ignoreSkip = true;
+                    world.setFullTime(newTime);
+                }
             }
 
             BloodNightData bloodNightData = entry.getValue();
