@@ -137,8 +137,8 @@ public abstract class SpecialMob<T extends LivingEntity> {
      * If you override this just remove the extension and call super afterwards.
      */
     public void remove() {
-        if (getBaseEntity().isValid()) {
-            getBaseEntity().remove();
+        if (baseEntity.isValid()) {
+            baseEntity.remove();
         }
     }
 

@@ -36,6 +36,10 @@
                             <pattern>de.eldoria.eldoutilities</pattern>
                             <shadedPattern>${shade.base}.eldoutilities</shadedPattern>
                         </relocation>
+                        <relocation>
+                            <pattern>org.bstats</pattern>
+                            <shadedPattern>${shade.base}.bstats</shadedPattern>
+                        </relocation>
                     </relocations>
                 </configuration>
                 <executions>
@@ -61,7 +65,7 @@
 
     <repositories>
         <repository>
-            <id>EldoNexus</id> <!-- eldo utilities -->
+            <id>EldoNexus</id>
             <url>https://eldonexus.de/repository/maven-releases/</url>
         </repository>
         <repository> <!-- Spigot -->
@@ -164,12 +168,6 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>5.5.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>

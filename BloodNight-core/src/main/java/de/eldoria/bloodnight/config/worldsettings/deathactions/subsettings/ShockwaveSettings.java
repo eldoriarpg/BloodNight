@@ -60,7 +60,8 @@ public class ShockwaveSettings implements ConfigurationSerializable {
     }
 
     @Override
-    public @NotNull Map<String, Object> serialize() {
+    public @NotNull
+    Map<String, Object> serialize() {
         return SerializationUtil.newBuilder()
                 .add("shockwaveProbability", shockwaveProbability)
                 .add("shockwavePower", shockwavePower)

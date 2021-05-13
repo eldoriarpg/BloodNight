@@ -1,4 +1,5 @@
 [![](https://jitci.com/gh/eldoriarpg/BloodNight/svg)](https://jitci.com/gh/eldoriarpg/BloodNight)
+
 # Blood Night
 
 A Minecraft plugin which makes some nights an absolute nightmare. Let's make nights a challenge again.

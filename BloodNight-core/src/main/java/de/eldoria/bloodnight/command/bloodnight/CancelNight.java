@@ -69,7 +69,8 @@ public class CancelNight extends EldoCommand {
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command
+    public @Nullable
+    List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command
             command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
             return TabCompleteUtil.completeWorlds(args[0]);

@@ -70,7 +70,8 @@ public class SoundEntry implements ConfigurationSerializable {
     }
 
     @Override
-    public @NotNull Map<String, Object> serialize() {
+    public @NotNull
+    Map<String, Object> serialize() {
         return SerializationUtil.newBuilder()
                 .add("sound", sound.name())
                 .add("pitch", pitch)

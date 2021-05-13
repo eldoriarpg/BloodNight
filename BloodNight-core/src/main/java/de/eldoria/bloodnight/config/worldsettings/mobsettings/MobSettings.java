@@ -95,7 +95,8 @@ public class MobSettings implements ConfigurationSerializable {
     }
 
     @Override
-    public @NotNull Map<String, Object> serialize() {
+    public @NotNull
+    Map<String, Object> serialize() {
         return SerializationUtil.newBuilder()
                 .add("vanillaMobSettings", vanillaMobSettings)
                 .add("displayMobNames", displayMobNames)
@@ -222,7 +223,8 @@ public class MobSettings implements ConfigurationSerializable {
         }
 
         @Override
-        public @NotNull Map<String, Object> serialize() {
+        public @NotNull
+        Map<String, Object> serialize() {
             SerializationUtil.Builder builder = SerializationUtil.newBuilder();
             for (Map.Entry<String, Set<MobSetting>> entry : mobSettings.entrySet()) {
                 builder.add(entry.getKey(), new ArrayList<>(entry.getValue()));

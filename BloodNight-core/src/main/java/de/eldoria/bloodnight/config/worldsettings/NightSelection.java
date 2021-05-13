@@ -16,6 +16,7 @@ import org.bukkit.configuration.serialization.SerializableAs;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -31,6 +32,16 @@ public class NightSelection implements ConfigurationSerializable {
      * Probability that a night becomes a blood night. In percent 0-100.
      */
     private int probability = 60;
+
+    private Map<Integer, Integer> weekDay = new HashMap<Integer, Integer>() {{
+        put(0, 10);
+        put(1, 0);
+        put(2, 0);
+        put(3, 0);
+        put(4, 10);
+        put(5, 80);
+        put(6, 90);
+    }};
 
     private Map<Integer, Integer> moonPhase = new HashMap<Integer, Integer>() {{
         put(0, 0);
@@ -92,6 +103,8 @@ public class NightSelection implements ConfigurationSerializable {
                 moonPhase.entrySet().stream().map(e -> e.getKey() + ":" + e.getValue()).collect(Collectors.toList())));
         phaseCustom = parsePhase(map.getValueOrDefault("phasesCustom",
                 phaseCustom.entrySet().stream().map(e -> e.getKey() + ":" + e.getValue()).collect(Collectors.toList())));
+        phaseCustom = parsePhase(map.getValueOrDefault("weekDay",
+                weekDay.entrySet().stream().map(e -> e.getKey() + ":" + e.getValue()).collect(Collectors.toList())));
         verifyPhases();
         currPhase = map.getValueOrDefault("currPhase", currPhase);
         period = map.getValueOrDefault("period", period);
@@ -131,14 +144,22 @@ public class NightSelection implements ConfigurationSerializable {
     @Override
     @NotNull
     public Map<String, Object> serialize() {
-        List<String> phases = this.moonPhase.entrySet().stream().map(e -> e.getKey() + ":" + e.getValue()).collect(Collectors.toList());
-        List<String> phasesCustom = this.phaseCustom.entrySet().stream().map(e -> e.getKey() + ":" + e.getValue()).collect(Collectors.toList());
+        List<String> phases = this.moonPhase.entrySet().stream()
+                .map(e -> e.getKey() + ":" + e.getValue())
+                .collect(Collectors.toList());
+        List<String> phasesCustom = this.phaseCustom.entrySet().stream()
+                .map(e -> e.getKey() + ":" + e.getValue())
+                .collect(Collectors.toList());
+        List<String> weekDay = this.weekDay.entrySet().stream()
+                .map(e -> e.getKey() + ":" + e.getValue())
+                .collect(Collectors.toList());
 
         return SerializationUtil.newBuilder()
                 .add("probability", probability)
                 .add("nightSelectionType", nightSelectionType.name())
                 .add("phases", phases)
                 .add("phasesCustom", phasesCustom)
+                .add("weekDay", weekDay)
                 .add("currPhase", currPhase)
                 .add("period", period)
                 .add("currCurvePos", currCurvePos)
@@ -157,6 +178,10 @@ public class NightSelection implements ConfigurationSerializable {
 
     public void setMoonPhase(int phase, int probability) {
         moonPhase.put(phase, probability);
+    }
+
+    public void setWeekDay(int day, int probability) {
+        weekDay.put(day, probability);
     }
 
     public void setPhaseCount(int phaseCount) {
@@ -242,6 +267,9 @@ public class NightSelection implements ConfigurationSerializable {
                                     (double) getMinCurveVal()), pos);
                 }
                 return (int) curveProb;
+            case WEEKDAY:
+                int value = (LocalDateTime.now().getDayOfWeek().getValue() - 1 + nightOffset) % 7;
+                return weekDay.get(value);
         }
         return 0;
     }
@@ -264,6 +292,31 @@ public class NightSelection implements ConfigurationSerializable {
                 upcountCurve();
                 break;
         }
+    }
+
+    @Override
+    public String toString() {
+        String phases;
+        switch (nightSelectionType) {
+            case RANDOM:
+                return String.format("Mode: %s | Prob: %s", nightSelectionType, probability);
+            case MOON_PHASE:
+            case REAL_MOON_PHASE:
+                phases = getMoonPhase().entrySet().stream()
+                        .map(e -> e.getKey() + ":" + e.getValue())
+                        .collect(Collectors.joining(" | "));
+                return String.format("Mode: %s | Phases: %s", nightSelectionType, phases);
+            case INTERVAL:
+                return String.format("Mode: %s | Interval %d of %d with Prob %d", nightSelectionType, curInterval, interval - 1, intervalProbability);
+            case PHASE:
+                phases = getPhaseCustom().entrySet().stream()
+                        .map(e -> e.getKey() + ":" + e.getValue())
+                        .collect(Collectors.joining(" | "));
+                return String.format("Mode: %s | Phases: %s", nightSelectionType, phases);
+            case CURVE:
+                return String.format("Mode: %s | Pos %d on curve between %d and %d", nightSelectionType, currCurvePos, minCurveVal, maxCurveVal);
+        }
+        return "NightSelection{}";
     }
 
     public enum NightSelectionType {
@@ -290,31 +343,10 @@ public class NightSelection implements ConfigurationSerializable {
         /**
          * Determine bloodnight based on a smooth curve with a fixed length and a max and min probability.
          */
-        CURVE
-    }
-
-    @Override
-    public String toString() {
-        String phases;
-        switch (nightSelectionType) {
-            case RANDOM:
-                return String.format("Mode: %s | Prob: %s", nightSelectionType, probability);
-            case MOON_PHASE:
-            case REAL_MOON_PHASE:
-                phases = getMoonPhase().entrySet().stream()
-                        .map(e -> e.getKey() + ":" + e.getValue())
-                        .collect(Collectors.joining(" | "));
-                return String.format("Mode: %s | Phases: %s", nightSelectionType, phases);
-            case INTERVAL:
-                return String.format("Mode: %s | Interval %d of %d with Prob %d", nightSelectionType, curInterval, interval - 1, intervalProbability);
-            case PHASE:
-                phases = getPhaseCustom().entrySet().stream()
-                        .map(e -> e.getKey() + ":" + e.getValue())
-                        .collect(Collectors.joining(" | "));
-                return String.format("Mode: %s | Phases: %s", nightSelectionType, phases);
-            case CURVE:
-                return String.format("Mode: %s | Pos %d on curve between %d and %d", nightSelectionType, currCurvePos, minCurveVal, maxCurveVal);
-        }
-        return "NightSelection{}";
+        CURVE,
+        /**
+         * Determine bloodnight based on the current real week day.
+         */
+        WEEKDAY
     }
 }

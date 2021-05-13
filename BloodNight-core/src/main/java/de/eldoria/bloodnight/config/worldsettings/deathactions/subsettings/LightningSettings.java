@@ -52,7 +52,8 @@ public class LightningSettings implements ConfigurationSerializable {
     }
 
     @Override
-    public @NotNull Map<String, Object> serialize() {
+    public @NotNull
+    Map<String, Object> serialize() {
         return SerializationUtil.newBuilder()
                 .add("doLightning", doLightning)
                 .add("lightning", lightning)

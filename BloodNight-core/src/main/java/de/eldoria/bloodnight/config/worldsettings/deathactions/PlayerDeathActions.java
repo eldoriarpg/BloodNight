@@ -45,7 +45,8 @@ public class PlayerDeathActions extends DeathActions {
     }
 
     @Override
-    public @NotNull Map<String, Object> serialize() {
+    public @NotNull
+    Map<String, Object> serialize() {
         return SerializationUtil.newBuilder(super.serialize())
                 .add("deathCommands", deathCommands)
                 .add("loseInvProbability", loseInvProbability)

@@ -98,7 +98,7 @@ public final class DeathActionUtil {
                                         Optional<String> optionalType = DataContainerUtil.get(stack, typeKey, PersistentDataType.STRING);
                                         optionalType.ifPresent(name -> {
                                                     PotionEffectType type = PotionEffectType.getByName(name);
-                                                    if(integer.get() == 0){
+                                                    if (integer.get() == 0) {
                                                         shockwave.getShockwaveEffects().remove(type);
                                                         return;
                                                     }

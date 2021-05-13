@@ -132,7 +132,8 @@ public class Configuration extends EldoConfig {
 
     }
 
-    private @NotNull String getWorldConfigPath(String world) {
+    private @NotNull
+    String getWorldConfigPath(String world) {
         return "worldSettings/" + world;
     }
 }
