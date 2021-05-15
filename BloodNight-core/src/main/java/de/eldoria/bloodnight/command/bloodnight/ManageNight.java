@@ -13,10 +13,10 @@ import de.eldoria.eldoutilities.utils.ArgumentUtils;
 import de.eldoria.eldoutilities.utils.ArrayUtil;
 import de.eldoria.eldoutilities.utils.EnumUtil;
 import de.eldoria.eldoutilities.utils.Parser;
-import lombok.var;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.World;
@@ -150,7 +150,7 @@ public class ManageNight extends EldoCommand {
         NightSettings nightSettings = worldSettings.getNightSettings();
         String cmd = "/bloodnight manageNight " + ArgumentUtils.escapeWorldName(worldSettings.getWorldName()) + " ";
         NightSettings.NightDuration durationMode = nightSettings.getNightDurationMode();
-        var builder = Component.text()
+        TextComponent.Builder builder = Component.text()
                 .append(Component.newline())
                 .append(Component.newline())
                 .append(Component.newline())
