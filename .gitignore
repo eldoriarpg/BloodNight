@@ -1,28 +1,18 @@
-# Eclipse stuff
-/.classpath
-/.project
-/.settings
+# Remove config
+/config/
 
-# netbeans
-/nbproject
+.gradle
+**/build/
+!src/**/build/
 
-# we use maven!
-/build.xml
+# Ignore Gradle GUI config
+gradle-app.setting
 
-# maven
-/target
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
 
-# vim
-.*.sw[a-p]
-
-# various other potential build files
-/build
-/bin
-/dist
-/manifest.mf
-
-# Mac filesystem dust
-/.DS_Store
+# Cache of project
+.gradletasknamecache
 
 # User-specific stuff
 .idea/**/workspace.xml
@@ -51,15 +41,14 @@
 # When using Gradle or Maven with auto-import, you should exclude module files,
 # since they will be recreated, and may cause churn.  Uncomment if using
 # auto-import.
-# .idea/modules.xml
-# .idea/*.iml
-# .idea/modules
-
-# CMake
-cmake-build-*/
-
-# Mongo Explorer plugin
-.idea/**/mongoSettings.xml
+.idea/artifacts
+.idea/compiler.xml
+.idea/jarRepositories.xml
+.idea/modules.xml
+.idea/*.iml
+.idea/modules
+*.iml
+*.ipr
 
 # File-based project format
 *.iws
@@ -67,33 +56,17 @@ cmake-build-*/
 # IntelliJ
 out/
 
-# mpeltonen/sbt-idea plugin
-.idea_modules/
-
-# JIRA plugin
-atlassian-ide-plugin.xml
-
-# Cursive Clojure plugin
-.idea/replstate.xml
-
-# Crashlytics plugin (for Android Studio and IntelliJ)
-com_crashlytics_export_strings.xml
-crashlytics.properties
-crashlytics-build.properties
-fabric.properties
-
-# Editor-based Rest Client
-.idea/httpRequests
-
-# Android studio 3.1+ serialized cache file
-.idea/caches/build_file_checksums.ser
-
-# Intellij
-.idea/
-*.iml
+# CMake
+cmake-build-*/
 
 # Maven
-log/
 target/
-
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
 dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
