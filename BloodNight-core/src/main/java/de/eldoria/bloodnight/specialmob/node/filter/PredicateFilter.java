@@ -8,7 +8,8 @@ import de.eldoria.bloodnight.specialmob.node.predicate.PredicateNode;
 import java.util.Map;
 
 public class PredicateFilter extends FilterNode {
-    PredicateNode predicate;
+    private PredicateNode predicate;
+    boolean invert = false;
 
     public PredicateFilter(Node node) {
         super(node);
@@ -20,6 +21,6 @@ public class PredicateFilter extends FilterNode {
 
     @Override
     public boolean check(ISpecialMob mob, IActionContext context) {
-        return predicate.test(mob, context);
+        return invert != predicate.test(mob, context);
     }
 }

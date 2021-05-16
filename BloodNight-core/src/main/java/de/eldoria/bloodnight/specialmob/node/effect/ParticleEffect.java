@@ -4,7 +4,7 @@ import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
 import org.bukkit.Particle;
 import org.bukkit.entity.LivingEntity;
 
-public class ParticleEffect implements Effect {
+public class ParticleEffect implements EffectNode {
     Particle particle;
     int amount;
     @Override

@@ -8,6 +8,7 @@ import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -16,12 +17,14 @@ public class IsEntityType implements PredicateNode {
 
     public IsEntityType(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
+        types = map.getValueOrDefault("types", new ArrayList<>(), EntityType.class);
     }
 
     @Override
     @NotNull
     public Map<String, Object> serialize() {
         return SerializationUtil.newBuilder()
+                .addEnum("types", types)
                 .build();
     }
 

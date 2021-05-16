@@ -4,7 +4,7 @@ import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffectType;
 
-public class PotionEffect implements Effect {
+public class PotionEffect implements EffectNode {
     PotionEffectType type;
     int amplifier;
     boolean visible;
