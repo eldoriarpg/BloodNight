@@ -30,7 +30,8 @@ import de.eldoria.bloodnight.core.mobfactory.MobFactory;
 import de.eldoria.bloodnight.core.mobfactory.SpecialMobRegistry;
 import de.eldoria.bloodnight.hooks.HookService;
 import de.eldoria.bloodnight.util.Permissions;
-import de.eldoria.eldoutilities.bstats.Metrics;
+import de.eldoria.eldoutilities.bstats.EldoMetrics;
+import de.eldoria.eldoutilities.bstats.charts.MultiLineChart;
 import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.messages.MessageSender;
 import de.eldoria.eldoutilities.plugin.EldoPlugin;
@@ -152,11 +153,11 @@ public class BloodNight extends EldoPlugin {
     }
 
     private void enableMetrics() {
-        Metrics metrics = new Metrics(this, 9123);
+        EldoMetrics metrics = new EldoMetrics(this, 9123);
         if (metrics.isEnabled()) {
             logger().info("§2Metrics enabled. Thank you! (> ^_^ )>");
 
-            metrics.addCustomChart(new Metrics.MultiLineChart("update_settings", () -> {
+            metrics.addCustomChart(new MultiLineChart("update_settings", () -> {
                 Map<String, Integer> map = new HashMap<>();
                 map.put("Update Check", configuration.getGeneralSettings().isUpdateReminder() ? 1 : 0);
                 if (configuration.getGeneralSettings().isUpdateReminder()) {
@@ -167,7 +168,7 @@ public class BloodNight extends EldoPlugin {
                 return map;
             }));
 
-            metrics.addCustomChart(new Metrics.MultiLineChart("mob_types", () -> {
+            metrics.addCustomChart(new MultiLineChart("mob_types", () -> {
                 Map<String, Integer> map = new HashMap<>();
                 for (MobFactory factory : SpecialMobRegistry.getRegisteredMobs()) {
                     for (WorldSettings world : configuration.getWorldSettings().values()) {
@@ -184,7 +185,7 @@ public class BloodNight extends EldoPlugin {
                 return map;
             }));
 
-            metrics.addCustomChart(new Metrics.MultiLineChart("night_selection", () -> {
+            metrics.addCustomChart(new MultiLineChart("night_selection", () -> {
                 Map<String, Integer> map = new HashMap<>();
                 for (WorldSettings world : configuration.getWorldSettings().values()) {
                     if (!world.isEnabled()) continue;
