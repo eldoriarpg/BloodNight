@@ -13,6 +13,7 @@ import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -425,5 +426,16 @@ public final class SpecialMobUtil {
      */
     public static PotionCloud.Builder buildParticleCloud(Location location) {
         return PotionCloud.builder(location);
+    }
+
+    public static void clearEquipment(LivingEntity entity) {
+        EntityEquipment equipment = entity.getEquipment();
+        if (equipment == null) return;
+        equipment.setItemInMainHand(null);
+        equipment.setItemInOffHand(null);
+        equipment.setHelmet(null);
+        equipment.setChestplate(null);
+        equipment.setLeggings(null);
+        equipment.setBoots(null);
     }
 }
