@@ -12,7 +12,7 @@
     <artifactId>BloodNight-core</artifactId>
 
     <properties>
-        <eldoutil.version>1.7.3</eldoutil.version>
+        <eldoutil.version>1.8.4</eldoutil.version>
         <plugin.name>BloodNight</plugin.name>
         <plugin.description>Nights are not hard enough? Make them harder!</plugin.description>
         <plugin.url>https://www.spigotmc.org/resources/85095/</plugin.url>
@@ -61,8 +61,8 @@
 
     <repositories>
         <repository>
-            <id>jitpack.io</id> <!-- eldo utilities -->
-            <url>https://jitpack.io</url>
+            <id>EldoNexus</id> <!-- eldo utilities -->
+            <url>https://eldonexus.de/repository/maven-releases/</url>
         </repository>
         <repository> <!-- Spigot -->
             <id>spigot-repo</id>
@@ -98,21 +98,15 @@
             <version>${revision}</version>
         </dependency>
         <dependency>
-            <groupId>de.eldoria.EldoUtilities</groupId>
-            <artifactId>EldoUtilitiesCore</artifactId>
+            <groupId>de.eldoria</groupId>
+            <artifactId>eldo-util</artifactId>
             <version>${eldoutil.version}</version>
             <scope>compile</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.bstats</groupId>
-                    <artifactId>bstats-bukkit</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>net.kyori</groupId>
             <artifactId>adventure-api</artifactId>
-            <version>4.4.0</version>
+            <version>4.7.0</version>
             <scope>compile</scope>
             <exclusions>
                 <exclusion>
