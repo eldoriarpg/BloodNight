@@ -5,6 +5,7 @@ import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.config.worldsettings.deathactions.subsettings.ShockwaveSettings;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSetting;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSettings;
+import de.eldoria.bloodnight.config.worldsettings.mobsettings.VanillaDropMode;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.VanillaMobSettings;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.core.manager.nightmanager.NightManager;
@@ -17,6 +18,7 @@ import de.eldoria.eldoutilities.entityutils.ProjectileSender;
 import de.eldoria.eldoutilities.entityutils.ProjectileUtil;
 import de.eldoria.eldoutilities.scheduling.DelayedActions;
 import de.eldoria.eldoutilities.threading.IteratingTask;
+import de.eldoria.eldoutilities.utils.DataContainerUtil;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
@@ -27,9 +29,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.*;
+import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
@@ -238,7 +240,8 @@ public class MobManager implements Listener {
             }
         } else {
             // If it is a vanilla mob just increase the drops.
-            switch (vanillaMobSettings.getVanillaDropMode()) {
+            VanillaDropMode dropMode = vanillaMobSettings.getVanillaDropMode();
+            switch (dropMode) {
                 case VANILLA:
                     for (ItemStack drop : event.getDrops()) {
                         if (isPickedUp(drop)) continue;
@@ -257,8 +260,8 @@ public class MobManager implements Listener {
                     event.getDrops().addAll(mobSettings.getDrops(vanillaMobSettings.getExtraDrops()));
                     break;
             }
-            // Add extra drops
-            if (vanillaMobSettings.getExtraDrops() > 0) {
+
+            if (dropMode != VanillaDropMode.VANILLA && vanillaMobSettings.getExtraDrops() > 0) {
                 List<ItemStack> drops = mobSettings.getDrops(vanillaMobSettings.getExtraDrops());
                 event.getDrops().addAll(drops);
             }
@@ -347,44 +350,38 @@ public class MobManager implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onItemPickup(EntityPickupItemEvent event) {
-        if (!(event.getEntity() instanceof Monster) && !(event.getEntity() instanceof Boss)) return;
+        if (event.getEntity() instanceof Player) {
+            // Remove remaining picked up tags when a player picks up an item.
+            // this is a bugfix and can be removed later.
+            removePickupTag(event.getItem().getItemStack());
+            return;
+        }
         if (!configuration.getWorldSettings(event.getEntity().getWorld()).isEnabled()) return;
         addPickupTag(event.getItem().getItemStack());
     }
 
+    public void onHopperPickUp(InventoryPickupItemEvent event) {
+        removePickupTag(event.getItem().getItemStack());
+    }
+
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onItemPickup(EntityDropItemEvent event) {
-        if (!(event.getEntity() instanceof Monster) && !(event.getEntity() instanceof Boss)) return;
+    public void onItemDrop(EntityDropItemEvent event) {
+        // Remove the picked up tag from all items dropped by non players.
+        if (event.getEntity() instanceof Player) return;
         if (!configuration.getWorldSettings(event.getEntity().getWorld()).isEnabled()) return;
         removePickupTag(event.getItemDrop().getItemStack());
     }
 
     private void addPickupTag(ItemStack itemStack) {
-        ItemMeta itemMeta = itemStack.getItemMeta();
-        if (itemMeta != null) {
-            PersistentDataContainer container = itemMeta.getPersistentDataContainer();
-            container.set(PICKED_UP, PersistentDataType.BYTE, (byte) 1);
-        }
-        itemStack.setItemMeta(itemMeta);
+        DataContainerUtil.setIfAbsent(itemStack, PICKED_UP, PersistentDataType.BYTE, DataContainerUtil.booleanToByte(true));
     }
 
     private void removePickupTag(ItemStack itemStack) {
-        ItemMeta itemMeta = itemStack.getItemMeta();
-        if (itemMeta != null) {
-            PersistentDataContainer container = itemMeta.getPersistentDataContainer();
-            if (container.has(PICKED_UP, PersistentDataType.BYTE))
-                container.remove(PICKED_UP);
-        }
-        itemStack.setItemMeta(itemMeta);
+        DataContainerUtil.remove(itemStack, PICKED_UP, PersistentDataType.BYTE);
     }
 
     private boolean isPickedUp(ItemStack itemStack) {
-        ItemMeta itemMeta = itemStack.getItemMeta();
-        if (itemMeta != null) {
-            PersistentDataContainer container = itemMeta.getPersistentDataContainer();
-            return container.has(PICKED_UP, PersistentDataType.BYTE);
-        }
-        return false;
+        return DataContainerUtil.hasKey(itemStack, PICKED_UP, PersistentDataType.BYTE);
     }
 
     public SpecialMobManager getSpecialMobManager() {
