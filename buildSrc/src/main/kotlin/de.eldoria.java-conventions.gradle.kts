@@ -4,13 +4,13 @@ plugins {
 }
 
 group = "de.eldoria"
-version = "1.0.1"
+version = "1.0.0-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 val lombokVersion = "1.18.20"
 
 repositories {
-    //mavenLocal()
     maven { url = uri("https://eldonexus.de/repository/maven-releases/") }
+    maven { url = uri("https://eldonexus.de/repository/maven-snapshots/") }
     maven { url = uri("https://eldonexus.de/repository/spigot/") }
     maven { url = uri("https://eldonexus.de/repository/OnARandomBox/") }
     maven { url = uri("https://repo.maven.apache.org/maven2/") }
@@ -28,17 +28,25 @@ dependencies {
     compileOnly("org.jetbrains", "annotations", "16.0.2")
 }
 
-
-java {
-    withSourcesJar()
-}
-
-publishing {
-    publications.create<MavenPublication>("maven") {
-        from(components["java"])
+allprojects {
+    java {
+        withSourcesJar()
+        withJavadocJar()
     }
 }
 
-tasks.withType<JavaCompile>() {
-    options.encoding = "UTF-8"
+tasks {
+    publish {
+        dependsOn(build)
+    }
+
+    compileJava {
+        options.encoding = "UTF-8"
+    }
+    test {
+        useJUnitPlatform()
+        testLogging {
+            events("passed", "skipped", "failed")
+        }
+    }
 }

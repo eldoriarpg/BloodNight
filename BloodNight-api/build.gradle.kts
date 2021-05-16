@@ -1,9 +1,11 @@
 plugins {
-    id("de.eldoria.java-conventions")
+    java
+    id("de.eldoria.library-conventions")
 }
 
 description = "BloodNight-api"
 
-java {
+java{
     withJavadocJar()
+    withSourcesJar()
 }

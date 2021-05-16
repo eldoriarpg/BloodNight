@@ -1,12 +1,10 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
-
 plugins {
     id("com.github.johnrengelman.shadow") version "6.0.0"
-    id("de.eldoria.java-conventions")
+    id("de.eldoria.library-conventions")
 }
 
 dependencies {
-    implementation(project(":BloodNight-api"))
+    api(project(":BloodNight-api"))
     implementation("net.kyori:adventure-api:4.7.0")
     implementation("net.kyori:adventure-platform-bukkit:4.0.0-SNAPSHOT")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.5.2")
@@ -17,18 +15,14 @@ dependencies {
     compileOnly("se.hyperver.hyperverse:Core:0.9.0-SNAPSHOT") { isTransitive = false }
 }
 
-configurations.all {
-    resolutionStrategy.cacheDynamicVersionsFor(0, TimeUnit.MINUTES)
-}
-
-java {
-    withJavadocJar()
-    withSourcesJar()
-}
-
 var mainPackage = "bloodnight"
 val shadebade = project.group as String + "." + mainPackage + "."
 val descr = "Nights are not hard enough? Make them harder!"
+
+java{
+    withSourcesJar()
+    withJavadocJar()
+}
 
 tasks {
     processResources {
@@ -51,12 +45,13 @@ tasks {
 
     shadowJar {
         relocate("net.kyori", shadebade + "kyori")
-        relocate("de.eldoria.eldoutilitites", shadebade + "eldoutilitites")
+        relocate("de.eldoria.eldoutilities", shadebade + "eldoutilities")
         mergeServiceFiles()
-        archiveClassifier.set("")
+        //archiveClassifier.set("")
         archiveBaseName.set(project.parent?.name)
     }
 
+    // automatic reloacation relacates the api module as well which is not intended.
   /*  val relocate = register<ConfigureShadowRelocation>("relocateShadowJar") {
         target = shadowJar.get()
         prefix = shadebade
@@ -69,4 +64,7 @@ tasks {
             events("passed", "skipped", "failed")
         }
     }
+    /*jar{
+        dependsOn(shadowJar)
+    }*/
 }
