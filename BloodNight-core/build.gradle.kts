@@ -39,24 +39,12 @@ tasks {
         }
     }
 
-    compileJava {
-        options.encoding = "UTF-8"
-    }
-
     shadowJar {
         relocate("net.kyori", shadebade + "kyori")
         relocate("de.eldoria.eldoutilities", shadebade + "eldoutilities")
         mergeServiceFiles()
-        //archiveClassifier.set("")
         archiveBaseName.set(project.parent?.name)
     }
-
-    // automatic reloacation relacates the api module as well which is not intended.
-  /*  val relocate = register<ConfigureShadowRelocation>("relocateShadowJar") {
-        target = shadowJar.get()
-        prefix = shadebade
-    }
-    shadowJar.get().dependsOn(relocate)*/
 
     test {
         useJUnit()
@@ -64,7 +52,4 @@ tasks {
             events("passed", "skipped", "failed")
         }
     }
-    /*jar{
-        dependsOn(shadowJar)
-    }*/
 }
