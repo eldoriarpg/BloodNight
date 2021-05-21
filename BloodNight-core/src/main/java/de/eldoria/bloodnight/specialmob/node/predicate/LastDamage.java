@@ -2,7 +2,7 @@ package de.eldoria.bloodnight.specialmob.node.predicate;
 
 import de.eldoria.bloodnight.specialmob.ISpecialMob;
 import de.eldoria.bloodnight.specialmob.node.Node;
-import de.eldoria.bloodnight.specialmob.node.context.IActionContext;
+import de.eldoria.bloodnight.specialmob.node.context.ContextContainer;
 import de.eldoria.bloodnight.specialmob.node.filter.FilterNode;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,7 +27,7 @@ public class LastDamage extends FilterNode {
     }
 
     @Override
-    public boolean check(ISpecialMob mob, IActionContext context) {
+    public boolean check(ISpecialMob mob, ContextContainer context) {
         return mob.lastDamage().isBefore(Instant.now().minusSeconds(after));
     }
 }

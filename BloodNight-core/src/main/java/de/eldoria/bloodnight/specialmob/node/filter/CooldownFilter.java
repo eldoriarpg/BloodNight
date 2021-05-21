@@ -1,7 +1,7 @@
 package de.eldoria.bloodnight.specialmob.node.filter;
 
 import de.eldoria.bloodnight.specialmob.ISpecialMob;
-import de.eldoria.bloodnight.specialmob.node.context.IActionContext;
+import de.eldoria.bloodnight.specialmob.node.context.ContextContainer;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
 import de.eldoria.eldoutilities.utils.EnumUtil;
@@ -38,7 +38,7 @@ public class CooldownFilter extends FilterNode {
 
 
     @Override
-    public boolean check(ISpecialMob mob, IActionContext context) {
+    public boolean check(ISpecialMob mob, ContextContainer context) {
         if (last.plus(duration).isAfter(Instant.now())) {
             last = Instant.now();
             return true;

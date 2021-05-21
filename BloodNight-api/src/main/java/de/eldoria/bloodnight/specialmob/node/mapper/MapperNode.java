@@ -3,7 +3,7 @@ package de.eldoria.bloodnight.specialmob.node.mapper;
 import de.eldoria.bloodnight.specialmob.ISpecialMob;
 import de.eldoria.bloodnight.specialmob.node.Node;
 import de.eldoria.bloodnight.specialmob.node.NodeHolder;
-import de.eldoria.bloodnight.specialmob.node.context.IActionContext;
+import de.eldoria.bloodnight.specialmob.node.context.ContextContainer;
 
 import java.util.Map;
 
@@ -20,9 +20,15 @@ public abstract class MapperNode extends NodeHolder {
     }
 
     @Override
-    public void handle(ISpecialMob mob, IActionContext context) {
-        node().handle(mob, map(context));
+    public void handle(ISpecialMob mob, ContextContainer context) {
+        map(context);
+        node().handle(mob, context);
     }
 
-    public abstract IActionContext map(IActionContext context);
+    /**
+     * Change the provided context to your preference.
+     *
+     * @param context context
+     */
+    public abstract void map(ContextContainer context);
 }

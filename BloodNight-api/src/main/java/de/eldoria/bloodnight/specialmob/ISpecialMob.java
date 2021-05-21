@@ -1,5 +1,6 @@
 package de.eldoria.bloodnight.specialmob;
 
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.event.entity.*;
 
@@ -191,4 +192,6 @@ public interface ISpecialMob {
             extension.accept(getExtension());
         }
     }
+
+
 }

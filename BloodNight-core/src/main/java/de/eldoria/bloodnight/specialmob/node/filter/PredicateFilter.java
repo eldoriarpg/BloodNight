@@ -2,7 +2,7 @@ package de.eldoria.bloodnight.specialmob.node.filter;
 
 import de.eldoria.bloodnight.specialmob.ISpecialMob;
 import de.eldoria.bloodnight.specialmob.node.Node;
-import de.eldoria.bloodnight.specialmob.node.context.IActionContext;
+import de.eldoria.bloodnight.specialmob.node.context.ContextContainer;
 import de.eldoria.bloodnight.specialmob.node.predicate.PredicateNode;
 
 import java.util.Map;
@@ -20,7 +20,7 @@ public class PredicateFilter extends FilterNode {
     }
 
     @Override
-    public boolean check(ISpecialMob mob, IActionContext context) {
+    public boolean check(ISpecialMob mob, ContextContainer context) {
         return invert != predicate.test(mob, context);
     }
 }

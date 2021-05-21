@@ -2,7 +2,7 @@ package de.eldoria.bloodnight.specialmob.node.action;
 
 import de.eldoria.bloodnight.specialmob.ISpecialMob;
 import de.eldoria.bloodnight.specialmob.node.Node;
-import de.eldoria.bloodnight.specialmob.node.context.IActionContext;
+import de.eldoria.bloodnight.specialmob.node.context.ContextContainer;
 import de.eldoria.bloodnight.specialmob.node.context.ILocationContext;
 import de.eldoria.bloodnight.specialmobs.effects.PotionCloud;
 import org.bukkit.Color;
@@ -22,7 +22,7 @@ public class PotionCloudAction implements Node {
     private boolean upgraded;
 
     @Override
-    public void handle(ISpecialMob mob, IActionContext context) {
+    public void handle(ISpecialMob mob, ContextContainer context) {
         if (context instanceof ILocationContext) {
             PotionCloud.builder(((ILocationContext) context).getLocation().subtract(0, 1, 0))
                     .fromSource(mob.getBase())

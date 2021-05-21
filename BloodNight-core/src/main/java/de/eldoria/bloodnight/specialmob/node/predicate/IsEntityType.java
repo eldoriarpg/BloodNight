@@ -1,7 +1,8 @@
 package de.eldoria.bloodnight.specialmob.node.predicate;
 
 import de.eldoria.bloodnight.specialmob.ISpecialMob;
-import de.eldoria.bloodnight.specialmob.node.context.IActionContext;
+import de.eldoria.bloodnight.specialmob.node.context.ContextContainer;
+import de.eldoria.bloodnight.specialmob.node.context.ContextType;
 import de.eldoria.bloodnight.specialmob.node.context.IEntityContext;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
@@ -29,10 +30,7 @@ public class IsEntityType implements PredicateNode {
     }
 
     @Override
-    public boolean test(ISpecialMob mob, IActionContext context) {
-        if (context instanceof IEntityContext) {
-            return types.contains(((IEntityContext) context).getEntity().getType());
-        }
-        return false;
+    public boolean test(ISpecialMob mob, ContextContainer context) {
+        return context.get(ContextType.ENTITY).map(c -> types.contains(c.getEntity().getType())).orElse(false);
     }
 }

@@ -2,7 +2,7 @@ package de.eldoria.bloodnight.specialmob.node.action;
 
 import de.eldoria.bloodnight.specialmob.ISpecialMob;
 import de.eldoria.bloodnight.specialmob.node.Node;
-import de.eldoria.bloodnight.specialmob.node.context.IActionContext;
+import de.eldoria.bloodnight.specialmob.node.context.ContextContainer;
 import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
@@ -24,7 +24,7 @@ public class TeleportToTarget implements Node {
     private static final int MIN_DIST_SQRT = 25;
 
     @Override
-    public void handle(ISpecialMob mob, IActionContext context) {
+    public void handle(ISpecialMob mob, ContextContainer context) {
         if (lastTeleport.isBefore(Instant.now().minusSeconds(cooldown))) return;
         LivingEntity target = mob.getBase().getTarget();
 

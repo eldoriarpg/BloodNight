@@ -2,7 +2,7 @@ package de.eldoria.bloodnight.specialmob.node.action;
 
 import de.eldoria.bloodnight.specialmob.ISpecialMob;
 import de.eldoria.bloodnight.specialmob.node.Node;
-import de.eldoria.bloodnight.specialmob.node.context.IActionContext;
+import de.eldoria.bloodnight.specialmob.node.context.ContextContainer;
 import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
@@ -20,7 +20,7 @@ public class SelfPotion implements Node {
     private boolean base;
 
     @Override
-    public void handle(ISpecialMob mob, IActionContext context) {
+    public void handle(ISpecialMob mob, ContextContainer context) {
         if (base) SpecialMobUtil.addPotionEffect(mob.getBase(), type, amplifier, visible);
         if (extension) mob.invokeExtension(m -> SpecialMobUtil.addPotionEffect(m, type, amplifier, visible));
     }

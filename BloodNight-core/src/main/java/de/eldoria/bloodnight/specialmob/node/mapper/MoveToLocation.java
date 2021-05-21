@@ -1,9 +1,8 @@
 package de.eldoria.bloodnight.specialmob.node.mapper;
 
 import de.eldoria.bloodnight.specialmob.node.Node;
-import de.eldoria.bloodnight.specialmob.node.context.IActionContext;
-import de.eldoria.bloodnight.specialmob.node.context.ILocationContext;
-import de.eldoria.bloodnight.specialmob.node.context.IMoveContext;
+import de.eldoria.bloodnight.specialmob.node.context.ContextContainer;
+import de.eldoria.bloodnight.specialmob.node.context.ContextType;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
 import de.eldoria.eldoutilities.utils.EnumUtil;
@@ -25,16 +24,17 @@ public class MoveToLocation extends MapperNode {
     }
 
     @Override
-    public IActionContext map(IActionContext context) {
-        if (context instanceof IMoveContext) {
+    public void map(ContextContainer context) {
+        context.transform(ContextType.MOVE, ContextType.LOCATION, move -> {
             switch (source) {
                 case OLD:
-                    return context;
+                    return move;
                 case NEW:
-                    return (ILocationContext) ((IMoveContext) context)::getNewLocation;
+                    return move::getNewLocation;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + source);
             }
-        }
-        return context;
+        });
     }
 
     public static enum LocationSource {

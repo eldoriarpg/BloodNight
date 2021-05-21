@@ -2,9 +2,8 @@ package de.eldoria.bloodnight.specialmob.node.action;
 
 import de.eldoria.bloodnight.specialmob.ISpecialMob;
 import de.eldoria.bloodnight.specialmob.node.Node;
-import de.eldoria.bloodnight.specialmob.node.context.IActionContext;
+import de.eldoria.bloodnight.specialmob.node.context.ContextContainer;
 import de.eldoria.bloodnight.specialmob.node.context.ILivingEntityContext;
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
@@ -21,7 +20,7 @@ public class OtherPotion implements Node {
     private boolean visible;
 
     @Override
-    public void handle(ISpecialMob mob, IActionContext context) {
+    public void handle(ISpecialMob mob, ContextContainer context) {
         if (context instanceof ILivingEntityContext) {
             ((ILivingEntityContext) context).getEntity()
                     .addPotionEffect(new PotionEffect(type, seconds * 20, amplifier, false, visible));

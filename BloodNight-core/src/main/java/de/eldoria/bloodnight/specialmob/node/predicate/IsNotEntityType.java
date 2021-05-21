@@ -1,12 +1,11 @@
 package de.eldoria.bloodnight.specialmob.node.predicate;
 
 import de.eldoria.bloodnight.specialmob.ISpecialMob;
-import de.eldoria.bloodnight.specialmob.node.context.IActionContext;
+import de.eldoria.bloodnight.specialmob.node.context.ContextContainer;
 import de.eldoria.bloodnight.specialmob.node.context.IEntityContext;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
 import org.bukkit.entity.EntityType;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -30,7 +29,7 @@ public class IsNotEntityType implements PredicateNode {
     }
 
     @Override
-    public boolean test(ISpecialMob mob, IActionContext context) {
+    public boolean test(ISpecialMob mob, ContextContainer context) {
         if (context instanceof IEntityContext) {
             return !types.contains(((IEntityContext) context).getEntity().getType());
         }

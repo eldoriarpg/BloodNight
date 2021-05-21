@@ -1,4 +1,4 @@
 package de.eldoria.bloodnight.specialmob.node.context;
 
-public interface IActionContext {
+public interface IContext {
 }

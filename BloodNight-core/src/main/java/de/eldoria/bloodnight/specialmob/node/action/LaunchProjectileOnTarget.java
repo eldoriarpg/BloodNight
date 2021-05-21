@@ -2,9 +2,8 @@ package de.eldoria.bloodnight.specialmob.node.action;
 
 import de.eldoria.bloodnight.specialmob.ISpecialMob;
 import de.eldoria.bloodnight.specialmob.node.Node;
-import de.eldoria.bloodnight.specialmob.node.context.IActionContext;
+import de.eldoria.bloodnight.specialmob.node.context.ContextContainer;
 import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,7 +14,7 @@ public class LaunchProjectileOnTarget implements Node {
     double speed;
 
     @Override
-    public void handle(ISpecialMob mob, IActionContext context) {
+    public void handle(ISpecialMob mob, ContextContainer context) {
         SpecialMobUtil.launchProjectileOnTarget(mob.getBase(), projectileType.projectileClazz(), speed);
     }
 

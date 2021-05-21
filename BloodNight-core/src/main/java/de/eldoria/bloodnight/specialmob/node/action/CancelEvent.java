@@ -2,7 +2,7 @@ package de.eldoria.bloodnight.specialmob.node.action;
 
 import de.eldoria.bloodnight.specialmob.ISpecialMob;
 import de.eldoria.bloodnight.specialmob.node.Node;
-import de.eldoria.bloodnight.specialmob.node.context.IActionContext;
+import de.eldoria.bloodnight.specialmob.node.context.ContextContainer;
 import de.eldoria.bloodnight.specialmob.node.context.ICancelableContext;
 import de.eldoria.bloodnight.specialmob.node.predicate.PredicateNode;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -14,7 +14,7 @@ public class CancelEvent implements Node {
     PredicateNode predicate;
 
     @Override
-    public void handle(ISpecialMob mob, IActionContext context) {
+    public void handle(ISpecialMob mob, ContextContainer context) {
         if (context instanceof ICancelableContext) {
             ((ICancelableContext) context).getCancelable().setCancelled(predicate.test(mob, context));
         }

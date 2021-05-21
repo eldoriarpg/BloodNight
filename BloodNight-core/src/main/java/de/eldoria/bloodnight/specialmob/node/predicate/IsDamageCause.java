@@ -1,7 +1,7 @@
 package de.eldoria.bloodnight.specialmob.node.predicate;
 
 import de.eldoria.bloodnight.specialmob.ISpecialMob;
-import de.eldoria.bloodnight.specialmob.node.context.IActionContext;
+import de.eldoria.bloodnight.specialmob.node.context.ContextContainer;
 import de.eldoria.bloodnight.specialmob.node.context.IDamageCauseContext;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
@@ -29,7 +29,7 @@ public class IsDamageCause implements PredicateNode {
     }
 
     @Override
-    public boolean test(ISpecialMob mob, IActionContext context) {
+    public boolean test(ISpecialMob mob, ContextContainer context) {
         if (context instanceof IDamageCauseContext) {
             return cause.contains(((IDamageCauseContext) context).getDamageCause());
         }

@@ -2,7 +2,7 @@ package de.eldoria.bloodnight.specialmob.node.action;
 
 import de.eldoria.bloodnight.specialmob.ISpecialMob;
 import de.eldoria.bloodnight.specialmob.node.Node;
-import de.eldoria.bloodnight.specialmob.node.context.IActionContext;
+import de.eldoria.bloodnight.specialmob.node.context.ContextContainer;
 import de.eldoria.bloodnight.specialmob.settings.Equipment;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Mob;
@@ -15,7 +15,7 @@ public class SetEquipment implements Node {
     private Equipment equipment;
 
     @Override
-    public void handle(ISpecialMob mob, IActionContext context) {
+    public void handle(ISpecialMob mob, ContextContainer context) {
         Mob currMob = extension ? mob.getExtension() : mob.getBase();
         if (currMob == null) return;
         equipment.apply(currMob);
