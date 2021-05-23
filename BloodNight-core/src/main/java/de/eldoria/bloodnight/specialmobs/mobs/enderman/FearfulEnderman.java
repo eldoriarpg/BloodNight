@@ -1,6 +1,6 @@
 package de.eldoria.bloodnight.specialmobs.mobs.enderman;
 
-import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
+import de.eldoria.bloodnight.bloodmob.utils.BloodMobUtil;
 import org.bukkit.Particle;
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.EntityType;
@@ -17,7 +17,7 @@ public class FearfulEnderman extends AbstractEnderman {
     @Override
     public void tick() {
         super.tick();
-        SpecialMobUtil.spawnParticlesAround(getBaseEntity(), Particle.SPELL_WITCH, 10);
+        BloodMobUtil.spawnParticlesAround(getBaseEntity(), Particle.SPELL_WITCH, 10);
     }
 
     @Override

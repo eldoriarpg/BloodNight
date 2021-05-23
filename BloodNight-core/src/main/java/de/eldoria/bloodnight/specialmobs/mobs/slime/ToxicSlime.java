@@ -1,6 +1,6 @@
 package de.eldoria.bloodnight.specialmobs.mobs.slime;
 
-import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
+import de.eldoria.bloodnight.bloodmob.utils.BloodMobUtil;
 import org.bukkit.entity.Slime;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.potion.PotionEffect;
@@ -13,7 +13,7 @@ public class ToxicSlime extends AbstractSlime {
 
     @Override
     public void onDeath(EntityDeathEvent event) {
-        SpecialMobUtil.spawnLingeringPotionAt(event.getEntity().getLocation(),
+        BloodMobUtil.spawnLingeringPotionAt(event.getEntity().getLocation(),
                 new PotionEffect(PotionEffectType.POISON, 5 * 20, 2, true, true));
     }
 }

@@ -1,6 +1,6 @@
 package de.eldoria.bloodnight.specialmobs.mobs.skeleton;
 
-import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
+import de.eldoria.bloodnight.bloodmob.utils.BloodMobUtil;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Skeleton;
@@ -30,7 +30,7 @@ public class MagicSkeleton extends AbstractSkeleton {
 
     @Override
     public void tick() {
-        SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.NIGHT_VISION, 1, true);
+        BloodMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.NIGHT_VISION, 1, true);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package de.eldoria.bloodnight.specialmobs.mobs;
 
 import de.eldoria.bloodnight.specialmobs.SpecialMob;
-import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
+import de.eldoria.bloodnight.bloodmob.utils.BloodMobUtil;
 import de.eldoria.bloodnight.specialmobs.StatSource;
 import de.eldoria.eldoutilities.utils.AttributeUtil;
 import lombok.Getter;
@@ -46,7 +46,7 @@ public class ExtendedSpecialMob<T extends Mob, U extends Mob> extends SpecialMob
      * @param passenger to spawn
      */
     public ExtendedSpecialMob(T carrier, EntityType passenger) {
-        this(carrier, SpecialMobUtil.spawnAndMount(carrier, passenger), StatSource.CARRIER);
+        this(carrier, BloodMobUtil.spawnAndMount(carrier, passenger), StatSource.CARRIER);
     }
 
     /**
@@ -56,7 +56,7 @@ public class ExtendedSpecialMob<T extends Mob, U extends Mob> extends SpecialMob
      * @param passenger passenger to bind
      */
     public ExtendedSpecialMob(EntityType carrier, U passenger) {
-        this(SpecialMobUtil.spawnAndMount(carrier, passenger), passenger, StatSource.PASSENGER);
+        this(BloodMobUtil.spawnAndMount(carrier, passenger), passenger, StatSource.PASSENGER);
     }
 
     /**
@@ -99,7 +99,7 @@ public class ExtendedSpecialMob<T extends Mob, U extends Mob> extends SpecialMob
      */
     @Override
     public void onDamage(EntityDamageEvent event) {
-        SpecialMobUtil.handleExtendedEntityDamage(getBaseEntity(), getPassenger(), event);
+        BloodMobUtil.handleExtendedEntityDamage(getBaseEntity(), getPassenger(), event);
     }
 
     /**
@@ -111,7 +111,7 @@ public class ExtendedSpecialMob<T extends Mob, U extends Mob> extends SpecialMob
      */
     @Override
     public void onExtensionDamage(EntityDamageEvent event) {
-        SpecialMobUtil.handleExtendedEntityDamage(getPassenger(), getBaseEntity(), event);
+        BloodMobUtil.handleExtendedEntityDamage(getPassenger(), getBaseEntity(), event);
     }
 
     /**

@@ -1,5 +1,6 @@
 package de.eldoria.bloodnight.config.worldsettings.deathactions.subsettings;
 
+import de.eldoria.bloodnight.config.ILightningSettings;
 import de.eldoria.bloodnight.util.InvMenuUtil;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
@@ -19,7 +20,7 @@ import java.util.Map;
 @Setter
 @Getter
 @SerializableAs("bloodNightLightningSettings")
-public class LightningSettings implements ConfigurationSerializable {
+public class LightningSettings implements ILightningSettings {
     /**
      * Activate Lighting.
      */

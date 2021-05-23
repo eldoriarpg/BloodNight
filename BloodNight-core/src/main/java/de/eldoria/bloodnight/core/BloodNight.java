@@ -15,7 +15,7 @@ import de.eldoria.bloodnight.config.worldsettings.deathactions.PlayerDeathAction
 import de.eldoria.bloodnight.config.worldsettings.deathactions.PotionEffectSettings;
 import de.eldoria.bloodnight.config.worldsettings.deathactions.subsettings.LightningSettings;
 import de.eldoria.bloodnight.config.worldsettings.deathactions.subsettings.ShockwaveSettings;
-import de.eldoria.bloodnight.config.worldsettings.mobsettings.Drop;
+import de.eldoria.bloodnight.bloodmob.drop.Drop;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSetting;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSettings;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.VanillaMobSettings;
@@ -34,7 +34,6 @@ import de.eldoria.eldoutilities.bstats.EldoMetrics;
 import de.eldoria.eldoutilities.bstats.charts.MultiLineChart;
 import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.messages.MessageSender;
-import de.eldoria.eldoutilities.plugin.EldoPlugin;
 import de.eldoria.eldoutilities.updater.Updater;
 import de.eldoria.eldoutilities.updater.butlerupdater.ButlerUpdateData;
 import lombok.Getter;
@@ -45,7 +44,7 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class BloodNight extends EldoPlugin {
+public class BloodNight extends ABloodNight {
 
     @Getter
     private static BloodNight instance;

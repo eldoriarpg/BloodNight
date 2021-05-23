@@ -1,7 +1,7 @@
 package de.eldoria.bloodnight.specialmobs.mobs.enderman;
 
 import de.eldoria.bloodnight.specialmobs.SpecialMob;
-import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
+import de.eldoria.bloodnight.bloodmob.utils.BloodMobUtil;
 import org.bukkit.GameMode;
 import org.bukkit.Particle;
 import org.bukkit.entity.*;
@@ -29,6 +29,6 @@ public abstract class AbstractEnderman extends SpecialMob<Enderman> {
 
     @Override
     public void onEnd() {
-        SpecialMobUtil.spawnParticlesAround(getBaseEntity(), Particle.DRAGON_BREATH, 10);
+        BloodMobUtil.spawnParticlesAround(getBaseEntity(), Particle.DRAGON_BREATH, 10);
     }
 }

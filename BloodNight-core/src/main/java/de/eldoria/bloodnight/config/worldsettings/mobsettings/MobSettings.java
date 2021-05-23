@@ -1,5 +1,6 @@
 package de.eldoria.bloodnight.config.worldsettings.mobsettings;
 
+import de.eldoria.bloodnight.bloodmob.drop.Drop;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.core.mobfactory.MobFactory;
 import de.eldoria.bloodnight.core.mobfactory.MobGroup;
@@ -158,7 +159,7 @@ public class MobSettings implements ConfigurationSerializable {
             for (Drop drop : totalDrops) {
                 currentWeight += drop.getWeight();
                 if (currentWeight < goal) continue;
-                result.add(new ItemStack(drop.getItem().clone()));
+                result.add(new ItemStack(drop.getItemId().clone()));
                 break;
             }
         }

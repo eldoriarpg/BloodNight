@@ -5,6 +5,7 @@ plugins {
 
 dependencies {
     api(project(":BloodNight-api"))
+    api(project(":BloodNight-mobs"))
     implementation("net.kyori:adventure-api:4.7.0")
     implementation("net.kyori:adventure-platform-bukkit:4.0.0-SNAPSHOT")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.5.2")
@@ -26,11 +27,12 @@ java{
 
 tasks {
     processResources {
+        val publishData = PublishData(project)
         from(sourceSets.main.get().resources.srcDirs) {
             filesMatching("plugin.yml") {
                 expand(
                     "name" to project.parent?.name,
-                    "version" to version,
+                    "version" to publishData.getVersion(true),
                     "description" to descr,
                     "url" to "https://www.spigotmc.org/resources/85095/"
                 )

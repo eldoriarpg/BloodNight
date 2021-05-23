@@ -1,6 +1,6 @@
 package de.eldoria.bloodnight.specialmobs.mobs.zombie;
 
-import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
+import de.eldoria.bloodnight.bloodmob.utils.BloodMobUtil;
 import org.bukkit.Material;
 import org.bukkit.entity.Zombie;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -28,7 +28,7 @@ public class InvisibleZombie extends AbstractZombie {
     @Override
     public void tick() {
         if (lastDamage.isBefore(Instant.now().minusSeconds(10))) {
-            SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.INVISIBILITY, 1, true);
+            BloodMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.INVISIBILITY, 1, true);
         }
     }
 

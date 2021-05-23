@@ -12,7 +12,7 @@ import de.eldoria.bloodnight.core.manager.nightmanager.util.BloodNightData;
 import de.eldoria.bloodnight.core.manager.nightmanager.util.NightUtil;
 import de.eldoria.bloodnight.events.BloodNightBeginEvent;
 import de.eldoria.bloodnight.events.BloodNightEndEvent;
-import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
+import de.eldoria.bloodnight.bloodmob.utils.BloodMobUtil;
 import de.eldoria.bloodnight.util.C;
 import de.eldoria.eldoutilities.core.EldoUtilities;
 import de.eldoria.eldoutilities.localization.ILocalizer;
@@ -300,8 +300,8 @@ public class NightManager extends BukkitRunnable implements Listener {
         PlayerDeathActions actions = configuration.getWorldSettings(event.getEntity().getWorld())
                 .getDeathActionSettings()
                 .getPlayerDeathActions();
-        SpecialMobUtil.dispatchShockwave(actions.getShockwaveSettings(), event.getEntity().getLocation());
-        SpecialMobUtil.dispatchLightning(actions.getLightningSettings(), event.getEntity().getLocation());
+        BloodMobUtil.dispatchShockwave(actions.getShockwaveSettings(), event.getEntity().getLocation());
+        BloodMobUtil.dispatchLightning(actions.getLightningSettings(), event.getEntity().getLocation());
 
         if (actions.getLoseInvProbability() > ThreadLocalRandom.current().nextInt(100)) {
             event.getDrops().clear();
@@ -322,6 +322,7 @@ public class NightManager extends BukkitRunnable implements Listener {
         PlayerDeathActions actions = configuration.getWorldSettings(player.getWorld())
                 .getDeathActionSettings()
                 .getPlayerDeathActions();
+        // TODO: Player bet should get repspawn effects
         if (!isBloodNightActive(player.getWorld()) || event.isBedSpawn() || event.isAnchorSpawn()) {
             return;
         }

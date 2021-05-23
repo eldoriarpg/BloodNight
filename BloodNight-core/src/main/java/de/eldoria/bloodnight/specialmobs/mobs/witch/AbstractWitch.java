@@ -1,7 +1,7 @@
 package de.eldoria.bloodnight.specialmobs.mobs.witch;
 
+import de.eldoria.bloodnight.bloodmob.utils.BloodMobUtil;
 import de.eldoria.bloodnight.specialmobs.SpecialMob;
-import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
 import org.bukkit.Particle;
 import org.bukkit.entity.Witch;
 
@@ -17,7 +17,7 @@ public abstract class AbstractWitch extends SpecialMob<Witch> {
 
     @Override
     public void onEnd() {
-        SpecialMobUtil.spawnParticlesAround(getBaseEntity(), Particle.CAMPFIRE_COSY_SMOKE, 30);
+        BloodMobUtil.spawnParticlesAround(getBaseEntity(), Particle.CAMPFIRE_COSY_SMOKE, 30);
     }
 
     protected void shot() {

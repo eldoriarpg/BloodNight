@@ -1,11 +1,11 @@
 package de.eldoria.bloodnight.config.worldsettings.deathactions.subsettings;
 
+import de.eldoria.bloodnight.config.IShockwaveSettings;
 import de.eldoria.bloodnight.config.worldsettings.deathactions.PotionEffectSettings;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
 import lombok.Getter;
 import lombok.Setter;
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -20,7 +20,7 @@ import java.util.Map;
 @Getter
 @Setter
 @SerializableAs("bloodNightShockwaveSettings")
-public class ShockwaveSettings implements ConfigurationSerializable {
+public class ShockwaveSettings implements IShockwaveSettings {
     /**
      * Probability that a shockwave is spawned at the death location.
      * <p>
@@ -79,6 +79,7 @@ public class ShockwaveSettings implements ConfigurationSerializable {
         return (1 - dist / range) * (shockwavePower / 10d);
     }
 
+    @Override
     public void applyEffects(Entity entity, double power) {
         if (!(entity instanceof LivingEntity)) return;
         LivingEntity livingEntity = (LivingEntity) entity;

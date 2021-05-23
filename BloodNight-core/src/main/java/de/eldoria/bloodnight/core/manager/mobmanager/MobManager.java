@@ -1,19 +1,22 @@
 package de.eldoria.bloodnight.core.manager.mobmanager;
 
+import de.eldoria.bloodnight.bloodmob.utils.BloodMobUtil;
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
-import de.eldoria.bloodnight.config.worldsettings.deathactions.subsettings.ShockwaveSettings;
+import de.eldoria.bloodnight.config.IShockwaveSettings;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSetting;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSettings;
-import de.eldoria.bloodnight.config.worldsettings.mobsettings.VanillaDropMode;
+import de.eldoria.bloodnight.bloodmob.settings.VanillaDropMode;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.VanillaMobSettings;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.core.manager.nightmanager.NightManager;
 import de.eldoria.bloodnight.core.mobfactory.MobFactory;
 import de.eldoria.bloodnight.core.mobfactory.WorldMobFactory;
 import de.eldoria.bloodnight.hooks.mythicmobs.MythicMobUtil;
+import de.eldoria.bloodnight.bloodmob.node.contextcontainer.ContextContainer;
+import de.eldoria.bloodnight.bloodmob.node.contextcontainer.ContextType;
+import de.eldoria.bloodnight.bloodmob.node.context.ILocationContext;
 import de.eldoria.bloodnight.specialmobs.SpecialMob;
-import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
 import de.eldoria.eldoutilities.entityutils.ProjectileSender;
 import de.eldoria.eldoutilities.entityutils.ProjectileUtil;
 import de.eldoria.eldoutilities.scheduling.DelayedActions;
@@ -112,7 +115,7 @@ public class MobManager implements Listener {
         MobSettings settings = configuration.getWorldSettings(oponent.getLocation().getWorld().getName()).getMobSettings();
 
         // If it is a special mob it already has a custom health.
-        if (SpecialMobUtil.isSpecialMob(damager)) return;
+        if (BloodMobUtil.isSpecialMob(damager)) return;
 
         if (oponent.getType() != EntityType.PLAYER) return;
 
@@ -152,7 +155,7 @@ public class MobManager implements Listener {
         if (!(oponent instanceof Monster || oponent instanceof Boss)) return;
 
         // Reduce damage for vanilla mobs
-        if (!SpecialMobUtil.isSpecialMob(oponent)) {
+        if (!BloodMobUtil.isSpecialMob(oponent)) {
             VanillaMobSettings vanillaMobSettings = configuration.getWorldSettings(oponent.getLocation().getWorld().getName()).getMobSettings().getVanillaMobSettings();
             event.setDamage(event.getDamage() / vanillaMobSettings.getHealthMultiplier());
         }
@@ -177,9 +180,9 @@ public class MobManager implements Listener {
         }
 
         WorldSettings worldSettings = configuration.getWorldSettings(entity.getWorld());
-        ShockwaveSettings shockwaveSettings = worldSettings.getDeathActionSettings().getMobDeathActions().getShockwaveSettings();
-        SpecialMobUtil.dispatchShockwave(shockwaveSettings, event.getEntity().getLocation());
-        SpecialMobUtil.dispatchLightning(worldSettings.getDeathActionSettings().getMobDeathActions().getLightningSettings(), event.getEntity().getLocation());
+        IShockwaveSettings shockwaveSettings = worldSettings.getDeathActionSettings().getMobDeathActions().getShockwaveSettings();
+        BloodMobUtil.dispatchShockwave(shockwaveSettings, event.getEntity().getLocation());
+        BloodMobUtil.dispatchLightning(worldSettings.getDeathActionSettings().getMobDeathActions().getLightningSettings(), event.getEntity().getLocation());
 
         if (configuration.getGeneralSettings().isSpawnerDropSuppression()) {
             if (entity.getPersistentDataContainer().has(SPAWNER_SPAWNED, PersistentDataType.BYTE)) {
@@ -203,7 +206,7 @@ public class MobManager implements Listener {
             return;
         }
 
-        if (SpecialMobUtil.isExtension(entity)) {
+        if (BloodMobUtil.isExtension(entity)) {
             BloodNight.logger().finer("Mob is extension. Ignore.");
             return;
         }
@@ -211,7 +214,7 @@ public class MobManager implements Listener {
         BloodNight.logger().fine("Entity " + entity.getCustomName() + " was killed by " + player.getName());
         BloodNight.logger().fine("Attemt to drop items.");
 
-        if (SpecialMobUtil.isSpecialMob(entity)) {
+        if (BloodMobUtil.isSpecialMob(entity)) {
             if (!mobSettings.isNaturalDrops()) {
                 BloodNight.logger().fine("Natural Drops are disabled. Clear loot.");
                 event.getDrops().clear();
@@ -225,7 +228,7 @@ public class MobManager implements Listener {
             }
 
             // add custom drops
-            Optional<String> specialMob = SpecialMobUtil.getSpecialMobType(entity);
+            Optional<String> specialMob = BloodMobUtil.getSpecialMobType(entity);
             if (!specialMob.isPresent()) {
                 BloodNight.logger().log(Level.WARNING, "No special type name was received from special mob.", new IllegalStateException());
                 return;
@@ -285,6 +288,11 @@ public class MobManager implements Listener {
 
             }
         }
+
+        ContextContainer.builder()
+                .add(ContextType.LOCATION, (ILocationContext) event::getLocation)
+                .build();
+
         delayedActions.schedule(() -> specialMobManager.remove(event.getEntity()), 1);
     }
 
@@ -293,7 +301,7 @@ public class MobManager implements Listener {
         WorldMobs worldMobs = specialMobManager.getWorldMobs(event.getWorld());
         for (Entity entity : event.getChunk().getEntities()) {
             Optional<SpecialMob<?>> remove = worldMobs.remove(entity.getUniqueId());
-            if (SpecialMobUtil.isSpecialMob(entity)) {
+            if (BloodMobUtil.isSpecialMob(entity)) {
                 if (remove.isPresent()) {
                     remove.get().remove();
                 } else {
@@ -316,7 +324,7 @@ public class MobManager implements Listener {
                         for (Bee entity : state.releaseEntities()) {
                             entites.incrementAndGet();
                             BloodNight.logger().finer("Checking entity with id " + entity.getEntityId() + " and " + entity.getUniqueId().toString());
-                            if (SpecialMobUtil.isSpecialMob(entity)) {
+                            if (BloodMobUtil.isSpecialMob(entity)) {
                                 entity.remove();
                             }
                             return true;

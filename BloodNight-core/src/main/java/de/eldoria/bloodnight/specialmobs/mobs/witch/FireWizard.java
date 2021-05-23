@@ -1,6 +1,6 @@
 package de.eldoria.bloodnight.specialmobs.mobs.witch;
 
-import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
+import de.eldoria.bloodnight.bloodmob.utils.BloodMobUtil;
 import de.eldoria.eldoutilities.utils.ObjUtil;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -25,9 +25,9 @@ public class FireWizard extends AbstractWitch {
     public void tick() {
         EntityEquipment equipment = getBaseEntity().getEquipment();
         equipment.setItemInMainHand(new ItemStack(Material.FIRE_CHARGE));
-        SpecialMobUtil.spawnParticlesAround(getBaseEntity(), Particle.DRIP_LAVA, 5);
+        BloodMobUtil.spawnParticlesAround(getBaseEntity(), Particle.DRIP_LAVA, 5);
         if (canShoot(5)) {
-            SpecialMobUtil.launchProjectileOnTarget(getBaseEntity(), LargeFireball.class, 4);
+            BloodMobUtil.launchProjectileOnTarget(getBaseEntity(), LargeFireball.class, 4);
             shot();
         }
     }

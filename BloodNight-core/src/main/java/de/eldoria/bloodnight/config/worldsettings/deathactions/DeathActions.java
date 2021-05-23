@@ -1,5 +1,6 @@
 package de.eldoria.bloodnight.config.worldsettings.deathactions;
 
+import de.eldoria.bloodnight.config.IShockwaveSettings;
 import de.eldoria.bloodnight.config.worldsettings.deathactions.subsettings.LightningSettings;
 import de.eldoria.bloodnight.config.worldsettings.deathactions.subsettings.ShockwaveSettings;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
@@ -18,7 +19,7 @@ import java.util.Map;
 public class DeathActions implements ConfigurationSerializable {
     protected LightningSettings lightningSettings = new LightningSettings();
 
-    protected ShockwaveSettings shockwaveSettings = new ShockwaveSettings();
+    protected IShockwaveSettings shockwaveSettings = new ShockwaveSettings();
 
     public DeathActions(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);

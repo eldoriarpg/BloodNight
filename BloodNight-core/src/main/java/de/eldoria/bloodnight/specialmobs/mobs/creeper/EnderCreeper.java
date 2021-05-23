@@ -1,7 +1,7 @@
 package de.eldoria.bloodnight.specialmobs.mobs.creeper;
 
+import de.eldoria.bloodnight.bloodmob.utils.BloodMobUtil;
 import de.eldoria.bloodnight.core.BloodNight;
-import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Creeper;
@@ -23,7 +23,7 @@ public class EnderCreeper extends AbstractCreeper {
 
     @Override
     public void tick() {
-        SpecialMobUtil.spawnParticlesAround(getBaseEntity().getLocation(), Particle.REDSTONE, new Particle.DustOptions(Color.PURPLE, 2), 5);
+        BloodMobUtil.spawnParticlesAround(getBaseEntity().getLocation(), Particle.REDSTONE, new Particle.DustOptions(Color.PURPLE, 2), 5);
         teleportToTarget();
     }
 
@@ -63,13 +63,13 @@ public class EnderCreeper extends AbstractCreeper {
                 BloodNight.logger().finer("Teleport from " + getBaseEntity().getLocation() + " to " + newLoc);
                 getBaseEntity().teleport(newLoc);
                 lastTeleport = Instant.now();
-                SpecialMobUtil.spawnParticlesAround(loc, Particle.PORTAL, 10);
+                BloodMobUtil.spawnParticlesAround(loc, Particle.PORTAL, 10);
                 getBaseEntity().playEffect(EntityEffect.ENTITY_POOF);
             }
             if (lastTeleport.isBefore(Instant.now().minusSeconds(8))) {
                 getBaseEntity().teleport(target.getLocation());
                 lastTeleport = Instant.now();
-                SpecialMobUtil.spawnParticlesAround(loc, Particle.PORTAL, 10);
+                BloodMobUtil.spawnParticlesAround(loc, Particle.PORTAL, 10);
                 getBaseEntity().playEffect(EntityEffect.ENTITY_POOF);
             }
         }

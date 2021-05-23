@@ -1,6 +1,8 @@
 package de.eldoria.bloodnight.config.worldsettings.mobsettings;
 
 import com.google.common.base.Objects;
+import de.eldoria.bloodnight.bloodmob.settings.MobValueModifier;
+import de.eldoria.bloodnight.bloodmob.drop.Drop;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
 import de.eldoria.eldoutilities.utils.EnumUtil;
