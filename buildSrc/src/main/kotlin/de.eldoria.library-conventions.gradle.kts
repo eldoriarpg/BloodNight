@@ -6,14 +6,13 @@ plugins {
 
 publishing {
     publications {
+        val publishData = PublishData(project)
+
         create<MavenPublication>("maven") {
-            /*artifact(tasks["jar"])
-            artifact(tasks["sourcesJar"])
-            artifact(tasks["javadocJar"])*/
             from(components["java"])
             groupId = project.group as String?
             artifactId = project.name.toLowerCase()
-            version = project.version as String?
+            version = publishData.getVersion()
             pom {
                 url.set("https://github.com/eldoriarpg/BloodNight")
                 developers {
@@ -37,11 +36,9 @@ publishing {
 
     repositories {
         maven {
-            val isSnapshot = version.toString().endsWith("SNAPSHOT");
-            val release = "https://eldonexus.de/repository/maven-releases/";
-            val snapshot = "https://eldonexus.de/repository/maven-snapshots/";
+            val publishData = PublishData(project)
             name = "EldoNexus"
-            url = uri(if (isSnapshot) snapshot else release)
+            url = uri(publishData.getRepository())
 
             authentication {
                 credentials(PasswordCredentials::class) {

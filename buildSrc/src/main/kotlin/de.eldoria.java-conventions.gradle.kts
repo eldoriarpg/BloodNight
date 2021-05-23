@@ -19,11 +19,16 @@ repositories {
 }
 
 dependencies {
-    implementation("de.eldoria:eldo-util:1.8.4")
+    implementation("de.eldoria:eldo-util:1.8.7-SNAPSHOT")
     compileOnly("org.spigotmc", "spigot-api", "1.16.5-R0.1-SNAPSHOT")
     compileOnly("org.projectlombok", "lombok", lombokVersion)
     annotationProcessor("org.projectlombok", "lombok", lombokVersion)
     compileOnly("org.jetbrains", "annotations", "16.0.2")
+
+    testImplementation(platform("org.junit:junit-bom:5.7.2"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("org.spigotmc", "spigot-api", "1.16.5-R0.1-SNAPSHOT")
+    testImplementation("com.github.seeseemelk", "MockBukkit-v1.16", "1.0.0")
 }
 
 allprojects {
