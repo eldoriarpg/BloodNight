@@ -1,7 +1,6 @@
 package de.eldoria.bloodnight.serialization;
 
 import de.eldoria.bloodnight.bloodmob.node.Node;
-import de.eldoria.bloodnight.bloodmob.serialization.ClassDefinition;
 import de.eldoria.bloodnight.bloodmob.serialization.value.SimpleValue;
 
 import java.util.HashSet;
@@ -24,7 +23,7 @@ public class NodeData {
 
 
     public static NodeData of(Node node) {
-        Map<String, List<SimpleValue>> definitions = node.getClasses(new HashSet<>()).stream()
+        var definitions = node.getClasses(new HashSet<>()).stream()
                 .map(ClassDefinition::of)
                 .collect(Collectors.toMap(ClassDefinition::clazz, ClassDefinition::values));
         return new NodeData(node, definitions);

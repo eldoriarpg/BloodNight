@@ -6,7 +6,11 @@ plugins {
 description = "BloodNight-api"
 val log4jVersion = "2.14.0"
 
-dependencies{
+java {
+    sourceCompatibility = JavaVersion.VERSION_15
+}
+
+dependencies {
     api(project(":BloodNight-mobs"))
     implementation("com.sparkjava", "spark-core", "2.9.3")
     implementation("org.apache.logging.log4j", "log4j-core", log4jVersion)

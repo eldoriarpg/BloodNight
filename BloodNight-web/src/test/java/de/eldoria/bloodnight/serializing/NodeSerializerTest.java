@@ -1,7 +1,6 @@
 package de.eldoria.bloodnight.serializing;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import de.eldoria.bloodnight.bloodmob.node.Node;
 import de.eldoria.bloodnight.bloodmob.nodeimpl.action.OtherPotion;
 import de.eldoria.bloodnight.bloodmob.nodeimpl.filter.CooldownFilter;
 import de.eldoria.bloodnight.bloodmob.nodeimpl.filter.PredicateFilter;
@@ -15,13 +14,13 @@ import org.junit.jupiter.api.Test;
 public class NodeSerializerTest {
     @Test
     public void test() throws JsonProcessingException {
-        OtherPotion otherPotion = new OtherPotion(PotionEffectType.BLINDNESS, 20, 2, true);
-        CooldownFilter cooldownFilter = new CooldownFilter(10, otherPotion);
-        PredicateFilter predicateFilter = new PredicateFilter(cooldownFilter, false, new HasTarget());
-        MoveToLocation moveToLocation = new MoveToLocation(predicateFilter, MoveToLocation.LocationSource.OLD);
+        var otherPotion = new OtherPotion(PotionEffectType.BLINDNESS, 20, 2, true);
+        var cooldownFilter = new CooldownFilter(10, otherPotion);
+        var predicateFilter = new PredicateFilter(cooldownFilter, false, new HasTarget());
+        var moveToLocation = new MoveToLocation(predicateFilter, MoveToLocation.LocationSource.OLD);
 
-        NodeData data = NodeData.of(moveToLocation);
-        String serialize = MobMapper.mapper()
+        var data = NodeData.of(moveToLocation);
+        var serialize = MobMapper.mapper()
                 .writerWithDefaultPrettyPrinter()
                 .writeValueAsString(data);
 
