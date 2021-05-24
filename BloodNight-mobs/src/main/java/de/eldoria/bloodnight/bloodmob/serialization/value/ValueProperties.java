@@ -1,6 +1,14 @@
 package de.eldoria.bloodnight.bloodmob.serialization.value;
 
+import com.google.common.collect.Maps;
+
+import java.util.List;
+
 public final class ValueProperties {
+    public static Maps ofMaps(MapValueEntry key, MapValueEntry value) {
+        return new Maps(key, value);
+    }
+
     public static class Floats {
         float min, max;
 
@@ -28,6 +36,15 @@ public final class ValueProperties {
             this.pattern = pattern;
             this.min = min;
             this.max = max;
+        }
+    }
+    public static class Maps {
+        private final MapValueEntry keys;
+        private final MapValueEntry value;
+
+        public Maps(MapValueEntry keys, MapValueEntry value) {
+            this.keys = keys;
+            this.value = value;
         }
     }
 

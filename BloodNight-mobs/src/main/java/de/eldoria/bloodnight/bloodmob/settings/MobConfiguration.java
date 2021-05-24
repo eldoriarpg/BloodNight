@@ -1,13 +1,14 @@
 package de.eldoria.bloodnight.bloodmob.settings;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import de.eldoria.bloodnight.bloodmob.serialization.annotation.MapProperty;
 import de.eldoria.bloodnight.bloodmob.serialization.annotation.MultiListProperty;
 import de.eldoria.bloodnight.bloodmob.serialization.annotation.Property;
 import de.eldoria.bloodnight.bloodmob.serialization.annotation.StringProperty;
+import de.eldoria.bloodnight.bloodmob.serialization.value.ValueType;
 import de.eldoria.bloodnight.config.ConfigCheck;
 import de.eldoria.bloodnight.config.ConfigException;
-import lombok.Getter;
 import org.bukkit.entity.EntityType;
 
 import java.util.Arrays;
@@ -18,7 +19,7 @@ import java.util.Optional;
 public class MobConfiguration implements ConfigCheck<Object> {
     @StringProperty(name = "", descr = "", pattern = "^[a-z_]+$")
     String identifier;
-    @MapProperty(name = "", descr = "", key = EntityType.class, value = String.class)
+    @MapProperty(name = "", descr = "", key = ValueType.LIST, value = ValueType.STRING)
     Map<EntityType, String> names = new HashMap<>();
     @MultiListProperty(name = "", descr = "")
     EntityType[] wrapTypes = new EntityType[0];

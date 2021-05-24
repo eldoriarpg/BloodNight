@@ -24,7 +24,7 @@ public abstract class MapperNode extends NodeHolder {
     @Override
     public void handle(IBloodMob mob, ContextContainer context) {
         map(context);
-        node().handle(mob, context);
+        if (nextNode() != null) nextNode().handle(mob, context);
     }
 
     /**

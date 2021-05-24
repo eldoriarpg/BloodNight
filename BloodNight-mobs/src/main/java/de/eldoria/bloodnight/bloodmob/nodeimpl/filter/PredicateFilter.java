@@ -9,6 +9,8 @@ import de.eldoria.bloodnight.bloodmob.serialization.annotation.Property;
 import lombok.NoArgsConstructor;
 
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 @NoArgsConstructor
 public class PredicateFilter extends FilterNode {
@@ -37,6 +39,12 @@ public class PredicateFilter extends FilterNode {
     }
 
     @Override
+    public Set<Class<?>> getClasses(Set<Class<?>> set) {
+        set.add(predicate.getClass());
+        return super.getClasses(set);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -44,7 +52,7 @@ public class PredicateFilter extends FilterNode {
         PredicateFilter that = (PredicateFilter) o;
 
         if (invert != that.invert) return false;
-        return predicate != null ? predicate.equals(that.predicate) : that.predicate == null;
+        return Objects.equals(predicate, that.predicate);
     }
 
     @Override

@@ -2,6 +2,7 @@ package de.eldoria.bloodnight.bloodmob.nodeimpl.action;
 
 import de.eldoria.bloodnight.bloodmob.IBloodMob;
 import de.eldoria.bloodnight.bloodmob.node.Node;
+import de.eldoria.bloodnight.bloodmob.node.annotations.RequiresContext;
 import de.eldoria.bloodnight.bloodmob.node.contextcontainer.ContextContainer;
 import de.eldoria.bloodnight.bloodmob.serialization.annotation.NumericProperty;
 import de.eldoria.bloodnight.bloodmob.serialization.annotation.Property;

@@ -2,6 +2,8 @@ package de.eldoria.bloodnight.bloodmob.nodeimpl.action;
 
 import de.eldoria.bloodnight.bloodmob.IBloodMob;
 import de.eldoria.bloodnight.bloodmob.node.Node;
+import de.eldoria.bloodnight.bloodmob.node.annotations.RequiresContext;
+import de.eldoria.bloodnight.bloodmob.node.context.ILivingEntityContext;
 import de.eldoria.bloodnight.bloodmob.node.contextcontainer.ContextContainer;
 import de.eldoria.bloodnight.bloodmob.node.contextcontainer.ContextType;
 import lombok.NoArgsConstructor;
@@ -12,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 
 @NoArgsConstructor
+@RequiresContext(ILivingEntityContext.class)
 public class ApplyDamage implements Node {
 
     @Override

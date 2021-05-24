@@ -2,16 +2,14 @@ package de.eldoria.bloodnight.bloodmob.serialization;
 
 import de.eldoria.bloodnight.bloodmob.node.predicate.PredicateNode;
 import de.eldoria.bloodnight.bloodmob.serialization.annotation.*;
-import de.eldoria.bloodnight.bloodmob.serialization.value.SimpleValue;
-import de.eldoria.bloodnight.bloodmob.serialization.value.Value;
-import de.eldoria.bloodnight.bloodmob.serialization.value.ValueProperties;
-import de.eldoria.bloodnight.bloodmob.serialization.value.ValueType;
-import de.eldoria.bloodnight.bloodmob.settings.Equipment;
+import de.eldoria.bloodnight.bloodmob.serialization.value.*;
+import de.eldoria.bloodnight.bloodmob.settings.*;
 import org.bukkit.Color;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,7 +21,7 @@ public class PropertyGenerator {
         registerEnumLikeAdapter(PotionEffectType.class, enumLikeToList(PotionEffectType.class));
     }
 
-    public static  <T> List<String> enumLikeToList(Class<T> clazz) {
+    public static <T> List<String> enumLikeToList(Class<T> clazz) {
         return Arrays.stream(clazz.getDeclaredFields())
                 .filter(field -> field.getType().equals(clazz))
                 .map(Field::getName)
@@ -53,8 +51,71 @@ public class PropertyGenerator {
             if (declaredField.isAnnotationPresent(StringProperty.class)) {
                 values.add(buildStringProperty(declaredField));
             }
+            if (declaredField.isAnnotationPresent((MultiListProperty.class))) {
+                values.add(buildMultiListProperty(declaredField));
+            }
+            if (declaredField.isAnnotationPresent((MapProperty.class))) {
+                values.add(buildMapProperty(declaredField));
+            }
         }
         return values;
+    }
+
+    private static SimpleValue buildMultiListProperty(Field field) {
+        MultiListProperty annotation = field.getAnnotation(MultiListProperty.class);
+        String id = field.getName();
+        String name = annotation.name();
+        String descr = annotation.descr();
+        Class<?> type;
+        if (field.getType().isArray()) {
+            type = field.getType().getComponentType();
+        } else {
+            // Gonna assume that this is some kind of single dimension collection.
+            type = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+        }
+        // Enums
+        if (type.isEnum()) {
+            List<String> values = Arrays.stream(type.getEnumConstants())
+                    .map(e -> ((Enum<?>) e).name())
+                    .collect(Collectors.toList());
+            return new Value<>(id, name, descr, ValueType.MULTI_LIST, values);
+        }
+        // Color
+        if (field.getType().equals(Color.class)) {
+            return new Value<>(id, name, descr, ValueType.MULTI_LIST, ValueType.COLOR);
+        }
+        // Drops
+        if (field.getType().equals(Drops.class)) {
+            return new Value<>(id, name, descr, ValueType.MULTI_LIST, ValueType.DROPS);
+        }
+        return null;
+    }
+
+    private static SimpleValue buildMapProperty(Field field) {
+        MapProperty annotation = field.getAnnotation(MapProperty.class);
+        Class<?> key = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+        Class<?> value = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[1];
+        String id = field.getName();
+        String name = annotation.name();
+        String descr = annotation.descr();
+
+        MapValueEntry keyValue;
+        if (key.isEnum()) {
+            List<String> enumValues = getEnumValues(key);
+            keyValue = MapValueEntry.withValues(enumValues);
+        } else {
+            keyValue = new MapValueEntry(annotation.key());
+        }
+
+        MapValueEntry valueValue;
+        if (value.isEnum()) {
+            List<String> enumValues = getEnumValues(key);
+            valueValue = MapValueEntry.withValues(enumValues);
+        } else {
+            valueValue = new MapValueEntry(annotation.value());
+        }
+
+        return new Value<>(id, name, descr, ValueType.MAP, ValueProperties.ofMaps(keyValue, valueValue));
     }
 
     private static SimpleValue buildStringProperty(Field field) {
@@ -114,9 +175,25 @@ public class PropertyGenerator {
         if (field.getType().equals(Equipment.class)) {
             return new SimpleValue(id, name, descr, ValueType.EQUIPMENT);
         }
-        // Equipment
+        // Duration
         if (field.getType().equals(Duration.class)) {
             return new SimpleValue(id, name, descr, ValueType.NUMBER);
+        }
+        // Extension
+        if (field.getType().equals(Extension.class)) {
+            return new SimpleValue(id, name, descr, ValueType.EXTENSION);
+        }
+        // Stats
+        if (field.getType().equals(Stats.class)) {
+            return new SimpleValue(id, name, descr, ValueType.STATS);
+        }
+        // Drops
+        if (field.getType().equals(Drops.class)) {
+            return new SimpleValue(id, name, descr, ValueType.DROPS);
+        }
+        // Behaviour
+        if (field.getType().equals(Behaviour.class)) {
+            return new SimpleValue(id, name, descr, ValueType.BEHAVIOUR);
         }
         throw new IllegalArgumentException("Field " + field.getDeclaringClass().getName() + "#" + field.getName() + " is can not be converted.");
     }
@@ -141,5 +218,11 @@ public class PropertyGenerator {
         float max = annotation.max();
 
         return new Value<>(id, name, descr, ValueType.NUMERIC, ValueProperties.ofFloats(min, max));
+    }
+
+    private static List<String> getEnumValues(Class<?> clazz) {
+        return Arrays.stream(clazz.getEnumConstants())
+                .map(e -> ((Enum<?>) e).name())
+                .collect(Collectors.toList());
     }
 }

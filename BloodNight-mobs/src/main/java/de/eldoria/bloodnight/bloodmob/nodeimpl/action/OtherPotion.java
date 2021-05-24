@@ -2,6 +2,8 @@ package de.eldoria.bloodnight.bloodmob.nodeimpl.action;
 
 import de.eldoria.bloodnight.bloodmob.IBloodMob;
 import de.eldoria.bloodnight.bloodmob.node.Node;
+import de.eldoria.bloodnight.bloodmob.node.annotations.RequiresContext;
+import de.eldoria.bloodnight.bloodmob.node.context.ILivingEntityContext;
 import de.eldoria.bloodnight.bloodmob.node.contextcontainer.ContextContainer;
 import de.eldoria.bloodnight.bloodmob.node.contextcontainer.ContextType;
 import de.eldoria.bloodnight.bloodmob.serialization.annotation.EnumLikeProperty;
@@ -19,6 +21,7 @@ import java.util.Map;
  * Applies a potion to itself
  */
 @NoArgsConstructor
+@RequiresContext(ILivingEntityContext.class)
 public class OtherPotion implements Node {
     @EnumLikeProperty(name = "", descr = "")
     private PotionEffectType type;

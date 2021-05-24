@@ -22,6 +22,6 @@ public abstract class FilterNode extends NodeHolder {
 
     @Override
     public void handle(IBloodMob mob, ContextContainer context) {
-        if (check(mob, context)) node().handle(mob, context);
+        if (check(mob, context) && nextNode() != null) nextNode().handle(mob, context);
     }
 }

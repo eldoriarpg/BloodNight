@@ -2,6 +2,8 @@ package de.eldoria.bloodnight.bloodmob.nodeimpl.action;
 
 import de.eldoria.bloodnight.bloodmob.IBloodMob;
 import de.eldoria.bloodnight.bloodmob.node.Node;
+import de.eldoria.bloodnight.bloodmob.node.annotations.RequiresContext;
+import de.eldoria.bloodnight.bloodmob.node.context.ICancelableContext;
 import de.eldoria.bloodnight.bloodmob.node.contextcontainer.ContextContainer;
 import de.eldoria.bloodnight.bloodmob.node.contextcontainer.ContextType;
 import lombok.NoArgsConstructor;
@@ -11,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 
 @NoArgsConstructor
+@RequiresContext(ICancelableContext.class)
 public class CancelEvent implements Node {
     @Override
     public void handle(IBloodMob mob, ContextContainer context) {

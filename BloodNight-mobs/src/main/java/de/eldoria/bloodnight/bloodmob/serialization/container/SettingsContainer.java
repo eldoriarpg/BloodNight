@@ -6,6 +6,8 @@ import de.eldoria.bloodnight.bloodmob.registry.items.SimpleItem;
 import de.eldoria.bloodnight.bloodmob.settings.MobConfiguration;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class SettingsContainer {
     List<MobConfiguration> configurations;
@@ -25,6 +27,18 @@ public class SettingsContainer {
         return new SettingsContainer(configurations, asSimpleItems);
     }
 
+    public List<MobConfiguration> configurations() {
+        return configurations;
+    }
+
+    public List<SimpleItem> items() {
+        return items;
+    }
+
+    public List<String> mobIdentifier() {
+        return configurations.stream().map(MobConfiguration::identifier).collect(Collectors.toList());
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -41,5 +55,9 @@ public class SettingsContainer {
         int result = configurations.hashCode();
         result = 31 * result + items.hashCode();
         return result;
+    }
+
+    public Optional<MobConfiguration> getMobConfig(String identifier) {
+        return configurations.stream().filter(c -> c.identifier().equals(identifier)).findFirst();
     }
 }

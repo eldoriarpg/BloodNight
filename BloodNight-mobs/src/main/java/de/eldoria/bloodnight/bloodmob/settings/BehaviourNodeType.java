@@ -1,6 +1,6 @@
 package de.eldoria.bloodnight.bloodmob.settings;
 
-public enum BehaviourNode {
+public enum BehaviourNodeType {
     TICK,
     ON_END,
     ON_TELEPORT,

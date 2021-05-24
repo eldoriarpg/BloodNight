@@ -1,6 +1,8 @@
 package de.eldoria.bloodnight.bloodmob.nodeimpl.predicate;
 
 import de.eldoria.bloodnight.bloodmob.IBloodMob;
+import de.eldoria.bloodnight.bloodmob.node.annotations.RequiresContext;
+import de.eldoria.bloodnight.bloodmob.node.context.IDamageCauseContext;
 import de.eldoria.bloodnight.bloodmob.node.contextcontainer.ContextContainer;
 import de.eldoria.bloodnight.bloodmob.node.contextcontainer.ContextType;
 import de.eldoria.bloodnight.bloodmob.node.predicate.PredicateNode;
@@ -15,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 
 @NoArgsConstructor
+@RequiresContext(IDamageCauseContext.class)
 public class IsDamageCause implements PredicateNode {
     @Property(name = "", descr = "")
     private EntityDamageEvent.DamageCause cause;

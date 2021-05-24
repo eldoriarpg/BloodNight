@@ -3,18 +3,18 @@ package de.eldoria.bloodnight.bloodmob.settings;
 import de.eldoria.bloodnight.bloodmob.serialization.annotation.Property;
 import de.eldoria.bloodnight.config.ConfigCheck;
 import de.eldoria.bloodnight.config.ConfigException;
-import lombok.Getter;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Mob;
 
-@Getter
+import java.util.Objects;
+
 public class Extension implements ConfigCheck {
     @Property(name = "", descr = "")
     EntityType extensionType = null;
     @Property(name = "", descr = "")
     ExtensionRole extensionRole = null;
     @Property(name = "", descr = "")
-    Equipment equipment;
+    Equipment equipment = null;
     @Property(name = "", descr = "")
     boolean invisible = true;
     @Property(name = "", descr = "")
@@ -35,6 +35,54 @@ public class Extension implements ConfigCheck {
         }
     }
 
+    public EntityType extensionType() {
+        return extensionType;
+    }
+
+    public void extensionType(EntityType extensionType) {
+        this.extensionType = extensionType;
+    }
+
+    public ExtensionRole extensionRole() {
+        return extensionRole;
+    }
+
+    public void extensionRole(ExtensionRole extensionRole) {
+        this.extensionRole = extensionRole;
+    }
+
+    public Equipment equipment() {
+        return equipment;
+    }
+
+    public void equipment(Equipment equipment) {
+        this.equipment = equipment;
+    }
+
+    public boolean isInvisible() {
+        return invisible;
+    }
+
+    public void invisible(boolean invisible) {
+        this.invisible = invisible;
+    }
+
+    public boolean isInvulnerable() {
+        return invulnerable;
+    }
+
+    public void invulnerable(boolean invulnerable) {
+        this.invulnerable = invulnerable;
+    }
+
+    public boolean isClearEquipment() {
+        return clearEquipment;
+    }
+
+    public void clearEquipment(boolean clearEquipment) {
+        this.clearEquipment = clearEquipment;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -47,7 +95,7 @@ public class Extension implements ConfigCheck {
         if (clearEquipment != extension.clearEquipment) return false;
         if (extensionType != extension.extensionType) return false;
         if (extensionRole != extension.extensionRole) return false;
-        return equipment != null ? equipment.equals(extension.equipment) : extension.equipment == null;
+        return Objects.equals(equipment, extension.equipment);
     }
 
     @Override

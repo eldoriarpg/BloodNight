@@ -1,5 +1,14 @@
 package de.eldoria.bloodnight.bloodmob.serialization.value;
 
+import de.eldoria.bloodnight.bloodmob.drop.Drop;
+import de.eldoria.bloodnight.bloodmob.node.predicate.PredicateNode;
+import de.eldoria.bloodnight.bloodmob.registry.items.SimpleItem;
+import de.eldoria.bloodnight.bloodmob.settings.Behaviour;
+import de.eldoria.bloodnight.bloodmob.settings.Drops;
+import de.eldoria.bloodnight.bloodmob.settings.Equipment;
+import de.eldoria.bloodnight.bloodmob.settings.Extension;
+import de.eldoria.bloodnight.bloodmob.settings.Stats;
+
 public enum ValueType {
     // simple Types
     STRING,
@@ -12,13 +21,28 @@ public enum ValueType {
     MAP,
     // bukkit
     COLOR,
-    ITEM,
+    ITEM(SimpleItem.class),
     // custom settings
-    EXTENSION,
-    EQUIPMENT,
-    STATS,
-    DROPS,
-    BEHAVIOUR,
+    EXTENSION(Extension.class),
+    EQUIPMENT(Equipment.class),
+    STATS(Stats.class),
+    DROPS(Drops.class),
+    DROP(Drop.class),
+    BEHAVIOUR(Behaviour.class),
     // custom objects
-    PREDICATE
+    PREDICATE(PredicateNode.class);
+
+    private final Class<?> clazz;
+
+    ValueType(Class<?> stringsClass) {
+        clazz = stringsClass;
+    }
+
+    ValueType() {
+        clazz = null;
+    }
+
+    public Class<?> clazz() {
+        return clazz;
+    }
 }

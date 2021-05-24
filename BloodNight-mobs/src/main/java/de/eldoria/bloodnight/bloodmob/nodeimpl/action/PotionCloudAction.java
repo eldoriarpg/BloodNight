@@ -2,6 +2,8 @@ package de.eldoria.bloodnight.bloodmob.nodeimpl.action;
 
 import de.eldoria.bloodnight.bloodmob.IBloodMob;
 import de.eldoria.bloodnight.bloodmob.node.Node;
+import de.eldoria.bloodnight.bloodmob.node.annotations.RequiresContext;
+import de.eldoria.bloodnight.bloodmob.node.context.ILocationContext;
 import de.eldoria.bloodnight.bloodmob.node.contextcontainer.ContextContainer;
 import de.eldoria.bloodnight.bloodmob.node.contextcontainer.ContextType;
 import de.eldoria.bloodnight.bloodmob.serialization.annotation.NumberProperty;
@@ -16,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 
 @NoArgsConstructor
+@RequiresContext(ILocationContext.class)
 public class PotionCloudAction implements Node {
     @Property(name = "", descr = "")
     boolean extended;

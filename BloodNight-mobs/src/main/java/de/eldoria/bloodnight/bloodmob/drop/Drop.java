@@ -7,7 +7,6 @@ import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
 import lombok.Getter;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -17,6 +16,8 @@ import java.util.Map;
 public class Drop implements ConfigurationSerializable, IDrop {
     @Property(name = "", descr = "")
     private int itemId;
+    @NumberProperty(name = "", descr = "", max = 64)
+    private int amount;
     @NumberProperty(name = "", descr = "", max = 100)
     private int weight;
 
@@ -39,7 +40,6 @@ public class Drop implements ConfigurationSerializable, IDrop {
                 .add("weight", weight)
                 .build();
     }
-
 
 
     public int item() {

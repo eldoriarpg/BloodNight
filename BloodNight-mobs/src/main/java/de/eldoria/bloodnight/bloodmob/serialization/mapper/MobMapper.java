@@ -17,7 +17,9 @@ public class MobMapper {
     static {
         objectMapper = new ObjectMapper()
                 .setDefaultPrettyPrinter(new DefaultPrettyPrinter())
-                .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+                .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
+                .setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE)
+                .setVisibility(PropertyAccessor.IS_GETTER, JsonAutoDetect.Visibility.NONE);
         SimpleModule module = new SimpleModule();
         module.addSerializer(PotionEffectType.class, new PortionEffectTypeSerializer());
         module.addDeserializer(PotionEffectType.class, new PortionEffectTypeDeserializer());

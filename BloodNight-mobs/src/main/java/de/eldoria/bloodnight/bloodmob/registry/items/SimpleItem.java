@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 public class SimpleItem {
     private int id;
     private Material type;
-    private int amount;
     private Map<String, Integer> something;
     private List<String> lore;
     private String displayName;
@@ -25,11 +24,10 @@ public class SimpleItem {
     public SimpleItem() {
     }
 
-    public SimpleItem(int id, @NotNull Material type, int amount, @NotNull Map<String, Integer> something,
+    public SimpleItem(int id, @NotNull Material type, @NotNull Map<String, Integer> something,
                       @NotNull List<String> lore, String displayName) {
         this.id = id;
         this.type = type;
-        this.amount = amount;
         this.something = something;
         this.lore = lore;
         this.displayName = displayName;
@@ -51,7 +49,7 @@ public class SimpleItem {
             if (itemMeta.hasLore()) lore = itemMeta.getLore();
             if (itemMeta.hasDisplayName()) displayName = itemMeta.getDisplayName();
         }
-        return new SimpleItem(id, type, amount, enchantments, lore, displayName);
+        return new SimpleItem(id, type, enchantments, lore, displayName);
     }
 
     public int id() {
@@ -60,10 +58,6 @@ public class SimpleItem {
 
     public Material type() {
         return type;
-    }
-
-    public int amount() {
-        return amount;
     }
 
     public Map<String, Integer> enchantments() {
@@ -87,7 +81,6 @@ public class SimpleItem {
         SimpleItem that = (SimpleItem) o;
 
         if (id != that.id) return false;
-        if (amount != that.amount) return false;
         if (type != that.type) return false;
         if (something != null ? !something.equals(that.something) : that.something != null) return false;
         if (lore != null ? !lore.equals(that.lore) : that.lore != null) return false;
@@ -98,7 +91,6 @@ public class SimpleItem {
     public int hashCode() {
         int result = id;
         result = 31 * result + (type != null ? type.hashCode() : 0);
-        result = 31 * result + amount;
         result = 31 * result + (something != null ? something.hashCode() : 0);
         result = 31 * result + (lore != null ? lore.hashCode() : 0);
         result = 31 * result + (displayName != null ? displayName.hashCode() : 0);

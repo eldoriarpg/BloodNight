@@ -47,7 +47,8 @@ public class ContextContainer {
      * The target context will be removed from the contexts and the result context will be added.
      * <p>
      * The method will have no effect if {@link #has(ContextType)} returns false for target.
-     *  @param <T>    type of target
+     *
+     * @param <T>    type of target
      * @param <R>    type of result
      * @param target target context
      * @param result result context
@@ -106,11 +107,11 @@ public class ContextContainer {
         return builder(new HashMap<>(context.contextMap));
     }
 
-    public static <T extends IContext> ContextContainer of(ContextType<?> type, T context, String descr) {
+    public static <T extends IContext> ContextContainer of(ContextType<T> type, T context, String descr) {
         return builder().add(type, context, descr).build();
     }
 
-    public static <T extends IContext> Builder builder(ContextType<?> type, T context, String descr) {
+    public static <T extends IContext> Builder builder(ContextType<T> type, T context, String descr) {
         return builder().add(type, context, descr);
     }
 
@@ -137,7 +138,7 @@ public class ContextContainer {
          * @return builder instance;
          * @throws IllegalContextException if the {@link ContextType#contextClazz()} does not match the {@link IContext}
          */
-        public <T extends IContext> Builder add(ContextType<?> type, T context, String descr) {
+        public <T extends IContext> Builder add(ContextType<T> type, T context, String descr) {
             if (context.getClass().isInstance(type.contextClazz())) {
                 contextMap.put(type.contextClazz(), ContextData.of(context, descr));
                 return this;
@@ -159,4 +160,7 @@ public class ContextContainer {
         return new ContextContainer(new HashMap<>(contextMap));
     }
 
+    public boolean contains(Class<?> clazz) {
+        return contextMap.containsKey(clazz);
+    }
 }

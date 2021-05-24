@@ -1,20 +1,32 @@
 package de.eldoria.bloodnight.bloodmob.node;
 
+import de.eldoria.bloodnight.bloodmob.node.contextcontainer.ContextContainer;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
-import lombok.NoArgsConstructor;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@NoArgsConstructor
 public abstract class NodeHolder implements Node, ConfigurationSerializable {
+    @Nullable
     private Node nextNode;
 
     public NodeHolder(Node nextNode) {
+        this.nextNode = nextNode;
+    }
+
+    public NodeHolder() {
+    }
+
+    @Nullable
+    public Node nextNode() {
+        return nextNode;
+    }
+
+    public void nextNode(Node nextNode) {
         this.nextNode = nextNode;
     }
 
@@ -31,13 +43,43 @@ public abstract class NodeHolder implements Node, ConfigurationSerializable {
                 .build();
     }
 
-    public Node node() {
-        return nextNode;
+    @Override
+    public ContextContainer getTransformedOutput(ContextContainer context) {
+        return nextNode == null ? context : nextNode.getTransformedOutput(context);
     }
 
     @Override
     public Set<Class<?>> getClasses(Set<Class<?>> set) {
         Node.super.getClasses(set);
-        return nextNode.getClasses(set);
+        return nextNode != null ? nextNode.getClasses(set) : set;
+    }
+
+    @Override
+    public void removeLast() {
+        if (nextNode != null && nextNode.isLast()) {
+            nextNode = null;
+        }
+    }
+
+    @Override
+    public boolean isLast() {
+        return nextNode == null;
+    }
+
+    @Override
+    public boolean addNode(Node node) {
+        if (nextNode != null) {
+            return nextNode.addNode(node);
+        }
+        nextNode = node;
+        return true;
+    }
+
+    @Override
+    public Node getLast() {
+        if (isLast()) {
+            return this;
+        }
+        return nextNode.getLast();
     }
 }

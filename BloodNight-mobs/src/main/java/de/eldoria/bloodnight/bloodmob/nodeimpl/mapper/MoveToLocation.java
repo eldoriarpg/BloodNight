@@ -51,9 +51,8 @@ public class MoveToLocation extends MapperNode {
 
     @Override
     public ContextContainer getTransformedOutput(ContextContainer context) {
-        ContextContainer clone = context.copy();
-        map(clone);
-        return clone;
+        map(context);
+        return nextNode() != null ? nextNode().getTransformedOutput(context) : context;
     }
 
     public enum LocationSource {
