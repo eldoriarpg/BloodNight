@@ -67,7 +67,6 @@ public class ParticleCloud {
             return this;
         }
 
-
         public ParticleCloud build() {
             return new ParticleCloud(entity);
         }

@@ -71,7 +71,7 @@ public class BloodMob implements IBloodMob {
             if (extentionSettings.isClearEquipment()) {
                 EldoUtilities.getDelayedActions().schedule(() -> BloodMobUtil.clearEquipment(extension), 2);
             }
-            equipment = extentionSettings.getEquipment();
+            equipment = extentionSettings.equipment();
             if (equipment != null) {
                 equipment.apply(extension, itemRegistry);
             }
@@ -82,13 +82,13 @@ public class BloodMob implements IBloodMob {
     }
 
     private static Mob addExtension(Mob base, Extension ext) {
-        switch (ext.getExtensionRole()) {
+        switch (ext.extensionRole()) {
             case CARRIER:
-                return BloodMobUtil.spawnAndMount(ext.getExtensionType(), base);
+                return BloodMobUtil.spawnAndMount(ext.extensionType(), base);
             case PASSENGER:
-                return BloodMobUtil.spawnAndMount(base, ext.getExtensionType());
+                return BloodMobUtil.spawnAndMount(base, ext.extensionType());
             default:
-                throw new IllegalStateException("Unexpected value: " + ext.getExtensionRole());
+                throw new IllegalStateException("Unexpected value: " + ext.extensionRole());
         }
     }
 

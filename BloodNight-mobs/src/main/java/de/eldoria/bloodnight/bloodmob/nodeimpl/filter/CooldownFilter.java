@@ -18,7 +18,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
-@Getter
 @NoArgsConstructor
 public class CooldownFilter extends FilterNode {
     @Property(name = "", descr = "")

@@ -45,11 +45,6 @@ public class MoveToLocation extends MapperNode {
     }
 
     @Override
-    public ContextType<?>[] requires() {
-        return REQUIRED;
-    }
-
-    @Override
     public ContextContainer getTransformedOutput(ContextContainer context) {
         map(context);
         return nextNode() != null ? nextNode().getTransformedOutput(context) : context;

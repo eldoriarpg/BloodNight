@@ -60,4 +60,16 @@ public class SettingsContainer {
     public Optional<MobConfiguration> getMobConfig(String identifier) {
         return configurations.stream().filter(c -> c.identifier().equals(identifier)).findFirst();
     }
+
+    public boolean mobExists(String identifier) {
+        return getMobConfig(identifier).isPresent();
+    }
+
+    public void createMob(String identifier) {
+        configurations.add(new MobConfiguration(identifier));
+    }
+
+    public boolean removeMob(String identifier) {
+        return configurations.removeIf(c -> c.identifier().equals(identifier));
+    }
 }

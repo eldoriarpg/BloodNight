@@ -5,10 +5,13 @@ import de.eldoria.bloodnight.bloodmob.node.NodeHolder;
 import de.eldoria.bloodnight.bloodmob.node.annotations.RequiresContext;
 import de.eldoria.bloodnight.bloodmob.node.context.IContext;
 import de.eldoria.bloodnight.bloodmob.node.contextcontainer.ContextContainer;
+import de.eldoria.bloodnight.bloodmob.node.contextcontainer.ContextContainerFactory;
 import de.eldoria.bloodnight.bloodmob.node.effect.EffectNode;
 import de.eldoria.bloodnight.bloodmob.node.filter.FilterNode;
 import de.eldoria.bloodnight.bloodmob.node.mapper.MapperNode;
 import de.eldoria.bloodnight.bloodmob.node.predicate.PredicateNode;
+import de.eldoria.bloodnight.bloodmob.settings.BehaviourNodeType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,13 +46,26 @@ public class NodeRegistry {
         return NODES.values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
     }
 
-    public static Set<Class<?>> getAvailableNodes(Node lastNode, ContextContainer container) {
+    public static Set<Class<?>> getAvailableNodes(Node node, ContextContainer container) {
+        Node lastNode = node.getLast();
         if (isEndNode(lastNode.getClass())) {
             return Collections.emptySet();
         }
 
+        return getMatchingClasses(node.getTransformedOutput(container));
+    }
+
+    public static Set<Class<?>> getAvailableNodes(BehaviourNodeType type) {
+        ContextContainer context = ContextContainerFactory.mock(type);
+
+        return getMatchingClasses(context);
+    }
+
+    @NotNull
+    private static Set<Class<?>> getMatchingClasses(ContextContainer context) {
         ArrayList<Class<?>> classes = new ArrayList<>(nodes().get(Node.class));
         classes.addAll(nodes().get(NodeHolder.class));
+
 
         return classes.stream().filter(clazz -> {
             if (!clazz.isAnnotationPresent(RequiresContext.class)) {
@@ -57,7 +73,7 @@ public class NodeRegistry {
             }
             RequiresContext annotation = clazz.getAnnotation(RequiresContext.class);
             for (Class<? extends IContext> aClazz : annotation.value()) {
-                if (!container.contains(aClazz)) {
+                if (!context.contains(aClazz)) {
                     return false;
                 }
             }
