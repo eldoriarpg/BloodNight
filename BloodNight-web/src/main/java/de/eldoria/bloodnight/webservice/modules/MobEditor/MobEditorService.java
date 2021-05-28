@@ -14,6 +14,8 @@ import de.eldoria.bloodnight.bloodmob.settings.Drops;
 import de.eldoria.bloodnight.bloodmob.settings.Equipment;
 import de.eldoria.bloodnight.bloodmob.settings.Extension;
 import de.eldoria.bloodnight.bloodmob.settings.MobConfiguration;
+import de.eldoria.bloodnight.bloodmob.settings.mobsettings.BloodMobType;
+import de.eldoria.bloodnight.bloodmob.settings.mobsettings.TypeSetting;
 import de.eldoria.bloodnight.serialization.ClassDefinition;
 import de.eldoria.bloodnight.serialization.DataDescriptionContainer;
 import de.eldoria.bloodnight.util.ClassDefintionUtil;
@@ -29,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -50,6 +53,68 @@ public class MobEditorService extends SessionHolder<MobEditorPayload> {
         var session = openSession(mobEditorPayload);
         response.body(session.accessToken());
         response.status(HttpStatus.CREATED_201);
+        return response.body();
+    }
+
+    public Object close(Request request, Response response) {
+        var session = getSession(request, response);
+        session = closeSession(session);
+        response.status(HttpStatus.OK_200);
+        response.type(MediaType.PLAIN_TEXT_UTF_8.type());
+        response.body(session.retrievaltoken());
+        return response.body();
+    }
+
+    public Object retrieve(Request request, Response response) {
+        var closedSession = getClosedSession(request, response);
+        try {
+            response.body(MobMapper.mapper().writeValueAsString(closedSession.sessionData()));
+            response.status(HttpStatus.OK_200);
+            response.type(MediaType.JSON_UTF_8.type());
+        } catch (JsonProcessingException e) {
+            log.error("Could not serialize session data", e);
+            halt(HttpStatus.INTERNAL_SERVER_ERROR_500);
+            return null;
+        }
+        return response.body();
+    }
+
+    public Object getTypes(Request request, Response response) {
+        Map<String, ClassDefinition> classDefinition = new HashMap<>();
+        for (var value : ValueType.values()) {
+            classDefinition.put(value.name(), value.clazz() == null ? null : ClassDefinition.of(value.clazz()));
+        }
+        response.status(HttpStatus.OK_200);
+        response.type(MediaType.JSON_UTF_8.type());
+        try {
+            response.body(MobMapper.mapper().writeValueAsString(classDefinition));
+        } catch (JsonProcessingException e) {
+            log.error("could not serialize types.", e);
+            halt(HttpStatus.INTERNAL_SERVER_ERROR_500);
+            return null;
+        }
+        return response.body();
+    }
+
+    public Object getType(Request request, Response response) {
+        var parse = EnumUtil.parse(request.params(":type"), ValueType.class);
+        if (parse == null) {
+            halt(HttpStatus.BAD_REQUEST_400, "Invalid type");
+        }
+
+        if (parse.clazz() != null) {
+            response.status(HttpStatus.OK_200);
+            try {
+                response.body(MobMapper.mapper().writeValueAsString(ClassDefinition.of(parse.clazz())));
+            } catch (JsonProcessingException e) {
+                log.error("could not serialize types.", e);
+                halt(HttpStatus.INTERNAL_SERVER_ERROR_500);
+                return null;
+            }
+            response.type(MediaType.JSON_UTF_8.type());
+        } else {
+            response.status(HttpStatus.NO_CONTENT_204);
+        }
         return response.body();
     }
 
@@ -78,40 +143,108 @@ public class MobEditorService extends SessionHolder<MobEditorPayload> {
         return response.body();
     }
 
-    private MobConfiguration getSessionMobSettings(Request request, Response response) {
+    public Object createMobSettings(Request request, Response response) {
         var session = getSession(request, response);
         var identifier = request.params(":identifier");
-        var mobConfiguration = session.readData(data -> data.settingsContainer().getMobConfig(identifier));
-        if (mobConfiguration.isEmpty()) halt(HttpStatus.BAD_REQUEST_400, "Mob does not exist.");
-        return mobConfiguration.get();
-    }
-
-    public Object getItems(Request request, Response response) {
-        var session = getSession(request, response);
-        var simpleItems = session.readData(data -> data.settingsContainer().items());
-        try {
-            response.body(MobMapper.mapper().writeValueAsString(simpleItems));
-        } catch (JsonProcessingException e) {
-            halt(HttpStatus.INTERNAL_SERVER_ERROR_500);
+        var mobEditorPayload = session.sessionData();
+        if (mobEditorPayload.settingsContainer().mobExists(identifier)) {
+            halt(HttpStatus.CONFLICT_409, "Identifier already in use.");
         }
-        response.status(HttpStatus.OK_200);
+
+        mobEditorPayload.settingsContainer().createMob(identifier);
+        response.status(HttpStatus.CREATED_201);
         return response.body();
     }
 
-    public Object deleteItem(Request request, Response response) {
+    public Object deleteMobSettings(Request request, Response response) {
         var session = getSession(request, response);
-        var params = request.params(":id");
-        int id;
+        var identifier = request.params(":identifier");
+        var mobEditorPayload = session.sessionData();
+
+        var removed = mobEditorPayload.settingsContainer().removeMob(identifier);
+        if (!removed) {
+            halt(HttpStatus.NOT_MODIFIED_304, "Identifier not found.");
+        }
+        response.status(HttpStatus.ACCEPTED_202);
+        return response.body();
+    }
+
+    public Object getaAvailableTypes(Request request, Response response) {
+        Map<BloodMobType, ClassDefinition> definitions = new HashMap<>();
+
+        var mobSettings = getSessionMobSettings(request, response);
+
+        for (var value : BloodMobType.values()) {
+            if (mobSettings.wrapTypes().containsKey(value)) continue;
+            definitions.put(value, ClassDefinition.of(value.typeSettingClazz()));
+        }
         try {
-            id = Integer.parseInt(params);
-        } catch (NumberFormatException e) {
+            response.body(MobMapper.mapper().writeValueAsString(definitions));
+            response.type(MediaType.JSON_UTF_8.type());
+            response.status(HttpStatus.OK_200);
+        } catch (JsonProcessingException e) {
+            log.error("Could not write class definitions", e);
+            halt(HttpStatus.INTERNAL_SERVER_ERROR_500);
+        }
+        return response.body();
+    }
+
+    public Object getSetWrapTypes(Request request, Response response) {
+        Map<BloodMobType, DataDescriptionContainer<?>> definitions = new HashMap<>();
+
+        var mobSettings = getSessionMobSettings(request, response);
+
+        for (var entry : mobSettings.wrapTypes().entrySet()) {
+            var container = DataDescriptionContainer.of(entry.getValue());
+            definitions.put(entry.getKey(), container);
+        }
+
+        try {
+            response.body(MobMapper.mapper().writeValueAsString(definitions));
+            response.type(MediaType.JSON_UTF_8.type());
+            response.status(HttpStatus.OK_200);
+        } catch (JsonProcessingException e) {
+            log.error("Could not write class definitions", e);
+            halt(HttpStatus.INTERNAL_SERVER_ERROR_500);
+        }
+        return response.body();
+    }
+
+    public Object removeWrapType(Request request, Response response) {
+        var mobSettings = getSessionMobSettings(request, response);
+
+        var params = request.params(":type");
+
+        var type = EnumUtil.parse(params, BloodMobType.class);
+        if (type == null) {
+            halt(HttpStatus.BAD_REQUEST_400, "Unknown BloodMobType");
+        }
+
+        var remove = mobSettings.wrapTypes().remove(type) != null;
+        response.status(remove ? HttpStatus.ACCEPTED_202 : HttpStatus.NOT_MODIFIED_304);
+        return response.body();
+    }
+
+    public Object addWrapType(Request request, Response response) {
+        var mobSettings = getSessionMobSettings(request, response);
+        var params = request.params(":type");
+        var type = EnumUtil.parse(params, BloodMobType.class);
+        if (type == null) {
+            halt(HttpStatus.BAD_REQUEST_400, "Unknown BloodMobType");
+        }
+
+        TypeSetting typeSetting;
+        try {
+            typeSetting = MobMapper.mapper().readValue(response.body(), type.typeSettingClazz());
+        } catch (JsonProcessingException e) {
             halt(HttpStatus.BAD_REQUEST_400);
             return null;
         }
-        var removed = session.readData(mobEditorPayload -> mobEditorPayload.settingsContainer().items()
-                .removeIf(item -> item.id() == id));
-        response.status(removed ? HttpStatus.OK_200 : HttpStatus.NOT_MODIFIED_304);
-        return response.status();
+
+        mobSettings.wrapTypes().put(type, typeSetting);
+
+        response.status(HttpStatus.OK_200);
+        return response.body();
     }
 
     public Object getSetting(Request request, Response response) {
@@ -200,7 +333,7 @@ public class MobEditorService extends SessionHolder<MobEditorPayload> {
             return null;
         }
 
-        Node node = null;
+        Node node;
         try {
             node = MobMapper.mapper().readValue(response.body(), Node.class);
         } catch (JsonProcessingException e) {
@@ -209,16 +342,6 @@ public class MobEditorService extends SessionHolder<MobEditorPayload> {
         }
         response.body(String.valueOf(mobSettings.behaviour().addNode(nodeType, node)));
         response.status(HttpStatus.CREATED_201);
-        response.type(MediaType.PLAIN_TEXT_UTF_8.type());
-        return response.body();
-    }
-
-    public Object deleteNode(Request request, Response response) {
-        var nodes = getNodes(request, response);
-
-        nodes.second.remove(nodes.first);
-
-        response.status(HttpStatus.OK_200);
         response.type(MediaType.PLAIN_TEXT_UTF_8.type());
         return response.body();
     }
@@ -236,6 +359,68 @@ public class MobEditorService extends SessionHolder<MobEditorPayload> {
         response.status(HttpStatus.OK_200);
         response.type(MediaType.JSON_UTF_8.type());
         return response.body();
+    }
+
+    public Object deleteNode(Request request, Response response) {
+        var nodes = getNodes(request, response);
+
+        nodes.second.remove(nodes.first);
+
+        response.status(HttpStatus.OK_200);
+        response.type(MediaType.PLAIN_TEXT_UTF_8.type());
+        return response.body();
+    }
+
+    public Object nextNodes(Request request, Response response) {
+        var nodes = getNodes(request, response);
+        var node = nodes.second.get(nodes.first);
+        var availableNodes = NodeRegistry.getAvailableNodes(node, ContextContainerFactory.mock(nodes.third));
+        var definitions = availableNodes.stream().map(ClassDefinition::of).collect(Collectors.toList());
+        try {
+            response.body(MobMapper.mapper().writeValueAsString(definitions));
+        } catch (JsonProcessingException e) {
+            log.error("Could not build node definitions.", e);
+            halt(HttpStatus.INTERNAL_SERVER_ERROR_500);
+        }
+        response.type(MediaType.JSON_UTF_8.type());
+        response.status(HttpStatus.OK_200);
+        return response.body();
+    }
+
+    public Object getItems(Request request, Response response) {
+        var session = getSession(request, response);
+        var simpleItems = session.readData(data -> data.settingsContainer().items());
+        try {
+            response.body(MobMapper.mapper().writeValueAsString(simpleItems));
+        } catch (JsonProcessingException e) {
+            halt(HttpStatus.INTERNAL_SERVER_ERROR_500);
+        }
+        response.status(HttpStatus.OK_200);
+        return response.body();
+    }
+
+    public Object deleteItem(Request request, Response response) {
+        var session = getSession(request, response);
+        var params = request.params(":id");
+        int id;
+        try {
+            id = Integer.parseInt(params);
+        } catch (NumberFormatException e) {
+            halt(HttpStatus.BAD_REQUEST_400);
+            return null;
+        }
+        var removed = session.readData(mobEditorPayload -> mobEditorPayload.settingsContainer().items()
+                .removeIf(item -> item.id() == id));
+        response.status(removed ? HttpStatus.OK_200 : HttpStatus.NOT_MODIFIED_304);
+        return response.status();
+    }
+
+    private MobConfiguration getSessionMobSettings(Request request, Response response) {
+        var session = getSession(request, response);
+        var identifier = request.params(":identifier");
+        var mobConfiguration = session.readData(data -> data.settingsContainer().getMobConfig(identifier));
+        if (mobConfiguration.isEmpty()) halt(HttpStatus.BAD_REQUEST_400, "Mob does not exist.");
+        return mobConfiguration.get();
     }
 
     @NotNull
@@ -262,10 +447,15 @@ public class MobEditorService extends SessionHolder<MobEditorPayload> {
         return Triple.of(id, nodes, nodeType);
     }
 
-    public Object nextNodes(Request request, Response response) {
-        var nodes = getNodes(request, response);
-        var node = nodes.second.get(nodes.first);
-        var availableNodes = NodeRegistry.getAvailableNodes(node.getLast(), ContextContainerFactory.mock(nodes.third));
+    public Object nextTypeNodes(Request request, Response response) {
+        var type = request.params(":type");
+        var nodeType = EnumUtil.parse(type, BehaviourNodeType.class);
+        if (nodeType == null) {
+            halt(HttpStatus.BAD_REQUEST_400, "Unknown node type");
+        }
+
+        var availableNodes = NodeRegistry.getAvailableNodes(nodeType);
+
         var definitions = availableNodes.stream().map(ClassDefinition::of).collect(Collectors.toList());
         try {
             response.body(MobMapper.mapper().writeValueAsString(definitions));
@@ -275,66 +465,6 @@ public class MobEditorService extends SessionHolder<MobEditorPayload> {
         }
         response.type(MediaType.JSON_UTF_8.type());
         response.status(HttpStatus.OK_200);
-        return response.body();
-    }
-
-    public Object close(Request request, Response response) {
-        var session = getSession(request, response);
-        session = closeSession(session);
-        response.type(MediaType.PLAIN_TEXT_UTF_8.type());
-        return session.retrievaltoken();
-    }
-
-    public Object getTypes(Request request, Response response) {
-        Map<String, ClassDefinition> classDefinition = new HashMap<>();
-        for (var value : ValueType.values()) {
-            classDefinition.put(value.name(), value.clazz() == null ? null : ClassDefinition.of(value.clazz()));
-        }
-        response.status(HttpStatus.OK_200);
-        response.type(MediaType.JSON_UTF_8.type());
-        try {
-            response.body(MobMapper.mapper().writeValueAsString(classDefinition));
-        } catch (JsonProcessingException e) {
-            log.error("could not serialize types.", e);
-            halt(HttpStatus.INTERNAL_SERVER_ERROR_500);
-            return null;
-        }
-        return response.body();
-    }
-
-    public Object getType(Request request, Response response) {
-        var parse = EnumUtil.parse(request.params(":type"), ValueType.class);
-        if (parse == null) {
-            halt(HttpStatus.BAD_REQUEST_400, "Invalid type");
-        }
-
-        if (parse.clazz() != null) {
-            response.status(HttpStatus.OK_200);
-            try {
-                response.body(MobMapper.mapper().writeValueAsString(ClassDefinition.of(parse.clazz())));
-            } catch (JsonProcessingException e) {
-                log.error("could not serialize types.", e);
-                halt(HttpStatus.INTERNAL_SERVER_ERROR_500);
-                return null;
-            }
-            response.type(MediaType.JSON_UTF_8.type());
-        } else {
-            response.status(HttpStatus.NO_CONTENT_204);
-        }
-        return response.body();
-    }
-
-    public Object retrieve(Request request, Response response) {
-        var closedSession = getClosedSession(request, response);
-        try {
-            response.body(MobMapper.mapper().writeValueAsString(closedSession.sessionData()));
-            response.status(HttpStatus.OK_200);
-            response.type(MediaType.JSON_UTF_8.type());
-        } catch (JsonProcessingException e) {
-            log.error("Could not serialize session data", e);
-            halt(HttpStatus.INTERNAL_SERVER_ERROR_500);
-            return null;
-        }
         return response.body();
     }
 }

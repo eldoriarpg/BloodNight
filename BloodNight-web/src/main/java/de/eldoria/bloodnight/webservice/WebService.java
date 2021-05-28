@@ -2,7 +2,14 @@ package de.eldoria.bloodnight.webservice;
 
 import de.eldoria.bloodnight.webservice.modules.MobEditor.MobEditorService;
 
-import static spark.Spark.*;
+import static spark.Spark.delete;
+import static spark.Spark.get;
+import static spark.Spark.ipAddress;
+import static spark.Spark.options;
+import static spark.Spark.path;
+import static spark.Spark.port;
+import static spark.Spark.post;
+import static spark.Spark.put;
 
 public class WebService {
     private static WebService instance;
@@ -29,7 +36,7 @@ public class WebService {
                     .headers("Access-Control-Request-Method");
             if (accessControlRequestMethod != null) {
                 response.header("Access-Control-Allow-Methods",
-                        "HEAD, GET, POST, OPTIONS");
+                        "HEAD, GET, DELETE, PATCH, POST, OPTIONS");
             }
 
             return "OK";
@@ -39,15 +46,28 @@ public class WebService {
             path("/mobEditor", () -> {
                 post("/submit", mobEditorService::submit);
                 post("/close", mobEditorService::close);
-                get("/retrieve", mobEditorService::retrieve);
-                get("/type", mobEditorService::getTypes);
-                post("/type/:type", mobEditorService::getType);
+                get("/retrieve/:token", mobEditorService::retrieve);
+
+                get("/types", mobEditorService::getTypes);
+                get("/type/:type", mobEditorService::getType);
+
                 get("/moblist", mobEditorService::mobList);
+
                 path("/mobSetting", () -> {
+
                     get("/:identifier", mobEditorService::getMobSettings);
-                    path("/identifier", () -> {
+                    post("/:identifier", mobEditorService::createMobSettings);
+                    delete("/:identifier", mobEditorService::deleteMobSettings);
+
+                    path("/:identifier", () -> {
+                        get("/wraptypes/available", mobEditorService::getaAvailableTypes);
+                        get("/wraptypes/set", mobEditorService::getSetWrapTypes);
+                        delete("/wraptypes/:type", mobEditorService::removeWrapType);
+                        put("/wraptypes/:type", mobEditorService::addWrapType);
+
                         get("/:setting", mobEditorService::getSetting);
                         put("/:setting", mobEditorService::setSetting);
+
                         path("/behaviour", () -> {
                             path("/node", () -> {
                                 put("/:type/:id", mobEditorService::addNode);
@@ -55,11 +75,12 @@ public class WebService {
                                 put("/:type/:id/removeLast", mobEditorService::removeLastNode);
                                 delete("/:type/:id", mobEditorService::deleteNode);
                                 get("/:type/:id/nextNodes", mobEditorService::nextNodes);
+                                get("/:type/nextNodes", mobEditorService::nextTypeNodes);
                             });
                         });
                     });
                 });
-                // items
+
                 get("/items", mobEditorService::getItems);
                 delete("/items/:id", mobEditorService::deleteItem);
             });
