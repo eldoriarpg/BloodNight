@@ -24,7 +24,7 @@ public class ItemRegistry {
         items.put(currentId++, stack);
     }
 
-    public ItemStack getItem(int mainHand) {
-        return items.get(mainHand);
+    public ItemStack getItem(int id) {
+        return items.get(id);
     }
 }

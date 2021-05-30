@@ -6,7 +6,7 @@ import de.eldoria.bloodnight.config.worldsettings.NightSelection;
 import de.eldoria.bloodnight.config.worldsettings.NightSettings;
 import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.config.worldsettings.deathactions.PlayerDeathActions;
-import de.eldoria.bloodnight.config.worldsettings.deathactions.PotionEffectSettings;
+import de.eldoria.bloodnight.bloodmob.settings.util.PotionEffectSettings;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.core.manager.nightmanager.util.BloodNightData;
 import de.eldoria.bloodnight.core.manager.nightmanager.util.NightUtil;
@@ -322,7 +322,7 @@ public class NightManager extends BukkitRunnable implements Listener {
         PlayerDeathActions actions = configuration.getWorldSettings(player.getWorld())
                 .getDeathActionSettings()
                 .getPlayerDeathActions();
-        // TODO: Player bet should get repspawn effects
+        // TODO: Player bed should get repspawn effects
         if (!isBloodNightActive(player.getWorld()) || event.isBedSpawn() || event.isAnchorSpawn()) {
             return;
         }

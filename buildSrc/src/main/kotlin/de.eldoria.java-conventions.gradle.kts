@@ -19,7 +19,7 @@ repositories {
 }
 
 dependencies {
-    implementation("de.eldoria:eldo-util:1.8.7-SNAPSHOT")
+    implementation("de.eldoria:eldo-util:1.8.8-DEV")
     compileOnly("org.spigotmc", "spigot-api", "1.16.5-R0.1-SNAPSHOT")
     compileOnly("org.projectlombok", "lombok", lombokVersion)
     annotationProcessor("org.projectlombok", "lombok", lombokVersion)

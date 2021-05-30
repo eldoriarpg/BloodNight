@@ -1,4 +1,4 @@
-package de.eldoria.bloodnight.webservice.modules.MobEditor;
+package de.eldoria.bloodnight.webservice.modules.mobeditor;
 
 import de.eldoria.bloodnight.webservice.SessionService;
 import de.eldoria.bloodnight.webservice.sessions.Session;

@@ -3,7 +3,7 @@ package de.eldoria.bloodnight.command.bloodnight.managedeathactions;
 import de.eldoria.bloodnight.command.util.CommandUtil;
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.config.worldsettings.deathactions.PlayerDeathActions;
-import de.eldoria.bloodnight.config.worldsettings.deathactions.PotionEffectSettings;
+import de.eldoria.bloodnight.bloodmob.settings.util.PotionEffectSettings;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.eldoutilities.conversation.ConversationRequester;
 import de.eldoria.eldoutilities.core.EldoUtilities;

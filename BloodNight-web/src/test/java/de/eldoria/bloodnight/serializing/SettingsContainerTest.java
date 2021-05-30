@@ -2,6 +2,7 @@ package de.eldoria.bloodnight.serializing;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import de.eldoria.bloodnight.bloodmob.drop.Drop;
 import de.eldoria.bloodnight.bloodmob.nodeimpl.action.OtherPotion;
 import de.eldoria.bloodnight.bloodmob.nodeimpl.filter.CooldownFilter;
 import de.eldoria.bloodnight.bloodmob.nodeimpl.filter.PredicateFilter;
@@ -9,6 +10,7 @@ import de.eldoria.bloodnight.bloodmob.nodeimpl.mapper.MoveToLocation;
 import de.eldoria.bloodnight.bloodmob.nodeimpl.predicate.HasTarget;
 import de.eldoria.bloodnight.bloodmob.registry.MobRegistry;
 import de.eldoria.bloodnight.bloodmob.registry.items.ItemRegistry;
+import de.eldoria.bloodnight.bloodmob.serialization.container.MobEditorPayload;
 import de.eldoria.bloodnight.bloodmob.serialization.container.SettingsContainer;
 import de.eldoria.bloodnight.bloodmob.serialization.mapper.MobMapper;
 import de.eldoria.bloodnight.bloodmob.settings.BehaviourNodeType;
@@ -22,6 +24,8 @@ import org.bukkit.potion.PotionEffectType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
 
 class SettingsContainerTest {
 
@@ -56,16 +60,25 @@ class SettingsContainerTest {
 
     @Test
     public void settingContainerSerialization() throws JsonProcessingException {
-        var initContainer = SettingsContainer.from(itemRegistry, mobRegistry);
+        var drops = new ArrayList<Drop>();
+        drops.add(new Drop(0, 5, 10));
+        drops.add(new Drop(0, 2, 10));
+        drops.add(new Drop(2, 12, 80));
+
+        var initContainer = SettingsContainer.from(itemRegistry, mobRegistry, drops);
+        var mobEditorPayload = new MobEditorPayload(initContainer);
         var serializedContainer = MobMapper.mapper().writerWithDefaultPrettyPrinter().writeValueAsString(initContainer);
         System.out.println(serializedContainer);
 
         var settingsContainer = MobMapper.mapper().readValue(serializedContainer, SettingsContainer.class);
-        Assertions.assertEquals(initContainer, settingsContainer);
+        Assertions.assertEquals(initContainer.hashCode(), settingsContainer.hashCode());
 
         var of = DataDescriptionContainer.of(testMob);
         var s = MobMapper.mapper().writeValueAsString(of);
         System.out.println(s);
+
+        var serMobEditorPayload = MobMapper.mapper().writeValueAsString(mobEditorPayload);
+        System.out.println(serMobEditorPayload);
     }
 
     @Test

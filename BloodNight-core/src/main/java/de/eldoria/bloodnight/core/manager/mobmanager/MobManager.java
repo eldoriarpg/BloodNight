@@ -3,7 +3,7 @@ package de.eldoria.bloodnight.core.manager.mobmanager;
 import de.eldoria.bloodnight.bloodmob.utils.BloodMobUtil;
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
-import de.eldoria.bloodnight.config.IShockwaveSettings;
+import de.eldoria.bloodnight.bloodmob.settings.util.ShockwaveSettings;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSetting;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSettings;
 import de.eldoria.bloodnight.bloodmob.settings.VanillaDropMode;
@@ -13,9 +13,6 @@ import de.eldoria.bloodnight.core.manager.nightmanager.NightManager;
 import de.eldoria.bloodnight.core.mobfactory.MobFactory;
 import de.eldoria.bloodnight.core.mobfactory.WorldMobFactory;
 import de.eldoria.bloodnight.hooks.mythicmobs.MythicMobUtil;
-import de.eldoria.bloodnight.bloodmob.node.contextcontainer.ContextContainer;
-import de.eldoria.bloodnight.bloodmob.node.contextcontainer.ContextType;
-import de.eldoria.bloodnight.bloodmob.node.context.ILocationContext;
 import de.eldoria.bloodnight.specialmobs.SpecialMob;
 import de.eldoria.eldoutilities.entityutils.ProjectileSender;
 import de.eldoria.eldoutilities.entityutils.ProjectileUtil;
@@ -180,7 +177,7 @@ public class MobManager implements Listener {
         }
 
         WorldSettings worldSettings = configuration.getWorldSettings(entity.getWorld());
-        IShockwaveSettings shockwaveSettings = worldSettings.getDeathActionSettings().getMobDeathActions().getShockwaveSettings();
+        ShockwaveSettings shockwaveSettings = worldSettings.getDeathActionSettings().getMobDeathActions().getShockwaveSettings();
         BloodMobUtil.dispatchShockwave(shockwaveSettings, event.getEntity().getLocation());
         BloodMobUtil.dispatchLightning(worldSettings.getDeathActionSettings().getMobDeathActions().getLightningSettings(), event.getEntity().getLocation());
 
@@ -288,10 +285,6 @@ public class MobManager implements Listener {
 
             }
         }
-
-        ContextContainer.builder()
-                .add(ContextType.LOCATION, (ILocationContext) event::getLocation)
-                .build();
 
         delayedActions.schedule(() -> specialMobManager.remove(event.getEntity()), 1);
     }

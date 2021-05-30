@@ -1,23 +1,23 @@
 package de.eldoria.bloodnight.serialization;
 
-public class DataDescriptionContainer<T> {
-    Object data;
+public class DataDescriptionContainer<Data, T> {
+    Data data;
     T definition;
 
-    public DataDescriptionContainer(Object object, T of) {
+    public DataDescriptionContainer(Data object, T of) {
         data = object;
         definition = of;
     }
 
-    public static DataDescriptionContainer<ClassDefinition> of(Object object) {
+    public static <Data> DataDescriptionContainer<Data, ClassDefinition> of(Data object) {
         return new DataDescriptionContainer<>(object, ClassDefinition.of(object.getClass()));
     }
 
-    public static  DataDescriptionContainer<ClassDefinition> of(Object object, Class<?> clazz) {
+    public static <Data> DataDescriptionContainer<Data, ClassDefinition> of(Data object, Class<?> clazz) {
         return new DataDescriptionContainer<>(object, ClassDefinition.of(clazz));
     }
 
-    public static <T> DataDescriptionContainer<T> of(Object object, T definition) {
+    public static <Data, T> DataDescriptionContainer<Data, T> of(Data object, T definition) {
         return new DataDescriptionContainer<>(object, definition);
     }
 }

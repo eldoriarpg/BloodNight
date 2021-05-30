@@ -1,6 +1,6 @@
 # Remove config
 /config/
-
+/logs/
 .idea/
 .gradle
 **/build/

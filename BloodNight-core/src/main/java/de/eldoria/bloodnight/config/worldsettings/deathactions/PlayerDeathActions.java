@@ -1,5 +1,6 @@
 package de.eldoria.bloodnight.config.worldsettings.deathactions;
 
+import de.eldoria.bloodnight.bloodmob.settings.util.PotionEffectSettings;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
 import lombok.Getter;

@@ -1,9 +1,10 @@
-package de.eldoria.bloodnight.webservice.modules.MobEditor;
+package de.eldoria.bloodnight.webservice.modules.mobeditor;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.net.MediaType;
+import de.eldoria.bloodnight.bloodmob.drop.Drop;
 import de.eldoria.bloodnight.bloodmob.node.Node;
+import de.eldoria.bloodnight.bloodmob.node.NodeHolder;
 import de.eldoria.bloodnight.bloodmob.node.contextcontainer.ContextContainerFactory;
 import de.eldoria.bloodnight.bloodmob.registry.NodeRegistry;
 import de.eldoria.bloodnight.bloodmob.serialization.container.MobEditorPayload;
@@ -15,7 +16,6 @@ import de.eldoria.bloodnight.bloodmob.settings.Equipment;
 import de.eldoria.bloodnight.bloodmob.settings.Extension;
 import de.eldoria.bloodnight.bloodmob.settings.MobConfiguration;
 import de.eldoria.bloodnight.bloodmob.settings.mobsettings.BloodMobType;
-import de.eldoria.bloodnight.bloodmob.settings.mobsettings.TypeSetting;
 import de.eldoria.bloodnight.serialization.ClassDefinition;
 import de.eldoria.bloodnight.serialization.DataDescriptionContainer;
 import de.eldoria.bloodnight.util.ClassDefintionUtil;
@@ -27,7 +27,10 @@ import org.slf4j.Logger;
 import spark.Request;
 import spark.Response;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -42,41 +45,20 @@ public class MobEditorService extends SessionHolder<MobEditorPayload> {
     private static final Logger log = getLogger(MobEditorService.class);
 
     public Object submit(Request request, Response response) {
-        MobEditorPayload mobEditorPayload;
-        try {
-            mobEditorPayload = MobMapper.mapper().readValue(request.body(), MobEditorPayload.class);
-        } catch (JacksonException e) {
-            response.status();
-            halt(HttpStatus.BAD_REQUEST_400, "Invalid payload");
-            return null;
-        }
+        var mobEditorPayload = readInput(request, MobEditorPayload.class);
         var session = openSession(mobEditorPayload);
-        response.body(session.accessToken());
-        response.status(HttpStatus.CREATED_201);
-        return response.body();
+        return respondStatus(response, HttpStatus.CREATED_201, session.accessToken());
     }
 
     public Object close(Request request, Response response) {
         var session = getSession(request, response);
         session = closeSession(session);
-        response.status(HttpStatus.OK_200);
-        response.type(MediaType.PLAIN_TEXT_UTF_8.type());
-        response.body(session.retrievaltoken());
-        return response.body();
+        return respondStatus(response, HttpStatus.OK_200, session.retrievaltoken());
     }
 
     public Object retrieve(Request request, Response response) {
         var closedSession = getClosedSession(request, response);
-        try {
-            response.body(MobMapper.mapper().writeValueAsString(closedSession.sessionData()));
-            response.status(HttpStatus.OK_200);
-            response.type(MediaType.JSON_UTF_8.type());
-        } catch (JsonProcessingException e) {
-            log.error("Could not serialize session data", e);
-            halt(HttpStatus.INTERNAL_SERVER_ERROR_500);
-            return null;
-        }
-        return response.body();
+        return writeJsonResponse(response, closedSession.sessionData());
     }
 
     public Object getTypes(Request request, Response response) {
@@ -84,16 +66,7 @@ public class MobEditorService extends SessionHolder<MobEditorPayload> {
         for (var value : ValueType.values()) {
             classDefinition.put(value.name(), value.clazz() == null ? null : ClassDefinition.of(value.clazz()));
         }
-        response.status(HttpStatus.OK_200);
-        response.type(MediaType.JSON_UTF_8.type());
-        try {
-            response.body(MobMapper.mapper().writeValueAsString(classDefinition));
-        } catch (JsonProcessingException e) {
-            log.error("could not serialize types.", e);
-            halt(HttpStatus.INTERNAL_SERVER_ERROR_500);
-            return null;
-        }
-        return response.body();
+        return writeJsonResponse(response, classDefinition);
     }
 
     public Object getType(Request request, Response response) {
@@ -103,44 +76,21 @@ public class MobEditorService extends SessionHolder<MobEditorPayload> {
         }
 
         if (parse.clazz() != null) {
-            response.status(HttpStatus.OK_200);
-            try {
-                response.body(MobMapper.mapper().writeValueAsString(ClassDefinition.of(parse.clazz())));
-            } catch (JsonProcessingException e) {
-                log.error("could not serialize types.", e);
-                halt(HttpStatus.INTERNAL_SERVER_ERROR_500);
-                return null;
-            }
-            response.type(MediaType.JSON_UTF_8.type());
-        } else {
-            response.status(HttpStatus.NO_CONTENT_204);
+            return writeJsonResponse(response, ClassDefinition.of(parse.clazz()));
         }
-        return response.body();
+        return respondStatus(response, HttpStatus.NO_CONTENT_204);
     }
 
     public Object mobList(Request request, Response response) {
         var session = getSession(request, response);
         var identifier = session.readData(data -> data.settingsContainer().mobIdentifier());
 
-        try {
-            return MobMapper.mapper().writeValueAsString(identifier);
-        } catch (JsonProcessingException e) {
-            log.error("Could not write mob identifier", e);
-            halt(HttpStatus.SERVICE_UNAVAILABLE_503);
-        }
-        return null;
+        return writeJsonResponse(response, identifier);
     }
 
     public Object getMobSettings(Request request, Response response) {
         var configuration = getSessionMobSettings(request, response);
-        try {
-            response.body(MobMapper.mapper().writeValueAsString(DataDescriptionContainer.of(configuration)));
-        } catch (JsonProcessingException e) {
-            log.error("Could not serialize mob settings", e);
-            halt(HttpStatus.INTERNAL_SERVER_ERROR_500);
-        }
-        response.status(HttpStatus.OK_200);
-        return response.body();
+        return writeJsonResponse(response, DataDescriptionContainer.of(configuration));
     }
 
     public Object createMobSettings(Request request, Response response) {
@@ -152,8 +102,7 @@ public class MobEditorService extends SessionHolder<MobEditorPayload> {
         }
 
         mobEditorPayload.settingsContainer().createMob(identifier);
-        response.status(HttpStatus.CREATED_201);
-        return response.body();
+        return respondCreated(response);
     }
 
     public Object deleteMobSettings(Request request, Response response) {
@@ -162,11 +111,10 @@ public class MobEditorService extends SessionHolder<MobEditorPayload> {
         var mobEditorPayload = session.sessionData();
 
         var removed = mobEditorPayload.settingsContainer().removeMob(identifier);
-        if (!removed) {
-            halt(HttpStatus.NOT_MODIFIED_304, "Identifier not found.");
-        }
-        response.status(HttpStatus.ACCEPTED_202);
-        return response.body();
+
+        if (!removed) halt(HttpStatus.NOT_MODIFIED_304, "Identifier not found.");
+
+        return respondAccepted(response);
     }
 
     public Object getaAvailableTypes(Request request, Response response) {
@@ -178,19 +126,11 @@ public class MobEditorService extends SessionHolder<MobEditorPayload> {
             if (mobSettings.wrapTypes().containsKey(value)) continue;
             definitions.put(value, ClassDefinition.of(value.typeSettingClazz()));
         }
-        try {
-            response.body(MobMapper.mapper().writeValueAsString(definitions));
-            response.type(MediaType.JSON_UTF_8.type());
-            response.status(HttpStatus.OK_200);
-        } catch (JsonProcessingException e) {
-            log.error("Could not write class definitions", e);
-            halt(HttpStatus.INTERNAL_SERVER_ERROR_500);
-        }
-        return response.body();
+        return writeJsonResponse(response, definitions);
     }
 
     public Object getSetWrapTypes(Request request, Response response) {
-        Map<BloodMobType, DataDescriptionContainer<?>> definitions = new HashMap<>();
+        Map<BloodMobType, DataDescriptionContainer<?, ?>> definitions = new HashMap<>();
 
         var mobSettings = getSessionMobSettings(request, response);
 
@@ -199,65 +139,45 @@ public class MobEditorService extends SessionHolder<MobEditorPayload> {
             definitions.put(entry.getKey(), container);
         }
 
-        try {
-            response.body(MobMapper.mapper().writeValueAsString(definitions));
-            response.type(MediaType.JSON_UTF_8.type());
-            response.status(HttpStatus.OK_200);
-        } catch (JsonProcessingException e) {
-            log.error("Could not write class definitions", e);
-            halt(HttpStatus.INTERNAL_SERVER_ERROR_500);
-        }
-        return response.body();
+        return writeJsonResponse(response, definitions);
     }
 
     public Object removeWrapType(Request request, Response response) {
         var mobSettings = getSessionMobSettings(request, response);
 
-        var params = request.params(":type");
+        var type = EnumUtil.parse(request.params(":type"), BloodMobType.class);
 
-        var type = EnumUtil.parse(params, BloodMobType.class);
-        if (type == null) {
-            halt(HttpStatus.BAD_REQUEST_400, "Unknown BloodMobType");
-        }
+        if (type == null) halt(HttpStatus.BAD_REQUEST_400, "Unknown BloodMobType");
 
         var remove = mobSettings.wrapTypes().remove(type) != null;
-        response.status(remove ? HttpStatus.ACCEPTED_202 : HttpStatus.NOT_MODIFIED_304);
-        return response.body();
+        return respondStatus(response, remove ? HttpStatus.ACCEPTED_202 : HttpStatus.NOT_MODIFIED_304);
     }
 
     public Object addWrapType(Request request, Response response) {
         var mobSettings = getSessionMobSettings(request, response);
         var params = request.params(":type");
         var type = EnumUtil.parse(params, BloodMobType.class);
-        if (type == null) {
-            halt(HttpStatus.BAD_REQUEST_400, "Unknown BloodMobType");
-        }
 
-        TypeSetting typeSetting;
-        try {
-            typeSetting = MobMapper.mapper().readValue(response.body(), type.typeSettingClazz());
-        } catch (JsonProcessingException e) {
-            halt(HttpStatus.BAD_REQUEST_400);
-            return null;
-        }
+        if (type == null) halt(HttpStatus.BAD_REQUEST_400, "Unknown BloodMobType");
+
+        var typeSetting = readInput(request, type.typeSettingClazz());
 
         mobSettings.wrapTypes().put(type, typeSetting);
 
-        response.status(HttpStatus.OK_200);
-        return response.body();
+        return respondCreated(response);
     }
 
     public Object getSetting(Request request, Response response) {
         var mobSettings = getSessionMobSettings(request, response);
         var params = request.params(":setting");
 
-        DataDescriptionContainer<?> container;
+        DataDescriptionContainer<?, ?> container;
 
         switch (params.toLowerCase(Locale.ROOT)) {
-            case "extension" -> container = DataDescriptionContainer.of(mobSettings.extension(), Extension.class);
-            case "extension.equipment" -> container = DataDescriptionContainer.of(mobSettings.extension(), Equipment.class);
-            case "equipment" -> container = DataDescriptionContainer.of(mobSettings.equipment(), Equipment.class);
-            case "drops" -> container = DataDescriptionContainer.of(mobSettings.drops(), Drops.class);
+            case "extension" -> container = DataDescriptionContainer.of(mobSettings.extension());
+            case "extension.equipment" -> container = DataDescriptionContainer.of(mobSettings.extension().equipment());
+            case "equipment" -> container = DataDescriptionContainer.of(mobSettings.equipment());
+            case "drops" -> container = DataDescriptionContainer.of(mobSettings.drops());
             case "behaviour" -> {
                 var configuration = getSessionMobSettings(request, response);
                 var nodeMap = configuration.behaviour().behaviourMap();
@@ -270,15 +190,7 @@ public class MobEditorService extends SessionHolder<MobEditorPayload> {
             }
         }
 
-        try {
-            response.body(MobMapper.mapper().writeValueAsString(container));
-        } catch (JsonProcessingException e) {
-            log.error("Could not serialize mob behaviour.", e);
-            halt(HttpStatus.INTERNAL_SERVER_ERROR_500);
-            return null;
-        }
-        response.status(HttpStatus.OK_200);
-        return response.status();
+        return writeJsonResponse(response, container);
     }
 
     public Object setSetting(Request request, Response response) {
@@ -287,41 +199,32 @@ public class MobEditorService extends SessionHolder<MobEditorPayload> {
 
         var body = request.body();
 
-        try {
-
-            switch (params.toLowerCase(Locale.ROOT)) {
-                case "extension" -> mobSettings.extension(MobMapper.mapper().readValue(body, Extension.class));
-                case "extension.equipment" -> mobSettings.extension().equipment(MobMapper.mapper().readValue(body, Equipment.class));
-                case "equipment" -> mobSettings.equipment(MobMapper.mapper().readValue(body, Equipment.class));
-                case "drops" -> mobSettings.drops(MobMapper.mapper().readValue(body, Drops.class));
-                default -> {
-                    halt(HttpStatus.BAD_REQUEST_400);
-                    return null;
-                }
+        switch (params.toLowerCase(Locale.ROOT)) {
+            case "extension" -> mobSettings.extension(readInput(request, Extension.class));
+            case "extension.equipment" -> mobSettings.extension().equipment(readInput(request, Equipment.class));
+            case "equipment" -> mobSettings.equipment(readInput(request, Equipment.class));
+            case "drops" -> mobSettings.drops(readInput(request, Drops.class));
+            default -> {
+                halt(HttpStatus.BAD_REQUEST_400, "Unkown setting");
+                return null;
             }
-        } catch (JacksonException e) {
-            log.error("Could not deserialize setting.", e);
-            halt(HttpStatus.BAD_REQUEST_400);
         }
 
-        return response.status();
+        return respondCreated(response);
     }
 
     public Object addNode(Request request, Response response) {
         var nodes = getNodes(request, response);
 
-        Node node;
-        try {
-            node = MobMapper.mapper().readValue(request.body(), Node.class);
-        } catch (JsonProcessingException e) {
-            halt(HttpStatus.BAD_REQUEST_400, "Invalid Node Format.");
-            return null;
+        var node = readInput(request, Node.class);
+
+        var chain = nodes.second.get(nodes.first);
+        if (!(chain.getLast() instanceof NodeHolder)) {
+            halt(HttpStatus.NOT_MODIFIED_304, "Chain is closed");
         }
 
-        nodes.second.get(nodes.first).addNode(node);
-        response.status(HttpStatus.OK_200);
-        response.type(MediaType.PLAIN_TEXT_UTF_8.type());
-        return response.status();
+        chain.addNode(node);
+        return respondCreated(response);
     }
 
     public Object createNode(Request request, Response response) {
@@ -333,17 +236,8 @@ public class MobEditorService extends SessionHolder<MobEditorPayload> {
             return null;
         }
 
-        Node node;
-        try {
-            node = MobMapper.mapper().readValue(response.body(), Node.class);
-        } catch (JsonProcessingException e) {
-            halt(HttpStatus.BAD_REQUEST_400, "Invalid Node Format.");
-            return null;
-        }
-        response.body(String.valueOf(mobSettings.behaviour().addNode(nodeType, node)));
-        response.status(HttpStatus.CREATED_201);
-        response.type(MediaType.PLAIN_TEXT_UTF_8.type());
-        return response.body();
+        var node = readInput(request, Node.class);
+        return respondStatus(response, HttpStatus.CREATED_201, String.valueOf(mobSettings.behaviour().addNode(nodeType, node)));
     }
 
     public Object removeLastNode(Request request, Response response) {
@@ -351,14 +245,12 @@ public class MobEditorService extends SessionHolder<MobEditorPayload> {
         var node = nodes.second.get(nodes.first);
 
         if (node.isLast()) {
-            halt(HttpStatus.BAD_REQUEST_400, "The last node cant be removed. Use delete instead.");
+            halt(HttpStatus.NOT_MODIFIED_304, "The last node cant be removed. Use delete instead.");
         }
 
         node.removeLast();
 
-        response.status(HttpStatus.OK_200);
-        response.type(MediaType.JSON_UTF_8.type());
-        return response.body();
+        return respondAccepted(response);
     }
 
     public Object deleteNode(Request request, Response response) {
@@ -366,9 +258,7 @@ public class MobEditorService extends SessionHolder<MobEditorPayload> {
 
         nodes.second.remove(nodes.first);
 
-        response.status(HttpStatus.OK_200);
-        response.type(MediaType.PLAIN_TEXT_UTF_8.type());
-        return response.body();
+        return respondAccepted(response);
     }
 
     public Object nextNodes(Request request, Response response) {
@@ -376,27 +266,13 @@ public class MobEditorService extends SessionHolder<MobEditorPayload> {
         var node = nodes.second.get(nodes.first);
         var availableNodes = NodeRegistry.getAvailableNodes(node, ContextContainerFactory.mock(nodes.third));
         var definitions = availableNodes.stream().map(ClassDefinition::of).collect(Collectors.toList());
-        try {
-            response.body(MobMapper.mapper().writeValueAsString(definitions));
-        } catch (JsonProcessingException e) {
-            log.error("Could not build node definitions.", e);
-            halt(HttpStatus.INTERNAL_SERVER_ERROR_500);
-        }
-        response.type(MediaType.JSON_UTF_8.type());
-        response.status(HttpStatus.OK_200);
-        return response.body();
+        return writeJsonResponse(response, definitions);
     }
 
     public Object getItems(Request request, Response response) {
         var session = getSession(request, response);
         var simpleItems = session.readData(data -> data.settingsContainer().items());
-        try {
-            response.body(MobMapper.mapper().writeValueAsString(simpleItems));
-        } catch (JsonProcessingException e) {
-            halt(HttpStatus.INTERNAL_SERVER_ERROR_500);
-        }
-        response.status(HttpStatus.OK_200);
-        return response.body();
+        return writeJsonResponse(response, simpleItems);
     }
 
     public Object deleteItem(Request request, Response response) {
@@ -411,8 +287,7 @@ public class MobEditorService extends SessionHolder<MobEditorPayload> {
         }
         var removed = session.readData(mobEditorPayload -> mobEditorPayload.settingsContainer().items()
                 .removeIf(item -> item.id() == id));
-        response.status(removed ? HttpStatus.OK_200 : HttpStatus.NOT_MODIFIED_304);
-        return response.status();
+        return respondStatus(response, removed ? HttpStatus.OK_200 : HttpStatus.NOT_MODIFIED_304);
     }
 
     private MobConfiguration getSessionMobSettings(Request request, Response response) {
@@ -437,9 +312,8 @@ public class MobEditorService extends SessionHolder<MobEditorPayload> {
         }
 
         var nodeType = EnumUtil.parse(type, BehaviourNodeType.class);
-        if (nodeType == null) {
-            halt(HttpStatus.BAD_REQUEST_400, "Unknown node type");
-        }
+        if (nodeType == null) halt(HttpStatus.BAD_REQUEST_400, "Unknown node type");
+
         var nodes = mobSettings.behaviour().getNodes(nodeType);
         if (id >= nodes.size() || id < 0) {
             halt(HttpStatus.BAD_REQUEST_400, "Invalid id");
@@ -450,21 +324,110 @@ public class MobEditorService extends SessionHolder<MobEditorPayload> {
     public Object nextTypeNodes(Request request, Response response) {
         var type = request.params(":type");
         var nodeType = EnumUtil.parse(type, BehaviourNodeType.class);
-        if (nodeType == null) {
-            halt(HttpStatus.BAD_REQUEST_400, "Unknown node type");
-        }
+        if (nodeType == null) halt(HttpStatus.BAD_REQUEST_400, "Unknown node type");
 
         var availableNodes = NodeRegistry.getAvailableNodes(nodeType);
 
         var definitions = availableNodes.stream().map(ClassDefinition::of).collect(Collectors.toList());
+        return writeJsonResponse(response, definitions);
+    }
+
+    public Object getEventTypes(Request request, Response response) {
+        var collect = Arrays.stream(BehaviourNodeType.values()).map(Enum::name).collect(Collectors.toList());
+        return writeJsonResponse(response, collect, HttpStatus.OK_200);
+    }
+
+    public Object getChain(Request request, Response response) {
+        var nodes = getNodes(request, response);
+        var chain = nodes.second.get(nodes.first);
+        var collect = chain.getClasses(new HashSet<>()).stream().map(ClassDefinition::of).collect(Collectors.toSet());
+        var container = new NodeChain(chain, collect);
+        return writeJsonResponse(response, container);
+    }
+
+    public Object getNodeType(Request request, Response response) {
+        var type = request.params(":type");
+        List<Class<?>> collect = Collections.emptyList();
+        switch (type.toLowerCase(Locale.ROOT)) {
+            case "node" -> collect = NodeRegistry.nodes();
+            case "predicate" -> collect = NodeRegistry.predicates();
+            default -> halt(HttpStatus.BAD_REQUEST_400, "Invalid node type");
+        }
+
+        return writeJsonResponse(response, ClassDefinition.of(collect));
+    }
+
+    public Object getNodeTypes(Request request, Response response) {
+        Map<String, List<ClassDefinition>> definitions = new HashMap<>();
+        definitions.put(ValueType.NODE.name(), ClassDefinition.of(NodeRegistry.nodes()));
+        definitions.put(ValueType.PREDICATE.name(), ClassDefinition.of(NodeRegistry.predicates()));
+
+        return writeJsonResponse(response, definitions);
+    }
+
+    private Object writeJsonResponse(Response response, Object object) {
+        return writeJsonResponse(response, object, HttpStatus.OK_200);
+    }
+
+    private Object respondStatus(Response response, int status) {
+        return respondStatus(response, status, null);
+    }
+
+    private Object respondStatus(Response response, int status, String message) {
+        response.status(status);
+        response.type(MediaType.PLAIN_TEXT_UTF_8.type());
+        return message == null ? response.status() : message;
+    }
+
+    private <T> T readInput(Request request, Class<T> clazz) {
         try {
-            response.body(MobMapper.mapper().writeValueAsString(definitions));
+            return MobMapper.mapper().readValue(request.body(), clazz);
         } catch (JsonProcessingException e) {
-            log.error("Could not build node definitions.", e);
+            halt(HttpStatus.BAD_REQUEST_400, "Invalid format.");
+        }
+        return null;
+    }
+
+    private Object respondCreated(Response response) {
+        return respondStatus(response, HttpStatus.CREATED_201);
+    }
+
+    private Object respondAccepted(Response response) {
+        return respondStatus(response, HttpStatus.ACCEPTED_202);
+    }
+
+    private Object writeJsonResponse(Response response, Object object, int code) {
+        try {
+            response.body(MobMapper.mapper().writeValueAsString(object));
+        } catch (JsonProcessingException e) {
+            log.error("Could not serialize", e);
             halt(HttpStatus.INTERNAL_SERVER_ERROR_500);
         }
+
         response.type(MediaType.JSON_UTF_8.type());
-        response.status(HttpStatus.OK_200);
+        response.status(code);
         return response.body();
+    }
+
+    public Object removeGlobalDrop(Request request, Response response) {
+        var session = getSession(request, response);
+        var drop = readInput(request, Drop.class);
+        var removed = session.sessionData().settingsContainer().globalDrops().remove(drop);
+        return respondStatus(response, removed ? HttpStatus.ACCEPTED_202 : HttpStatus.NOT_MODIFIED_304);
+    }
+
+    public Object getGlobalDrops(Request request, Response response) {
+        var session = getSession(request, response);
+        return writeJsonResponse(response, session.sessionData().settingsContainer().globalDrops());
+    }
+
+    private static class NodeChain {
+        Node data;
+        Set<ClassDefinition> definitions;
+
+        public NodeChain(Node data, Set<ClassDefinition> definitions) {
+            this.data = data;
+            this.definitions = definitions;
+        }
     }
 }

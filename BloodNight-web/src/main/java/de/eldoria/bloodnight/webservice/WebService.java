@@ -1,6 +1,6 @@
 package de.eldoria.bloodnight.webservice;
 
-import de.eldoria.bloodnight.webservice.modules.MobEditor.MobEditorService;
+import de.eldoria.bloodnight.webservice.modules.mobeditor.MobEditorService;
 
 import static spark.Spark.delete;
 import static spark.Spark.get;
@@ -43,7 +43,7 @@ public class WebService {
         });
 
         path("/v1", () -> {
-            path("/mobEditor", () -> {
+            path("/mobeditor", () -> {
                 post("/submit", mobEditorService::submit);
                 post("/close", mobEditorService::close);
                 get("/retrieve/:token", mobEditorService::retrieve);
@@ -53,7 +53,7 @@ public class WebService {
 
                 get("/moblist", mobEditorService::mobList);
 
-                path("/mobSetting", () -> {
+                path("/mobsetting", () -> {
 
                     get("/:identifier", mobEditorService::getMobSettings);
                     post("/:identifier", mobEditorService::createMobSettings);
@@ -70,12 +70,16 @@ public class WebService {
 
                         path("/behaviour", () -> {
                             path("/node", () -> {
-                                put("/:type/:id", mobEditorService::addNode);
+                                get("/types", mobEditorService::getEventTypes);
+                                get("/nodes/:type", mobEditorService::getNodeType);
+                                get("/nodes", mobEditorService::getNodeTypes);
+                                get("/:type/nextNodes", mobEditorService::nextTypeNodes);
                                 put("/:type", mobEditorService::createNode);
-                                put("/:type/:id/removeLast", mobEditorService::removeLastNode);
+                                put("/:type/:id", mobEditorService::addNode);
+                                delete("/:type/:id/last", mobEditorService::removeLastNode);
                                 delete("/:type/:id", mobEditorService::deleteNode);
                                 get("/:type/:id/nextNodes", mobEditorService::nextNodes);
-                                get("/:type/nextNodes", mobEditorService::nextTypeNodes);
+                                get("/:type/:id", mobEditorService::getChain);
                             });
                         });
                     });
@@ -83,6 +87,8 @@ public class WebService {
 
                 get("/items", mobEditorService::getItems);
                 delete("/items/:id", mobEditorService::deleteItem);
+                get("/globaldrops", mobEditorService::getGlobalDrops);
+                delete("/globaldrops", mobEditorService::removeGlobalDrop);
             });
         });
     }
