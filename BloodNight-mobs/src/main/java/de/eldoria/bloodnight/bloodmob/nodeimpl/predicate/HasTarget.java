@@ -1,6 +1,5 @@
 package de.eldoria.bloodnight.bloodmob.nodeimpl.predicate;
 
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import de.eldoria.bloodnight.bloodmob.IBloodMob;
 import de.eldoria.bloodnight.bloodmob.node.contextcontainer.ContextContainer;
@@ -32,7 +31,7 @@ public class HasTarget implements PredicateNode {
 
     @Override
     public boolean equals(Object obj) {
-        if(obj == null) return false;
+        if (obj == null) return false;
         return obj.getClass() == getClass();
     }
 }

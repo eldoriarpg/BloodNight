@@ -14,7 +14,6 @@ import java.util.Map;
 
 @NoArgsConstructor
 public class MoveToLocation extends MapperNode {
-    private static final ContextType<?>[] REQUIRED = new ContextType[]{ContextType.MOVE};
     @Property(name = "", descr = "")
     private LocationSource source = LocationSource.OLD;
 

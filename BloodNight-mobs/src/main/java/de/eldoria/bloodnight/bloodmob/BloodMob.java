@@ -2,6 +2,8 @@ package de.eldoria.bloodnight.bloodmob;
 
 import de.eldoria.bloodnight.bloodmob.registry.items.ItemRegistry;
 import de.eldoria.bloodnight.bloodmob.settings.*;
+import de.eldoria.bloodnight.bloodmob.settings.mobsettings.BloodMobType;
+import de.eldoria.bloodnight.bloodmob.settings.mobsettings.TypeSetting;
 import de.eldoria.bloodnight.bloodmob.utils.BloodMobUtil;
 import de.eldoria.bloodnight.core.ABloodNight;
 import de.eldoria.eldoutilities.core.EldoUtilities;
@@ -44,8 +46,10 @@ public class BloodMob implements IBloodMob {
         // flag with special mob type
         BloodMobUtil.setSpecialMobType(base, mobConfiguration.identifier());
         // set display name
-        Optional<String> optDisplayName = mobConfiguration.getName(base.getType());
-        String name = optDisplayName.orElse(ILocalizer.getPluginLocalizer(ABloodNight.class).getMessage("mob." + mobConfiguration.identifier() + "." + base.getType()));
+        Optional<BloodMobType> bloodMobType = BloodMobType.fromEntityType(base.getType());
+        if(!bloodMobType.isPresent()) return null;
+        TypeSetting typeSetting = mobConfiguration.wrapTypes().get(bloodMobType.get());
+        String name = typeSetting.name();
         base.setCustomName(name);
         base.setCustomNameVisible(mobSettings.isdisplayMobNames());
         Equipment equipment = mobConfiguration.equipment();
@@ -84,9 +88,9 @@ public class BloodMob implements IBloodMob {
     private static Mob addExtension(Mob base, Extension ext) {
         switch (ext.extensionRole()) {
             case CARRIER:
-                return BloodMobUtil.spawnAndMount(ext.extensionType(), base);
+                return BloodMobUtil.spawnAndMount(ext.extensionType().entityType(), base);
             case PASSENGER:
-                return BloodMobUtil.spawnAndMount(base, ext.extensionType());
+                return BloodMobUtil.spawnAndMount(base, ext.extensionType().entityType());
             default:
                 throw new IllegalStateException("Unexpected value: " + ext.extensionRole());
         }

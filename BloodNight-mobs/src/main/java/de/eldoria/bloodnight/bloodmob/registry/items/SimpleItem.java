@@ -1,5 +1,10 @@
 package de.eldoria.bloodnight.bloodmob.registry.items;
 
+import de.eldoria.bloodnight.bloodmob.serialization.annotation.MapProperty;
+import de.eldoria.bloodnight.bloodmob.serialization.annotation.NumberProperty;
+import de.eldoria.bloodnight.bloodmob.serialization.annotation.Property;
+import de.eldoria.bloodnight.bloodmob.serialization.annotation.StringProperty;
+import de.eldoria.bloodnight.bloodmob.serialization.value.ValueType;
 import de.eldoria.eldoutilities.container.Pair;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -9,33 +14,38 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
  * Simplified item without usage of the bukkit api.
  */
 public class SimpleItem {
+    @NumberProperty(name = "", descr = "", max = Integer.MAX_VALUE)
     private int id;
-    private Material type;
-    private Map<String, Integer> something;
+    @StringProperty(name = "", descr = "")
+    private String type;
+    @MapProperty(name = "", descr = "", key = ValueType.STRING, value = ValueType.NUMBER)
+    private Map<String, Integer> enchantment;
+    @Property(name = "", descr = "")
     private List<String> lore;
+    @StringProperty(name = "", descr = "")
     private String displayName;
 
     public SimpleItem() {
     }
 
-    public SimpleItem(int id, @NotNull Material type, @NotNull Map<String, Integer> something,
+    public SimpleItem(int id, @NotNull Material type, @NotNull Map<String, Integer> enchantments,
                       @NotNull List<String> lore, String displayName) {
         this.id = id;
-        this.type = type;
-        this.something = something;
+        this.type = type.name();
+        this.enchantment = enchantments;
         this.lore = lore;
         this.displayName = displayName;
     }
 
     public static SimpleItem from(int id, ItemStack stack) {
         Material type = stack.getType();
-        int amount = stack.getAmount();
         ItemMeta itemMeta = stack.getItemMeta();
 
         Map<String, Integer> enchantments = stack.getEnchantments()
@@ -57,11 +67,11 @@ public class SimpleItem {
     }
 
     public Material type() {
-        return type;
+        return Material.valueOf(type);
     }
 
     public Map<String, Integer> enchantments() {
-        return something;
+        return enchantment;
     }
 
     public List<String> lore() {
@@ -82,16 +92,16 @@ public class SimpleItem {
 
         if (id != that.id) return false;
         if (type != that.type) return false;
-        if (something != null ? !something.equals(that.something) : that.something != null) return false;
-        if (lore != null ? !lore.equals(that.lore) : that.lore != null) return false;
-        return displayName != null ? displayName.equals(that.displayName) : that.displayName == null;
+        if (!Objects.equals(enchantment, that.enchantment)) return false;
+        if (!Objects.equals(lore, that.lore)) return false;
+        return Objects.equals(displayName, that.displayName);
     }
 
     @Override
     public int hashCode() {
         int result = id;
         result = 31 * result + (type != null ? type.hashCode() : 0);
-        result = 31 * result + (something != null ? something.hashCode() : 0);
+        result = 31 * result + (enchantment != null ? enchantment.hashCode() : 0);
         result = 31 * result + (lore != null ? lore.hashCode() : 0);
         result = 31 * result + (displayName != null ? displayName.hashCode() : 0);
         return result;

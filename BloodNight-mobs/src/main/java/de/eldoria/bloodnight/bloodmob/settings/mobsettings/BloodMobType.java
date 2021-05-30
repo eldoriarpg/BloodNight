@@ -6,6 +6,8 @@ import de.eldoria.bloodnight.bloodmob.settings.mobsettings.setting.RabbitSetting
 import de.eldoria.bloodnight.bloodmob.settings.mobsettings.setting.SlimeSetting;
 import org.bukkit.entity.EntityType;
 
+import java.util.Optional;
+
 public enum BloodMobType {
     BAT(EntityType.BAT, TypeSetting.class),
     BLAZE(EntityType.BLAZE, TypeSetting.class),
@@ -57,5 +59,10 @@ public enum BloodMobType {
 
     public Class<? extends TypeSetting> typeSettingClazz() {
         return typeSettingClazz;
+    }
+
+    public static Optional<BloodMobType> fromEntityType(EntityType entityType) {
+        for (BloodMobType value : values()) if (value.entityType == entityType) return Optional.of(value);
+        return Optional.empty();
     }
 }

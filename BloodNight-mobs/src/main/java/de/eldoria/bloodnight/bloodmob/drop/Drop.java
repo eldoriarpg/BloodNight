@@ -1,5 +1,6 @@
 package de.eldoria.bloodnight.bloodmob.drop;
 
+import de.eldoria.bloodnight.bloodmob.serialization.annotation.ItemProperty;
 import de.eldoria.bloodnight.bloodmob.serialization.annotation.NumberProperty;
 import de.eldoria.bloodnight.bloodmob.serialization.annotation.Property;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
@@ -14,7 +15,7 @@ import java.util.Map;
 @Getter
 @SerializableAs("bloodNightDrop")
 public class Drop implements ConfigurationSerializable, IDrop {
-    @Property(name = "", descr = "")
+    @ItemProperty(name = "", descr = "")
     private int itemId;
     @NumberProperty(name = "", descr = "", max = 64)
     private int amount;
@@ -42,7 +43,7 @@ public class Drop implements ConfigurationSerializable, IDrop {
     }
 
 
-    public int item() {
+    public int itemId() {
         return itemId;
     }
 

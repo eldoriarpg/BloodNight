@@ -1,9 +1,27 @@
 package de.eldoria.bloodnight.bloodmob.serialization;
 
+import de.eldoria.bloodnight.bloodmob.node.Node;
 import de.eldoria.bloodnight.bloodmob.node.predicate.PredicateNode;
-import de.eldoria.bloodnight.bloodmob.serialization.annotation.*;
-import de.eldoria.bloodnight.bloodmob.serialization.value.*;
-import de.eldoria.bloodnight.bloodmob.settings.*;
+import de.eldoria.bloodnight.bloodmob.serialization.annotation.EnumLikeProperty;
+import de.eldoria.bloodnight.bloodmob.serialization.annotation.ItemProperty;
+import de.eldoria.bloodnight.bloodmob.serialization.annotation.MapProperty;
+import de.eldoria.bloodnight.bloodmob.serialization.annotation.MultiListProperty;
+import de.eldoria.bloodnight.bloodmob.serialization.annotation.NumberProperty;
+import de.eldoria.bloodnight.bloodmob.serialization.annotation.NumericProperty;
+import de.eldoria.bloodnight.bloodmob.serialization.annotation.Property;
+import de.eldoria.bloodnight.bloodmob.serialization.annotation.StringProperty;
+import de.eldoria.bloodnight.bloodmob.serialization.value.MapValueEntry;
+import de.eldoria.bloodnight.bloodmob.serialization.value.SimpleValue;
+import de.eldoria.bloodnight.bloodmob.serialization.value.Value;
+import de.eldoria.bloodnight.bloodmob.serialization.value.ValueProperties;
+import de.eldoria.bloodnight.bloodmob.serialization.value.ValueType;
+import de.eldoria.bloodnight.bloodmob.settings.Behaviour;
+import de.eldoria.bloodnight.bloodmob.settings.Drops;
+import de.eldoria.bloodnight.bloodmob.settings.Equipment;
+import de.eldoria.bloodnight.bloodmob.settings.Extension;
+import de.eldoria.bloodnight.bloodmob.settings.Stats;
+import de.eldoria.eldoutilities.container.Pair;
+import de.eldoria.eldoutilities.utils.ReflectionUtil;
 import org.bukkit.Color;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
@@ -11,7 +29,11 @@ import org.bukkit.potion.PotionEffectType;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class PropertyGenerator {
@@ -33,7 +55,7 @@ public class PropertyGenerator {
     }
 
     public static <T> List<SimpleValue> generateValues(Class<T> clazz) {
-        Field[] declaredFields = clazz.getDeclaredFields();
+        Field[] declaredFields = ReflectionUtil.getAllFields(clazz);
         List<SimpleValue> values = new ArrayList<>();
         for (Field declaredField : declaredFields) {
             if (declaredField.isAnnotationPresent(Property.class)) {
@@ -57,8 +79,27 @@ public class PropertyGenerator {
             if (declaredField.isAnnotationPresent((MapProperty.class))) {
                 values.add(buildMapProperty(declaredField));
             }
+            if (declaredField.isAnnotationPresent((ItemProperty.class))) {
+                values.add(buildItemProperty(declaredField));
+            }
         }
         return values;
+    }
+
+    public static <T> Pair<String, String> getClassProperty(Class<T> clazz) {
+        if (clazz.isAnnotationPresent(Property.class)) {
+            Property annotation = clazz.getAnnotation(Property.class);
+            return Pair.of(annotation.name(), annotation.descr());
+        }
+        return Pair.of(null, null);
+    }
+
+    private static SimpleValue buildItemProperty(Field field) {
+        ItemProperty annotation = field.getAnnotation(ItemProperty.class);
+        String id = field.getName();
+        String name = annotation.name();
+        String descr = annotation.descr();
+        return new SimpleValue(id, name, descr, ValueType.ITEM);
     }
 
     private static SimpleValue buildMultiListProperty(Field field) {
@@ -194,6 +235,13 @@ public class PropertyGenerator {
         // Behaviour
         if (field.getType().equals(Behaviour.class)) {
             return new SimpleValue(id, name, descr, ValueType.BEHAVIOUR);
+        }
+        if (field.getType().equals(List.class)) {
+            Class<?> type = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+            return new Value<>(id, name, descr, ValueType.LIST, generateValues(type));
+        }
+        if (field.getType().equals(Node.class)) {
+            return new SimpleValue(id, name, descr, ValueType.NODE);
         }
         throw new IllegalArgumentException("Field " + field.getDeclaringClass().getName() + "#" + field.getName() + " is can not be converted.");
     }

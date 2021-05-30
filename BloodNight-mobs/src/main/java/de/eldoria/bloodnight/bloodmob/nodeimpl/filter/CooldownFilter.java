@@ -1,6 +1,7 @@
 package de.eldoria.bloodnight.bloodmob.nodeimpl.filter;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import de.eldoria.bloodnight.bloodmob.IBloodMob;
 import de.eldoria.bloodnight.bloodmob.node.Node;
 import de.eldoria.bloodnight.bloodmob.node.contextcontainer.ContextContainer;
@@ -19,6 +20,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
 @NoArgsConstructor
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "clazz")
 public class CooldownFilter extends FilterNode {
     @Property(name = "", descr = "")
     private Duration duration;

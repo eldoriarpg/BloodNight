@@ -1,5 +1,6 @@
 package de.eldoria.bloodnight.bloodmob.settings;
 
+import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import de.eldoria.bloodnight.bloodmob.serialization.annotation.NumberProperty;
 import de.eldoria.bloodnight.bloodmob.serialization.annotation.Property;
 import de.eldoria.bloodnight.config.ConfigCheck;
@@ -17,14 +18,12 @@ public class Drops implements ConfigCheck {
     /**
      * Min amount of drops.
      */
-    @Setter
     @NumberProperty(name = "", descr = "", min = -1, max = 64)
     private int minDrops = -1;
 
     /**
      * Max amount of drops.
      */
-    @Setter
     @NumberProperty(name = "", descr = "", min = -1, max = 64)
     private int maxDrops = -1;
 
@@ -32,14 +31,13 @@ public class Drops implements ConfigCheck {
      * If this is true only drops from mobs are choosen and default drops will not drop. if false the drops will be
      * added to default drops.
      */
-    @Setter
     @Property(name = "", descr = "")
-    private boolean overrideDefaultDrops = false;
+    private boolean overrideDefaultDrops;
 
     /**
      * The drops of this mob.
      */
-    @Setter
+    @Property(name = "", descr = "")
     private List<Drop> drops = new ArrayList<>();
 
     @Override

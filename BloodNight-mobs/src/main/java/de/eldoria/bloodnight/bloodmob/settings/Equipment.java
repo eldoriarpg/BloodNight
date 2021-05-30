@@ -2,6 +2,8 @@ package de.eldoria.bloodnight.bloodmob.settings;
 
 import de.eldoria.bloodnight.bloodmob.registry.items.ItemRegistry;
 import de.eldoria.bloodnight.bloodmob.registry.items.SimpleItem;
+import de.eldoria.bloodnight.bloodmob.serialization.annotation.ItemProperty;
+import de.eldoria.bloodnight.bloodmob.serialization.annotation.NumberProperty;
 import de.eldoria.bloodnight.bloodmob.serialization.annotation.Property;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
@@ -14,17 +16,17 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 
 public class Equipment implements ConfigurationSerializable {
-    @Property(name = "", descr = "")
+    @ItemProperty(name = "", descr = "")
     private int mainHand = -1;
-    @Property(name = "", descr = "")
+    @ItemProperty(name = "", descr = "")
     private int offHand = -1;
-    @Property(name = "", descr = "")
+    @ItemProperty(name = "", descr = "")
     private int helmet = -1;
-    @Property(name = "", descr = "")
+    @ItemProperty(name = "", descr = "")
     private int chestplate = -1;
-    @Property(name = "", descr = "")
+    @ItemProperty(name = "", descr = "")
     private int leggings = -1;
-    @Property(name = "", descr = "")
+    @ItemProperty(name = "", descr = "")
     private int boots = -1;
 
     public Equipment() {

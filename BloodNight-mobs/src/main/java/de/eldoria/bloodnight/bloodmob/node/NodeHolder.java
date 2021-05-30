@@ -1,6 +1,8 @@
 package de.eldoria.bloodnight.bloodmob.node;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import de.eldoria.bloodnight.bloodmob.node.contextcontainer.ContextContainer;
+import de.eldoria.bloodnight.bloodmob.serialization.annotation.Property;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -10,8 +12,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 import java.util.Set;
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "clazz")
 public abstract class NodeHolder implements Node, ConfigurationSerializable {
     @Nullable
+    @Property(name = "", descr = "")
     private Node nextNode;
 
     public NodeHolder(Node nextNode) {

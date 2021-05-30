@@ -1,6 +1,7 @@
 package de.eldoria.bloodnight.bloodmob.serialization.value;
 
 import de.eldoria.bloodnight.bloodmob.drop.Drop;
+import de.eldoria.bloodnight.bloodmob.node.Node;
 import de.eldoria.bloodnight.bloodmob.node.predicate.PredicateNode;
 import de.eldoria.bloodnight.bloodmob.registry.items.SimpleItem;
 import de.eldoria.bloodnight.bloodmob.settings.Behaviour;
@@ -30,7 +31,8 @@ public enum ValueType {
     DROP(Drop.class),
     BEHAVIOUR(Behaviour.class),
     // custom objects
-    PREDICATE(PredicateNode.class);
+    PREDICATE(PredicateNode.class),
+    NODE(Node.class);
 
     private final Class<?> clazz;
 

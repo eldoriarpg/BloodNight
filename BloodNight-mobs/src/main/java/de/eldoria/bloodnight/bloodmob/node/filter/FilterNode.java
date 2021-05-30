@@ -1,5 +1,6 @@
 package de.eldoria.bloodnight.bloodmob.node.filter;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import de.eldoria.bloodnight.bloodmob.IBloodMob;
 import de.eldoria.bloodnight.bloodmob.node.Node;
 import de.eldoria.bloodnight.bloodmob.node.NodeHolder;
@@ -8,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.Map;
 
-@NoArgsConstructor
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "clazz")
 public abstract class FilterNode extends NodeHolder {
     public FilterNode(Node node) {
         super(node);
@@ -16,6 +17,9 @@ public abstract class FilterNode extends NodeHolder {
 
     public FilterNode(Map<String, Object> objectMap) {
         super(objectMap);
+    }
+
+    public FilterNode() {
     }
 
     public abstract boolean check(IBloodMob mob, ContextContainer context);

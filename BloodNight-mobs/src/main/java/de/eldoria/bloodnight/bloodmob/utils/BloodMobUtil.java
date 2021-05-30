@@ -1,7 +1,7 @@
 package de.eldoria.bloodnight.bloodmob.utils;
 
+import de.eldoria.bloodnight.bloodmob.settings.util.ShockwaveSettings;
 import de.eldoria.bloodnight.config.ILightningSettings;
-import de.eldoria.bloodnight.config.IShockwaveSettings;
 import de.eldoria.bloodnight.core.ABloodNight;
 import de.eldoria.eldoutilities.serialization.TypeConversion;
 import de.eldoria.eldoutilities.utils.EMath;
@@ -347,7 +347,7 @@ public final class BloodMobUtil {
      * @param settings shockwave settings
      * @param location location of shockwave
      */
-    public static void dispatchShockwave(IShockwaveSettings settings, Location location) {
+    public static void dispatchShockwave(ShockwaveSettings settings, Location location) {
         if (settings.getShockwaveProbability() < ThreadLocalRandom.current().nextInt(101)
                 || settings.getShockwaveProbability() == 0) return;
 

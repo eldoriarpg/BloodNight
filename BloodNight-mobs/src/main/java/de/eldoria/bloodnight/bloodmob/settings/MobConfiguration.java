@@ -18,10 +18,11 @@ import java.util.Objects;
 public class MobConfiguration implements ConfigCheck<Object> {
     @StringProperty(name = "", descr = "", pattern = "^[a-z_]+$")
     String identifier;
-    @MapProperty(name = "", descr = "", key = ValueType.LIST, value = ValueType.STRING)
+    // TODO implement type settings
+    @MapProperty(name = "", descr = "", key = ValueType.STRING, value = ValueType.STRING)
     Map<BloodMobType, TypeSetting> wrapTypes = new HashMap<>();
     @Property(name = "", descr = "")
-    Extension extension = null;
+    Extension extension;
     @Property(name = "", descr = "")
     Stats stats = new Stats();
     @Property(name = "", descr = "")

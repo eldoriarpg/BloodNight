@@ -1,6 +1,7 @@
 package de.eldoria.bloodnight.bloodmob.settings;
 
 import de.eldoria.bloodnight.bloodmob.serialization.annotation.Property;
+import de.eldoria.bloodnight.bloodmob.settings.mobsettings.BloodMobType;
 import de.eldoria.bloodnight.config.ConfigCheck;
 import de.eldoria.bloodnight.config.ConfigException;
 import org.bukkit.entity.EntityType;
@@ -10,7 +11,7 @@ import java.util.Objects;
 
 public class Extension implements ConfigCheck {
     @Property(name = "", descr = "")
-    EntityType extensionType = null;
+    BloodMobType extensionType = null;
     @Property(name = "", descr = "")
     ExtensionRole extensionRole = null;
     @Property(name = "", descr = "")
@@ -30,16 +31,16 @@ public class Extension implements ConfigCheck {
         if (extensionType != null && extensionRole == null) {
             throw new ConfigException("Extension type is set, but no extension role is present.");
         }
-        if (extensionType != null && !extensionType.getEntityClass().isInstance(Mob.class)) {
-            throw new ConfigException(extensionType.getEntityClass().getSimpleName() + " is not a mob.");
+        if (extensionType != null && !extensionType.entityType().getEntityClass().isInstance(Mob.class)) {
+            throw new ConfigException(extensionType.entityType().getEntityClass().getSimpleName() + " is not a mob.");
         }
     }
 
-    public EntityType extensionType() {
+    public BloodMobType extensionType() {
         return extensionType;
     }
 
-    public void extensionType(EntityType extensionType) {
+    public void extensionType(BloodMobType extensionType) {
         this.extensionType = extensionType;
     }
 

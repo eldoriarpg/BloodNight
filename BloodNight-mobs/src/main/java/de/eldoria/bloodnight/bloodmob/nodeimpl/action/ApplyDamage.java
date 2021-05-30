@@ -6,6 +6,7 @@ import de.eldoria.bloodnight.bloodmob.node.annotations.RequiresContext;
 import de.eldoria.bloodnight.bloodmob.node.context.ILivingEntityContext;
 import de.eldoria.bloodnight.bloodmob.node.contextcontainer.ContextContainer;
 import de.eldoria.bloodnight.bloodmob.node.contextcontainer.ContextType;
+import de.eldoria.bloodnight.bloodmob.serialization.annotation.Property;
 import lombok.NoArgsConstructor;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -15,6 +16,7 @@ import java.util.Map;
 
 @NoArgsConstructor
 @RequiresContext(ILivingEntityContext.class)
+@Property(name = "", descr = "")
 public class ApplyDamage implements Node {
 
     @Override
