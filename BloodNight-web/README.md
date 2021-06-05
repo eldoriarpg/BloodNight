@@ -15,7 +15,7 @@ In order to start working with the mob editor api you need to open a session. Th
 ### Open Session
 
 ```
-POST /v1/mobEditor/submit
+POST /v1/mobeditor/submit
 ```
 
 Open a session.
@@ -33,7 +33,7 @@ From now on all request have to be made with the access token in a `token` heade
 <details>
 <summary>Example</summary>
 
-`POST /v1/mobEditor/submit`
+`POST /v1/mobeditor/submit`
 
 ```json
 {
@@ -199,7 +199,7 @@ From now on all request have to be made with the access token in a `token` heade
 ### Close a session
 
 ```
-POST /v1/mobEditor/close
+POST /v1/mobeditor/close
 ```
 
 Close the current session.
@@ -212,10 +212,10 @@ Data of a closed session will be deleted 30 minutes after the last access.
 ### Retrieve Data
 
 ```
-GET /v1/mobEditor/retrieve/:token
+GET /v1/mobeditor/retrieve/:token
 ```
 
-Retrieve the settings from the web server. The `:token` has to be the token returned by the `/v1/mobEditor/close`
+Retrieve the settings from the web server. The `:token` has to be the token returned by the `/v1/mobeditor/close`
 endpoint.
 
 ## Types
@@ -225,7 +225,7 @@ The api uses specific types for fields.
 ### Typelist
 
 ```
-GET /v1/mobEditor/types
+GET /v1/mobeditor/types
 ```
 
 Returns all available types including a class description if available.
@@ -522,7 +522,7 @@ If no class description is available the value will be null.
 ### Type
 
 ```
-GET /v1/mobEditor/type/:type
+GET /v1/mobeditor/type/:type
 ```
 
 Returns the class description of the type if available.
@@ -538,7 +538,7 @@ If no class description is available the value will be `null`.
 ## Moblist
 
 ```
-GET /v1/mobEditor/moblist
+GET /v1/mobeditor/moblist
 ```
 
 Returns a list of identifiers of all available mobs
@@ -548,7 +548,7 @@ Returns a list of identifiers of all available mobs
 Mobs can be created, retreived or deleted by the `mobSettings` endpoint:
 
 ```
-/v1/mobEditor/mobSettings/:identifier
+/v1/mobeditor/mobsettings/:identifier
 ```
 
 The `:identifier` is the identifier of the mob.
@@ -556,7 +556,7 @@ The `:identifier` is the identifier of the mob.
 ### Retrieve Mob Settings
 
 ```
-GET /v1/mobEditor/mobSettings/:identifier
+GET /v1/mobeditor/mobsettings/:identifier
 ```
 
 Retrieve the mob settings. Probably not needed. Use the more specific endpoint if possible.
@@ -564,7 +564,7 @@ Retrieve the mob settings. Probably not needed. Use the more specific endpoint i
 ### Create Mob Setting
 
 ```
-POST /v1/mobEditor/mobSettings/:identifier
+POST /v1/mobeditor/mobsettings/:identifier
 ```
 
 Create a new mob with a identifier.
@@ -574,7 +574,7 @@ Returns `201` if the mob was created.
 ### Delete Mob Setting
 
 ```
-DELETE /v1/mobEditor/mobSettings/:identifier
+DELETE /v1/mobeditor/mobsettings/:identifier
 ```
 
 Deletes the mob with a identifier.
@@ -586,7 +586,7 @@ Returns `202` if the mob was deleted.
 All changes for a specific mob start at this endpoint
 
 ```
-/v1/mobEditor/mobSettings/:identifier
+/v1/mobeditor/mobsettings/:identifier
 ```
 
 ### Define mob wrapper types
@@ -596,7 +596,7 @@ Wrap types define which mobs types can be wrapped to this mob.
 #### Get available types
 
 ```
-GET /v1/mobEditor/mobSettings/:identifier/wraptypes/available
+GET /v1/mobeditor/mobsettings/:identifier/wraptypes/available
 ```
 
 Returns all available wrap types, which are not already present as wrap type.
@@ -614,7 +614,7 @@ These types contain a class description for the wrapper type.
 #### Get set types
 
 ```
-GET /v1/mobEditor/mobSettings/:identifier/wraptypes/available
+GET /v1/mobeditor/mobsettings/:identifier/wraptypes/available
 ```
 
 Returns all wrap types which are set alreay. They will be returned as a `DataDescriptionContainer`
@@ -635,7 +635,7 @@ Returns all wrap types which are set alreay. They will be returned as a `DataDes
 #### Delete wrapp type
 
 ```
-DELETE /v1/mobEditor/mobSettings/:identifier/wraptypes/:type
+DELETE /v1/mobeditor/mobsettings/:identifier/wraptypes/:type
 ```
 
 Delete the wrapper type. Returns `202` if the wrapper type was deleted.
@@ -643,7 +643,7 @@ Delete the wrapper type. Returns `202` if the wrapper type was deleted.
 #### Add wrap type
 
 ```
-PUT /v1/mobEditor/mobSettings/:identifier/wraptypes/:type
+PUT /v1/mobeditor/mobsettings/:identifier/wraptypes/:type
 ```
 
 Add a new wrap type. Can override currently existing types.
@@ -678,7 +678,7 @@ Changes on the behaviour system have an own endpoint.
 #### Get the current settings
 
 ```
-GET /v1/mobEditor/mobSettings/:identifier/settings/:setting
+GET /v1/mobeditor/mobsettings/:identifier/settings/:setting
 ```
 
 Get the current setting of a setting and the description of the setting.
@@ -749,7 +749,7 @@ Get the current setting of a setting and the description of the setting.
 #### Set the settings
 
 ```
-PUT /v1/mobEditor/mobSettings/:identifier/settings/:setting
+PUT /v1/mobeditor/mobsettings/:identifier/settings/:setting
 ```
 
 Set the current setting of a setting.
@@ -780,7 +780,7 @@ The setting should be of the format like descriped by the data description provi
 The behaviour system is defined at the endpoint:
 
 ```
-/v1/mobEditor/mobSettings/:identifier/behaviour/node/:type
+/v1/mobeditor/mobsettings/:identifier/behaviour/node/:type
 ```
 
 Nodes are sorted by types. Each type has a list of node chains. A node chain can be accessed by its index.
@@ -788,13 +788,13 @@ Nodes are sorted by types. Each type has a list of node chains. A node chain can
 ### Get next Nodes
 
 ```
-GET /v1/mobEditor/mobSettings/:identifier/behaviour/node/:type/nextNodes
+GET /v1/mobeditor/mobsettings/:identifier/behaviour/node/:type/nextNodes
 ```
 
 Returns possible nodes for this specific type as class description
 
 ```
-GET /v1/mobEditor/mobSettings/:identifier/behaviour/node/:type/:id/nextNodes
+GET /v1/mobeditor/mobsettings/:identifier/behaviour/node/:type/:id/nextNodes
 ```
 
 Returns possible nodes for the node chain with `id` of `type` as class description
@@ -802,7 +802,7 @@ Returns possible nodes for the node chain with `id` of `type` as class descripti
 ### Add node
 
 ```
-PUT /v1/mobEditor/mobSettings/:identifier/behaviour/node/:type/:id
+PUT /v1/mobeditor/mobsettings/:identifier/behaviour/node/:type/:id
 ```
 
 Add a new node to the node chain
@@ -830,7 +830,7 @@ Returns 304 if the chain is already closed.
 ### Create node
 
 ```
-PUT /v1/mobEditor/mobSettings/:identifier/behaviour/node/:type
+PUT /v1/mobeditor/mobsettings/:identifier/behaviour/node/:type
 ```
 
 Create a new node chain with a type.
@@ -855,7 +855,7 @@ Returns 201 and the id of the created chain
 ### Remove last node
 
 ```
-DELETE /v1/mobEditor/mobSettings/:identifier/behaviour/node/:type/:id/last
+DELETE /v1/mobeditor/mobsettings/:identifier/behaviour/node/:type/:id/last
 ```
 
 Removes the last node in a chain. The last node cant be removed. Delete the chain instead
@@ -863,7 +863,7 @@ Removes the last node in a chain. The last node cant be removed. Delete the chai
 ### Delete node chain
 
 ```
-DELETE /v1/mobEditor/mobSettings/:identifier/behaviour/node/:type/:id
+DELETE /v1/mobeditor/mobsettings/:identifier/behaviour/node/:type/:id
 ```
 
 Delete the node chain.
