@@ -1,9 +1,15 @@
 package de.eldoria.bloodnight.webservice;
 
 import de.eldoria.bloodnight.webservice.modules.mobeditor.MobEditorService;
+import org.slf4j.Logger;
 
+import java.util.stream.Collectors;
+
+import static org.slf4j.LoggerFactory.getLogger;
+import static spark.Spark.before;
 import static spark.Spark.delete;
 import static spark.Spark.get;
+import static spark.Spark.halt;
 import static spark.Spark.ipAddress;
 import static spark.Spark.options;
 import static spark.Spark.path;
@@ -14,6 +20,8 @@ import static spark.Spark.put;
 public class WebService {
     private static WebService instance;
     private final MobEditorService mobEditorService = new MobEditorService();
+
+    private static final Logger log = getLogger(WebService.class);
 
     public static void main(String[] args) {
         WebService.instance = new WebService();
@@ -41,6 +49,18 @@ public class WebService {
 
             return "OK";
         });
+
+        before((request, response) -> {
+            log.trace("Received request on route: {} {}\nHeaders:\n{}\nBody:\n{}",
+                    request.requestMethod() + " " + request.uri(),
+                    request.queryString(),
+                    request.headers().stream().map(h -> "   " + h + ": " + request.headers(h))
+                            .collect(Collectors.joining("\n")),
+                    request.body().substring(0, Math.min(request.body().length(), 180)));
+            response.header("Access-Control-Allow-Origin", "*");
+            response.header("Access-Control-Allow-Headers", "*");
+        });
+
 
         path("/v1", () -> {
             path("/mobeditor", () -> {

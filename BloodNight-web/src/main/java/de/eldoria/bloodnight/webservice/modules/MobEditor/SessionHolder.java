@@ -25,4 +25,8 @@ public class SessionHolder<T> {
     public Session<T> closeSession(Session<T> session) {
         return sessionService.closeSession(session);
     }
+
+    public SessionService<T> sessionService() {
+        return sessionService;
+    }
 }

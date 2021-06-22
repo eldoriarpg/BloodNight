@@ -61,4 +61,8 @@ public class SessionService<T> implements Runnable {
         openSessions.entrySet().removeIf(next -> next.getValue().lastActive().isBefore(Instant.now().minus(60, ChronoUnit.MINUTES)));
         closedSessions.entrySet().removeIf(next -> next.getValue().lastActive().isBefore(Instant.now().minus(30, ChronoUnit.MINUTES)));
     }
+
+    public void forceSession(String token, Session<T> session) {
+        openSessions.put(token, session);
+    }
 }
