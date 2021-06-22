@@ -4,7 +4,7 @@ import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSetting;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSettings;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.specialmobs.SpecialMob;
-import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
+import de.eldoria.bloodnight.bloodmob.utils.BloodMobUtil;
 import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.utils.AttributeUtil;
 import lombok.Getter;
@@ -28,7 +28,7 @@ public final class MobFactory {
     }
 
     public SpecialMob<?> wrap(LivingEntity entity, MobSettings mobSettings, MobSetting mobSetting) {
-        SpecialMobUtil.tagSpecialMob(entity);
+        BloodMobUtil.tagSpecialMob(entity);
         applySettings(entity, mobSettings, mobSetting);
         return factory.apply(entity);
     }
@@ -38,7 +38,7 @@ public final class MobFactory {
         AttributeUtil.setAttributeValue(entity, damage.getAttribute(), Math.min(mobSetting.applyDamage(damage.getValue(), mobSettings.getDamageMultiplier()), 2048));
         AttributeInstance health = entity.getAttribute(Attribute.GENERIC_MAX_HEALTH);
         AttributeUtil.setAttributeValue(entity, health.getAttribute(), Math.min(mobSetting.applyHealth(health.getValue(), mobSettings.getHealthModifier()), 2048));
-        SpecialMobUtil.setSpecialMobType(entity, mobSetting.getMobName());
+        BloodMobUtil.setSpecialMobType(entity, mobSetting.getMobName());
         entity.setHealth(health.getValue());
         String displayName = mobSetting.getDisplayName();
         if (displayName.trim().isEmpty()) {

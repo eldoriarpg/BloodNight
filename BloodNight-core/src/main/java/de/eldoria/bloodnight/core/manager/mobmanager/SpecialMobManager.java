@@ -1,5 +1,6 @@
 package de.eldoria.bloodnight.core.manager.mobmanager;
 
+import de.eldoria.bloodnight.bloodmob.utils.BloodMobUtil;
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSetting;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSettings;
@@ -9,7 +10,6 @@ import de.eldoria.bloodnight.core.mobfactory.MobFactory;
 import de.eldoria.bloodnight.events.BloodNightEndEvent;
 import de.eldoria.bloodnight.hooks.mythicmobs.MythicMobUtil;
 import de.eldoria.bloodnight.specialmobs.SpecialMob;
-import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
 import de.eldoria.eldoutilities.entityutils.ProjectileSender;
 import de.eldoria.eldoutilities.entityutils.ProjectileUtil;
 import de.eldoria.eldoutilities.threading.IteratingTask;
@@ -42,7 +42,7 @@ public class SpecialMobManager extends BukkitRunnable implements Listener {
         if (!(entity instanceof LivingEntity)) return;
 
         // I will not try to wrap a special or mythic mob
-        if (SpecialMobUtil.isSpecialMob(entity)) return;
+        if (BloodMobUtil.isSpecialMob(entity)) return;
         if (MythicMobUtil.isMythicMob(entity)) return;
 
         MobSettings mobSettings = configuration.getWorldSettings(entity.getWorld().getName()).getMobSettings();
@@ -103,9 +103,9 @@ public class SpecialMobManager extends BukkitRunnable implements Listener {
 
     @EventHandler
     public void onDeath(EntityDeathEvent event) {
-        if (SpecialMobUtil.isSpecialMob(event.getEntity())) {
-            if (SpecialMobUtil.isExtension(event.getEntity())) {
-                Optional<UUID> baseUUID = SpecialMobUtil.getBaseUUID(event.getEntity());
+        if (BloodMobUtil.isSpecialMob(event.getEntity())) {
+            if (BloodMobUtil.isExtension(event.getEntity())) {
+                Optional<UUID> baseUUID = BloodMobUtil.getBaseUUID(event.getEntity());
                 if (!baseUUID.isPresent()) {
                     return;
                 }
@@ -133,12 +133,12 @@ public class SpecialMobManager extends BukkitRunnable implements Listener {
 
     @EventHandler
     public void onTargetEvent(EntityTargetEvent event) {
-        if (event.getTarget() != null && SpecialMobUtil.isSpecialMob(event.getTarget())) {
+        if (event.getTarget() != null && BloodMobUtil.isSpecialMob(event.getTarget())) {
             event.setCancelled(true);
             return;
         }
 
-        if (!SpecialMobUtil.isSpecialMob(event.getEntity())) {
+        if (!BloodMobUtil.isSpecialMob(event.getEntity())) {
             return;
         }
 
@@ -155,9 +155,9 @@ public class SpecialMobManager extends BukkitRunnable implements Listener {
 
     @EventHandler
     public void onDamage(EntityDamageEvent event) {
-        if (SpecialMobUtil.isSpecialMob(event.getEntity())) {
-            if (SpecialMobUtil.isExtension(event.getEntity())) {
-                Optional<UUID> baseUUID = SpecialMobUtil.getBaseUUID(event.getEntity());
+        if (BloodMobUtil.isSpecialMob(event.getEntity())) {
+            if (BloodMobUtil.isExtension(event.getEntity())) {
+                Optional<UUID> baseUUID = BloodMobUtil.getBaseUUID(event.getEntity());
                 if (!baseUUID.isPresent()) {
                     return;
                 }
@@ -170,9 +170,9 @@ public class SpecialMobManager extends BukkitRunnable implements Listener {
 
     @EventHandler
     public void onDamageByEntity(EntityDamageByEntityEvent event) {
-        if (SpecialMobUtil.isSpecialMob(event.getEntity())) {
-            if (SpecialMobUtil.isExtension(event.getEntity())) {
-                Optional<UUID> baseUUID = SpecialMobUtil.getBaseUUID(event.getEntity());
+        if (BloodMobUtil.isSpecialMob(event.getEntity())) {
+            if (BloodMobUtil.isExtension(event.getEntity())) {
+                Optional<UUID> baseUUID = BloodMobUtil.getBaseUUID(event.getEntity());
                 if (!baseUUID.isPresent()) {
                     return;
                 }
@@ -209,7 +209,7 @@ public class SpecialMobManager extends BukkitRunnable implements Listener {
             if (!(e instanceof LivingEntity)) {
                 return false;
             }
-            if (SpecialMobUtil.isSpecialMob(e)) {
+            if (BloodMobUtil.isSpecialMob(e)) {
                 lostEntities.add(e);
                 return true;
             }

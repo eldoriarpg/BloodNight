@@ -1,7 +1,7 @@
 package de.eldoria.bloodnight.specialmobs.mobs.enderman;
 
-import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
-import de.eldoria.bloodnight.specialmobs.effects.PotionCloud;
+import de.eldoria.bloodnight.bloodmob.utils.BloodMobUtil;
+import de.eldoria.bloodnight.bloodmob.utils.PotionCloud;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -18,7 +18,7 @@ public class ToxicEnderman extends AbstractEnderman {
     @Override
     public void tick() {
         super.tick();
-        SpecialMobUtil.spawnParticlesAround(getBaseEntity().getLocation(), Particle.REDSTONE, new Particle.DustOptions(Color.GREEN, 2), 5);
+        BloodMobUtil.spawnParticlesAround(getBaseEntity().getLocation(), Particle.REDSTONE, new Particle.DustOptions(Color.GREEN, 2), 5);
     }
 
     @Override

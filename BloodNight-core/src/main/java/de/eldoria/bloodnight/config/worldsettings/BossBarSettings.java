@@ -68,7 +68,8 @@ public class BossBarSettings implements ConfigurationSerializable {
     }
 
     @Override
-    public @NotNull Map<String, Object> serialize() {
+    public @NotNull
+    Map<String, Object> serialize() {
         return SerializationUtil.newBuilder()
                 .add("enabled", enabled)
                 .add("title", title)

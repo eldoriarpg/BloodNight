@@ -27,7 +27,8 @@ public class DeathActionSettings implements ConfigurationSerializable {
     }
 
     @Override
-    public @NotNull Map<String, Object> serialize() {
+    public @NotNull
+    Map<String, Object> serialize() {
         return SerializationUtil.newBuilder()
                 .add("mobDeathActions", mobDeathActions)
                 .add("playerDeathActions", playerDeathActions)

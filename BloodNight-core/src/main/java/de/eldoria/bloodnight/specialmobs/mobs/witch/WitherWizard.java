@@ -1,6 +1,6 @@
 package de.eldoria.bloodnight.specialmobs.mobs.witch;
 
-import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
+import de.eldoria.bloodnight.bloodmob.utils.BloodMobUtil;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.entity.EntityType;
@@ -19,9 +19,9 @@ public class WitherWizard extends AbstractWitch {
     public void tick() {
         EntityEquipment equipment = getBaseEntity().getEquipment();
         equipment.setItemInMainHand(new ItemStack(Material.WITHER_SKELETON_SKULL));
-        SpecialMobUtil.spawnParticlesAround(getBaseEntity(), Particle.SPELL_INSTANT, 15);
+        BloodMobUtil.spawnParticlesAround(getBaseEntity(), Particle.SPELL_INSTANT, 15);
         if (canShoot(5)) {
-            SpecialMobUtil.launchProjectileOnTarget(getBaseEntity(), WitherSkull.class, 4);
+            BloodMobUtil.launchProjectileOnTarget(getBaseEntity(), WitherSkull.class, 4);
             shot();
         }
     }

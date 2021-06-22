@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -48,6 +49,7 @@ public class GeneralSettings implements ConfigurationSerializable {
         spawnerDropSuppression = map.getValueOrDefault("spawnerDropSuppression", spawnerDropSuppression);
         ignoreSpawnerMobs = map.getValueOrDefault("ignoreSpawnerMobs", ignoreSpawnerMobs);
         blockedCommands = map.getValueOrDefault("blockedCommands", blockedCommands);
+        blockedCommands = blockedCommands.stream().map(String::toLowerCase).collect(Collectors.toList());
         if (beeFix) {
             BloodNight.logger().info("§4Bee Fix is enabled. This feature should be used with care.");
         }
@@ -57,7 +59,8 @@ public class GeneralSettings implements ConfigurationSerializable {
     }
 
     @Override
-    public @NotNull Map<String, Object> serialize() {
+    public @NotNull
+    Map<String, Object> serialize() {
         return SerializationUtil.newBuilder()
                 .add("language", language)
                 .add("prefix", prefix)

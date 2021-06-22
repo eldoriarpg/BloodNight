@@ -1,7 +1,7 @@
 package de.eldoria.bloodnight.specialmobs.mobs.creeper;
 
+import de.eldoria.bloodnight.bloodmob.utils.BloodMobUtil;
 import de.eldoria.bloodnight.core.BloodNight;
-import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
 import de.eldoria.bloodnight.specialmobs.mobs.ExtendedSpecialMob;
 import de.eldoria.eldoutilities.container.Triple;
 import de.eldoria.eldoutilities.crossversion.ServerVersion;
@@ -47,9 +47,9 @@ public class GhostCreeper extends ExtendedSpecialMob<Vex, Creeper> {
     @Override
     public void tick() {
         if (legacy) {
-            SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.INVISIBILITY, 4, false);
+            BloodMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.INVISIBILITY, 4, false);
         }
-        SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.SPEED, 4, false);
+        BloodMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.SPEED, 4, false);
         super.tick();
     }
 

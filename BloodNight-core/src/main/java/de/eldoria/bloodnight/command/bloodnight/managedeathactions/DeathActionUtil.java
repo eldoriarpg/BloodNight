@@ -1,9 +1,9 @@
 package de.eldoria.bloodnight.command.bloodnight.managedeathactions;
 
 import de.eldoria.bloodnight.config.Configuration;
-import de.eldoria.bloodnight.config.worldsettings.deathactions.PotionEffectSettings;
-import de.eldoria.bloodnight.config.worldsettings.deathactions.subsettings.LightningSettings;
-import de.eldoria.bloodnight.config.worldsettings.deathactions.subsettings.ShockwaveSettings;
+import de.eldoria.bloodnight.bloodmob.settings.util.PotionEffectSettings;
+import de.eldoria.bloodnight.bloodmob.settings.util.LightningSettings;
+import de.eldoria.bloodnight.bloodmob.settings.util.ShockwaveSettings;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.eldoutilities.core.EldoUtilities;
 import de.eldoria.eldoutilities.inventory.ActionConsumer;
@@ -98,7 +98,7 @@ public final class DeathActionUtil {
                                         Optional<String> optionalType = DataContainerUtil.get(stack, typeKey, PersistentDataType.STRING);
                                         optionalType.ifPresent(name -> {
                                                     PotionEffectType type = PotionEffectType.getByName(name);
-                                                    if(integer.get() == 0){
+                                                    if (integer.get() == 0) {
                                                         shockwave.getShockwaveEffects().remove(type);
                                                         return;
                                                     }

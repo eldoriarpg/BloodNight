@@ -1,9 +1,9 @@
-name: ${plugin.name}
-description: ${plugin.description}
+name: ${name}
+description: ${description}
 author: Hadde
-version: ${revision}
+version: ${version}
 main: de.eldoria.bloodnight.core.BloodNight
-website: ${plugin.url}
+website: ${url}
 api-version: 1.16
 softdepend:
   - Multiverse-Core

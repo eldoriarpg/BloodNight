@@ -1,6 +1,6 @@
 package de.eldoria.bloodnight.specialmobs.mobs.phantom;
 
-import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
+import de.eldoria.bloodnight.bloodmob.utils.BloodMobUtil;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Phantom;
@@ -16,8 +16,8 @@ public class PhantomSoul extends AbstractPhantom {
 
     @Override
     public void tick() {
-        SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.GLOWING, 1, true);
-        SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.INVISIBILITY, 1, false);
+        BloodMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.GLOWING, 1, true);
+        BloodMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.INVISIBILITY, 1, false);
     }
 
     @Override

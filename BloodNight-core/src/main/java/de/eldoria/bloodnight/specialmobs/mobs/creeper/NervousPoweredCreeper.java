@@ -1,6 +1,6 @@
 package de.eldoria.bloodnight.specialmobs.mobs.creeper;
 
-import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
+import de.eldoria.bloodnight.bloodmob.utils.BloodMobUtil;
 import org.bukkit.Color;
 import org.bukkit.Particle;
 import org.bukkit.entity.Creeper;
@@ -12,12 +12,12 @@ public class NervousPoweredCreeper extends AbstractCreeper {
         super(creeper);
         setPowered(true);
         setMaxFuseTicks(1);
-        SpecialMobUtil.spawnParticlesAround(getBaseEntity().getLocation(), Particle.REDSTONE, new Particle.DustOptions(Color.RED, 5), 10);
+        BloodMobUtil.spawnParticlesAround(getBaseEntity().getLocation(), Particle.REDSTONE, new Particle.DustOptions(Color.RED, 5), 10);
     }
 
     @Override
     public void tick() {
-        SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.SPEED, 2, false);
+        BloodMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.SPEED, 2, false);
     }
 
     @Override

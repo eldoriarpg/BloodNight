@@ -4,9 +4,8 @@ import de.eldoria.bloodnight.command.InventoryListener;
 import de.eldoria.bloodnight.command.util.CommandUtil;
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
-import de.eldoria.bloodnight.config.worldsettings.mobsettings.Drop;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSettings;
-import de.eldoria.bloodnight.config.worldsettings.mobsettings.VanillaDropMode;
+import de.eldoria.bloodnight.bloodmob.settings.VanillaDropMode;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.VanillaMobSettings;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.util.Permissions;
@@ -23,22 +22,15 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class ManageMobs extends EldoCommand {
     private final BukkitAudiences bukkitAudiences = BukkitAudiences.create(BloodNight.getInstance());
@@ -165,10 +157,10 @@ public class ManageMobs extends EldoCommand {
             return true;
         }
 
-        if ("defaultDrops".equalsIgnoreCase(field)) {
+        /*if ("defaultDrops".equalsIgnoreCase(field)) {
             if ("changeContent".equalsIgnoreCase(value)) {
                 Inventory inv = Bukkit.createInventory(player, 54, "Drops");
-                List<ItemStack> stacks = mobSettings.getDefaultDrops().stream().map(Drop::getWeightedItem).collect(Collectors.toList());
+                List<ItemStack> stacks = mobSettings.getDefaultDrops().stream().map(DropUtil::getWeightedItem).collect(Collectors.toList());
                 inv.setContents(stacks.toArray(new ItemStack[0]));
                 player.openInventory(inv);
                 inventoryListener.registerModification(player, new InventoryListener.InventoryActionHandler() {
@@ -176,7 +168,7 @@ public class ManageMobs extends EldoCommand {
                     public void onInventoryClose(InventoryCloseEvent event) {
                         List<Drop> collect = Arrays.stream(event.getInventory().getContents())
                                 .filter(Objects::nonNull)
-                                .map(Drop::fromItemStack)
+                                .map(DropUtil::fromItemStack)
                                 .collect(Collectors.toList());
                         mobSettings.setDefaultDrops(collect);
                         sendInfo(sender, worldSettings);
@@ -189,7 +181,7 @@ public class ManageMobs extends EldoCommand {
                 return true;
             }
             if ("changeWeight".equalsIgnoreCase(value)) {
-                List<ItemStack> stacks = mobSettings.getDefaultDrops().stream().map(Drop::getItemWithLoreWeight).collect(Collectors.toList());
+                List<ItemStack> stacks = mobSettings.getDefaultDrops().stream().map(DropUtil::getItemWithLoreWeight).collect(Collectors.toList());
                 Inventory inv = Bukkit.createInventory(player, 54, "Weight");
                 inv.setContents(stacks.toArray(new ItemStack[0]));
                 player.openInventory(inv);
@@ -198,7 +190,7 @@ public class ManageMobs extends EldoCommand {
                     public void onInventoryClose(InventoryCloseEvent event) {
                         List<Drop> collect = Arrays.stream(event.getInventory().getContents())
                                 .filter(Objects::nonNull)
-                                .map(Drop::fromItemStack)
+                                .map(DropUtil::fromItemStack)
                                 .collect(Collectors.toList());
                         mobSettings.setDefaultDrops(collect);
                         sendInfo(sender, worldSettings);
@@ -214,16 +206,16 @@ public class ManageMobs extends EldoCommand {
 
                         switch (event.getClick()) {
                             case LEFT:
-                                Drop.changeWeight(event.getCurrentItem(), 1);
+                                DropUtil.changeWeight(event.getCurrentItem(), 1);
                                 break;
                             case SHIFT_LEFT:
-                                Drop.changeWeight(event.getCurrentItem(), 10);
+                                DropUtil.changeWeight(event.getCurrentItem(), 10);
                                 break;
                             case RIGHT:
-                                Drop.changeWeight(event.getCurrentItem(), -1);
+                                DropUtil.changeWeight(event.getCurrentItem(), -1);
                                 break;
                             case SHIFT_RIGHT:
-                                Drop.changeWeight(event.getCurrentItem(), -10);
+                                DropUtil.changeWeight(event.getCurrentItem(), -10);
                                 break;
                         }
                         event.setCancelled(true);
@@ -239,7 +231,7 @@ public class ManageMobs extends EldoCommand {
             }
             messageSender().sendError(sender, localizer().getMessage("error.invalidValue"));
             return true;
-        }
+        }*/
 
         if ("vanillaDropMode".equalsIgnoreCase(field)) {
             VanillaDropMode parse = EnumUtil.parse(value, VanillaDropMode.class);
@@ -371,7 +363,8 @@ public class ManageMobs extends EldoCommand {
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+    public @Nullable
+    List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
             return TabCompleteUtil.completeWorlds(args[0]);
         }

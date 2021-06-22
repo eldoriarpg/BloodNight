@@ -1,6 +1,6 @@
 package de.eldoria.bloodnight.specialmobs.mobs.phantom;
 
-import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
+import de.eldoria.bloodnight.bloodmob.utils.BloodMobUtil;
 import de.eldoria.eldoutilities.utils.AttributeUtil;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Blaze;
@@ -18,7 +18,7 @@ public class FirePhantom extends AbstractPhantom {
 
     public FirePhantom(Phantom phantom) {
         super(phantom);
-        blaze = SpecialMobUtil.spawnAndMount(getBaseEntity(), EntityType.BLAZE);
+        blaze = BloodMobUtil.spawnAndMount(getBaseEntity(), EntityType.BLAZE);
         AttributeUtil.syncAttributeValue(phantom, blaze, Attribute.GENERIC_ATTACK_DAMAGE);
         AttributeUtil.syncAttributeValue(phantom, blaze, Attribute.GENERIC_MAX_HEALTH);
     }
@@ -34,12 +34,12 @@ public class FirePhantom extends AbstractPhantom {
 
     @Override
     public void onDamage(EntityDamageEvent event) {
-        SpecialMobUtil.handleExtendedEntityDamage(getBaseEntity(), blaze, event);
+        BloodMobUtil.handleExtendedEntityDamage(getBaseEntity(), blaze, event);
     }
 
     @Override
     public void onExtensionDamage(EntityDamageEvent event) {
-        SpecialMobUtil.handleExtendedEntityDamage(blaze, getBaseEntity(), event);
+        BloodMobUtil.handleExtendedEntityDamage(blaze, getBaseEntity(), event);
     }
 
     @Override

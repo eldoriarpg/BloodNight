@@ -1,7 +1,7 @@
 package de.eldoria.bloodnight.config.worldsettings.deathactions;
 
-import de.eldoria.bloodnight.config.worldsettings.deathactions.subsettings.LightningSettings;
-import de.eldoria.bloodnight.config.worldsettings.deathactions.subsettings.ShockwaveSettings;
+import de.eldoria.bloodnight.bloodmob.settings.util.LightningSettings;
+import de.eldoria.bloodnight.bloodmob.settings.util.ShockwaveSettings;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
 import lombok.Getter;

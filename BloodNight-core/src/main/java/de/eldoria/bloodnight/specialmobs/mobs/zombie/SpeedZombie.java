@@ -1,6 +1,6 @@
 package de.eldoria.bloodnight.specialmobs.mobs.zombie;
 
-import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
+import de.eldoria.bloodnight.bloodmob.utils.BloodMobUtil;
 import org.bukkit.entity.Zombie;
 import org.bukkit.potion.PotionEffectType;
 
@@ -11,6 +11,6 @@ public class SpeedZombie extends AbstractZombie {
 
     @Override
     public void tick() {
-        SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.SPEED, 4, true);
+        BloodMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.SPEED, 4, true);
     }
 }

@@ -4,10 +4,9 @@ import de.eldoria.bloodnight.command.InventoryListener;
 import de.eldoria.bloodnight.command.util.CommandUtil;
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
-import de.eldoria.bloodnight.config.worldsettings.mobsettings.Drop;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSetting;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSettings;
-import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobValueModifier;
+import de.eldoria.bloodnight.bloodmob.settings.MobValueModifier;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.core.mobfactory.MobFactory;
 import de.eldoria.bloodnight.core.mobfactory.MobGroup;
@@ -27,22 +26,15 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class ManageMob extends EldoCommand {
     public final Configuration configuration;
@@ -222,21 +214,21 @@ public class ManageMob extends EldoCommand {
             return true;
         }
 
-        if ("drops".equalsIgnoreCase(field)) {
+        /*if ("drops".equalsIgnoreCase(field)) {
             if (!ArrayUtil.arrayContains(new String[]{"changeContent", "changeWeight", "clear"}, value)) {
                 messageSender().sendError(sender, localizer().getMessage("error.invalidValue"));
             }
 
             if ("changeContent".equalsIgnoreCase(value)) {
                 Inventory inv = Bukkit.createInventory(player, 54, localizer().getMessage("drops.dropsTitle"));
-                inv.setContents(mob.getDrops().stream().map(Drop::getWeightedItem).toArray(ItemStack[]::new));
+                inv.setContents(mob.getDrops().stream().map(DropUtil::getWeightedItem).toArray(ItemStack[]::new));
                 player.openInventory(inv);
                 inventoryListener.registerModification(player, new InventoryListener.InventoryActionHandler() {
                     @Override
                     public void onInventoryClose(InventoryCloseEvent event) {
                         List<Drop> collect = Arrays.stream(event.getInventory().getContents())
                                 .filter(Objects::nonNull)
-                                .map(Drop::fromItemStack)
+                                //.map(DropUtil::fromItemStack)
                                 .collect(Collectors.toList());
                         mob.setDrops(collect);
                         optPage.ifPresent(i -> sendMobListPage(world, sender, mobGroup, i));
@@ -248,8 +240,9 @@ public class ManageMob extends EldoCommand {
                 });
             }
 
+
             if ("changeWeight".equalsIgnoreCase(value)) {
-                List<ItemStack> stacks = mob.getDrops().stream().map(Drop::getItemWithLoreWeight).collect(Collectors.toList());
+                List<ItemStack> stacks = mob.getDrops().stream().map(DropUtil::getItemWithLoreWeight).collect(Collectors.toList());
                 Inventory inv = Bukkit.createInventory(player, 54, localizer().getMessage("drops.weightTitle"));
                 inv.setContents(stacks.toArray(new ItemStack[0]));
                 player.openInventory(inv);
@@ -258,7 +251,7 @@ public class ManageMob extends EldoCommand {
                     public void onInventoryClose(InventoryCloseEvent event) {
                         List<Drop> collect = Arrays.stream(event.getInventory().getContents())
                                 .filter(Objects::nonNull)
-                                .map(Drop::fromItemStack)
+                                .map(DropUtil::fromItemStack)
                                 .collect(Collectors.toList());
                         mob.setDrops(collect);
                         optPage.ifPresent(i -> sendMobListPage(world, sender, mobGroup, i));
@@ -274,16 +267,16 @@ public class ManageMob extends EldoCommand {
 
                         switch (event.getClick()) {
                             case LEFT:
-                                Drop.changeWeight(event.getCurrentItem(), 1);
+                                DropUtil.changeWeight(event.getCurrentItem(), 1);
                                 break;
                             case SHIFT_LEFT:
-                                Drop.changeWeight(event.getCurrentItem(), 10);
+                                DropUtil.changeWeight(event.getCurrentItem(), 10);
                                 break;
                             case RIGHT:
-                                Drop.changeWeight(event.getCurrentItem(), -1);
+                                DropUtil.changeWeight(event.getCurrentItem(), -1);
                                 break;
                             case SHIFT_RIGHT:
-                                Drop.changeWeight(event.getCurrentItem(), -10);
+                                DropUtil.changeWeight(event.getCurrentItem(), -10);
                                 break;
                         }
                         event.setCancelled(true);
@@ -291,13 +284,14 @@ public class ManageMob extends EldoCommand {
                 });
             }
 
+
             if ("clear".equalsIgnoreCase(value)) {
                 mob.setDrops(new ArrayList<>());
                 optPage.ifPresent(i -> sendMobListPage(world, sender, mobGroup, i));
                 configuration.save();
             }
             return true;
-        }
+        }*/
 
         messageSender().sendError(sender, localizer().getMessage("error.invalidField"));
         return true;
@@ -422,7 +416,8 @@ public class ManageMob extends EldoCommand {
 
     //group world mob field value
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command
+    public @Nullable
+    List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command
             command, @NotNull String alias, @NotNull String[] args) {
         // mobgroup
         if (args.length == 1) {

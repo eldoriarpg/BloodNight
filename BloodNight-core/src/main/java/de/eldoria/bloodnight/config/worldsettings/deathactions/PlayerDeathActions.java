@@ -1,5 +1,6 @@
 package de.eldoria.bloodnight.config.worldsettings.deathactions;
 
+import de.eldoria.bloodnight.bloodmob.settings.util.PotionEffectSettings;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
 import lombok.Getter;
@@ -45,7 +46,8 @@ public class PlayerDeathActions extends DeathActions {
     }
 
     @Override
-    public @NotNull Map<String, Object> serialize() {
+    public @NotNull
+    Map<String, Object> serialize() {
         return SerializationUtil.newBuilder(super.serialize())
                 .add("deathCommands", deathCommands)
                 .add("loseInvProbability", loseInvProbability)

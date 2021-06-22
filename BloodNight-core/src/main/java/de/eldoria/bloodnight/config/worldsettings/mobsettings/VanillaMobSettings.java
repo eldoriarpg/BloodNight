@@ -1,5 +1,6 @@
 package de.eldoria.bloodnight.config.worldsettings.mobsettings;
 
+import de.eldoria.bloodnight.bloodmob.settings.VanillaDropMode;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
 import de.eldoria.eldoutilities.utils.EnumUtil;
@@ -46,7 +47,8 @@ public class VanillaMobSettings implements ConfigurationSerializable {
     }
 
     @Override
-    public @NotNull Map<String, Object> serialize() {
+    public @NotNull
+    Map<String, Object> serialize() {
         return SerializationUtil.newBuilder()
                 .add("damageMultiplier", damageMultiplier)
                 .add("healthMultiplier", healthMultiplier)

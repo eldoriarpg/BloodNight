@@ -3,7 +3,7 @@ package de.eldoria.bloodnight.command.bloodnight.managedeathactions;
 import de.eldoria.bloodnight.command.util.CommandUtil;
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.config.worldsettings.deathactions.PlayerDeathActions;
-import de.eldoria.bloodnight.config.worldsettings.deathactions.PotionEffectSettings;
+import de.eldoria.bloodnight.bloodmob.settings.util.PotionEffectSettings;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.eldoutilities.conversation.ConversationRequester;
 import de.eldoria.eldoutilities.core.EldoUtilities;
@@ -118,7 +118,7 @@ public class ManagePlayerDeathActions extends EldoCommand {
                             Optional<String> optionalName = DataContainerUtil.get(stack, typeKey, PersistentDataType.STRING);
                             optionalName.ifPresent(name -> {
                                 PotionEffectType type = PotionEffectType.getByName(name);
-                                if(integer.get() == 0){
+                                if (integer.get() == 0) {
                                     respawnEffects.remove(type);
                                     return;
                                 }
@@ -267,7 +267,8 @@ public class ManagePlayerDeathActions extends EldoCommand {
 
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+    public @Nullable
+    List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
             return TabCompleteUtil.completeWorlds(args[0]);
         }
