@@ -1,9 +1,9 @@
-name: ${plugin.name}
-description: ${plugin.description}
+name: BloodNight
+description: Make your nights a nightmare again
 author: Hadde
-version: ${revision}
+version: ${version}
 main: de.eldoria.bloodnight.core.BloodNight
-website: ${plugin.url}
+website: https://www.spigotmc.org/resources/85095
 api-version: 1.16
 softdepend:
   - Multiverse-Core

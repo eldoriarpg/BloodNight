@@ -97,7 +97,7 @@ public class BloodNight extends EldoPlugin {
             enableMetrics();
 
             if (configuration.getGeneralSettings().isUpdateReminder()) {
-                Updater.Butler(new ButlerUpdateData(this, Permissions.Admin.RELOAD, true,
+                Updater.butler(new ButlerUpdateData(this, Permissions.Admin.RELOAD, true,
                         configuration.getGeneralSettings().isAutoUpdater(), 4, "https://plugins.eldoria.de"))
                         .start();
             }
