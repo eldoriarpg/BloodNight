@@ -1,5 +1,5 @@
 plugins {
-    id("de.eldoria.java-conventions")
+    id("de.eldoria.library-conventions")
     id("com.github.johnrengelman.shadow") version "7.0.0"
 }
 
