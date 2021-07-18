@@ -3,8 +3,8 @@ package de.eldoria.bloodnight.core.api;
 import de.eldoria.bloodnight.api.IBloodNightAPI;
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.config.worldsettings.NightSelection;
-import de.eldoria.bloodnight.core.manager.NightManager;
-import de.eldoria.bloodnight.core.manager.nightmanager.NightUtil;
+import de.eldoria.bloodnight.core.manager.nightmanager.NightManager;
+import de.eldoria.bloodnight.core.manager.nightmanager.util.NightUtil;
 import org.bukkit.World;
 
 import java.util.Set;
@@ -57,7 +57,6 @@ public class BloodNightAPI implements IBloodNightAPI {
 
     @Override
     public int nextProbability(World world, int offset) {
-        //if (!isBloodNightActive(world)) return 0;
         NightSelection ns = configuration.getWorldSettings(world).getNightSelection();
         return ns.getNextProbability(world, offset);
     }

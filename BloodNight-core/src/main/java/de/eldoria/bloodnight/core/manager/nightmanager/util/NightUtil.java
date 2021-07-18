@@ -1,4 +1,4 @@
-package de.eldoria.bloodnight.core.manager.nightmanager;
+package de.eldoria.bloodnight.core.manager.nightmanager.util;
 
 import de.eldoria.bloodnight.config.worldsettings.NightSettings;
 import de.eldoria.bloodnight.config.worldsettings.WorldSettings;

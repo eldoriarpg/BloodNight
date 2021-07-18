@@ -22,24 +22,24 @@ import de.eldoria.bloodnight.config.worldsettings.mobsettings.VanillaMobSettings
 import de.eldoria.bloodnight.config.worldsettings.sound.SoundEntry;
 import de.eldoria.bloodnight.config.worldsettings.sound.SoundSettings;
 import de.eldoria.bloodnight.core.api.BloodNightAPI;
-import de.eldoria.bloodnight.core.manager.MobManager;
-import de.eldoria.bloodnight.core.manager.NightManager;
 import de.eldoria.bloodnight.core.manager.NotificationManager;
+import de.eldoria.bloodnight.core.manager.mobmanager.MobManager;
+import de.eldoria.bloodnight.core.manager.nightmanager.CommandBlocker;
+import de.eldoria.bloodnight.core.manager.nightmanager.NightManager;
 import de.eldoria.bloodnight.core.mobfactory.MobFactory;
 import de.eldoria.bloodnight.core.mobfactory.SpecialMobRegistry;
 import de.eldoria.bloodnight.hooks.HookService;
 import de.eldoria.bloodnight.util.Permissions;
-import de.eldoria.eldoutilities.bstats.Metrics;
+import de.eldoria.eldoutilities.bstats.EldoMetrics;
+import de.eldoria.eldoutilities.bstats.charts.MultiLineChart;
 import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.messages.MessageSender;
 import de.eldoria.eldoutilities.plugin.EldoPlugin;
 import de.eldoria.eldoutilities.updater.Updater;
 import de.eldoria.eldoutilities.updater.butlerupdater.ButlerUpdateData;
 import lombok.Getter;
-import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
-import org.bukkit.plugin.PluginManager;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -97,7 +97,7 @@ public class BloodNight extends EldoPlugin {
             enableMetrics();
 
             if (configuration.getGeneralSettings().isUpdateReminder()) {
-                Updater.Butler(new ButlerUpdateData(this, Permissions.RELOAD, true,
+                Updater.butler(new ButlerUpdateData(this, Permissions.Admin.RELOAD, true,
                         configuration.getGeneralSettings().isAutoUpdater(), 4, "https://plugins.eldoria.de"))
                         .start();
             }
@@ -131,23 +131,16 @@ public class BloodNight extends EldoPlugin {
     }
 
     private void lateInit() {
-        PluginManager pm = Bukkit.getPluginManager();
-        pm.registerEvents(new NotificationManager(configuration, nightManager, hookService), this);
+        registerListener(new NotificationManager(configuration, nightManager, hookService));
     }
 
     private void registerListener() {
-        PluginManager pm = Bukkit.getPluginManager();
-
-        MessageSender messageSender = MessageSender.getPluginMessageSender(this);
         nightManager = new NightManager(configuration);
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, nightManager, 100, 1);
-        pm.registerEvents(nightManager, this);
+        nightManager.runTaskTimer(this, 5, 1);
         mobManager = new MobManager(nightManager, configuration);
         inventoryListener = new InventoryListener(configuration);
-        pm.registerEvents(inventoryListener, this);
-        pm.registerEvents(mobManager, this);
-        // Schedule mobManager
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, mobManager, 100, 1);
+        CommandBlocker commandBlocker = new CommandBlocker(nightManager, configuration);
+        registerListener(commandBlocker, inventoryListener, mobManager, nightManager);
     }
 
     @Override
@@ -160,11 +153,11 @@ public class BloodNight extends EldoPlugin {
     }
 
     private void enableMetrics() {
-        Metrics metrics = new Metrics(this, 9123);
+        EldoMetrics metrics = new EldoMetrics(this, 9123);
         if (metrics.isEnabled()) {
             logger().info("§2Metrics enabled. Thank you! (> ^_^ )>");
 
-            metrics.addCustomChart(new Metrics.MultiLineChart("update_settings", () -> {
+            metrics.addCustomChart(new MultiLineChart("update_settings", () -> {
                 Map<String, Integer> map = new HashMap<>();
                 map.put("Update Check", configuration.getGeneralSettings().isUpdateReminder() ? 1 : 0);
                 if (configuration.getGeneralSettings().isUpdateReminder()) {
@@ -175,7 +168,7 @@ public class BloodNight extends EldoPlugin {
                 return map;
             }));
 
-            metrics.addCustomChart(new Metrics.MultiLineChart("mob_types", () -> {
+            metrics.addCustomChart(new MultiLineChart("mob_types", () -> {
                 Map<String, Integer> map = new HashMap<>();
                 for (MobFactory factory : SpecialMobRegistry.getRegisteredMobs()) {
                     for (WorldSettings world : configuration.getWorldSettings().values()) {
@@ -192,7 +185,7 @@ public class BloodNight extends EldoPlugin {
                 return map;
             }));
 
-            metrics.addCustomChart(new Metrics.MultiLineChart("night_selection", () -> {
+            metrics.addCustomChart(new MultiLineChart("night_selection", () -> {
                 Map<String, Integer> map = new HashMap<>();
                 for (WorldSettings world : configuration.getWorldSettings().values()) {
                     if (!world.isEnabled()) continue;
