@@ -5,7 +5,9 @@ plugins {
 
 dependencies {
     implementation(project(":BloodNight-api"))
-    implementation("de.eldoria", "eldo-util", "1.9.2-SNAPSHOT")
+    implementation("de.eldoria", "eldo-util", "1.9.2-SNAPSHOT") {
+        isChanging = true
+    }
     implementation("net.kyori", "adventure-api", "4.8.1")
     implementation("net.kyori", "adventure-platform-bukkit", "4.0.0-SNAPSHOT")
     testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.5.2")
@@ -17,6 +19,14 @@ dependencies {
     compileOnly("se.hyperver.hyperverse", "Core", "0.9.0-SNAPSHOT")
 }
 
+configurations {
+    all {
+        resolutionStrategy{
+            cacheChangingModulesFor(0, "SECONDS")
+        }
+    }
+}
+
 description = "BloodNight-core"
 val shadebase = project.group as String + ".bloodnight."
 
@@ -24,11 +34,22 @@ java {
     withJavadocJar()
 }
 
-tasks{
+tasks {
     shadowJar {
         relocate("de.eldoria.eldoutilities", shadebase + "eldoutilities")
         relocate("net.kyori", shadebase + "kyori")
         mergeServiceFiles()
         archiveBaseName.set(project.parent?.name)
+    }
+
+    processResources {
+        from(sourceSets.main.get().resources.srcDirs) {
+            filesMatching("plugin.yml") {
+                expand(
+                    "version" to PublishData(project).getVersion(true)
+                )
+            }
+            duplicatesStrategy = DuplicatesStrategy.INCLUDE
+        }
     }
 }
