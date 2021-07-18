@@ -12,7 +12,7 @@
     <artifactId>BloodNight-core</artifactId>
 
     <properties>
-        <eldoutil.version>1.6.9</eldoutil.version>
+        <eldoutil.version>1.9.1</eldoutil.version>
         <plugin.name>BloodNight</plugin.name>
         <plugin.description>Nights are not hard enough? Make them harder!</plugin.description>
         <plugin.url>https://www.spigotmc.org/resources/85095/</plugin.url>
@@ -60,8 +60,8 @@
 
     <repositories>
         <repository>
-            <id>jitpack.io</id> <!-- eldo utilities -->
-            <url>https://jitpack.io</url>
+            <id>eldonexus</id> <!-- eldo utilities -->
+            <url>https://eldonexus.de/repository/maven-public/</url>
         </repository>
         <repository> <!-- Spigot -->
             <id>spigot-repo</id>
@@ -97,8 +97,8 @@
             <version>${revision}</version>
         </dependency>
         <dependency>
-            <groupId>de.eldoria.EldoUtilities</groupId>
-            <artifactId>EldoUtilitiesCore</artifactId>
+            <groupId>de.eldoria</groupId>
+            <artifactId>eldo-util</artifactId>
             <version>${eldoutil.version}</version>
             <scope>compile</scope>
             <exclusions>
@@ -111,7 +111,7 @@
         <dependency>
             <groupId>net.kyori</groupId>
             <artifactId>adventure-api</artifactId>
-            <version>4.4.0</version>
+            <version>4.8.1</version>
             <scope>compile</scope>
             <exclusions>
                 <exclusion>
@@ -141,7 +141,7 @@
         <dependency>
             <groupId>io.lumine.xikage</groupId>
             <artifactId>MythicMobs</artifactId>
-            <version>4.9.1</version>
+            <version>4.12.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
