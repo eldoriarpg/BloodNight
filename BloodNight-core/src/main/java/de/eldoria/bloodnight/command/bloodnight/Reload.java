@@ -16,7 +16,7 @@ public class Reload extends EldoCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (denyAccess(sender, Permissions.RELOAD)) {
+        if (denyAccess(sender, Permissions.Admin.RELOAD)) {
             return true;
         }
         BloodNight.getInstance().onReload();

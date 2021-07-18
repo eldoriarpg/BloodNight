@@ -60,7 +60,7 @@ public class EnderCreeper extends AbstractCreeper {
             Block second = first.getRelative(0, 1, 0);
             if (first.getType() == Material.AIR && second.getType() == Material.AIR) {
                 Location newLoc = first.getLocation();
-                BloodNight.logger().info("Teleport from " + getBaseEntity().getLocation() + " to " + newLoc);
+                BloodNight.logger().finer("Teleport from " + getBaseEntity().getLocation() + " to " + newLoc);
                 getBaseEntity().teleport(newLoc);
                 lastTeleport = Instant.now();
                 SpecialMobUtil.spawnParticlesAround(loc, Particle.PORTAL, 10);

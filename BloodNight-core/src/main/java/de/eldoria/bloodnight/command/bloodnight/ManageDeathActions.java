@@ -34,7 +34,7 @@ public class ManageDeathActions extends EldoCommand {
             return true;
         }
 
-        if (denyAccess(sender, Permissions.MANAGE_DEATH_ACTION)) {
+        if (denyAccess(sender, Permissions.Admin.MANAGE_DEATH_ACTION)) {
             return true;
         }
 

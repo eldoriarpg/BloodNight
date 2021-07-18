@@ -1,7 +1,7 @@
 package de.eldoria.bloodnight.command.bloodnight;
 
-import de.eldoria.bloodnight.core.manager.MobManager;
-import de.eldoria.bloodnight.core.manager.NightManager;
+import de.eldoria.bloodnight.core.manager.nightmanager.NightManager;
+import de.eldoria.bloodnight.core.manager.mobmanager.MobManager;
 import de.eldoria.bloodnight.core.mobfactory.MobFactory;
 import de.eldoria.bloodnight.core.mobfactory.SpecialMobRegistry;
 import de.eldoria.bloodnight.util.Permissions;
@@ -39,7 +39,7 @@ public class SpawnMob extends EldoCommand {
             return true;
         }
 
-        if (denyAccess(sender, Permissions.SPAWN_MOB)) {
+        if (denyAccess(sender, Permissions.Admin.SPAWN_MOB)) {
             return true;
         }
 
@@ -67,7 +67,7 @@ public class SpawnMob extends EldoCommand {
             MobFactory mobFactory = mobFactoryByName.get();
 
             Entity entity = targetBlock.getWorld().spawnEntity(targetBlock.getLocation().add(0, 1, 0), mobFactory.getEntityType());
-            mobManager.wrapMob(entity, mobFactory);
+            mobManager.getSpecialMobManager().wrapMob(entity, mobFactory);
         } else {
             messageSender().sendError(player, "no blood night active");
         }
@@ -75,7 +75,8 @@ public class SpawnMob extends EldoCommand {
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+    public @Nullable
+    List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
             String[] strings = SpecialMobRegistry.getRegisteredMobs().stream()
                     .map(MobFactory::getMobName)

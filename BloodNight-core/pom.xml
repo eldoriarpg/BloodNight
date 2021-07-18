@@ -12,7 +12,11 @@
     <artifactId>BloodNight-core</artifactId>
 
     <properties>
+<<<<<<< HEAD
         <eldoutil.version>1.9.1</eldoutil.version>
+=======
+        <eldoutil.version>1.8.4</eldoutil.version>
+>>>>>>> development
         <plugin.name>BloodNight</plugin.name>
         <plugin.description>Nights are not hard enough? Make them harder!</plugin.description>
         <plugin.url>https://www.spigotmc.org/resources/85095/</plugin.url>
@@ -53,6 +57,7 @@
                 <version>3.2.0</version>
                 <configuration>
                     <outputDirectory>..\..\minecraft Testserver\1.16.5\plugins</outputDirectory>
+                    <finalName>BloodNight-${revision}</finalName>
                 </configuration>
             </plugin>
         </plugins>
@@ -101,12 +106,6 @@
             <artifactId>eldo-util</artifactId>
             <version>${eldoutil.version}</version>
             <scope>compile</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.bstats</groupId>
-                    <artifactId>bstats-bukkit</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>net.kyori</groupId>

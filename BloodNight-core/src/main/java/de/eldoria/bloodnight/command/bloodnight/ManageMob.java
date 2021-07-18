@@ -62,7 +62,7 @@ public class ManageMob extends EldoCommand {
             return true;
         }
 
-        if (denyAccess(sender, Permissions.MANAGE_MOB)) {
+        if (denyAccess(sender, Permissions.Admin.MANAGE_MOB)) {
             return true;
         }
 

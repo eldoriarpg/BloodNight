@@ -45,7 +45,7 @@ public class ManageNight extends EldoCommand {
             return true;
         }
 
-        if (denyAccess(sender, Permissions.MANAGE_NIGHT)) {
+        if (denyAccess(sender, Permissions.Admin.MANAGE_NIGHT)) {
             return true;
         }
 

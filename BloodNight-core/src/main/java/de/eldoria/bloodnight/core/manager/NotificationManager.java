@@ -2,6 +2,7 @@ package de.eldoria.bloodnight.core.manager;
 
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.core.BloodNight;
+import de.eldoria.bloodnight.core.manager.nightmanager.NightManager;
 import de.eldoria.bloodnight.events.BloodNightBeginEvent;
 import de.eldoria.bloodnight.events.BloodNightEndEvent;
 import de.eldoria.bloodnight.hooks.HookService;
