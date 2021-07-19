@@ -29,6 +29,7 @@ version = "0.10.4"
 
 java {
     withSourcesJar()
+    withJavadocJar()
     sourceCompatibility = JavaVersion.VERSION_1_8
 }
 
