@@ -25,10 +25,11 @@ dependencies {
 }
 
 group = "de.eldoria"
-version = "0.10.4"
+version = "0.10.5"
 
 java {
     withSourcesJar()
+    withJavadocJar()
     sourceCompatibility = JavaVersion.VERSION_1_8
 }
 
