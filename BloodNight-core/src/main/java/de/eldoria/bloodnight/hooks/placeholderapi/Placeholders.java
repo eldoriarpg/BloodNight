@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,7 +25,7 @@ public class Placeholders extends PlaceholderExpansion {
     @Override
     @NotNull
     public String getIdentifier() {
-        return "de/eldoria/bloodnight";
+        return "bloodnight";
     }
 
     @Override
@@ -61,13 +62,13 @@ public class Placeholders extends PlaceholderExpansion {
                             if (group == null) {
                                 return String.valueOf(BloodNight.getBloodNightAPI().nextProbability(world, 1));
                             }
-                            int i;
+                            int offset;
                             try {
-                                i = Integer.parseInt(group);
+                                offset = Integer.parseInt(group);
                             } catch (NumberFormatException e) {
                                 return "0";
                             }
-                            return String.valueOf(BloodNight.getBloodNightAPI().nextProbability(world, i));
+                            return String.valueOf(BloodNight.getBloodNightAPI().nextProbability(world, offset));
                         }
 
                         if ("seconds_left".equalsIgnoreCase(params)) {
@@ -80,12 +81,11 @@ public class Placeholders extends PlaceholderExpansion {
                                         seconds / 3600,
                                         (seconds % 3600) / 60,
                                         seconds % 60);
-                            } else {
-                                return String.format(
-                                        "%02d:%02d",
-                                        (seconds % 3600) / 60,
-                                        seconds % 60);
                             }
+                            return String.format(
+                                    "%02d:%02d",
+                                    (seconds % 3600) / 60,
+                                    seconds % 60);
                         }
 
                         if ("percent_left".equalsIgnoreCase(params)) {
@@ -96,11 +96,11 @@ public class Placeholders extends PlaceholderExpansion {
                         if ("active".equalsIgnoreCase(params)) {
                             return String.valueOf(BloodNight.getBloodNightAPI().isBloodNightActive(world));
                         }
-                        BloodNight.logger().info("Could not calc placeholder settings for " + "bloodnight_" + params);
+                        BloodNight.logger().info("Could not calc placeholder settings for " + "bloodnight_" + params + ". No placeholder exists.");
                         return "";
                     });
         } catch (ExecutionException e) {
-            BloodNight.logger().info("Could not calc placeholder settings for " + params);
+            BloodNight.logger().log(Level.WARNING, "Could not calc placeholder settings for " + params, e);
         }
         return "";
     }
