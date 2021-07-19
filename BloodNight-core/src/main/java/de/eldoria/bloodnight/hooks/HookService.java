@@ -32,7 +32,7 @@ public class HookService {
 
     public void setup() {
         add("MythicMobs", MythicMobsHook::new);
-        add("PlaceholderAPI", () -> new PlaceholderAPIHook());
+        add("PlaceholderAPI", PlaceholderAPIHook::new);
         add("Multiverse-Core", MultiverseHook::new);
         add("Hyperverse", HyperverseHook::new);
     }
