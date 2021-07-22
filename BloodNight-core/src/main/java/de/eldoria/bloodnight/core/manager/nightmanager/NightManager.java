@@ -244,7 +244,7 @@ public class NightManager extends BukkitRunnable implements Listener {
             player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 5 * 20, 1, false, true));
         }
 
-        worldSettings.getSoundSettings().playStartSound(player);
+        worldSettings.getSoundSettings().playEndsound(player);
     }
 
     // <--- Player state consistency ---> //

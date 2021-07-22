@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -65,14 +66,16 @@ public class SoundSettings implements ConfigurationSerializable {
     }
 
     public void playStartSound(Player player) {
-        for (SoundEntry endSound : endSounds) {
-            endSound.play(player, player.getLocation(), channel);
-        }
+        playSounds(player, startSounds);
     }
 
     public void playEndsound(Player player) {
-        for (SoundEntry endSound : endSounds) {
-            endSound.play(player, player.getLocation(), channel);
+        playSounds(player, endSounds);
+    }
+
+    private void playSounds(Player player, Collection<SoundEntry> sounds) {
+        for (SoundEntry sound : sounds) {
+            sound.play(player, player.getLocation(), channel);
         }
     }
 
