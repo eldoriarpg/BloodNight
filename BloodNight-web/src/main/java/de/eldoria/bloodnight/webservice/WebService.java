@@ -1,15 +1,16 @@
 package de.eldoria.bloodnight.webservice;
 
+import de.eldoria.bloodnight.webservice.configuration.Configuration;
 import de.eldoria.bloodnight.webservice.modules.mobeditor.MobEditorService;
 import org.slf4j.Logger;
 
+import java.io.IOException;
 import java.util.stream.Collectors;
 
 import static org.slf4j.LoggerFactory.getLogger;
 import static spark.Spark.before;
 import static spark.Spark.delete;
 import static spark.Spark.get;
-import static spark.Spark.halt;
 import static spark.Spark.ipAddress;
 import static spark.Spark.options;
 import static spark.Spark.path;
@@ -20,17 +21,19 @@ import static spark.Spark.put;
 public class WebService {
     private static WebService instance;
     private final MobEditorService mobEditorService = new MobEditorService();
+    private Configuration configuration;
 
     private static final Logger log = getLogger(WebService.class);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         WebService.instance = new WebService();
         instance.ignite();
     }
 
-    private void ignite() {
-        port(8888);
-        ipAddress("0.0.0.0");
+    private void ignite() throws IOException {
+        configuration = Configuration.load();
+        port(configuration.general().port());
+        ipAddress(configuration.general().host());
 
         options("/*", (request, response) -> {
             var accessControlRequestHeaders = request
