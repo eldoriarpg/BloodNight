@@ -65,7 +65,7 @@ public class WebService {
         });
 
 
-        path("/v1", () -> {
+        path("/" + configuration.general().apiRoot() + "/v1", () -> {
             path("/mobeditor", () -> {
                 post("/submit", mobEditorService::submit);
                 post("/close", mobEditorService::close);
