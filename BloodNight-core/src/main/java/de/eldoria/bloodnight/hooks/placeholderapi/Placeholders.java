@@ -4,6 +4,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import de.eldoria.bloodnight.core.BloodNight;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -17,6 +18,7 @@ import java.util.regex.Pattern;
 public class Placeholders extends PlaceholderExpansion {
 
     private final Pattern probability = Pattern.compile("probability(?:_([0-9]))?");
+    private final Pattern worldActive = Pattern.compile("active_(?<world>[a-zA-Z_]+)");
 
     private final Cache<String, String> worldCache = CacheBuilder.newBuilder()
             .expireAfterWrite(500, TimeUnit.MILLISECONDS)
@@ -52,6 +54,23 @@ public class Placeholders extends PlaceholderExpansion {
 
     @Override
     public String onPlaceholderRequest(Player player, @NotNull String params) {
+        if (player == null) {
+            try {
+                return worldCache.get(params, () -> {
+                    Matcher matcher = worldActive.matcher(params);
+                    if(matcher.find()){
+                        String worldName = matcher.group("world");
+                        World world = Bukkit.getWorld(worldName);
+                        if(world == null) return "Invalid world";
+                        return String.valueOf(BloodNight.getBloodNightAPI().isBloodNightActive(world));
+                    }
+                    return "";
+                });
+            } catch (ExecutionException e) {
+                BloodNight.logger().log(Level.WARNING, "Could not calc placeholder settings for " + params, e);
+            }
+        }
+
         World world = player.getWorld();
         try {
             return worldCache.get(world.getName() + "_" + params,
