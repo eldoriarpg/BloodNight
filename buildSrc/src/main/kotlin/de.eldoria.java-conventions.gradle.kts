@@ -25,7 +25,7 @@ dependencies {
 }
 
 group = "de.eldoria"
-version = "0.10.6"
+version = "0.10.7"
 
 java {
     withSourcesJar()
