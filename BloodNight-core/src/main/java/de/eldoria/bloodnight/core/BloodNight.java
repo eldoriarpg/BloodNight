@@ -70,7 +70,7 @@ public class BloodNight extends EldoPlugin {
     }
 
     @Override
-    public void onPluginEnable() {
+    public void onPluginEnable(boolean reload) {
         if (!initialized) {
             instance = this;
             setLoggerLevel();
