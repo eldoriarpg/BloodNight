@@ -5,16 +5,14 @@ plugins {
 
 dependencies {
     implementation(project(":BloodNight-api"))
-    implementation("de.eldoria", "eldo-util", "1.9.2-SNAPSHOT") {
-        isChanging = true
-    }
+    implementation("de.eldoria", "eldo-util", "1.9.6-DEV")
     implementation("net.kyori", "adventure-api", "4.8.1")
     implementation("net.kyori", "adventure-platform-bukkit", "4.0.0-SNAPSHOT")
     testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.5.2")
     testImplementation("junit", "junit", "4.13.1")
     testImplementation("org.mockito", "mockito-core", "3.5.13")
     compileOnly("io.lumine.xikage", "MythicMobs", "4.12.0")
-    compileOnly("me.clip", "placeholderapi", "2.10.9")
+    compileOnly("me.clip", "placeholderapi", "2.10.10")
     compileOnly("com.onarandombox.multiversecore", "Multiverse-Core", "4.2.1")
     compileOnly("se.hyperver.hyperverse", "Core", "0.9.0-SNAPSHOT")
 }
