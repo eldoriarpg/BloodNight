@@ -53,6 +53,8 @@ public class SpecialMobManager extends BukkitRunnable implements Listener {
             return;
         }
 
+        BloodNight.logger().config("Wrapped mob " + entity.getType() + " into " + mobFactory.getMobName());
+
         SpecialMob<?> specialMob = mobFactory.wrap((LivingEntity) entity, mobSettings, mobSetting.get());
 
         registerMob(specialMob);
