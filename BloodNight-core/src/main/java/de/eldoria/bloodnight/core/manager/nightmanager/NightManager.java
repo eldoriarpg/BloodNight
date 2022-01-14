@@ -154,7 +154,7 @@ public class NightManager extends BukkitRunnable implements Listener {
         pluginManager.callEvent(beginEvent);
 
         if (beginEvent.isCancelled()) {
-            BloodNight.logger().fine("BloodNight in " + world.getName() + " was cancelled by another plugin.");
+            BloodNight.logger().config("BloodNight in " + world.getName() + " was cancelled by another plugin.");
             return;
         }
         BloodNight.logger().config("BloodNight in " + world.getName() + " activated.");
@@ -184,7 +184,7 @@ public class NightManager extends BukkitRunnable implements Listener {
     private void resolveBloodNight(World world) {
         if (!isBloodNightActive(world)) return;
 
-        BloodNight.logger().fine("BloodNight in " + world.getName() + " resolved.");
+        BloodNight.logger().config("BloodNight in " + world.getName() + " resolved.");
 
         WorldSettings settings = configuration.getWorldSettings(world.getName());
 
