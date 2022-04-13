@@ -10,7 +10,7 @@ dependencies {
     implementation("net.kyori", "adventure-platform-bukkit", "4.0.1")
     testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.5.2")
     testImplementation("junit", "junit", "4.13.1")
-    testImplementation("org.mockito", "mockito-core", "3.5.13")
+    testImplementation("org.mockito", "mockito-core", "4.4.0")
     compileOnly("io.lumine.xikage", "MythicMobs", "4.12.0")
     compileOnly("me.clip", "placeholderapi", "2.10.10")
     compileOnly("com.onarandombox.multiversecore", "Multiverse-Core", "4.2.1")
