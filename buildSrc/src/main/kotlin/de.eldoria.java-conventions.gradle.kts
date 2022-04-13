@@ -19,7 +19,7 @@ repositories {
 dependencies {
     compileOnly("org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT")
     compileOnly("org.projectlombok:lombok:1.18.20")
-    compileOnly("org.jetbrains:annotations:16.0.2")
+    compileOnly("org.jetbrains:annotations:23.0.0")
     annotationProcessor("org.projectlombok:lombok:1.18.20")
 }
 
