@@ -13,7 +13,7 @@ dependencies {
     testImplementation("org.mockito", "mockito-core", "4.4.0")
     compileOnly("io.lumine.xikage", "MythicMobs", "4.12.0")
     compileOnly("me.clip", "placeholderapi", "2.10.10")
-    compileOnly("com.onarandombox.multiversecore", "Multiverse-Core", "4.2.1")
+    compileOnly("com.onarandombox.multiversecore", "Multiverse-Core", "4.3.1")
     compileOnly("se.hyperver.hyperverse", "Core", "0.10.0")
 }
 
