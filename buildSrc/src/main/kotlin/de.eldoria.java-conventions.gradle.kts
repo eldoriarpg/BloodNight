@@ -14,7 +14,6 @@ repositories {
     maven ( "https://oss.sonatype.org/content/repositories/snapshots/" )
     maven ( "https://mvn.lumine.io/repository/maven-public/" )
     maven ( "https://repo.extendedclip.com/content/repositories/placeholderapi/" )
-    maven ( "https://mvn.intellectualsites.com/content/repositories/snapshots" )
 }
 
 dependencies {
