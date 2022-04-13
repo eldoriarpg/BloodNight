@@ -14,7 +14,7 @@ dependencies {
     compileOnly("io.lumine.xikage", "MythicMobs", "4.12.0")
     compileOnly("me.clip", "placeholderapi", "2.10.10")
     compileOnly("com.onarandombox.multiversecore", "Multiverse-Core", "4.2.1")
-    compileOnly("se.hyperver.hyperverse", "Core", "0.9.0-SNAPSHOT")
+    compileOnly("se.hyperver.hyperverse", "Core", "0.10.0")
 }
 
 configurations {
