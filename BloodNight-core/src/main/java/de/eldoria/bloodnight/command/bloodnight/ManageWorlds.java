@@ -80,13 +80,13 @@ public class ManageWorlds extends EldoCommand {
 
         String field = args[1];
         String value = args[2];
-        OptionalInt optPage = CommandUtil.findPage(configuration.getWorldSettings().values(), 2,
+        Optional<Integer> optPage = CommandUtil.findPage(configuration.getWorldSettings().values(), 2,
                 w -> w.getWorldName().equalsIgnoreCase(world.getName()));
 
         if ("page".equalsIgnoreCase(field)) {
             optPage = Parser.parseInt(value);
             if (optPage.isPresent()) {
-                sendWorldPage(world, sender, optPage.getAsInt());
+                sendWorldPage(world, sender, optPage.get());
             }
             return true;
         }
@@ -117,23 +117,23 @@ public class ManageWorlds extends EldoCommand {
                 bbs.setTitle(title);
             }
             if ("color".equalsIgnoreCase(value)) {
-                BarColor parse = EnumUtil.parse(bossBarValue, BarColor.class);
-                if (parse == null) {
+                Optional<BarColor> parse = EnumUtil.parse(bossBarValue, BarColor.class);
+                if (parse.isEmpty()) {
                     messageSender().sendError(sender, localizer().getMessage("error.invalidValue"));
                     return true;
                 }
-                bbs.setColor(parse);
+                bbs.setColor(parse.get());
             }
             if ("toggleEffect".equalsIgnoreCase(value)) {
-                BarFlag parse = EnumUtil.parse(bossBarValue, BarFlag.class);
-                if (parse == null) {
+                Optional<BarFlag> parse = EnumUtil.parse(bossBarValue, BarFlag.class);
+                if (parse.isEmpty()) {
                     messageSender().sendError(sender, localizer().getMessage("error.invalidValue"));
                     return true;
                 }
-                bbs.toggleEffect(parse);
+                bbs.toggleEffect(parse.get());
             }
 
-            sendWorldPage(world, sender, optPage.getAsInt());
+            sendWorldPage(world, sender, optPage.get());
             configuration.save();
             return true;
         }
@@ -153,7 +153,7 @@ public class ManageWorlds extends EldoCommand {
             if ("manageCreeperAlways".equalsIgnoreCase(field)) {
                 worldSettings.setAlwaysManageCreepers(aBoolean.get());
             }
-            sendWorldPage(world, sender, optPage.getAsInt());
+            sendWorldPage(world, sender, optPage.get());
             configuration.save();
             return true;
         }

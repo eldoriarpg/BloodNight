@@ -41,7 +41,7 @@ public class VanillaMobSettings implements ConfigurationSerializable {
         damageMultiplier = map.getValueOrDefault("damageMultiplier", damageMultiplier);
         healthMultiplier = map.getValueOrDefault("healthMultiplier", healthMultiplier);
         dropMultiplier = map.getValueOrDefault("dropMultiplier", dropMultiplier);
-        vanillaDropMode = EnumUtil.parse(map.getValueOrDefault("vanillaDropMode", vanillaDropMode.name()), VanillaDropMode.class);
+        vanillaDropMode = EnumUtil.parse(map.getValueOrDefault("vanillaDropMode", vanillaDropMode.name()), VanillaDropMode.class).get();
         extraDrops = map.getValueOrDefault("extraDrops", extraDrops);
     }
 

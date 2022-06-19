@@ -114,9 +114,9 @@ public class ManageMob extends EldoCommand {
         String field = args[3];
 
         if ("page".equalsIgnoreCase(mobString)) {
-            OptionalInt optPage = Parser.parseInt(field);
+            Optional<Integer> optPage = Parser.parseInt(field);
             if (optPage.isPresent()) {
-                sendMobListPage(world, sender, mobGroup, optPage.getAsInt());
+                sendMobListPage(world, sender, mobGroup, optPage.get());
             }
             return true;
         }
@@ -137,7 +137,7 @@ public class ManageMob extends EldoCommand {
 
         MobSetting mob = mobByName.get();
 
-        OptionalInt optPage = CommandUtil.findPage(mobGroup.getValue(), 2, m -> m.getMobName().equalsIgnoreCase(mobByName.get().getMobName()));
+        Optional<Integer> optPage = CommandUtil.findPage(mobGroup.getValue(), 2, m -> m.getMobName().equalsIgnoreCase(mobByName.get().getMobName()));
 
         if (ArrayUtil.arrayContains(new String[]{"state", "overrideDefault"}, field)) {
             Optional<Boolean> aBoolean = Parser.parseBoolean(value);
@@ -167,16 +167,16 @@ public class ManageMob extends EldoCommand {
         }
 
         if (ArrayUtil.arrayContains(new String[]{"dropAmount"}, field)) {
-            OptionalInt num = Parser.parseInt(value);
+            Optional<Integer> num = Parser.parseInt(value);
             if (!num.isPresent()) {
                 messageSender().sendLocalizedError(sender, "error.invalidNumber");
                 return true;
             }
             if ("dropAmount".equalsIgnoreCase(field)) {
-                if (invalidRange(sender, num.getAsInt(), 0, 100)) {
+                if (invalidRange(sender, num.get(), 0, 100)) {
                     return true;
                 }
-                mob.setDropAmount(num.getAsInt());
+                mob.setDropAmount(num.get());
             }
             optPage.ifPresent(i -> sendMobListPage(world, sender, mobGroup, i));
             configuration.save();
@@ -184,38 +184,38 @@ public class ManageMob extends EldoCommand {
         }
 
         if (ArrayUtil.arrayContains(new String[]{"health", "damage"}, field)) {
-            OptionalDouble num = Parser.parseDouble(value);
+            Optional<Double> num = Parser.parseDouble(value);
             if (!num.isPresent()) {
                 messageSender().sendLocalizedError(sender, "error.invalidNumber");
                 return true;
             }
             if ("health".equalsIgnoreCase(field)) {
-                if (invalidRange(sender, num.getAsDouble(), 1, 500)) {
+                if (invalidRange(sender, num.get(), 1, 500)) {
                     return true;
                 }
-                mob.setHealth(num.getAsDouble());
+                mob.setHealth(num.get());
             }
             if ("damage".equalsIgnoreCase(field)) {
-                if (invalidRange(sender, num.getAsDouble(), 1, 500)) {
+                if (invalidRange(sender, num.get(), 1, 500)) {
                     return true;
                 }
-                mob.setDamage(num.getAsDouble());
+                mob.setDamage(num.get());
             }
             optPage.ifPresent(i -> sendMobListPage(world, sender, mobGroup, i));
             configuration.save();
             return true;
         }
         if (ArrayUtil.arrayContains(new String[]{"healthModifier", "damageModifier"}, field)) {
-            MobValueModifier val = EnumUtil.parse(value, MobValueModifier.class);
-            if (val == null) {
+            Optional<MobValueModifier> val = EnumUtil.parse(value, MobValueModifier.class);
+            if (val.isEmpty()) {
                 messageSender().sendLocalizedError(sender, "error.invalidValue");
                 return true;
             }
             if ("healthModifier".equalsIgnoreCase(field)) {
-                mob.setHealthModifier(val);
+                mob.setHealthModifier(val.get());
             }
             if ("damageModifier".equalsIgnoreCase(field)) {
-                mob.setDamageModifier(val);
+                mob.setDamageModifier(val.get());
             }
             optPage.ifPresent(i -> sendMobListPage(world, sender, mobGroup, i));
             configuration.save();

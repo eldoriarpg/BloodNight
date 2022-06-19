@@ -120,13 +120,13 @@ public class ManageNightSelection extends EldoCommand {
         String field = args[1];
         String value = ArgumentUtils.getOptionalParameter(args, 2, "none", s -> s);
 
-        OptionalInt optPage = CommandUtil.findPage(configuration.getWorldSettings().values(), 3,
+        Optional<Integer> optPage = CommandUtil.findPage(configuration.getWorldSettings().values(), 3,
                 w -> w.getWorldName().equalsIgnoreCase(world.getName()));
 
         if ("page".equalsIgnoreCase(field)) {
-            OptionalInt optionalInt = Parser.parseInt(value);
+            Optional<Integer> optionalInt = Parser.parseInt(value);
             if (optionalInt.isPresent()) {
-                sendWorldPage(world, sender, optionalInt.getAsInt());
+                sendWorldPage(world, sender, optionalInt.get());
             }
             return true;
         }
@@ -134,32 +134,32 @@ public class ManageNightSelection extends EldoCommand {
         final NightSelection sel = worldSettings.getNightSelection();
         if (TabCompleteUtil.isCommand(field, "interval", "intervalProbability", "probability", "phaseAmount",
                 "period", "minCurveVal", "maxCurveVal")) {
-            OptionalInt optionalInt = Parser.parseInt(value);
+            Optional<Integer> optionalInt = Parser.parseInt(value);
             if (!optionalInt.isPresent()) {
                 messageSender().sendError(player, localizer().getMessage("error.invalidNumber"));
                 return true;
             }
 
             if ("interval".equalsIgnoreCase(field)) {
-                sel.setInterval(EMath.clamp(1, 100, optionalInt.getAsInt()));
+                sel.setInterval(EMath.clamp(1, 100, optionalInt.get()));
             }
             if ("intervalProbability".equalsIgnoreCase(field)) {
-                sel.setIntervalProbability(EMath.clamp(0, 100, optionalInt.getAsInt()));
+                sel.setIntervalProbability(EMath.clamp(0, 100, optionalInt.get()));
             }
             if ("probability".equalsIgnoreCase(field)) {
-                sel.setProbability(EMath.clamp(1, 100, optionalInt.getAsInt()));
+                sel.setProbability(EMath.clamp(1, 100, optionalInt.get()));
             }
             if ("phaseAmount".equalsIgnoreCase(field)) {
-                sel.setPhaseCount(EMath.clamp(1, 54, optionalInt.getAsInt()));
+                sel.setPhaseCount(EMath.clamp(1, 54, optionalInt.get()));
             }
             if ("period".equalsIgnoreCase(field)) {
-                sel.setPeriod(EMath.clamp(3, 100, optionalInt.getAsInt()));
+                sel.setPeriod(EMath.clamp(3, 100, optionalInt.get()));
             }
             if ("minCurveVal".equalsIgnoreCase(field)) {
-                sel.setMinCurveVal(EMath.clamp(0, 100, optionalInt.getAsInt()));
+                sel.setMinCurveVal(EMath.clamp(0, 100, optionalInt.get()));
             }
             if ("maxCurveVal".equalsIgnoreCase(field)) {
-                sel.setMaxCurveVal(EMath.clamp(0, 100, optionalInt.getAsInt()));
+                sel.setMaxCurveVal(EMath.clamp(0, 100, optionalInt.get()));
             }
             optPage.ifPresent(p -> sendWorldPage(world, sender, p));
             configuration.save();
@@ -219,12 +219,12 @@ public class ManageNightSelection extends EldoCommand {
         }
 
         if (TabCompleteUtil.isCommand(field, "type")) {
-            NightSelection.NightSelectionType parse = EnumUtil.parse(value, NightSelection.NightSelectionType.class);
-            if (parse == null) {
+            Optional<NightSelection.NightSelectionType> parse = EnumUtil.parse(value, NightSelection.NightSelectionType.class);
+            if (parse.isEmpty()) {
                 messageSender().sendLocalizedError(sender, "error.invalidValue");
                 return true;
             }
-            sel.setNightSelectionType(parse);
+            sel.setNightSelectionType(parse.get());
             configuration.save();
             optPage.ifPresent(p -> sendWorldPage(world, sender, p));
             return true;
