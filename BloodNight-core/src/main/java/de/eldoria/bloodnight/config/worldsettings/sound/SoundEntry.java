@@ -32,11 +32,7 @@ public class SoundEntry implements ConfigurationSerializable {
     public SoundEntry(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
         String name = map.getValueOrDefault("sound", this.sound.name());
-        this.sound = EnumUtil.parse(name, Sound.class);
-        if (sound == null) {
-            sound = Sound.UI_BUTTON_CLICK;
-            BloodNight.logger().warning("§4Sound " + name + " is not a valid sound. Changed to " + sound.name());
-        }
+        this.sound = EnumUtil.parse(name, Sound.class).orElse(Sound.UI_BUTTON_CLICK);
         pitch = map.getValueOrDefault("pitch", pitch);
         clampArray(pitch, 0.01f, 2);
         volume = map.getValueOrDefault("volume", volume);

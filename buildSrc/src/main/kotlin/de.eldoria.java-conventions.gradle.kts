@@ -14,23 +14,22 @@ repositories {
     maven ( "https://oss.sonatype.org/content/repositories/snapshots/" )
     maven ( "https://mvn.lumine.io/repository/maven-public/" )
     maven ( "https://repo.extendedclip.com/content/repositories/placeholderapi/" )
-    maven ( "https://mvn.intellectualsites.com/content/repositories/snapshots" )
 }
 
 dependencies {
     compileOnly("org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT")
-    compileOnly("org.projectlombok:lombok:1.18.20")
-    compileOnly("org.jetbrains:annotations:16.0.2")
-    annotationProcessor("org.projectlombok:lombok:1.18.20")
+    compileOnly("org.projectlombok:lombok:1.18.24")
+    compileOnly("org.jetbrains:annotations:23.0.0")
+    annotationProcessor("org.projectlombok:lombok:1.18.24")
 }
 
 group = "de.eldoria"
-version = "0.10.8"
+version = "0.10.9"
 
 java {
     withSourcesJar()
     withJavadocJar()
-    sourceCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_11
 }
 
 tasks{

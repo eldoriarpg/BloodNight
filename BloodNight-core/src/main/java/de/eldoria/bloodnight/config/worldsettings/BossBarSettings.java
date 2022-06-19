@@ -42,9 +42,9 @@ public class BossBarSettings implements ConfigurationSerializable {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
         this.enabled = map.getValue("enabled");
         setTitle(map.getValue("title"));
-        this.color = map.getValue("color", v -> EnumUtil.parse(v, BarColor.class));
+        this.color = map.getValue("color", v -> EnumUtil.parse(v, BarColor.class).orElse(BarColor.RED));
         List<String> effects = map.getValue("effects");
-        this.effects = effects.stream().map(v -> EnumUtil.parse(v, BarFlag.class)).filter(Objects::nonNull).collect(Collectors.toList());
+        this.effects = effects.stream().map(v -> EnumUtil.parse(v, BarFlag.class).orElse(null)).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     public void toggleEffect(BarFlag flag) {

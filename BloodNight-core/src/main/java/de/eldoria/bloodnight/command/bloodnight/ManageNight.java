@@ -30,8 +30,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.OptionalDouble;
-import java.util.OptionalInt;
 
 public class ManageNight extends EldoCommand {
     private final Configuration configuration;
@@ -77,8 +75,8 @@ public class ManageNight extends EldoCommand {
 
         String cmd = args[1];
         String value = args[2];
-        OptionalDouble optionalDouble = Parser.parseDouble(value);
-        OptionalInt optionalInt = Parser.parseInt(value);
+        Optional<Double> optionalDouble = Parser.parseDouble(value);
+        Optional<Integer> optionalInt = Parser.parseInt(value);
         Optional<Boolean> optionalBoolean = Parser.parseBoolean(value);
 
         NightSettings nightSettings = worldSettings.getNightSettings();
@@ -106,28 +104,28 @@ public class ManageNight extends EldoCommand {
                 return true;
             }
             if ("nightBegin".equalsIgnoreCase(cmd)) {
-                if (invalidRange(sender, optionalInt.getAsInt(), 0, 24000)) {
+                if (invalidRange(sender, optionalInt.get(), 0, 24000)) {
                     return true;
                 }
-                nightSettings.setNightBegin(optionalInt.getAsInt());
+                nightSettings.setNightBegin(optionalInt.get());
             }
             if ("nightEnd".equalsIgnoreCase(cmd)) {
-                if (invalidRange(sender, optionalInt.getAsInt(), 0, 24000)) {
+                if (invalidRange(sender, optionalInt.get(), 0, 24000)) {
                     return true;
                 }
-                nightSettings.setNightEnd(optionalInt.getAsInt());
+                nightSettings.setNightEnd(optionalInt.get());
             }
             if ("nightDuration".equalsIgnoreCase(cmd)) {
-                if (invalidRange(sender, optionalInt.getAsInt(), 0, 86400)) {
+                if (invalidRange(sender, optionalInt.get(), 0, 86400)) {
                     return true;
                 }
-                nightSettings.setNightDuration(optionalInt.getAsInt());
+                nightSettings.setNightDuration(optionalInt.get());
             }
             if ("maxNightDuration".equalsIgnoreCase(cmd)) {
-                if (invalidRange(sender, optionalInt.getAsInt(), nightSettings.getNightDuration(), 86400)) {
+                if (invalidRange(sender, optionalInt.get(), nightSettings.getNightDuration(), 86400)) {
                     return true;
                 }
-                nightSettings.setMaxNightDuration(optionalInt.getAsInt());
+                nightSettings.setMaxNightDuration(optionalInt.get());
             }
             configuration.save();
             sendNightSettings(sender, worldSettings);
@@ -135,12 +133,12 @@ public class ManageNight extends EldoCommand {
         }
 
         if ("durationMode".equalsIgnoreCase(cmd)) {
-            NightSettings.NightDuration parse = EnumUtil.parse(value, NightSettings.NightDuration.class);
-            if (parse == null) {
+            Optional<NightSettings.NightDuration> parse = EnumUtil.parse(value, NightSettings.NightDuration.class);
+            if (parse.isEmpty()) {
                 messageSender().sendLocalizedError(sender, "error.invalidValue");
                 return true;
             }
-            nightSettings.setNightDurationMode(parse);
+            nightSettings.setNightDurationMode(parse.get());
             configuration.save();
             sendNightSettings(sender, worldSettings);
             return true;

@@ -47,11 +47,7 @@ public class SoundSettings implements ConfigurationSerializable {
         minInterval = map.getValueOrDefault("minInterval", minInterval);
         maxInterval = map.getValueOrDefault("maxInterval", maxInterval);
         String channel = map.getValueOrDefault("channel", this.channel.name());
-        this.channel = EnumUtil.parse(channel, SoundCategory.class);
-        if (this.channel == null) {
-            this.channel = SoundCategory.AMBIENT;
-            BloodNight.logger().warning("Channel " + channel + " is invalid. Changed to AMBIENT.");
-        }
+        this.channel = EnumUtil.parse(channel, SoundCategory.class).orElse(SoundCategory.AMBIENT);
         startSounds = map.getValueOrDefault("startSounds", startSounds);
         endSounds = map.getValueOrDefault("endSounds", endSounds);
         randomSounds = map.getValueOrDefault("randomSounds", randomSounds);

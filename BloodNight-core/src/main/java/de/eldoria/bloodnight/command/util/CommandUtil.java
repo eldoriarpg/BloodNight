@@ -75,18 +75,18 @@ public final class CommandUtil {
                 .build();
     }
 
-    public static <T> OptionalInt findPage(Collection<T> content, int pageSize, Predicate<T> predicate) {
+    public static <T> Optional<Integer> findPage(Collection<T> content, int pageSize, Predicate<T> predicate) {
         Iterator<T> iterator = content.iterator();
         int page = 0;
         while (iterator.hasNext()) {
             for (int i = 0; i < pageSize; i++) {
                 if (!iterator.hasNext()) break;
                 T next = iterator.next();
-                if (predicate.test(next)) return OptionalInt.of(page);
+                if (predicate.test(next)) return Optional.of(page);
             }
             page++;
         }
-        return OptionalInt.empty();
+        return Optional.empty();
     }
 
     public static <T> TextComponent getPage(Collection<T> content, int page, Function<T, TextComponent> mapping, String title, String pageCommand) {
