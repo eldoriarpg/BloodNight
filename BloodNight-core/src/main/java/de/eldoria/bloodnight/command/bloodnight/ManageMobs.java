@@ -89,22 +89,22 @@ public class ManageMobs extends EldoCommand {
         String value = args[2];
 
         if (ArrayUtil.arrayContains(new String[]{"spawnPercentage", "dropAmount", "vanillaDropAmount"}, field)) {
-            OptionalInt optionalInt = Parser.parseInt(value);
+            Optional<Integer> optionalInt = Parser.parseInt(value);
             if (!optionalInt.isPresent()) {
                 messageSender().sendError(player, localizer().getMessage("error.invalidNumber"));
                 return true;
             }
-            if (invalidRange(sender, optionalInt.getAsInt(), 1, 100)) {
+            if (invalidRange(sender, optionalInt.get(), 1, 100)) {
                 return true;
             }
             if ("spawnPercentage".equalsIgnoreCase(field)) {
-                mobSettings.setSpawnPercentage(optionalInt.getAsInt());
+                mobSettings.setSpawnPercentage(optionalInt.get());
             }
             if ("dropAmount".equalsIgnoreCase(field)) {
-                mobSettings.setDropAmount(optionalInt.getAsInt());
+                mobSettings.setDropAmount(optionalInt.get());
             }
             if ("vanillaDropAmount".equalsIgnoreCase(field)) {
-                mobSettings.getVanillaMobSettings().setExtraDrops(optionalInt.getAsInt());
+                mobSettings.getVanillaMobSettings().setExtraDrops(optionalInt.get());
             }
             configuration.save();
             sendInfo(sender, worldSettings);
@@ -113,33 +113,33 @@ public class ManageMobs extends EldoCommand {
 
         if (ArrayUtil.arrayContains(new String[]{"monsterDamage", "vanillaMonsterDamage", "vanillaMonsterHealth",
                 "monsterHealth", "experience", "vanillaDropsMulti"}, field)) {
-            OptionalDouble optionalDouble = Parser.parseDouble(value);
+            Optional<Double> optionalDouble = Parser.parseDouble(value);
             if (!optionalDouble.isPresent()) {
                 messageSender().sendError(sender, localizer().getMessage("error.invalidNumber"));
                 return true;
             }
 
-            if (invalidRange(sender, optionalDouble.getAsDouble(), 1, 200)) {
+            if (invalidRange(sender, optionalDouble.get(), 1, 200)) {
                 return true;
             }
 
             if ("monsterDamage".equalsIgnoreCase(field)) {
-                mobSettings.setDamageMultiplier(optionalDouble.getAsDouble());
+                mobSettings.setDamageMultiplier(optionalDouble.get());
             }
             if ("monsterHealth".equalsIgnoreCase(field)) {
-                mobSettings.setHealthModifier(optionalDouble.getAsDouble());
+                mobSettings.setHealthModifier(optionalDouble.get());
             }
             if ("vanillaMonsterDamage".equalsIgnoreCase(field)) {
-                mobSettings.getVanillaMobSettings().setDamageMultiplier(optionalDouble.getAsDouble());
+                mobSettings.getVanillaMobSettings().setDamageMultiplier(optionalDouble.get());
             }
             if ("vanillaMonsterHealth".equalsIgnoreCase(field)) {
-                mobSettings.getVanillaMobSettings().setHealthMultiplier(optionalDouble.getAsDouble());
+                mobSettings.getVanillaMobSettings().setHealthMultiplier(optionalDouble.get());
             }
             if ("experience".equalsIgnoreCase(field)) {
-                mobSettings.setExperienceMultiplier(optionalDouble.getAsDouble());
+                mobSettings.setExperienceMultiplier(optionalDouble.get());
             }
             if ("vanillaDropsMulti".equalsIgnoreCase(field)) {
-                mobSettings.getVanillaMobSettings().setDropMultiplier(optionalDouble.getAsDouble());
+                mobSettings.getVanillaMobSettings().setDropMultiplier(optionalDouble.get());
             }
             configuration.save();
             sendInfo(sender, worldSettings);
@@ -242,12 +242,12 @@ public class ManageMobs extends EldoCommand {
         }
 
         if ("vanillaDropMode".equalsIgnoreCase(field)) {
-            VanillaDropMode parse = EnumUtil.parse(value, VanillaDropMode.class);
-            if (parse == null) {
+            Optional<VanillaDropMode> parse = EnumUtil.parse(value, VanillaDropMode.class);
+            if (parse.isEmpty()) {
                 messageSender().sendError(sender, localizer().getMessage("error.invalidValue"));
                 return true;
             }
-            mobSettings.getVanillaMobSettings().setVanillaDropMode(parse);
+            mobSettings.getVanillaMobSettings().setVanillaDropMode(parse.get());
             sendInfo(sender, worldSettings);
             configuration.save();
             return true;

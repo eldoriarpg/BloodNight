@@ -192,19 +192,19 @@ public class ManagePlayerDeathActions extends EldoCommand {
         }
 
         if (TabCompleteUtil.isCommand(field, "loseExp", "loseInv")) {
-            OptionalInt optionalInt = Parser.parseInt(value);
+            Optional<Integer> optionalInt = Parser.parseInt(value);
             if (!optionalInt.isPresent()) {
                 messageSender().sendError(player, localizer().getMessage("error.invalidNumber"));
                 return true;
             }
-            if (invalidRange(sender, optionalInt.getAsInt(), 0, 100)) {
+            if (invalidRange(sender, optionalInt.get(), 0, 100)) {
                 return true;
             }
             if ("loseExp".equalsIgnoreCase(field)) {
-                playerDeathActions.setLoseExpProbability(optionalInt.getAsInt());
+                playerDeathActions.setLoseExpProbability(optionalInt.get());
             }
             if ("loseInv".equalsIgnoreCase(field)) {
-                playerDeathActions.setLoseInvProbability(optionalInt.getAsInt());
+                playerDeathActions.setLoseInvProbability(optionalInt.get());
             }
             configuration.save();
             sendPlayerDeathActions(player, world, playerDeathActions);

@@ -71,9 +71,9 @@ public class MobSetting implements ConfigurationSerializable {
         dropAmount = map.getValueOrDefault("dropAmount", dropAmount);
         overrideDefaultDrops = map.getValueOrDefault("overrideDefaultDrops", overrideDefaultDrops);
         drops = map.getValueOrDefault("drops", drops);
-        healthModifier = EnumUtil.parse(map.getValueOrDefault("healthModifier", healthModifier.name()), MobValueModifier.class);
+        healthModifier = EnumUtil.parse(map.getValueOrDefault("healthModifier", healthModifier.name()), MobValueModifier.class).get();
         health = map.getValueOrDefault("health", health);
-        damageModifier = EnumUtil.parse(map.getValueOrDefault("damageModifier", damageModifier.name()), MobValueModifier.class);
+        damageModifier = EnumUtil.parse(map.getValueOrDefault("damageModifier", damageModifier.name()), MobValueModifier.class).get();
         damage = map.getValueOrDefault("damage", damage);
     }
 
