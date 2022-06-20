@@ -23,8 +23,7 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.24")
 }
 
-group = "de.eldoria"
-version = "0.10.9"
+version = rootProject.version
 
 java {
     withSourcesJar()
