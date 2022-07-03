@@ -11,7 +11,7 @@ dependencies {
     testImplementation("junit", "junit", "4.13.2")
     testImplementation("org.mockito", "mockito-core", "4.6.1")
     compileOnly("io.lumine.xikage", "MythicMobs", "4.12.0")
-    compileOnly("me.clip", "placeholderapi", "2.11.1")
+    compileOnly("me.clip", "placeholderapi", "2.11.2")
     compileOnly("com.onarandombox.multiversecore", "Multiverse-Core", "4.3.1")
     compileOnly("se.hyperver.hyperverse", "Core", "0.10.0")
 }
