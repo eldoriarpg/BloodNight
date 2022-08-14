@@ -38,7 +38,7 @@ public class KnightZombie extends AbstractZombie {
     }
     @Override
     public void onDamageByEntity(@NotNull EntityDamageByEntityEvent e){
-        if (e.getEntity() instanceof Zombie && e.getDamager() instanceof Player) {
+        if (e.getDamager() instanceof Player) {
             if (e.getEntity() instanceof KnightZombie) {
                 int random = ThreadLocalRandom.current().nextInt(10);
                 if (random < 2) { //change the number to increase/decrease the frequency.
