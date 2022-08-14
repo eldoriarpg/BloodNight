@@ -40,8 +40,7 @@ public class KnightZombie extends AbstractZombie {
     public void onDamageByEntity(@NotNull EntityDamageByEntityEvent e){
         if (e.getDamager() instanceof Player) {
             if (e.getEntity() instanceof KnightZombie) {
-                int random = ThreadLocalRandom.current().nextInt(10);
-                if (random < 2) { //change the number to increase/decrease the frequency.
+                if (ThreadLocalRandom.current().nextDouble() <= 0.2) { //change the number to increase/decrease the frequency.
                     e.setCancelled(true);
                     Player player = (Player) e.getDamager();
                     player.playSound(player.getLocation(), Sound.ENTITY_ZOMBIE_STEP, 10, 3);
