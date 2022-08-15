@@ -31,21 +31,22 @@ public class KnightZombie extends AbstractZombie {
     @Override
     public void onHit(@NotNull EntityDamageByEntityEvent e) {
         if (e.getEntity() instanceof Player) {
-            if (ThreadLocalRandom.current().nextDouble() <= 0.4) { //changes the chance to increase/decrease the custom push
+            if (ThreadLocalRandom.current().nextDouble() <= 0.15) { //changes the chance to increase/decrease the custom push
                 e.setCancelled(true);
                 Player player = (Player) e.getEntity();
-                player.getVelocity().add(new Vector(0, 2, 0));   //pushes the player up two blocks in the air
-                player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 40, 1, false, false));
+                player.setVelocity(new Vector(1, 1, 1)); //pushes the player up into the air
+                player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 20, 2, true, true, true));
+                player.playSound(player.getLocation(), Sound.BLOCK_BUBBLE_COLUMN_BUBBLE_POP, 15, 3);
             }
         }
     }
     @Override
-    public void onDamageByEntity(@NotNull EntityDamageByEntityEvent e){
+    public void onDamageByEntity(@NotNull EntityDamageByEntityEvent e) {
         if (e.getDamager() instanceof Player) {
-            if ((ThreadLocalRandom.current().nextDouble() <= 0.2)) { //changes the chance to increase/decrease the block the attack
-                e.setCancelled(true); //blocks the attack.
+            if ((ThreadLocalRandom.current().nextDouble() <= 0.12)) { //changes the chance to increase/decrease the block the attack
+                e.setCancelled(true);
                 Player player = (Player) e.getDamager();
-                player.playSound(player.getLocation(), Sound.ENTITY_ZOMBIE_STEP, 10, 3);
+                player.playSound(player.getLocation(), Sound.ITEM_SHIELD_BLOCK, 15, 1);
             }
         }
     }
