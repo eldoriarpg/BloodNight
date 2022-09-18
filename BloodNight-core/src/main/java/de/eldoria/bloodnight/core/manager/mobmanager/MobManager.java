@@ -310,12 +310,11 @@ public class MobManager implements Listener {
         new IteratingTask<>(
                 Arrays.asList(event.getChunk().getTileEntities()),
                 e -> {
-                    if (e instanceof Beehive) {
-                        Beehive state = (Beehive) e;
+                    if (e instanceof Beehive state) {
                         hives.incrementAndGet();
                         for (Bee entity : state.releaseEntities()) {
                             entites.incrementAndGet();
-                            BloodNight.logger().finer("Checking entity with id " + entity.getEntityId() + " and " + entity.getUniqueId().toString());
+                            BloodNight.logger().finer("Checking entity with id " + entity.getEntityId() + " and " + entity.getUniqueId());
                             if (SpecialMobUtil.isSpecialMob(entity)) {
                                 entity.remove();
                             }

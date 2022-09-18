@@ -22,10 +22,10 @@ import java.util.concurrent.ThreadLocalRandom;
 @SerializableAs("bloodNightSoundEntry")
 public class SoundEntry implements ConfigurationSerializable {
     private Sound sound = Sound.UI_BUTTON_CLICK;
-    private List<Double> pitch = new ArrayList<Double>() {{
+    private List<Double> pitch = new ArrayList<>() {{
         add(1d);
     }};
-    private List<Double> volume = new ArrayList<Double>() {{
+    private List<Double> volume = new ArrayList<>() {{
         add(1d);
     }};
 
@@ -46,9 +46,7 @@ public class SoundEntry implements ConfigurationSerializable {
     }
 
     private void clampArray(List<Double> values, double min, double max) {
-        for (int i = 0; i < values.size(); i++) {
-            values.set(i, EMath.clamp(min, max, values.get(i)));
-        }
+        values.replaceAll(value -> EMath.clamp(min, max, value));
     }
 
     public void play(Player player, Location location, SoundCategory channel) {

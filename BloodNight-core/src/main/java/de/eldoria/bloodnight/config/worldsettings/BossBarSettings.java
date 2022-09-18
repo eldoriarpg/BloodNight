@@ -28,7 +28,7 @@ public class BossBarSettings implements ConfigurationSerializable {
      */
     private String title = "§c§lBlood Night";
     private BarColor color = BarColor.RED;
-    private List<BarFlag> effects = new ArrayList<BarFlag>() {
+    private List<BarFlag> effects = new ArrayList<>() {
         {
             add(BarFlag.CREATE_FOG);
             add(BarFlag.DARKEN_SKY);

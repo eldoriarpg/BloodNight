@@ -75,30 +75,18 @@ public class NotificationManager implements Listener {
     private void sendBroadcast(Player player, String message) {
         String m = "§a" + message.replace("§r", "§r§a");
         switch (configuration.getGeneralSettings().getBroadcastMethod()) {
-            case CHAT:
-                messageSender.sendMessage(player, message);
-                break;
-            case TITLE:
-                player.sendTitle(m, "", 10, 70, 20);
-                break;
-            case SUBTITLE:
-                player.sendTitle("", m, 10, 70, 20);
-                break;
+            case CHAT -> messageSender.sendMessage(player, message);
+            case TITLE -> player.sendTitle(m, "", 10, 70, 20);
+            case SUBTITLE -> player.sendTitle("", m, 10, 70, 20);
         }
     }
 
     private void sendMessage(Player player, String message) {
         String m = "§a" + message.replace("§r", "§r§a");
         switch (configuration.getGeneralSettings().getMessageMethod()) {
-            case CHAT:
-                messageSender.sendMessage(player, message);
-                break;
-            case TITLE:
-                player.sendTitle(m, "", 10, 70, 20);
-                break;
-            case SUBTITLE:
-                player.sendTitle("", m, 10, 70, 20);
-                break;
+            case CHAT -> messageSender.sendMessage(player, message);
+            case TITLE -> player.sendTitle(m, "", 10, 70, 20);
+            case SUBTITLE -> player.sendTitle("", m, 10, 70, 20);
         }
     }
 

@@ -168,8 +168,8 @@ public class ManageMobs extends EldoCommand {
         if ("defaultDrops".equalsIgnoreCase(field)) {
             if ("changeContent".equalsIgnoreCase(value)) {
                 Inventory inv = Bukkit.createInventory(player, 54, "Drops");
-                List<ItemStack> stacks = mobSettings.getDefaultDrops().stream().map(Drop::getWeightedItem).collect(Collectors.toList());
-                inv.setContents(stacks.toArray(new ItemStack[0]));
+                inv.setContents(mobSettings.getDefaultDrops().stream().map(Drop::getWeightedItem)
+                                           .toArray(ItemStack[]::new));
                 player.openInventory(inv);
                 inventoryListener.registerModification(player, new InventoryListener.InventoryActionHandler() {
                     @Override
@@ -189,9 +189,9 @@ public class ManageMobs extends EldoCommand {
                 return true;
             }
             if ("changeWeight".equalsIgnoreCase(value)) {
-                List<ItemStack> stacks = mobSettings.getDefaultDrops().stream().map(Drop::getItemWithLoreWeight).collect(Collectors.toList());
                 Inventory inv = Bukkit.createInventory(player, 54, "Weight");
-                inv.setContents(stacks.toArray(new ItemStack[0]));
+                inv.setContents(mobSettings.getDefaultDrops().stream().map(Drop::getItemWithLoreWeight)
+                                           .toArray(ItemStack[]::new));
                 player.openInventory(inv);
                 inventoryListener.registerModification(player, new InventoryListener.InventoryActionHandler() {
                     @Override
@@ -213,18 +213,10 @@ public class ManageMobs extends EldoCommand {
                         }
 
                         switch (event.getClick()) {
-                            case LEFT:
-                                Drop.changeWeight(event.getCurrentItem(), 1);
-                                break;
-                            case SHIFT_LEFT:
-                                Drop.changeWeight(event.getCurrentItem(), 10);
-                                break;
-                            case RIGHT:
-                                Drop.changeWeight(event.getCurrentItem(), -1);
-                                break;
-                            case SHIFT_RIGHT:
-                                Drop.changeWeight(event.getCurrentItem(), -10);
-                                break;
+                            case LEFT -> Drop.changeWeight(event.getCurrentItem(), 1);
+                            case SHIFT_LEFT -> Drop.changeWeight(event.getCurrentItem(), 10);
+                            case RIGHT -> Drop.changeWeight(event.getCurrentItem(), -1);
+                            case SHIFT_RIGHT -> Drop.changeWeight(event.getCurrentItem(), -10);
                         }
                         event.setCancelled(true);
                     }

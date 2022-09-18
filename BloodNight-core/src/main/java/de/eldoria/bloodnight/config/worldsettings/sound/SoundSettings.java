@@ -26,17 +26,17 @@ public class SoundSettings implements ConfigurationSerializable {
     private int maxInterval = 40;
     @Getter
     private SoundCategory channel = SoundCategory.AMBIENT;
-    private List<SoundEntry> startSounds = new ArrayList<SoundEntry>() {{
+    private List<SoundEntry> startSounds = new ArrayList<>() {{
         for (Sound sound : Sounds.START) {
             add(new SoundEntry(sound, new Double[]{0.8, 1d}, new Double[]{1.0}));
         }
     }};
-    private List<SoundEntry> endSounds = new ArrayList<SoundEntry>() {{
+    private List<SoundEntry> endSounds = new ArrayList<>() {{
         for (Sound sound : Sounds.START) {
             add(new SoundEntry(sound, new Double[]{0.8, 1d}, new Double[]{1.0}));
         }
     }};
-    private List<SoundEntry> randomSounds = new ArrayList<SoundEntry>() {{
+    private List<SoundEntry> randomSounds = new ArrayList<>() {{
         for (Sound sound : Sounds.SPOOKY) {
             add(new SoundEntry(sound, new Double[]{0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6}, new Double[]{0.2, 0.4, 0.6, 0.8, 1.0}));
         }

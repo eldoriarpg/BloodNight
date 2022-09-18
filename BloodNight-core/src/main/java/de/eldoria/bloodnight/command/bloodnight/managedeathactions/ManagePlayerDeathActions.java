@@ -101,9 +101,7 @@ public class ManagePlayerDeathActions extends EldoCommand {
                         ItemStackBuilder
                                 .of(Material.POTION)
                                 .withDisplayName(potionType.getName())
-                                .withMetaValue(PotionMeta.class, m -> {
-                                    m.setColor(potionType.getColor());
-                                })
+                                .withMetaValue(PotionMeta.class, m -> m.setColor(potionType.getColor()))
                                 .withLore(String.valueOf(settings == null ? 0 : settings.getDuration()))
                                 .withNBTData(c -> {
                                     c.set(typeKey, PersistentDataType.STRING, potionType.getName());
@@ -135,9 +133,7 @@ public class ManagePlayerDeathActions extends EldoCommand {
         if ("commands".equalsIgnoreCase(field)) {
             List<String> deathCommands = playerDeathActions.getDeathCommands();
             Inventory inventory = Bukkit.createInventory(player, 54, "Manage Death Commands");
-            InventoryActions actions = EldoUtilities.getInventoryActions().wrap(player, inventory, e -> {
-                configuration.save();
-            });
+            InventoryActions actions = EldoUtilities.getInventoryActions().wrap(player, inventory, e -> configuration.save());
 
             int pos = 0;
             for (String deathCommand : deathCommands) {
@@ -151,8 +147,7 @@ public class ManagePlayerDeathActions extends EldoCommand {
                                 pos,
                                 e -> {
                                     switch (e.getClick()) {
-                                        case LEFT:
-                                        case SHIFT_LEFT:
+                                        case LEFT, SHIFT_LEFT -> {
                                             conversationRequester.requestInput(
                                                     player,
                                                     "phrase.commandPlayer",
@@ -163,11 +158,12 @@ public class ManagePlayerDeathActions extends EldoCommand {
                                                     });
                                             player.closeInventory();
                                             return;
-                                        case RIGHT:
-                                        case SHIFT_RIGHT:
+                                        }
+                                        case RIGHT, SHIFT_RIGHT -> {
                                             deathCommands.remove(pos);
                                             player.closeInventory();
                                             sendPlayerDeathActions(player, world, playerDeathActions);
+                                        }
                                     }
                                 },
                                 e -> {

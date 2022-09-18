@@ -29,11 +29,10 @@ public class KnightZombie extends AbstractZombie {
 
     @Override
     public void onHit(@NotNull EntityDamageByEntityEvent e) {
-        if (e.getEntity() instanceof Player) {
+        if (e.getEntity() instanceof Player player) {
             //changes the chance to increase/decrease the custom push
             if (ThreadLocalRandom.current().nextDouble() > 0.15) return;
             e.setCancelled(true);
-            var player = (Player) e.getEntity();
             //pushes the player up into the air
             player.getVelocity().setY(Math.max(player.getVelocity().getY() + 1, 1));
             player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 20, 2, true, true, true));
@@ -43,11 +42,10 @@ public class KnightZombie extends AbstractZombie {
 
     @Override
     public void onDamageByEntity(@NotNull EntityDamageByEntityEvent e) {
-        if (e.getDamager() instanceof Player) {
+        if (e.getDamager() instanceof Player player) {
             //changes the chance to increase/decrease the block the attack
             if ((ThreadLocalRandom.current().nextDouble() > 0.12)) return;
             e.setCancelled(true);
-            var player = (Player) e.getDamager();
             player.playSound(player.getLocation(), Sound.ITEM_SHIELD_BLOCK, 15, 1);
         }
     }

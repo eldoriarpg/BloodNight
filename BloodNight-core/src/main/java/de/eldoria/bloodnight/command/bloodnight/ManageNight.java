@@ -201,31 +201,27 @@ public class ManageNight extends EldoCommand {
                         localizer().getMessage("state.range")))
                 .append(Component.newline());
         switch (durationMode) {
-            case NORMAL:
-                builder.append(Component.text(">", NamedTextColor.GOLD))
-                        .append(Component.newline())
-                        .append(Component.text(">", NamedTextColor.GOLD));
-                break;
-            case EXTENDED:
+            case NORMAL -> builder.append(Component.text(">", NamedTextColor.GOLD))
+                                  .append(Component.newline())
+                                  .append(Component.text(">", NamedTextColor.GOLD));
+            case EXTENDED ->
                 //night duration
-                builder.append(Component.text(localizer().getMessage("field.nightDuration") + ": ", NamedTextColor.AQUA))
-                        .append(Component.text(nightSettings.getNightDuration() + " " + localizer().getMessage("value.seconds"), NamedTextColor.GOLD))
-                        .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                                .clickEvent(ClickEvent.suggestCommand(cmd + "nightDuration ")))
-                        .append(Component.newline())
-                        .append(Component.text(">", NamedTextColor.GOLD));
-                break;
-            case RANGE:
-                builder.append(Component.text(localizer().getMessage("field.minDuration") + ": ", NamedTextColor.AQUA))
-                        .append(Component.text(nightSettings.getNightDuration() + " " + localizer().getMessage("value.seconds"), NamedTextColor.GOLD))
-                        .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                                .clickEvent(ClickEvent.suggestCommand(cmd + "nightDuration ")))
-                        .append(Component.newline())
-                        .append(Component.text(localizer().getMessage("field.maxDuration") + ": ", NamedTextColor.AQUA))
-                        .append(Component.text(nightSettings.getMaxNightDuration() + " " + localizer().getMessage("value.seconds"), NamedTextColor.GOLD))
-                        .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                                .clickEvent(ClickEvent.suggestCommand(cmd + "maxNightDuration ")));
-                break;
+                    builder.append(Component.text(localizer().getMessage("field.nightDuration") + ": ", NamedTextColor.AQUA))
+                           .append(Component.text(nightSettings.getNightDuration() + " " + localizer().getMessage("value.seconds"), NamedTextColor.GOLD))
+                           .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
+                                            .clickEvent(ClickEvent.suggestCommand(cmd + "nightDuration ")))
+                           .append(Component.newline())
+                           .append(Component.text(">", NamedTextColor.GOLD));
+            case RANGE ->
+                    builder.append(Component.text(localizer().getMessage("field.minDuration") + ": ", NamedTextColor.AQUA))
+                           .append(Component.text(nightSettings.getNightDuration() + " " + localizer().getMessage("value.seconds"), NamedTextColor.GOLD))
+                           .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
+                                            .clickEvent(ClickEvent.suggestCommand(cmd + "nightDuration ")))
+                           .append(Component.newline())
+                           .append(Component.text(localizer().getMessage("field.maxDuration") + ": ", NamedTextColor.AQUA))
+                           .append(Component.text(nightSettings.getMaxNightDuration() + " " + localizer().getMessage("value.seconds"), NamedTextColor.GOLD))
+                           .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
+                                            .clickEvent(ClickEvent.suggestCommand(cmd + "maxNightDuration ")));
         }
 
         bukkitAudiences.sender(sender).sendMessage(Identity.nil(), builder.build());
