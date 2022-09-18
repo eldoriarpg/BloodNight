@@ -12,6 +12,7 @@ repositories {
     maven ( "https://eldonexus.de/repository/maven-public/" )
     maven ( "https://eldonexus.de/repository/maven-proxies/" )
     maven ( "https://oss.sonatype.org/content/repositories/snapshots/" )
+    maven("https://mvn.lumine.io/repository/maven-public/")
     maven ( "https://mvn.lumine.io/repository/maven-public/" )
     maven ( "https://repo.extendedclip.com/content/repositories/placeholderapi/" )
 }
@@ -24,6 +25,7 @@ dependencies {
 }
 
 version = rootProject.version
+group = "de.eldoria"
 
 java {
     withSourcesJar()

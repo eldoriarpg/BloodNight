@@ -1,6 +1,6 @@
 package de.eldoria.bloodnight.hooks.mythicmobs;
 
-import io.lumine.xikage.mythicmobs.api.bukkit.events.MythicMobSpawnEvent;
+import io.lumine.mythic.bukkit.events.MythicMobSpawnEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
