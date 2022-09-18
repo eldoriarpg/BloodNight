@@ -17,7 +17,7 @@ import java.util.Map;
 @Setter
 @SerializableAs("bloodNightPlayerDeathActions")
 public class PlayerDeathActions extends DeathActions {
-    Map<PotionEffectType, PotionEffectSettings> respawnEffects = new HashMap<PotionEffectType, PotionEffectSettings>() {{
+    Map<PotionEffectType, PotionEffectSettings> respawnEffects = new HashMap<>() {{
         put(PotionEffectType.CONFUSION, new PotionEffectSettings(PotionEffectType.CONFUSION, 5));
     }};
     /**

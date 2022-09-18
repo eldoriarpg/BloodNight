@@ -115,9 +115,7 @@ public class ManageMob extends EldoCommand {
 
         if ("page".equalsIgnoreCase(mobString)) {
             Optional<Integer> optPage = Parser.parseInt(field);
-            if (optPage.isPresent()) {
-                sendMobListPage(world, sender, mobGroup, optPage.get());
-            }
+            optPage.ifPresent(integer -> sendMobListPage(world, sender, mobGroup, integer));
             return true;
         }
 
@@ -249,9 +247,8 @@ public class ManageMob extends EldoCommand {
             }
 
             if ("changeWeight".equalsIgnoreCase(value)) {
-                List<ItemStack> stacks = mob.getDrops().stream().map(Drop::getItemWithLoreWeight).collect(Collectors.toList());
                 Inventory inv = Bukkit.createInventory(player, 54, localizer().getMessage("drops.weightTitle"));
-                inv.setContents(stacks.toArray(new ItemStack[0]));
+                inv.setContents(mob.getDrops().stream().map(Drop::getItemWithLoreWeight).toArray(ItemStack[]::new));
                 player.openInventory(inv);
                 inventoryListener.registerModification(player, new InventoryListener.InventoryActionHandler() {
                     @Override
@@ -273,18 +270,10 @@ public class ManageMob extends EldoCommand {
                         }
 
                         switch (event.getClick()) {
-                            case LEFT:
-                                Drop.changeWeight(event.getCurrentItem(), 1);
-                                break;
-                            case SHIFT_LEFT:
-                                Drop.changeWeight(event.getCurrentItem(), 10);
-                                break;
-                            case RIGHT:
-                                Drop.changeWeight(event.getCurrentItem(), -1);
-                                break;
-                            case SHIFT_RIGHT:
-                                Drop.changeWeight(event.getCurrentItem(), -10);
-                                break;
+                            case LEFT -> Drop.changeWeight(event.getCurrentItem(), 1);
+                            case SHIFT_LEFT -> Drop.changeWeight(event.getCurrentItem(), 10);
+                            case RIGHT -> Drop.changeWeight(event.getCurrentItem(), -1);
+                            case SHIFT_RIGHT -> Drop.changeWeight(event.getCurrentItem(), -10);
                         }
                         event.setCancelled(true);
                     }
@@ -369,15 +358,11 @@ public class ManageMob extends EldoCommand {
                             .append(Component.newline()).append(Component.text("  "))
                             .append(Component.text(localizer().getMessage("field.health") + ": ", NamedTextColor.AQUA));
                     switch (entry.getHealthModifier()) {
-                        case DEFAULT:
-                            builder.append(Component.text(localizer().getMessage("action.default") + " (" + mobSettings.getHealthModifier() + "x)", NamedTextColor.GOLD));
-                            break;
-                        case MULTIPLY:
-                            builder.append(Component.text(entry.getHealth() + "x", NamedTextColor.GOLD));
-                            break;
-                        case VALUE:
-                            builder.append(Component.text(entry.getHealth() + " " + localizer().getMessage("field.health"), NamedTextColor.GOLD));
-                            break;
+                        case DEFAULT ->
+                                builder.append(Component.text(localizer().getMessage("action.default") + " (" + mobSettings.getHealthModifier() + "x)", NamedTextColor.GOLD));
+                        case MULTIPLY -> builder.append(Component.text(entry.getHealth() + "x", NamedTextColor.GOLD));
+                        case VALUE ->
+                                builder.append(Component.text(entry.getHealth() + " " + localizer().getMessage("field.health"), NamedTextColor.GOLD));
                     }
                     builder.append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                             .clickEvent(ClickEvent.suggestCommand(cmd + "health ")));
@@ -398,15 +383,11 @@ public class ManageMob extends EldoCommand {
                             .append(Component.newline()).append(Component.text("  "))
                             .append(Component.text(localizer().getMessage("field.damage") + ": ", NamedTextColor.AQUA));
                     switch (entry.getDamageModifier()) {
-                        case DEFAULT:
-                            builder.append(Component.text(localizer().getMessage("action.default") + " (" + mobSettings.getHealthModifier() + "x)", NamedTextColor.GOLD));
-                            break;
-                        case MULTIPLY:
-                            builder.append(Component.text(entry.getDamage() + "x", NamedTextColor.GOLD));
-                            break;
-                        case VALUE:
-                            builder.append(Component.text(entry.getDamage() + " " + localizer().getMessage("field.damage"), NamedTextColor.GOLD));
-                            break;
+                        case DEFAULT ->
+                                builder.append(Component.text(localizer().getMessage("action.default") + " (" + mobSettings.getHealthModifier() + "x)", NamedTextColor.GOLD));
+                        case MULTIPLY -> builder.append(Component.text(entry.getDamage() + "x", NamedTextColor.GOLD));
+                        case VALUE ->
+                                builder.append(Component.text(entry.getDamage() + " " + localizer().getMessage("field.damage"), NamedTextColor.GOLD));
                     }
                     builder.append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
                             .clickEvent(ClickEvent.suggestCommand(cmd + "damage ")));

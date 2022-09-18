@@ -85,9 +85,7 @@ public class ManageWorlds extends EldoCommand {
 
         if ("page".equalsIgnoreCase(field)) {
             optPage = Parser.parseInt(value);
-            if (optPage.isPresent()) {
-                sendWorldPage(world, sender, optPage.get());
-            }
+            optPage.ifPresent(integer -> sendWorldPage(world, sender, integer));
             return true;
         }
 
@@ -272,23 +270,15 @@ public class ManageWorlds extends EldoCommand {
     }
 
     private TextColor toKyoriColor(BarColor color) {
-        switch (color) {
-            case PINK:
-                return TextColor.color(248, 24, 148);
-            case BLUE:
-                return NamedTextColor.BLUE;
-            case RED:
-                return NamedTextColor.RED;
-            case GREEN:
-                return NamedTextColor.GREEN;
-            case YELLOW:
-                return NamedTextColor.YELLOW;
-            case PURPLE:
-                return NamedTextColor.LIGHT_PURPLE;
-            case WHITE:
-                return NamedTextColor.WHITE;
-            default:
-                throw new IllegalStateException("Unexpected value: " + color);
-        }
+        return switch (color) {
+            case PINK -> TextColor.color(248, 24, 148);
+            case BLUE -> NamedTextColor.BLUE;
+            case RED -> NamedTextColor.RED;
+            case GREEN -> NamedTextColor.GREEN;
+            case YELLOW -> NamedTextColor.YELLOW;
+            case PURPLE -> NamedTextColor.LIGHT_PURPLE;
+            case WHITE -> NamedTextColor.WHITE;
+            default -> throw new IllegalStateException("Unexpected value: " + color);
+        };
     }
 }

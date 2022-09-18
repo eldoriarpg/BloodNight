@@ -216,11 +216,9 @@ public class SpecialMobManager extends BukkitRunnable implements Listener {
                 return true;
             }
             return false;
-        }, stats -> {
-            BloodNight.logger().config(String.format("Marked %d lost enties for removal in %dms",
-                    stats.getProcessedElements(),
-                    stats.getTime()));
-        });
+        }, stats -> BloodNight.logger().config(String.format("Marked %d lost enties for removal in %dms",
+                stats.getProcessedElements(),
+                stats.getTime())));
 
         iteratingTask.runTaskTimer(BloodNight.getInstance(), 5, 1);
     }

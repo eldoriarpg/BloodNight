@@ -312,8 +312,7 @@ public final class SpecialMobUtil {
      * @param event    the damage event
      */
     public static void handleExtendedEntityDamage(LivingEntity receiver, LivingEntity other, EntityDamageEvent event) {
-        if (event instanceof EntityDamageByEntityEvent) {
-            EntityDamageByEntityEvent entityDamage = (EntityDamageByEntityEvent) event;
+        if (event instanceof EntityDamageByEntityEvent entityDamage) {
             if (entityDamage.getDamager().getUniqueId() == other.getUniqueId()) {
                 return;
             }
@@ -366,8 +365,8 @@ public final class SpecialMobUtil {
                 continue;
             }
             normalize.setY(EMath.clamp(-0.2, 0.2, normalize.getY()));
-            BloodNight.logger().log(Level.FINE, "Launching entity in direction " + normalize.toString()
-                    + " | Power: " + power + " | Initial direction: " + directionVector);
+            BloodNight.logger().log(Level.FINE, "Launching entity in direction " + normalize
+                                                + " | Power: " + power + " | Initial direction: " + directionVector);
             entity.setVelocity(normalize);
             settings.applyEffects(entity, power);
         }

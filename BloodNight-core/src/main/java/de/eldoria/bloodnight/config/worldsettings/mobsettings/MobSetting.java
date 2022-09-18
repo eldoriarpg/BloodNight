@@ -116,29 +116,21 @@ public class MobSetting implements ConfigurationSerializable {
     }
 
     public double applyDamage(double baseValue, double defaultMultiplier) {
-        switch (damageModifier) {
-            case DEFAULT:
-                return baseValue * defaultMultiplier;
-            case MULTIPLY:
-                return baseValue * damage;
-            case VALUE:
-                return damage;
-            default:
-                throw new IllegalStateException("Unexpected value: " + damageModifier);
-        }
+        return switch (damageModifier) {
+            case DEFAULT -> baseValue * defaultMultiplier;
+            case MULTIPLY -> baseValue * damage;
+            case VALUE -> damage;
+            default -> throw new IllegalStateException("Unexpected value: " + damageModifier);
+        };
     }
 
     public double applyHealth(double baseValue, double defaultMultiplier) {
-        switch (healthModifier) {
-            case DEFAULT:
-                return baseValue * defaultMultiplier;
-            case MULTIPLY:
-                return baseValue * health;
-            case VALUE:
-                return health;
-            default:
-                throw new IllegalStateException("Unexpected value: " + healthModifier);
-        }
+        return switch (healthModifier) {
+            case DEFAULT -> baseValue * defaultMultiplier;
+            case MULTIPLY -> baseValue * health;
+            case VALUE -> health;
+            default -> throw new IllegalStateException("Unexpected value: " + healthModifier);
+        };
     }
 
     /**

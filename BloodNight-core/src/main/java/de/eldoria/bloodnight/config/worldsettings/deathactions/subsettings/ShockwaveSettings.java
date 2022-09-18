@@ -43,7 +43,7 @@ public class ShockwaveSettings implements ConfigurationSerializable {
      * min duration of effects when on the edge of range
      */
     protected double minDuration = 0.1;
-    private Map<PotionEffectType, PotionEffectSettings> shockwaveEffects = new HashMap<PotionEffectType, PotionEffectSettings>() {{
+    private Map<PotionEffectType, PotionEffectSettings> shockwaveEffects = new HashMap<>() {{
         put(PotionEffectType.CONFUSION, new PotionEffectSettings(PotionEffectType.CONFUSION, 5));
     }};
 
@@ -79,8 +79,7 @@ public class ShockwaveSettings implements ConfigurationSerializable {
     }
 
     public void applyEffects(Entity entity, double power) {
-        if (!(entity instanceof LivingEntity)) return;
-        LivingEntity livingEntity = (LivingEntity) entity;
+        if (!(entity instanceof LivingEntity livingEntity)) return;
         for (PotionEffectSettings potionEffectType : shockwaveEffects.values()) {
             if (potionEffectType.getEffectType() == null) continue;
             double percent = power / (shockwavePower / 10d);

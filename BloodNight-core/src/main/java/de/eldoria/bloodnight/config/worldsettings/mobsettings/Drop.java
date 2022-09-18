@@ -71,13 +71,12 @@ public class Drop implements ConfigurationSerializable {
         List<String> lore = itemMeta.hasLore() ? itemMeta.getLore() : new ArrayList<>();
         if (lore.isEmpty()) {
             return item;
+        }
+        Matcher matcher = weight.matcher(lore.get(lore.size() - 1));
+        if (matcher.find()) {
+            lore.remove(lore.size() - 1);
         } else {
-            Matcher matcher = weight.matcher(lore.get(lore.size() - 1));
-            if (matcher.find()) {
-                lore.remove(lore.size() - 1);
-            } else {
-                return item;
-            }
+            return item;
         }
         ItemStack newItem = item.clone();
         itemMeta.setLore(lore);

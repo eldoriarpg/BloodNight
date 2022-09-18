@@ -80,9 +80,7 @@ public final class DeathActionUtil {
                                     ItemStackBuilder
                                             .of(Material.POTION)
                                             .withDisplayName(potionType.getName())
-                                            .withMetaValue(PotionMeta.class, m -> {
-                                                m.setColor(potionType.getColor());
-                                            })
+                                            .withMetaValue(PotionMeta.class, m -> m.setColor(potionType.getColor()))
                                             .withNBTData(c -> {
                                                 c.set(typeKey, PersistentDataType.STRING, potionType.getName());
                                                 c.set(valueKey, PersistentDataType.INTEGER, settings == null ? 0 : settings.getDuration());
@@ -141,9 +139,7 @@ public final class DeathActionUtil {
                         .build(),
                 4,
                 ActionConsumer.getIntRange(valueKey, 0, 60),
-                item -> {
-                    shockwave.setShockwaveRange(DataContainerUtil.getOrDefault(item, valueKey, PersistentDataType.INTEGER, 0));
-                }
+                item -> shockwave.setShockwaveRange(DataContainerUtil.getOrDefault(item, valueKey, PersistentDataType.INTEGER, 0))
         );
 
         actions.addAction(
@@ -155,9 +151,7 @@ public final class DeathActionUtil {
                         .build(),
                 5,
                 ActionConsumer.getIntRange(valueKey, 0, 60),
-                item -> {
-                    shockwave.setShockwavePower(DataContainerUtil.getOrDefault(item, valueKey, PersistentDataType.INTEGER, 0));
-                }
+                item -> shockwave.setShockwavePower(DataContainerUtil.getOrDefault(item, valueKey, PersistentDataType.INTEGER, 0))
         );
 
         actions.addAction(
@@ -169,9 +163,7 @@ public final class DeathActionUtil {
                         .build(),
                 6,
                 ActionConsumer.getIntRange(valueKey, 0, 100),
-                item -> {
-                    shockwave.setShockwaveProbability(DataContainerUtil.getOrDefault(item, valueKey, PersistentDataType.INTEGER, 0));
-                }
+                item -> shockwave.setShockwaveProbability(DataContainerUtil.getOrDefault(item, valueKey, PersistentDataType.INTEGER, 0))
         );
     }
 

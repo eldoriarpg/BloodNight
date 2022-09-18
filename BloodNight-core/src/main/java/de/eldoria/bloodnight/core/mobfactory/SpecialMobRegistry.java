@@ -18,6 +18,7 @@ import de.eldoria.bloodnight.specialmobs.mobs.witch.ThunderWizard;
 import de.eldoria.bloodnight.specialmobs.mobs.witch.WitherWizard;
 import de.eldoria.bloodnight.specialmobs.mobs.zombie.ArmoredZombie;
 import de.eldoria.bloodnight.specialmobs.mobs.zombie.InvisibleZombie;
+import de.eldoria.bloodnight.specialmobs.mobs.zombie.KnightZombie;
 import de.eldoria.bloodnight.specialmobs.mobs.zombie.SpeedZombie;
 import org.bukkit.entity.*;
 
@@ -72,6 +73,7 @@ public final class SpecialMobRegistry {
         registerMob(EntityType.ZOMBIE, ArmoredZombie.class, e -> new ArmoredZombie((Zombie) e));
         registerMob(EntityType.ZOMBIE, InvisibleZombie.class, e -> new InvisibleZombie((Zombie) e));
         registerMob(EntityType.ZOMBIE, SpeedZombie.class, e -> new SpeedZombie((Zombie) e));
+        registerMob(EntityType.ZOMBIE, KnightZombie.class, e -> new KnightZombie((Zombie) e));
 
     }
 

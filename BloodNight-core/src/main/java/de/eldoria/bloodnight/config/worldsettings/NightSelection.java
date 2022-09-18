@@ -32,7 +32,7 @@ public class NightSelection implements ConfigurationSerializable {
      */
     private int probability = 60;
 
-    private Map<Integer, Integer> moonPhase = new HashMap<Integer, Integer>() {{
+    private Map<Integer, Integer> moonPhase = new HashMap<>() {{
         put(0, 0);
         put(1, 10);
         put(2, 20);
@@ -43,7 +43,7 @@ public class NightSelection implements ConfigurationSerializable {
         put(7, 10);
     }};
 
-    private Map<Integer, Integer> phaseCustom = new HashMap<Integer, Integer>() {{
+    private Map<Integer, Integer> phaseCustom = new HashMap<>() {{
         put(0, 50);
         put(1, 50);
         put(2, 50);

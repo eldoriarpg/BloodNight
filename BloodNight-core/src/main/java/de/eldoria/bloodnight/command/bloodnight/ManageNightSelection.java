@@ -61,26 +61,17 @@ public class ManageNightSelection extends EldoCommand {
     }
 
     private static String getMoonPhaseSign(int phase) {
-        switch (phase) {
-            case 0:
-                return "§f████";
-            case 1:
-                return "§f███§8█";
-            case 2:
-                return "§f██§8██";
-            case 3:
-                return "§f█§8███";
-            case 4:
-                return "§8████";
-            case 5:
-                return "§8███§f█";
-            case 6:
-                return "§8██§f██";
-            case 7:
-                return "§8█§f███";
-            default:
-                throw new IllegalStateException("Unexpected value: " + phase);
-        }
+        return switch (phase) {
+            case 0 -> "§f████";
+            case 1 -> "§f███§8█";
+            case 2 -> "§f██§8██";
+            case 3 -> "§f█§8███";
+            case 4 -> "§8████";
+            case 5 -> "§8███§f█";
+            case 6 -> "§8██§f██";
+            case 7 -> "§8█§f███";
+            default -> throw new IllegalStateException("Unexpected value: " + phase);
+        };
     }
 
     // world field value
@@ -125,9 +116,7 @@ public class ManageNightSelection extends EldoCommand {
 
         if ("page".equalsIgnoreCase(field)) {
             Optional<Integer> optionalInt = Parser.parseInt(value);
-            if (optionalInt.isPresent()) {
-                sendWorldPage(world, sender, optionalInt.get());
-            }
+            optionalInt.ifPresent(integer -> sendWorldPage(world, sender, integer));
             return true;
         }
 
@@ -199,18 +188,10 @@ public class ManageNightSelection extends EldoCommand {
                     }
 
                     switch (event.getClick()) {
-                        case LEFT:
-                            PhaseItem.changeProbability(event.getCurrentItem(), 1, moonPhase);
-                            break;
-                        case SHIFT_LEFT:
-                            PhaseItem.changeProbability(event.getCurrentItem(), 10, moonPhase);
-                            break;
-                        case RIGHT:
-                            PhaseItem.changeProbability(event.getCurrentItem(), -1, moonPhase);
-                            break;
-                        case SHIFT_RIGHT:
-                            PhaseItem.changeProbability(event.getCurrentItem(), -10, moonPhase);
-                            break;
+                        case LEFT -> PhaseItem.changeProbability(event.getCurrentItem(), 1, moonPhase);
+                        case SHIFT_LEFT -> PhaseItem.changeProbability(event.getCurrentItem(), 10, moonPhase);
+                        case RIGHT -> PhaseItem.changeProbability(event.getCurrentItem(), -1, moonPhase);
+                        case SHIFT_RIGHT -> PhaseItem.changeProbability(event.getCurrentItem(), -10, moonPhase);
                     }
                     event.setCancelled(true);
                 }
@@ -268,78 +249,72 @@ public class ManageNightSelection extends EldoCommand {
                             .append(Component.newline());
 
                     switch (ns.getNightSelectionType()) {
-                        case RANDOM:
-                            builder.append(Component.text(localizer().getMessage("field.probability") + ": ", NamedTextColor.AQUA))
-                                    .append(Component.text(ns.getProbability(), NamedTextColor.GOLD))
-                                    .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                                            .clickEvent(ClickEvent.suggestCommand(cmd + "probability ")))
-                                    .append(Component.newline())
-                                    .append(Component.newline());
-                            break;
-                        case REAL_MOON_PHASE:
-                        case MOON_PHASE:
+                        case RANDOM ->
+                                builder.append(Component.text(localizer().getMessage("field.probability") + ": ", NamedTextColor.AQUA))
+                                       .append(Component.text(ns.getProbability(), NamedTextColor.GOLD))
+                                       .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
+                                                        .clickEvent(ClickEvent.suggestCommand(cmd + "probability ")))
+                                       .append(Component.newline())
+                                       .append(Component.newline());
+                        case REAL_MOON_PHASE, MOON_PHASE -> {
                             builder.append(Component.text(localizer().getMessage("field.moonPhase") + ": ", NamedTextColor.AQUA))
-                                    .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                                            .clickEvent(ClickEvent.runCommand(cmd + "moonPhase none")))
-                                    .append(Component.newline());
+                                   .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
+                                                    .clickEvent(ClickEvent.runCommand(cmd + "moonPhase none")))
+                                   .append(Component.newline());
                             ns.getMoonPhase().forEach((key, value) ->
                                     builder.append(Component.text("| " + key + ":" + value + " |", NamedTextColor.GOLD)
-                                            .hoverEvent(
-                                                    HoverEvent.showText(
-                                                            Component.text()
-                                                                    .append(Component.text(localizer().getMessage("field.moonPhase") + " " + key, NamedTextColor.GOLD))
-                                                                    .append(Component.newline())
-                                                                    .append(Component.text(localizer().getMessage(getMoonPhaseName(key)), NamedTextColor.AQUA))
-                                                                    .append(Component.newline())
-                                                                    .append(Component.text(getMoonPhaseSign(key)))
-                                                                    .append(Component.newline())
-                                                                    .append(Component.text(localizer().getMessage("field.probability") + ": " + value, NamedTextColor.GREEN))
-                                                                    .build()
-                                                    )
-                                            )
+                                                            .hoverEvent(
+                                                                    HoverEvent.showText(
+                                                                            Component.text()
+                                                                                     .append(Component.text(localizer().getMessage("field.moonPhase") + " " + key, NamedTextColor.GOLD))
+                                                                                     .append(Component.newline())
+                                                                                     .append(Component.text(localizer().getMessage(getMoonPhaseName(key)), NamedTextColor.AQUA))
+                                                                                     .append(Component.newline())
+                                                                                     .append(Component.text(getMoonPhaseSign(key)))
+                                                                                     .append(Component.newline())
+                                                                                     .append(Component.text(localizer().getMessage("field.probability") + ": " + value, NamedTextColor.GREEN))
+                                                                                     .build()
+                                                                    )
+                                                            )
                                     ));
                             builder.append(Component.newline());
-                            break;
-                        case INTERVAL:
-                            builder.append(Component.text(localizer().getMessage("field.interval") + ": ", NamedTextColor.AQUA))
-                                    .append(Component.text(ns.getInterval(), NamedTextColor.GOLD))
-                                    .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                                            .clickEvent(ClickEvent.suggestCommand(cmd + "interval ")))
-                                    .append(Component.newline())
-                                    .append(Component.text(localizer().getMessage("field.intervalProbability") + ": ", NamedTextColor.AQUA))
-                                    .append(Component.text(ns.getIntervalProbability(), NamedTextColor.GOLD))
-                                    .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                                            .clickEvent(ClickEvent.suggestCommand(cmd + "intervalProbability ")))
-                                    .append(Component.newline());
-
-                            break;
-                        case PHASE:
-                            builder.append(Component.text(localizer().getMessage("field.amount") + ": ", NamedTextColor.AQUA))
-                                    .append(Component.text(ns.getPhaseCustom().size(), NamedTextColor.GOLD))
-                                    .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                                            .clickEvent(ClickEvent.suggestCommand(cmd + "phaseAmount ")))
-                                    .append(Component.newline())
-                                    .append(Component.text(localizer().getMessage("field.phase") + ": ", NamedTextColor.AQUA))
-                                    .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                                            .clickEvent(ClickEvent.runCommand(cmd + "phase none")))
-                                    .append(Component.newline());
-                            break;
-                        case CURVE:
-                            builder.append(Component.text(localizer().getMessage("field.length") + ": ", NamedTextColor.AQUA))
-                                    .append(Component.text(ns.getPeriod(), NamedTextColor.GOLD))
-                                    .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                                            .clickEvent(ClickEvent.suggestCommand(cmd + "period ")))
-                                    .append(Component.newline())
-                                    .append(Component.text(localizer().getMessage("field.minProb") + ": ", NamedTextColor.AQUA))
-                                    .append(Component.text(ns.getMinCurveVal(), NamedTextColor.GOLD))
-                                    .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                                            .clickEvent(ClickEvent.suggestCommand(cmd + "minCurveVal ")))
-                                    .append(Component.newline())
-                                    .append(Component.text(localizer().getMessage("field.maxProb") + ": ", NamedTextColor.AQUA))
-                                    .append(Component.text(ns.getMaxCurveVal(), NamedTextColor.GOLD))
-                                    .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                                            .clickEvent(ClickEvent.suggestCommand(cmd + "maxCurveVal ")));
-                            break;
+                        }
+                        case INTERVAL ->
+                                builder.append(Component.text(localizer().getMessage("field.interval") + ": ", NamedTextColor.AQUA))
+                                       .append(Component.text(ns.getInterval(), NamedTextColor.GOLD))
+                                       .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
+                                                        .clickEvent(ClickEvent.suggestCommand(cmd + "interval ")))
+                                       .append(Component.newline())
+                                       .append(Component.text(localizer().getMessage("field.intervalProbability") + ": ", NamedTextColor.AQUA))
+                                       .append(Component.text(ns.getIntervalProbability(), NamedTextColor.GOLD))
+                                       .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
+                                                        .clickEvent(ClickEvent.suggestCommand(cmd + "intervalProbability ")))
+                                       .append(Component.newline());
+                        case PHASE ->
+                                builder.append(Component.text(localizer().getMessage("field.amount") + ": ", NamedTextColor.AQUA))
+                                       .append(Component.text(ns.getPhaseCustom().size(), NamedTextColor.GOLD))
+                                       .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
+                                                        .clickEvent(ClickEvent.suggestCommand(cmd + "phaseAmount ")))
+                                       .append(Component.newline())
+                                       .append(Component.text(localizer().getMessage("field.phase") + ": ", NamedTextColor.AQUA))
+                                       .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
+                                                        .clickEvent(ClickEvent.runCommand(cmd + "phase none")))
+                                       .append(Component.newline());
+                        case CURVE ->
+                                builder.append(Component.text(localizer().getMessage("field.length") + ": ", NamedTextColor.AQUA))
+                                       .append(Component.text(ns.getPeriod(), NamedTextColor.GOLD))
+                                       .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
+                                                        .clickEvent(ClickEvent.suggestCommand(cmd + "period ")))
+                                       .append(Component.newline())
+                                       .append(Component.text(localizer().getMessage("field.minProb") + ": ", NamedTextColor.AQUA))
+                                       .append(Component.text(ns.getMinCurveVal(), NamedTextColor.GOLD))
+                                       .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
+                                                        .clickEvent(ClickEvent.suggestCommand(cmd + "minCurveVal ")))
+                                       .append(Component.newline())
+                                       .append(Component.text(localizer().getMessage("field.maxProb") + ": ", NamedTextColor.AQUA))
+                                       .append(Component.text(ns.getMaxCurveVal(), NamedTextColor.GOLD))
+                                       .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
+                                                        .clickEvent(ClickEvent.suggestCommand(cmd + "maxCurveVal ")));
                     }
                     return builder.build();
                 }, localizer().getMessage("nightSelection.title.menu"),

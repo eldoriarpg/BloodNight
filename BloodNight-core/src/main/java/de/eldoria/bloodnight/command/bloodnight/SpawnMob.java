@@ -34,7 +34,7 @@ public class SpawnMob extends EldoCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             messageSender().sendError(sender, localizer().getMessage("error.console"));
             return true;
         }
@@ -47,8 +47,6 @@ public class SpawnMob extends EldoCommand {
             messageSender().sendError(sender, "invalid syntax");
             return true;
         }
-
-        Player player = (Player) sender;
 
         if (nightManager.isBloodNightActive(player.getWorld())) {
             Block targetBlock = player.getTargetBlock(null, 100);

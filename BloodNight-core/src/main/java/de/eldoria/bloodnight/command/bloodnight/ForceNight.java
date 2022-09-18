@@ -35,8 +35,7 @@ public class ForceNight extends EldoCommand {
         }
 
         World world = null;
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
+        if (sender instanceof Player player) {
             world = player.getWorld();
         } else {
             if (argumentsInvalid(sender, args, 1, "[" + localizer().getMessage("syntax.worldName") + "]")) {
