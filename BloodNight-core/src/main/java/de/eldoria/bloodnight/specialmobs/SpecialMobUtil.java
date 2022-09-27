@@ -168,7 +168,8 @@ public final class SpecialMobUtil {
     public static <T extends Entity> T spawnAndMount(Entity carrier, EntityType passengerType) {
         T passenger = spawnAndTagEntity(carrier.getLocation(), passengerType);
         assert passenger == null;
-        tagExtension(passenger, carrier);
+        Optional<String> mobName = getSpecialMobType(carrier);
+        tagExtension(passenger, carrier, mobName.orElse(null));
         carrier.addPassenger(passenger);
         return passenger;
     }
@@ -184,7 +185,8 @@ public final class SpecialMobUtil {
     public static <T extends Entity> T spawnAndMount(EntityType carrierType, Entity rider) {
         T carrier = spawnAndTagEntity(rider.getLocation(), carrierType);
         assert carrier == null;
-        tagExtension(carrier, rider);
+        Optional<String> mobName = getSpecialMobType(carrier);
+        tagExtension(carrier, rider, mobName.orElse(null));
         carrier.addPassenger(rider);
         return carrier;
     }
@@ -211,11 +213,13 @@ public final class SpecialMobUtil {
      * @param entity   entity to mark
      * @param extended the entity which is extended
      */
-    public static void tagExtension(Entity entity, Entity extended) {
+    public static void tagExtension(Entity entity, Entity extended, String mobType) {
         PersistentDataContainer dataContainer = entity.getPersistentDataContainer();
         dataContainer.set(IS_MOB_EXTENSION, PersistentDataType.BYTE, (byte) 1);
         dataContainer.set(BASE_UUID, PersistentDataType.BYTE_ARRAY,
                 TypeConversion.getBytesFromUUID(extended.getUniqueId()));
+
+        if (mobType != null) setSpecialMobType(entity, mobType);
     }
 
     /**
