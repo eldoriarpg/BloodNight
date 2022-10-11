@@ -91,6 +91,7 @@ public class NightSettings implements ConfigurationSerializable {
                 .add("endCommands", endCommands)
                 .add("nightDurationMode", nightDurationMode.name())
                 .add("nightDuration", nightDuration)
+                .add("maxNightDuration", maxNightDuration)
                 .build();
     }
 
