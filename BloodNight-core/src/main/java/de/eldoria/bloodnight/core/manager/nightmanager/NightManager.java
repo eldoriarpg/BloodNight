@@ -297,7 +297,7 @@ public class NightManager extends BukkitRunnable implements Listener {
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
-        if (!isBloodNightActive(event.getPlayer().getWorld())) return;
+        if (!isBloodNightActive(event.getEntity().getWorld())) return;
         PlayerDeathActions actions = configuration.getWorldSettings(event.getEntity().getWorld())
                 .getDeathActionSettings()
                 .getPlayerDeathActions();
