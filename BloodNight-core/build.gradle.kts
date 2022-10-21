@@ -80,4 +80,14 @@ tasks {
     build{
         dependsOn(shadowJar)
     }
+
+        register<Copy>("copyToServer") {
+        val path = project.property("targetDir") ?: "";
+        if (path.toString().isEmpty()) {
+            println("targetDir is not set in gradle properties")
+            return@register
+        }
+        from(shadowJar)
+        destinationDir = File(path.toString())
+    }
 }

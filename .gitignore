@@ -1,6 +1,8 @@
 # Remove config
 /config/
 
+gradle.properties
+
 .gradle
 **/build/
 !src/**/build/
