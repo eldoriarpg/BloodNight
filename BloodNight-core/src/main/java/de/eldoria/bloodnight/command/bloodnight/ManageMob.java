@@ -396,7 +396,7 @@ public class ManageMob extends EldoCommand {
                 localizer().getMessage("manageMob.title",
                         Replacement.create("TYPE", mobGroup.getKey()),
                         Replacement.create("WORLD", world.getName())),
-                "/bloodNight manageMob " + mobGroup.getKey() + " " + ArgumentUtils.escapeWorldName(world) + " page {page}");
+                "/bloodnight manageMob " + mobGroup.getKey() + " " + ArgumentUtils.escapeWorldName(world) + " page {page}");
 
         bukkitAudiences.sender(sender).sendMessage(Identity.nil(), component);
     }

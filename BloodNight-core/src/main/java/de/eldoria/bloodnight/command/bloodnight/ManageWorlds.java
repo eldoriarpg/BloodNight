@@ -225,7 +225,7 @@ public class ManageWorlds extends EldoCommand {
                             .build();
                 },
                 localizer().getMessage("manageWorlds.title"),
-                "/bloodNight manageWorlds " + ArgumentUtils.escapeWorldName(world) + " page {page}");
+                "/bloodnight manageWorlds " + ArgumentUtils.escapeWorldName(world) + " page {page}");
 
         bukkitAudiences.sender(sender).sendMessage(Identity.nil(), component);
     }

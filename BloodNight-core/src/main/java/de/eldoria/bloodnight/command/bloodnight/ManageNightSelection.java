@@ -318,7 +318,7 @@ public class ManageNightSelection extends EldoCommand {
                     }
                     return builder.build();
                 }, localizer().getMessage("nightSelection.title.menu"),
-                "/bloodNight nightSelection " + ArgumentUtils.escapeWorldName(world) + " page {page}");
+                "/bloodnight nightSelection " + ArgumentUtils.escapeWorldName(world) + " page {page}");
         bukkitAudiences.sender(sender).sendMessage(page);
     }
 
