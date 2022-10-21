@@ -27,6 +27,12 @@ public class PlayerDeathActions extends DeathActions {
      */
     private List<String> deathCommands = new ArrayList<>();
     /**
+     * Commands which will be executed when a player respawns after death.
+     * <p>
+     * Should support the {@code {player}} placeholder.
+     */
+    private List<String> respawnCommands = new ArrayList<>();
+    /**
      * Probability of the player to lose and not drop its inventory.
      */
     private int loseInvProbability = 0;
@@ -36,6 +42,7 @@ public class PlayerDeathActions extends DeathActions {
         super(objectMap);
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
         deathCommands = map.getValueOrDefault("deathCommands", deathCommands);
+        respawnCommands = map.getValueOrDefault("respawnCommands", respawnCommands);
         loseInvProbability = map.getValueOrDefault("loseInvProbability", loseInvProbability);
         loseExpProbability = map.getValueOrDefault("loseExpProbability", loseExpProbability);
         respawnEffects = map.getMap("respawnEffects", (key, potionEffectSettings) -> PotionEffectType.getByName(key));
@@ -48,6 +55,7 @@ public class PlayerDeathActions extends DeathActions {
     public @NotNull Map<String, Object> serialize() {
         return SerializationUtil.newBuilder(super.serialize())
                 .add("deathCommands", deathCommands)
+                .add("respawnCommands", respawnCommands)
                 .add("loseInvProbability", loseInvProbability)
                 .add("loseExpProbability", loseExpProbability)
                 .addMap("respawnEffects", respawnEffects,

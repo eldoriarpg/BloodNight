@@ -135,7 +135,7 @@ public class BloodNight extends EldoPlugin {
     }
 
     private void registerListener() {
-        nightManager = new NightManager(configuration);
+        nightManager = new NightManager(this, configuration);
         nightManager.runTaskTimer(this, 5, 1);
         mobManager = new MobManager(nightManager, configuration);
         inventoryListener = new InventoryListener(configuration);
