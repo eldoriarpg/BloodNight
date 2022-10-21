@@ -325,12 +325,13 @@ public class NightManager extends BukkitRunnable implements Listener {
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
+        if (!isBloodNightActive(player.getWorld())) {
+            return;
+        }
+
         PlayerDeathActions actions = configuration.getWorldSettings(player.getWorld())
                 .getDeathActionSettings()
                 .getPlayerDeathActions();
-        if (!isBloodNightActive(player.getWorld()) || event.isBedSpawn() || event.isAnchorSpawn()) {
-            return;
-        }
 
         EldoUtilities.getDelayedActions().schedule(() -> {
             for (PotionEffectSettings value : actions.getRespawnEffects().values()) {
