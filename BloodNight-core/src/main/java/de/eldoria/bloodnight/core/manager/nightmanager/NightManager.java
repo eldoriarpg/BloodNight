@@ -31,6 +31,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -41,6 +42,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class NightManager extends BukkitRunnable implements Listener {
 
+    private final Plugin plugin;
     private final Configuration configuration;
     /**
      * A set containing all world where a blood night is active.
@@ -60,7 +62,8 @@ public class NightManager extends BukkitRunnable implements Listener {
 
     private boolean initialized = false;
 
-    public NightManager(Configuration configuration) {
+    public NightManager(Plugin plugin, Configuration configuration) {
+        this.plugin = plugin;
         this.configuration = configuration;
         this.localizer = ILocalizer.getPluginLocalizer(BloodNight.class);
         this.messageSender = MessageSender.getPluginMessageSender(BloodNight.class);
@@ -312,9 +315,11 @@ public class NightManager extends BukkitRunnable implements Listener {
             event.setDroppedExp(0);
         }
 
-        for (String deathCommand : actions.getDeathCommands()) {
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), deathCommand.replace("{player}", event.getEntity().getName()));
-        }
+        EldoUtilities.getDelayedActions().schedule(() -> {
+            for (String deathCommand : actions.getDeathCommands()) {
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), deathCommand.replace("{player}", event.getEntity().getName()));
+            }
+        }, 1);
     }
 
     @EventHandler
@@ -330,6 +335,10 @@ public class NightManager extends BukkitRunnable implements Listener {
         EldoUtilities.getDelayedActions().schedule(() -> {
             for (PotionEffectSettings value : actions.getRespawnEffects().values()) {
                 player.addPotionEffect(new PotionEffect(value.getEffectType(), value.getDuration() * 20, 1, false));
+            }
+
+            for (String respawnCommand : actions.getRespawnCommands()) {
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), respawnCommand.replace("{player}", event.getPlayer().getName()));
             }
         }, 1);
     }
