@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
+import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ public class GeneralSettings implements ConfigurationSerializable {
     private boolean spawnerDropSuppression = true;
     private boolean ignoreSpawnerMobs = false;
     private List<String> blockedCommands = new ArrayList<>();
+    private List<EntityType> noVanillaDropIncrease = new ArrayList<>();
 
     public GeneralSettings(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
@@ -39,6 +41,7 @@ public class GeneralSettings implements ConfigurationSerializable {
         broadcastLevel = map.getValueOrDefault("broadcastLevel", broadcastLevel, BroadcastLevel.class);
         broadcastMethod = map.getValueOrDefault("broadcastMethod", broadcastMethod, BroadcastMethod.class);
         messageMethod = map.getValueOrDefault("messageMethod", messageMethod, BroadcastMethod.class);
+        noVanillaDropIncrease = map.getValueOrDefault("noVanillaDropIncrease", noVanillaDropIncrease, EntityType.class);
         mobTick = map.getValueOrDefault("mobTick", mobTick);
         joinWorldWarning = map.getValueOrDefault("joinWorldWarning", joinWorldWarning);
         blindness = map.getValueOrDefault("blindness", blindness);

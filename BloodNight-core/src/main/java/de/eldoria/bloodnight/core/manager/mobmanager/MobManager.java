@@ -238,7 +238,7 @@ public class MobManager implements Listener {
             } else {
                 BloodNight.logger().config("No mob found for " + specialMob.get() + " in group ");
             }
-        } else {
+        } else if(!configuration.getGeneralSettings().getNoVanillaDropIncrease().contains(entity.getType())){
             // If it is a vanilla mob just increase the drops.
             VanillaDropMode dropMode = vanillaMobSettings.getVanillaDropMode();
             switch (dropMode) {
