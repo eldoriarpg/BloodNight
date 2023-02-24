@@ -7,7 +7,7 @@ dependencies {
     implementation(project(":BloodNight-api"))
     implementation("de.eldoria", "eldo-util", "1.10.2-SNAPSHOT")
     implementation("net.kyori", "adventure-platform-bukkit", "4.2.0")
-    testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.9.1")
+    testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.9.2")
     testImplementation("junit", "junit", "4.13.2")
     testImplementation("org.mockito", "mockito-core", "4.9.0")
     compileOnly("io.lumine", "Mythic-Dist", "5.1.4")
