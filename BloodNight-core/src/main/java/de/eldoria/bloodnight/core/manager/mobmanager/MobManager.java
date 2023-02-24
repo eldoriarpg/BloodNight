@@ -245,13 +245,13 @@ public class MobManager implements Listener {
                 case VANILLA:
                     for (ItemStack drop : event.getDrops()) {
                         if (isPickedUp(drop)) continue;
-                        drop.setAmount((int) (drop.getAmount() * vanillaMobSettings.getDropMultiplier()));
+                        drop.setAmount(Math.min(drop.getMaxStackSize(), (int) (drop.getAmount() * vanillaMobSettings.getDropMultiplier())));
                     }
                     break;
                 case COMBINE:
                     for (ItemStack drop : event.getDrops()) {
                         if (isPickedUp(drop)) continue;
-                        drop.setAmount((int) (drop.getAmount() * vanillaMobSettings.getDropMultiplier()));
+                        drop.setAmount(Math.min(drop.getMaxStackSize(), (int) (drop.getAmount() * vanillaMobSettings.getDropMultiplier())));
                     }
                     event.getDrops().addAll(mobSettings.getDrops(vanillaMobSettings.getExtraDrops()));
                     break;
