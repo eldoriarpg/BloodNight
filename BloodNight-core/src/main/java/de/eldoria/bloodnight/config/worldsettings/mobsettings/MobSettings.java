@@ -157,7 +157,7 @@ public class MobSettings implements ConfigurationSerializable {
             for (Drop drop : totalDrops) {
                 currentWeight += drop.getWeight();
                 if (currentWeight < goal) continue;
-                result.add(new ItemStack(drop.getItem().clone()));
+                result.add(drop.getItem());
                 break;
             }
         }

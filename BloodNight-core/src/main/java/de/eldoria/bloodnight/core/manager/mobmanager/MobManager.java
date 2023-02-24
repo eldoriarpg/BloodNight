@@ -238,20 +238,20 @@ public class MobManager implements Listener {
             } else {
                 BloodNight.logger().config("No mob found for " + specialMob.get() + " in group ");
             }
-        } else {
+        } else if(!configuration.getGeneralSettings().getNoVanillaDropIncrease().contains(entity.getType())){
             // If it is a vanilla mob just increase the drops.
             VanillaDropMode dropMode = vanillaMobSettings.getVanillaDropMode();
             switch (dropMode) {
                 case VANILLA:
                     for (ItemStack drop : event.getDrops()) {
                         if (isPickedUp(drop)) continue;
-                        drop.setAmount((int) (drop.getAmount() * vanillaMobSettings.getDropMultiplier()));
+                        drop.setAmount(Math.min(drop.getMaxStackSize(), (int) (drop.getAmount() * vanillaMobSettings.getDropMultiplier())));
                     }
                     break;
                 case COMBINE:
                     for (ItemStack drop : event.getDrops()) {
                         if (isPickedUp(drop)) continue;
-                        drop.setAmount((int) (drop.getAmount() * vanillaMobSettings.getDropMultiplier()));
+                        drop.setAmount(Math.min(drop.getMaxStackSize(), (int) (drop.getAmount() * vanillaMobSettings.getDropMultiplier())));
                     }
                     event.getDrops().addAll(mobSettings.getDrops(vanillaMobSettings.getExtraDrops()));
                     break;

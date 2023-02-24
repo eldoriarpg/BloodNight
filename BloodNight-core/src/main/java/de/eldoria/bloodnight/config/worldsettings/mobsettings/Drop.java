@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 @Getter
 @SerializableAs("bloodNightDrop")
 public class Drop implements ConfigurationSerializable {
-    private static final NamespacedKey WEIGHT_KEY = BloodNight.getNamespacedKey("dropWeight");
+    private static final NamespacedKey WEIGHT_KEY = BloodNight.getNamespacedKey("dropweight");
     private final ItemStack item;
     private final int weight;
 
@@ -69,23 +69,19 @@ public class Drop implements ConfigurationSerializable {
         Pattern weight = getRegexWeight();
         ItemMeta itemMeta = item.hasItemMeta() ? item.getItemMeta() : Bukkit.getItemFactory().getItemMeta(item.getType());
         List<String> lore = itemMeta.hasLore() ? itemMeta.getLore() : new ArrayList<>();
-        if (lore.isEmpty()) {
-            return item;
+        if (!lore.isEmpty()) {
+            Matcher matcher = weight.matcher(lore.get(lore.size() - 1));
+            if (matcher.find()) {
+                lore.remove(lore.size() - 1);
+            }
         }
-        Matcher matcher = weight.matcher(lore.get(lore.size() - 1));
-        if (matcher.find()) {
-            lore.remove(lore.size() - 1);
-        } else {
-            return item;
-        }
-        ItemStack newItem = item.clone();
-        itemMeta.setLore(lore);
-        PersistentDataContainer container = itemMeta.getPersistentDataContainer();
+        var container = itemMeta.getPersistentDataContainer();
         if (container.has(WEIGHT_KEY, PersistentDataType.INTEGER)) {
             container.remove(WEIGHT_KEY);
         }
-        newItem.setItemMeta(itemMeta);
-        return newItem;
+        itemMeta.setLore(lore);
+        item.setItemMeta(itemMeta);
+        return item;
     }
 
     public static int getWeightFromItemStack(ItemStack item) {
@@ -133,6 +129,12 @@ public class Drop implements ConfigurationSerializable {
     }
 
     public ItemStack getItem() {
+        ItemMeta itemMeta = item.hasItemMeta() ? item.getItemMeta() : Bukkit.getItemFactory().getItemMeta(item.getType());
+        var container = itemMeta.getPersistentDataContainer();
+        if (container.has(WEIGHT_KEY, PersistentDataType.INTEGER)) {
+            container.remove(WEIGHT_KEY);
+        }
+        item.setItemMeta(itemMeta);
         return item.clone();
     }
 

@@ -5,12 +5,12 @@ plugins {
 
 dependencies {
     implementation(project(":BloodNight-api"))
-    implementation("de.eldoria", "eldo-util", "1.10.2")
-    implementation("net.kyori", "adventure-platform-bukkit", "4.1.2")
-    testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.9.1")
+    implementation("de.eldoria", "eldo-util", "1.10.2-SNAPSHOT")
+    implementation("net.kyori", "adventure-platform-bukkit", "4.2.0")
+    testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.9.2")
     testImplementation("junit", "junit", "4.13.2")
-    testImplementation("org.mockito", "mockito-core", "4.8.0")
-    compileOnly("io.lumine", "Mythic-Dist", "5.1.4")
+    testImplementation("org.mockito", "mockito-core", "4.9.0")
+    compileOnly("io.lumine", "Mythic-Dist", "5.2.1")
     compileOnly("me.clip", "placeholderapi", "2.11.2")
     compileOnly("com.onarandombox.multiversecore", "Multiverse-Core", "4.3.1")
     compileOnly("se.hyperver.hyperverse", "Core", "0.10.0")
@@ -79,5 +79,15 @@ tasks {
 
     build{
         dependsOn(shadowJar)
+    }
+
+        register<Copy>("copyToServer") {
+        val path = project.property("targetDir") ?: "";
+        if (path.toString().isEmpty()) {
+            println("targetDir is not set in gradle properties")
+            return@register
+        }
+        from(shadowJar)
+        destinationDir = File(path.toString())
     }
 }
