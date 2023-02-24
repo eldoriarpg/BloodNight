@@ -18,9 +18,9 @@ repositories {
 
 dependencies {
     compileOnly("org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT")
-    compileOnly("org.projectlombok:lombok:1.18.24")
+    compileOnly("org.projectlombok:lombok:1.18.26")
     compileOnly("org.jetbrains:annotations:24.0.0")
-    annotationProcessor("org.projectlombok:lombok:1.18.24")
+    annotationProcessor("org.projectlombok:lombok:1.18.26")
 }
 
 version = rootProject.version
