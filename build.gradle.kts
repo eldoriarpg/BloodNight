@@ -2,7 +2,7 @@ import de.chojo.PublishData
 
 plugins {
     java
-    id("de.chojo.publishdata") version "1.1.0"
+    id("de.chojo.publishdata") version "1.2.1"
 }
 
 group = "de.eldoria"
