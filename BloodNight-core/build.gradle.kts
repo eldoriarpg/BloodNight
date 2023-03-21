@@ -1,6 +1,6 @@
 plugins {
     id("de.eldoria.library-conventions")
-    id("com.github.johnrengelman.shadow") version "8.1.0"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 dependencies {
