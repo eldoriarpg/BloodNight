@@ -1,17 +1,17 @@
 plugins {
     id("de.eldoria.library-conventions")
-    id("com.github.johnrengelman.shadow") version "7.1.2"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 dependencies {
     implementation(project(":BloodNight-api"))
     implementation("de.eldoria", "eldo-util", "1.10.2-SNAPSHOT")
-    implementation("net.kyori", "adventure-platform-bukkit", "4.2.0")
-    testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.9.2")
+    implementation("net.kyori", "adventure-platform-bukkit", "4.3.0")
+    testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.9.3")
     testImplementation("junit", "junit", "4.13.2")
-    testImplementation("org.mockito", "mockito-core", "4.9.0")
-    compileOnly("io.lumine", "Mythic-Dist", "5.2.1")
-    compileOnly("me.clip", "placeholderapi", "2.11.2")
+    testImplementation("org.mockito", "mockito-core", "5.3.1")
+    compileOnly("io.lumine", "Mythic-Dist", "5.3.0")
+    compileOnly("me.clip", "placeholderapi", "2.11.3")
     compileOnly("com.onarandombox.multiversecore", "Multiverse-Core", "4.3.1")
     compileOnly("se.hyperver.hyperverse", "Core", "0.10.0")
 }
@@ -32,6 +32,7 @@ java {
 }
 
 publishData {
+    addBuildData()
     useEldoNexusRepos()
     publishComponent("java")
 }
