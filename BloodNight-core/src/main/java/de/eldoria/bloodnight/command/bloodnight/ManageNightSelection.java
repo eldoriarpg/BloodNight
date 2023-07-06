@@ -136,7 +136,7 @@ public class ManageNightSelection extends EldoCommand {
                 sel.setIntervalProbability(EMath.clamp(0, 100, optionalInt.get()));
             }
             if ("probability".equalsIgnoreCase(field)) {
-                sel.setProbability(EMath.clamp(1, 100, optionalInt.get()));
+                sel.setProbability(EMath.clamp(0, 100, optionalInt.get()));
             }
             if ("phaseAmount".equalsIgnoreCase(field)) {
                 sel.setPhaseCount(EMath.clamp(1, 54, optionalInt.get()));
