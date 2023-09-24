@@ -11,7 +11,7 @@ dependencies {
     testImplementation("junit", "junit", "4.13.2")
     testImplementation("org.mockito", "mockito-core", "5.5.0")
     compileOnly("io.lumine", "Mythic-Dist", "5.3.5")
-    compileOnly("me.clip", "placeholderapi", "2.11.3")
+    compileOnly("me.clip", "placeholderapi", "2.11.4")
     compileOnly("com.onarandombox.multiversecore", "Multiverse-Core", "4.3.1")
     compileOnly("se.hyperver.hyperverse", "Core", "0.10.0")
 }
