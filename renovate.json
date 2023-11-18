@@ -6,5 +6,6 @@
   "ignoreDeps": ["spigot-api"],
   "reviewers": ["RainbowDashLabs"],
   "prConcurrentLimit": 3,
-  "prHourlyLimit": 10
+  "prHourlyLimit": 10,
+  "automerge": true
 }
