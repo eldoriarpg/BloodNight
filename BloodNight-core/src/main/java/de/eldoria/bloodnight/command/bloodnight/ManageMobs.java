@@ -202,6 +202,7 @@ public class ManageMobs extends EldoCommand {
                                 .collect(Collectors.toList());
                         mobSettings.setDefaultDrops(collect);
                         sendInfo(sender, worldSettings);
+                        configuration.save();
                     }
 
                     @Override

@@ -1,5 +1,5 @@
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/eldoriarpg/BloodNight/Publish%20to%20Nexus?style=for-the-badge&label=Publishing)
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/eldoriarpg/BloodNight/Verify%20state?style=for-the-badge&label=Building)\
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/eldoriarpg/BloodNight/publish_to_nexus.yml?style=for-the-badge&label=Publishing)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/eldoriarpg/BloodNight/verify.yml?style=for-the-badge&label=Building)\
 ![Sonatype Nexus (Releases)](https://img.shields.io/nexus/maven-releases/de.eldoria/bloodnight-api?label=Release&logo=Release&server=https%3A%2F%2Feldonexus.de&style=for-the-badge)
 ![Sonatype Nexus (Development)](https://img.shields.io/nexus/maven-dev/de.eldoria/bloodnight-api?label=DEV&logo=Release&server=https%3A%2F%2Feldonexus.de&style=for-the-badge)
 ![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/de.eldoria/bloodnight-api?color=orange&label=Snapshot&server=https%3A%2F%2Feldonexus.de&style=for-the-badge)
