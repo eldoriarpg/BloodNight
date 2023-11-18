@@ -31,17 +31,20 @@ public class Drop implements ConfigurationSerializable {
     public Drop(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
         item = map.getValue("item");
+        removeWeight(item);
         weight = map.getValue("weight");
     }
 
     public Drop(ItemStack item, int weight) {
         this.item = item;
+        removeWeight(item);
         this.weight = weight;
     }
 
     public static Drop fromItemStack(ItemStack itemStack) {
         if (itemStack == null) return null;
-        return new Drop(removeWeight(itemStack), getWeightFromItemStack(itemStack));
+        int weightFromItemStack = getWeightFromItemStack(itemStack);
+        return new Drop(removeWeight(itemStack), weightFromItemStack);
     }
 
     public static void changeWeight(ItemStack item, int change) {
@@ -49,7 +52,7 @@ public class Drop implements ConfigurationSerializable {
         int newWeight = Math.min(Math.max(currWeight + change, 1), 100);
         setWeight(item, newWeight);
         Pattern weight = getRegexWeight();
-        ItemMeta itemMeta = item.hasItemMeta() ? item.getItemMeta() : Bukkit.getItemFactory().getItemMeta(item.getType());
+        ItemMeta itemMeta = item.getItemMeta();
         List<String> lore = itemMeta.hasLore() ? itemMeta.getLore() : new ArrayList<>();
         if (lore.isEmpty()) {
             lore.add(getWeightString(newWeight));
@@ -116,6 +119,7 @@ public class Drop implements ConfigurationSerializable {
 
     @Override
     public @NotNull Map<String, Object> serialize() {
+        removeWeight(item);
         return SerializationUtil.newBuilder()
                 .add("item", item)
                 .add("weight", weight)

@@ -259,6 +259,7 @@ public class ManageMob extends EldoCommand {
                                 .collect(Collectors.toList());
                         mob.setDrops(collect);
                         optPage.ifPresent(i -> sendMobListPage(world, sender, mobGroup, i));
+                        configuration.save();
                     }
 
                     @Override
