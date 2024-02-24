@@ -10,7 +10,7 @@ dependencies {
     testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.10.2")
     testImplementation("junit", "junit", "4.13.2")
     testImplementation("org.mockito", "mockito-core", "5.10.0")
-    compileOnly("io.lumine", "Mythic-Dist", "5.6.0")
+    compileOnly("io.lumine", "Mythic-Dist", "5.6.1")
     compileOnly("me.clip", "placeholderapi", "2.11.5")
     compileOnly("com.onarandombox.multiversecore", "Multiverse-Core", "4.3.1")
     compileOnly("se.hyperver.hyperverse", "Core", "0.10.0")
