@@ -7,8 +7,9 @@ import de.eldoria.bloodnight.events.BloodNightBeginEvent;
 import de.eldoria.bloodnight.events.BloodNightEndEvent;
 import de.eldoria.bloodnight.hooks.HookService;
 import de.eldoria.eldoutilities.localization.ILocalizer;
-import de.eldoria.eldoutilities.localization.Replacement;
 import de.eldoria.eldoutilities.messages.MessageSender;
+import de.eldoria.eldoutilities.messages.Replacement;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -19,6 +20,9 @@ import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.util.Collection;
+
+import static java.time.Duration.ofSeconds;
+import static net.kyori.adventure.title.Title.Times.times;
 
 public class NotificationManager implements Listener {
     private final ILocalizer localizer;
@@ -38,20 +42,20 @@ public class NotificationManager implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBloodNightEnd(BloodNightEndEvent event) {
         dispatchBroadcast(event.getWorld(),
-                localizer.getMessage("notify.nightEnd",
-                        Replacement.create("WORLD", getAlias(event.getWorld())).addFormatting('6'))
+                "notify.nightEnd",
+                Replacement.create("WORLD", getAlias(event.getWorld()))
         );
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBloodNightStart(BloodNightBeginEvent event) {
         dispatchBroadcast(event.getWorld(),
-                localizer.getMessage("notify.nightStart",
-                        Replacement.create("WORLD", getAlias(event.getWorld())).addFormatting('6'))
+                "notify.nightStart",
+                Replacement.create("WORLD", getAlias(event.getWorld()))
         );
     }
 
-    private void dispatchBroadcast(World world, String message) {
+    private void dispatchBroadcast(World world, String message, TagResolver... tagResolver) {
         Collection<? extends Player> players;
         switch (configuration.getGeneralSettings().getBroadcastLevel()) {
             case SERVER:
@@ -68,16 +72,18 @@ public class NotificationManager implements Listener {
 
 
         for (Player player : players) {
-            sendBroadcast(player, message);
+            sendBroadcast(player, message, tagResolver);
         }
     }
 
-    private void sendBroadcast(Player player, String message) {
+    private void sendBroadcast(Player player, String message, TagResolver... tagResolver) {
         String m = "§a" + message.replace("§r", "§r§a");
         switch (configuration.getGeneralSettings().getBroadcastMethod()) {
-            case CHAT -> messageSender.sendMessage(player, message);
-            case TITLE -> player.sendTitle(m, "", 10, 70, 20);
-            case SUBTITLE -> player.sendTitle("", m, 10, 70, 20);
+            case CHAT -> messageSender.sendMessage(player, message, tagResolver);
+            case TITLE ->
+                    messageSender.sendTitle(player, m, "", times(ofSeconds(1), ofSeconds(5), ofSeconds(1)), tagResolver);
+            case SUBTITLE ->
+                    messageSender.sendTitle(player, "", m, times(ofSeconds(1), ofSeconds(5), ofSeconds(1)), tagResolver);
         }
     }
 

@@ -7,26 +7,28 @@ import de.eldoria.bloodnight.config.worldsettings.NightSelection;
 import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.util.Permissions;
+import de.eldoria.eldoutilities.commands.Completion;
+import de.eldoria.eldoutilities.commands.command.AdvancedCommand;
+import de.eldoria.eldoutilities.commands.command.CommandMeta;
+import de.eldoria.eldoutilities.commands.command.util.Arguments;
+import de.eldoria.eldoutilities.commands.command.util.Input;
+import de.eldoria.eldoutilities.commands.exceptions.CommandException;
+import de.eldoria.eldoutilities.commands.executor.IPlayerTabExecutor;
 import de.eldoria.eldoutilities.container.Pair;
 import de.eldoria.eldoutilities.localization.ILocalizer;
-import de.eldoria.eldoutilities.simplecommands.EldoCommand;
-import de.eldoria.eldoutilities.simplecommands.TabCompleteUtil;
+import de.eldoria.eldoutilities.messages.Replacement;
 import de.eldoria.eldoutilities.utils.ArgumentUtils;
 import de.eldoria.eldoutilities.utils.EMath;
-import de.eldoria.eldoutilities.utils.EnumUtil;
-import de.eldoria.eldoutilities.utils.Parser;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -41,16 +43,39 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class ManageNightSelection extends EldoCommand {
+import static de.eldoria.bloodnight.command.util.CommandUtil.changeButton;
+import static de.eldoria.bloodnight.command.util.CommandUtil.changeableValue;
+import static de.eldoria.bloodnight.command.util.CommandUtil.getToggleField;
+import static de.eldoria.bloodnight.config.worldsettings.NightSelection.NightSelectionType;
+import static de.eldoria.bloodnight.config.worldsettings.NightSelection.NightSelectionType.CURVE;
+import static de.eldoria.bloodnight.config.worldsettings.NightSelection.NightSelectionType.INTERVAL;
+import static de.eldoria.bloodnight.config.worldsettings.NightSelection.NightSelectionType.MOON_PHASE;
+import static de.eldoria.bloodnight.config.worldsettings.NightSelection.NightSelectionType.PHASE;
+import static de.eldoria.bloodnight.config.worldsettings.NightSelection.NightSelectionType.RANDOM;
+import static de.eldoria.bloodnight.config.worldsettings.NightSelection.NightSelectionType.REAL_MOON_PHASE;
+import static de.eldoria.eldoutilities.localization.ILocalizer.escape;
+
+public class ManageNightSelection extends AdvancedCommand implements IPlayerTabExecutor {
     private final Configuration configuration;
     private final InventoryListener inventoryListener;
     private final BukkitAudiences bukkitAudiences;
 
     public ManageNightSelection(Plugin plugin, Configuration configuration, InventoryListener inventoryListener) {
-        super(plugin);
+        super(plugin, CommandMeta.builder("manageNightSelection")
+                .addArgument("syntax.worldName", false)
+                .addArgument("syntax.field", false)
+                .addArgument("syntax.value", false)
+                .withPermission(Permissions.Admin.MANAGE_WORLDS)
+                .build());
         this.configuration = configuration;
         this.inventoryListener = inventoryListener;
         bukkitAudiences = BukkitAudiences.create(BloodNight.getInstance());
@@ -75,87 +100,60 @@ public class ManageNightSelection extends EldoCommand {
     }
 
     // world field value
+
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (denyConsole(sender)) {
-            return true;
-        }
-
-        if (denyAccess(sender, Permissions.Admin.MANAGE_WORLDS)) {
-            return true;
-        }
-
-        Player player = getPlayerFromSender(sender);
-
-        World world = ArgumentUtils.getOrDefault(args, 0, ArgumentUtils::getWorld, player.getWorld());
-
-        if (world == null) {
-            messageSender().sendError(sender, localizer().getMessage("error.invalidWorld"));
-            return true;
-        }
+    public void onCommand(@NotNull Player player, @NotNull String alias, @NotNull Arguments args) throws CommandException {
+        World world = args.asWorld(0, player.getWorld());
 
         WorldSettings worldSettings = configuration.getWorldSettings(world);
 
-        if (args.length < 2) {
-            sendWorldPage(world, sender, 0);
-            return true;
+        if (args.size() < 2) {
+            sendWorldPage(world, player, 0);
+            return;
         }
 
-        // world field value
-        if (argumentsInvalid(sender, args, 3,
-                "[" + localizer().getMessage("syntax.worldName") + "] [<"
-                        + localizer().getMessage("syntax.field") + "> <"
-                        + localizer().getMessage("syntax.value") + ">]")) {
-            return true;
-        }
-        String field = args[1];
-        String value = ArgumentUtils.getOptionalParameter(args, 2, "none", s -> s);
+        String field = args.asString(1);
+        Input value = args.get(2, Input.of(plugin(), "none"));
 
         Optional<Integer> optPage = CommandUtil.findPage(configuration.getWorldSettings().values(), 3,
                 w -> w.getWorldName().equalsIgnoreCase(world.getName()));
 
         if ("page".equalsIgnoreCase(field)) {
-            Optional<Integer> optionalInt = Parser.parseInt(value);
-            optionalInt.ifPresent(integer -> sendWorldPage(world, sender, integer));
-            return true;
+            sendWorldPage(world, player, value.asInt());
+            return;
         }
 
         final NightSelection sel = worldSettings.getNightSelection();
-        if (TabCompleteUtil.isCommand(field, "interval", "intervalProbability", "probability", "phaseAmount",
+        if (Completion.isCommand(field, "interval", "intervalProbability", "probability", "phaseAmount",
                 "period", "minCurveVal", "maxCurveVal")) {
-            Optional<Integer> optionalInt = Parser.parseInt(value);
-            if (!optionalInt.isPresent()) {
-                messageSender().sendError(player, localizer().getMessage("error.invalidNumber"));
-                return true;
-            }
 
             if ("interval".equalsIgnoreCase(field)) {
-                sel.setInterval(EMath.clamp(1, 100, optionalInt.get()));
+                sel.setInterval(EMath.clamp(1, 100, value.asInt()));
             }
             if ("intervalProbability".equalsIgnoreCase(field)) {
-                sel.setIntervalProbability(EMath.clamp(0, 100, optionalInt.get()));
+                sel.setIntervalProbability(EMath.clamp(0, 100, value.asInt()));
             }
             if ("probability".equalsIgnoreCase(field)) {
-                sel.setProbability(EMath.clamp(0, 100, optionalInt.get()));
+                sel.setProbability(EMath.clamp(0, 100, value.asInt()));
             }
             if ("phaseAmount".equalsIgnoreCase(field)) {
-                sel.setPhaseCount(EMath.clamp(1, 54, optionalInt.get()));
+                sel.setPhaseCount(EMath.clamp(1, 54, value.asInt()));
             }
             if ("period".equalsIgnoreCase(field)) {
-                sel.setPeriod(EMath.clamp(3, 100, optionalInt.get()));
+                sel.setPeriod(EMath.clamp(3, 100, value.asInt()));
             }
             if ("minCurveVal".equalsIgnoreCase(field)) {
-                sel.setMinCurveVal(EMath.clamp(0, 100, optionalInt.get()));
+                sel.setMinCurveVal(EMath.clamp(0, 100, value.asInt()));
             }
             if ("maxCurveVal".equalsIgnoreCase(field)) {
-                sel.setMaxCurveVal(EMath.clamp(0, 100, optionalInt.get()));
+                sel.setMaxCurveVal(EMath.clamp(0, 100, value.asInt()));
             }
-            optPage.ifPresent(p -> sendWorldPage(world, sender, p));
+            optPage.ifPresent(p -> sendWorldPage(world, player, p));
             configuration.save();
-            return true;
+            return;
         }
 
-        if (TabCompleteUtil.isCommand(field, "moonPhase", "phase")) {
+        if (Completion.isCommand(field, "moonPhase", "phase")) {
             boolean moonPhase = "moonPhase".equalsIgnoreCase(field);
             Inventory inv = Bukkit.createInventory(player, moonPhase ? 9 : 54,
                     localizer().getMessage(moonPhase ? "nightSelection.title.moonPhase" : "nightSelection.title.phase"));
@@ -176,7 +174,7 @@ public class ManageNightSelection extends EldoCommand {
                                     sel.setPhaseCustom(s.first, s.second);
                                 }
                             });
-                    optPage.ifPresent(i -> sendWorldPage(world, sender, i));
+                    optPage.ifPresent(i -> sendWorldPage(world, player, i));
                 }
 
                 @Override
@@ -196,162 +194,137 @@ public class ManageNightSelection extends EldoCommand {
                     event.setCancelled(true);
                 }
             });
-            return true;
+            return;
         }
 
-        if (TabCompleteUtil.isCommand(field, "type")) {
-            Optional<NightSelection.NightSelectionType> parse = EnumUtil.parse(value, NightSelection.NightSelectionType.class);
-            if (parse.isEmpty()) {
-                messageSender().sendLocalizedError(sender, "error.invalidValue");
-                return true;
-            }
-            sel.setNightSelectionType(parse.get());
+        if (Completion.isCommand(field, "type")) {
+            sel.setNightSelectionType(value.asEnum(NightSelectionType.class));
             configuration.save();
-            optPage.ifPresent(p -> sendWorldPage(world, sender, p));
-            return true;
+            optPage.ifPresent(p -> sendWorldPage(world, player, p));
         }
-        return true;
     }
 
     private void sendWorldPage(World world, CommandSender sender, int p) {
-        TextComponent page = CommandUtil.getPage(configuration.getWorldSettings().values(), p, 3, 4, s -> {
+        String page = CommandUtil.getPage(configuration.getWorldSettings().values(), p, 3, 4, s -> {
                     NightSelection ns = s.getNightSelection();
                     String cmd = "/bloodnight nightSelection " + ArgumentUtils.escapeWorldName(s.getWorldName()) + " ";
+                    String type = switch (ns.getNightSelectionType()) {
+                        case RANDOM -> """
+                                %s
+                                                                
+                                                                
+                                """.stripIndent()
+                                .formatted(changeableValue("field.probability", ns.getProbability(), cmd + "probability "));
+                        case REAL_MOON_PHASE, MOON_PHASE -> {
+                            var phases = ns.getMoonPhase().entrySet().stream().map(e -> {
+                                var hover = """
+                                        %s %s
+                                        %s
+                                        %s
+                                        %s: %s
+                                        """.stripIndent()
+                                        .formatted(escape("field.moonPhase"), e.getKey(),
+                                                escape(getMoonPhaseName(e.getKey())),
+                                                getMoonPhaseSign(e.getKey()),
+                                                escape("field.probability"), e.getValue());
+                                return "<gold><hover:show_text:'%s'>| %s:%s |".formatted(hover, e.getKey(), e.getValue());
+                            }).toList();
+                            yield """
+                                    <aqua>%s: %s
+                                    %s
+                                    """.stripIndent()
+                                    .formatted(
+                                            escape("field.moonPhase"), changeButton(cmd + "moonPhase none"),
+                                            String.join(" ", phases)
+                                    );
+                        }
+                        case INTERVAL -> """
+                                %s
+                                %s
+                                """.stripIndent()
+                                .formatted(
+                                        changeableValue("field.interval", ns.getInterval(), cmd + "interval "),
+                                        changeableValue("field.intervalProbability", ns.getIntervalProbability(), cmd + "intervalProbability ")
+                                );
+                        case PHASE -> """
+                                %s
+                                %s %s
+                                """.stripIndent()
+                                .formatted(
+                                        changeableValue("field.amount", ns.getPhaseCustom().size(), cmd + "phaseAmount "),
+                                        escape("field.amount"), changeButton(cmd + "phase none ")
+                                );
+                        case CURVE -> """
+                                """.stripIndent()
+                                .formatted(
+                                        changeableValue("field.length", ns.getPeriod(), cmd + "period "),
+                                        changeableValue("field.minProb", ns.getMinCurveVal(), cmd + "minCurveVal "),
+                                        changeableValue("field.maxProb", ns.getMaxCurveVal(), cmd + "maxCurveVal ")
+                                );
+                    };
+
+                    var a = """
+                            <gold><bold>%s</bold>
+                            %s:
+                            %s %s %s %s %s %s
+                            """.stripIndent()
+                            .formatted(
+                                    s.getWorldName(),
+                                    // Night selection
+                                    escape("field.nightSelectionType"),
+                                    // Types
+                                    getToggleField(ns.getNightSelectionType() == RANDOM, cmd + "type random", "state.random"),
+                                    getToggleField(ns.getNightSelectionType() == MOON_PHASE, cmd + "type moon_phase", "state.moonPhase"),
+                                    getToggleField(ns.getNightSelectionType() == REAL_MOON_PHASE, cmd + "type real_moon_phase", "state.realMoonPhase"),
+                                    getToggleField(ns.getNightSelectionType() == INTERVAL, cmd + "type interval", "state.interval"),
+                                    getToggleField(ns.getNightSelectionType() == INTERVAL, cmd + "type interval", "state.interval"),
+                                    getToggleField(ns.getNightSelectionType() == PHASE, cmd + "type phase", "state.phase"),
+                                    getToggleField(ns.getNightSelectionType() == CURVE, cmd + "type curve", "state.curve")
+                            );
                     TextComponent.Builder builder = Component.text()
                             .append(Component.text(s.getWorldName(), NamedTextColor.GOLD, TextDecoration.BOLD))
                             .append(Component.newline())
                             .append(Component.text(localizer().getMessage("field.nightSelectionType") + ":", NamedTextColor.AQUA))
                             .append(Component.newline())
-                            .append(CommandUtil.getToggleField(ns.getNightSelectionType() == NightSelection.NightSelectionType.RANDOM,
-                                    cmd + "type random",
-                                    localizer().getMessage("state.random")))
-                            .append(Component.space())
-                            .append(CommandUtil.getToggleField(ns.getNightSelectionType() == NightSelection.NightSelectionType.MOON_PHASE,
-                                    cmd + "type moon_phase",
-                                    localizer().getMessage("state.moonPhase")))
-                            .append(Component.space())
-                            .append(CommandUtil.getToggleField(ns.getNightSelectionType() == NightSelection.NightSelectionType.REAL_MOON_PHASE,
-                                    cmd + "type real_moon_phase",
-                                    localizer().getMessage("state.realMoonPhase")))
-                            .append(Component.space())
-                            .append(CommandUtil.getToggleField(ns.getNightSelectionType() == NightSelection.NightSelectionType.INTERVAL,
-                                    cmd + "type interval",
-                                    localizer().getMessage("state.interval")))
-                            .append(Component.space())
-                            .append(CommandUtil.getToggleField(ns.getNightSelectionType() == NightSelection.NightSelectionType.PHASE,
-                                    cmd + "type phase",
-                                    localizer().getMessage("state.phase")))
-                            .append(Component.space())
-                            .append(CommandUtil.getToggleField(ns.getNightSelectionType() == NightSelection.NightSelectionType.CURVE,
-                                    cmd + "type curve",
-                                    localizer().getMessage("state.curve")))
                             .append(Component.space())
                             .append(Component.newline());
 
-                    switch (ns.getNightSelectionType()) {
-                        case RANDOM ->
-                                builder.append(Component.text(localizer().getMessage("field.probability") + ": ", NamedTextColor.AQUA))
-                                       .append(Component.text(ns.getProbability(), NamedTextColor.GOLD))
-                                       .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                                                        .clickEvent(ClickEvent.suggestCommand(cmd + "probability ")))
-                                       .append(Component.newline())
-                                       .append(Component.newline());
-                        case REAL_MOON_PHASE, MOON_PHASE -> {
-                            builder.append(Component.text(localizer().getMessage("field.moonPhase") + ": ", NamedTextColor.AQUA))
-                                   .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                                                    .clickEvent(ClickEvent.runCommand(cmd + "moonPhase none")))
-                                   .append(Component.newline());
-                            ns.getMoonPhase().forEach((key, value) ->
-                                    builder.append(Component.text("| " + key + ":" + value + " |", NamedTextColor.GOLD)
-                                                            .hoverEvent(
-                                                                    HoverEvent.showText(
-                                                                            Component.text()
-                                                                                     .append(Component.text(localizer().getMessage("field.moonPhase") + " " + key, NamedTextColor.GOLD))
-                                                                                     .append(Component.newline())
-                                                                                     .append(Component.text(localizer().getMessage(getMoonPhaseName(key)), NamedTextColor.AQUA))
-                                                                                     .append(Component.newline())
-                                                                                     .append(Component.text(getMoonPhaseSign(key)))
-                                                                                     .append(Component.newline())
-                                                                                     .append(Component.text(localizer().getMessage("field.probability") + ": " + value, NamedTextColor.GREEN))
-                                                                                     .build()
-                                                                    )
-                                                            )
-                                    ));
-                            builder.append(Component.newline());
-                        }
-                        case INTERVAL ->
-                                builder.append(Component.text(localizer().getMessage("field.interval") + ": ", NamedTextColor.AQUA))
-                                       .append(Component.text(ns.getInterval(), NamedTextColor.GOLD))
-                                       .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                                                        .clickEvent(ClickEvent.suggestCommand(cmd + "interval ")))
-                                       .append(Component.newline())
-                                       .append(Component.text(localizer().getMessage("field.intervalProbability") + ": ", NamedTextColor.AQUA))
-                                       .append(Component.text(ns.getIntervalProbability(), NamedTextColor.GOLD))
-                                       .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                                                        .clickEvent(ClickEvent.suggestCommand(cmd + "intervalProbability ")))
-                                       .append(Component.newline());
-                        case PHASE ->
-                                builder.append(Component.text(localizer().getMessage("field.amount") + ": ", NamedTextColor.AQUA))
-                                       .append(Component.text(ns.getPhaseCustom().size(), NamedTextColor.GOLD))
-                                       .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                                                        .clickEvent(ClickEvent.suggestCommand(cmd + "phaseAmount ")))
-                                       .append(Component.newline())
-                                       .append(Component.text(localizer().getMessage("field.phase") + ": ", NamedTextColor.AQUA))
-                                       .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                                                        .clickEvent(ClickEvent.runCommand(cmd + "phase none")))
-                                       .append(Component.newline());
-                        case CURVE ->
-                                builder.append(Component.text(localizer().getMessage("field.length") + ": ", NamedTextColor.AQUA))
-                                       .append(Component.text(ns.getPeriod(), NamedTextColor.GOLD))
-                                       .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                                                        .clickEvent(ClickEvent.suggestCommand(cmd + "period ")))
-                                       .append(Component.newline())
-                                       .append(Component.text(localizer().getMessage("field.minProb") + ": ", NamedTextColor.AQUA))
-                                       .append(Component.text(ns.getMinCurveVal(), NamedTextColor.GOLD))
-                                       .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                                                        .clickEvent(ClickEvent.suggestCommand(cmd + "minCurveVal ")))
-                                       .append(Component.newline())
-                                       .append(Component.text(localizer().getMessage("field.maxProb") + ": ", NamedTextColor.AQUA))
-                                       .append(Component.text(ns.getMaxCurveVal(), NamedTextColor.GOLD))
-                                       .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                                                        .clickEvent(ClickEvent.suggestCommand(cmd + "maxCurveVal ")));
-                    }
-                    return builder.build();
-                }, localizer().getMessage("nightSelection.title.menu"),
+                    return a;
+                }, "nightSelection.title.menu",
                 "/bloodnight nightSelection " + ArgumentUtils.escapeWorldName(world) + " page {page}");
-        bukkitAudiences.sender(sender).sendMessage(page);
+        messageSender().sendMessage(sender, page, Replacement.create("world", world));
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        if (args.length == 1) {
-            return TabCompleteUtil.completeWorlds(args[0]);
+    public @Nullable List<String> onTabComplete(@NotNull Player player, @NotNull String alias, @NotNull Arguments args) throws CommandException {
+        if (args.size() == 1) {
+            return Completion.completeWorlds(args.asString(0));
         }
-        if (args.length == 2) {
-            return TabCompleteUtil.complete(args[1], "interval", "intervalProbability", "probability", "moonPhase", "type");
-        }
-
-        String field = args[1];
-        String value = args[2];
-        if (TabCompleteUtil.isCommand(field, "interval")) {
-            return TabCompleteUtil.completeInt(value, 1, 100, localizer());
-        }
-        if (TabCompleteUtil.isCommand(field, "intervalProbability", "probability", "minCurveVal", "maxCurveVal")) {
-            return TabCompleteUtil.completeInt(value, 0, 100, localizer());
-        }
-        if (TabCompleteUtil.isCommand(field, "phaseAmount")) {
-            return TabCompleteUtil.completeInt(value, 0, 54, localizer());
-        }
-        if (TabCompleteUtil.isCommand(field, "period")) {
-            return TabCompleteUtil.completeInt(value, 3, 100, localizer());
+        if (args.size() == 2) {
+            return Completion.complete(args.asString(1), "interval", "intervalProbability", "probability", "moonPhase", "type");
         }
 
-        if (TabCompleteUtil.isCommand(field, "moonPhase", "phase")) {
+        String field = args.asString(1);
+        String value = args.asString(2);
+        if (Completion.isCommand(field, "interval")) {
+            return Completion.completeInt(value, 1, 100);
+        }
+        if (Completion.isCommand(field, "intervalProbability", "probability", "minCurveVal", "maxCurveVal")) {
+            return Completion.completeInt(value, 0, 100);
+        }
+        if (Completion.isCommand(field, "phaseAmount")) {
+            return Completion.completeInt(value, 0, 54);
+        }
+        if (Completion.isCommand(field, "period")) {
+            return Completion.completeInt(value, 3, 100);
+        }
+
+        if (Completion.isCommand(field, "moonPhase", "phase")) {
             return Collections.emptyList();
         }
 
-        if (TabCompleteUtil.isCommand(field, "type")) {
-            return TabCompleteUtil.complete(value, NightSelection.NightSelectionType.class);
+        if (Completion.isCommand(field, "type")) {
+            return Completion.complete(value, NightSelectionType.class);
         }
         return Collections.emptyList();
     }
@@ -371,7 +344,7 @@ public class ManageNightSelection extends EldoCommand {
             ItemStack stack = new ItemStack(Material.FIREWORK_STAR, phase);
             ItemMeta itemMeta = stack.getItemMeta();
             itemMeta.setDisplayName("§2" + localizer.getMessage("phaseItem.phase") + ": " + phase
-                    + (moon ? " (" + localizer.getMessage(getMoonPhaseName(entry.getKey())) + ")" : ""));
+                                    + (moon ? " (" + localizer.getMessage(getMoonPhaseName(entry.getKey())) + ")" : ""));
             itemMeta.setLore(getLore(entry.getKey(), entry.getValue(), moon));
             PersistentDataContainer container = itemMeta.getPersistentDataContainer();
             container.set(PROBABILITY, PersistentDataType.INTEGER, entry.getValue());
