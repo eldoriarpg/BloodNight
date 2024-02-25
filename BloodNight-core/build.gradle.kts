@@ -5,7 +5,15 @@ plugins {
 
 dependencies {
     implementation(project(":BloodNight-api"))
-    implementation("de.eldoria", "eldo-util", "1.10.2-SNAPSHOT")
+    //implementation("de.eldoria", "eldo-util", "1.10.2-SNAPSHOT")
+    implementation("de.eldoria.util", "updater", "2.0.4-SNAPSHOT")
+    implementation("de.eldoria.util", "messaging", "2.0.4-SNAPSHOT")
+    implementation("de.eldoria.util", "commands", "2.0.4-SNAPSHOT")
+    implementation("de.eldoria.util", "plugin", "2.0.4-SNAPSHOT")
+    implementation("de.eldoria.util", "metrics", "2.0.4-SNAPSHOT")
+    implementation("de.eldoria.util", "inventory", "2.0.4-SNAPSHOT")
+    implementation("de.eldoria.util", "conversation", "2.0.4-SNAPSHOT")
+    implementation("de.eldoria.util", "threading", "2.0.4-SNAPSHOT")
     implementation("net.kyori", "adventure-platform-bukkit", "4.3.1")
     testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.10.1")
     testImplementation("junit", "junit", "4.13.2")

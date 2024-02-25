@@ -1,11 +1,13 @@
 package de.eldoria.bloodnight.command.util;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
+import de.eldoria.eldoutilities.localization.ILocalizer;
+import de.eldoria.eldoutilities.localization.MessageComposer;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -36,43 +38,34 @@ public final class CommandUtil {
     }
 
 
-    public static TextComponent getPageFooter(int page, int pageMax, String pageCommand) {
-        TextComponent.Builder builder = Component.text();
-        builder.append(Component.text("=====<| ", NamedTextColor.YELLOW));
+    public static String getPageFooter(int page, int pageMax, String pageCommand) {
+        MessageComposer builder = MessageComposer.create();
+
+        builder.text("<yellow>=====<| ");
 
         if (page != 0) {
-            builder.append(
-                    Component.text("<<< ", NamedTextColor.AQUA)
-                            .clickEvent(
-                                    ClickEvent.runCommand(pageCommand.replace("{page}", String.valueOf(page - 1)))
-                            ));
+            builder.text("<click:run_command:'%s'><aqua><<< </click>",
+                    pageCommand.replace("{page}", String.valueOf(page - 1)));
         } else {
-            builder.append(
-                    Component.text("<<< ", NamedTextColor.GRAY));
+            builder.text("<gray><<< ");
         }
 
-        builder.append(Component.text((page + 1) + "/" + (pageMax + 1), NamedTextColor.YELLOW));
+        builder.text("<yellow>%s/%s", page + 1, pageMax + 1);
 
         if (page != pageMax) {
-            builder.append(
-                    Component.text(" >>>")
-                            .clickEvent(
-                                    ClickEvent.runCommand(pageCommand.replace("{page}", String.valueOf(page + 1)))
-                            )).color(NamedTextColor.AQUA);
+            builder.text("<click:run_command:'%s'><aqua> >>>",
+                    pageCommand.replace("{page}", String.valueOf(page + 1)));
         } else {
-            builder.append(
-                    Component.text(" >>>", NamedTextColor.GRAY));
+            builder.text("<gray> >>>");
         }
 
-        builder.append(Component.text(" |>=====", NamedTextColor.YELLOW));
+
+        builder.text("<yellow> |>=====");
         return builder.build();
     }
 
-    public static TextComponent getFooter() {
-        return Component.text()
-                .append(Component.text("=====<|    ", NamedTextColor.YELLOW))
-                .append(Component.text("    |>=====", NamedTextColor.YELLOW))
-                .build();
+    public static String getFooter() {
+        return "<yellow>=====<|        |>=====";
     }
 
     public static <T> Optional<Integer> findPage(Collection<T> content, int pageSize, Predicate<T> predicate) {
@@ -89,68 +82,36 @@ public final class CommandUtil {
         return Optional.empty();
     }
 
-    public static <T> TextComponent getPage(Collection<T> content, int page, Function<T, TextComponent> mapping, String title, String pageCommand) {
+    public static <T> String getPage(Collection<T> content, int page, Function<T, String> mapping, String title, String pageCommand) {
         return getPage(content, page, 18, 1, mapping, title, pageCommand);
     }
 
-    public static <T> TextComponent getPage(Collection<T> content, int page, int elementsPerPage, int elementSize, Function<T, TextComponent> mapping, String title, String pageCommand) {
+    public static <T> String getPage(Collection<T> content, int page, int elementsPerPage, int elementSize, Function<T, String> mapping, String title, String pageCommand) {
         Collection<T> elements = getSlice(content, page, elementsPerPage);
-        TextComponent.Builder builder = Component.text();
+        var builder = MessageComposer.create();
         for (int i = elements.size() * elementSize; i < 18; i++) {
-            builder.append(Component.newline());
-
+            builder.newLine();
         }
 
-        builder.append(Component.text("=====<| ").color(NamedTextColor.YELLOW))
-                .append(Component.text(title).color(NamedTextColor.AQUA))
-                .append(Component.text(" |>=====").color(NamedTextColor.YELLOW));
-        for (T t : elements) {
-            builder.append(Component.newline())
-                    .append(mapping.apply(t));
-        }
+        builder.text("<yellow>=====<| <aqua>%s<yellow> |>=====", title);
+        builder.text(elements.stream().map(mapping).toList());
 
-        return builder.append(Component.newline())
-                .append(
-                        CommandUtil.getPageFooter(page,
-                                CommandUtil.pageCount(content, elementsPerPage),
-                                pageCommand)).build();
+        return builder.newLine().text(getPageFooter(page, CommandUtil.pageCount(content, elementsPerPage), pageCommand)).build();
     }
 
-    public static TextComponent getHeader(String title) {
-        return Component.text()
-                .append(Component.text("=====<| ").color(NamedTextColor.YELLOW))
-                .append(Component.text(title).color(NamedTextColor.AQUA))
-                .append(Component.text(" |>=====").color(NamedTextColor.YELLOW)).build();
+    public static String getHeader(String title) {
+        return "<yellow>=====<| <aqua>%s <yellow>|>=====".formatted(ILocalizer.escape(title));
     }
 
-    public static TextComponent getBooleanField(boolean currValue, String cmd, String field, String postive, String negative) {
-        return Component.text()
-                .append(Component.text(field + ": ", NamedTextColor.AQUA))
-                .append(
-                        Component.text(postive,
-                                currValue ? NamedTextColor.GREEN : NamedTextColor.DARK_GRAY)
-                                .clickEvent(
-                                        ClickEvent.runCommand(cmd.replace("{bool}", "true")))
-                )
-                .append(Component.space())
-                .append(
-                        Component.text(negative,
-                                !currValue ? NamedTextColor.RED : NamedTextColor.DARK_GRAY)
-                                .clickEvent(
-                                        ClickEvent.runCommand(cmd.replace("{bool}", "false"))))
-                .build();
+    public static String getBooleanField(boolean currValue, String cmd, String field, String postive, String negative) {
+        return "<aqua>%s: <click:run_command:'%s'><%s>%s</click> <click:run_command:'%s'><%s>%s</click>".formatted(
+                field,
+                cmd.replace("{bool}", "true"), currValue ? "green" : "dark_gray", postive,
+                cmd.replace("{bool}", "false"), !currValue ? "red" : "dark_gray", negative);
     }
 
-    public static TextComponent getToggleField(boolean currValue, String cmd, String field) {
+    public static String getToggleField(boolean currValue, String cmd, String field) {
         String newCmd = cmd.replace("{bool}", String.valueOf(!currValue));
-        return Component.text()
-                .append(
-                        Component.text("[" + field + "]",
-                                currValue ? NamedTextColor.GREEN : NamedTextColor.DARK_GRAY)
-                                .clickEvent(
-                                        ClickEvent.runCommand(newCmd))
-                )
-                .build();
-
+        return "<click:run_command:'%s'><%s>[%s]".formatted(newCmd, currValue ? "green" : "dark_gray", field);
     }
 }

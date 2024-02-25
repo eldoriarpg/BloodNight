@@ -3,10 +3,16 @@ package de.eldoria.bloodnight.command.bloodnight;
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.core.manager.nightmanager.NightManager;
 import de.eldoria.bloodnight.util.Permissions;
-import de.eldoria.eldoutilities.localization.Replacement;
-import de.eldoria.eldoutilities.simplecommands.EldoCommand;
+import de.eldoria.eldoutilities.commands.Completion;
+import de.eldoria.eldoutilities.commands.command.AdvancedCommand;
+import de.eldoria.eldoutilities.commands.command.CommandMeta;
+import de.eldoria.eldoutilities.commands.command.util.Argument;
+import de.eldoria.eldoutilities.commands.command.util.Arguments;
+import de.eldoria.eldoutilities.commands.command.util.CommandAssertions;
+import de.eldoria.eldoutilities.commands.exceptions.CommandException;
+import de.eldoria.eldoutilities.commands.executor.ITabExecutor;
+import de.eldoria.eldoutilities.messages.Replacement;
 import de.eldoria.eldoutilities.simplecommands.TabCompleteUtil;
-import de.eldoria.eldoutilities.utils.ArgumentUtils;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -18,59 +24,43 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.List;
 
-public class ForceNight extends EldoCommand {
+public class ForceNight extends AdvancedCommand implements ITabExecutor {
     private final NightManager nightManager;
     private final Configuration configuration;
 
     public ForceNight(Plugin plugin, NightManager nightManager, Configuration configuration) {
-        super(plugin);
+        super(plugin, CommandMeta.builder("forceNight")
+                .withPermission(Permissions.Admin.FORCE_NIGHT)
+                .addArgument("world", false)
+                .build());
         this.nightManager = nightManager;
         this.configuration = configuration;
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (denyAccess(sender, Permissions.Admin.FORCE_NIGHT)) {
-            return true;
-        }
-
+    public void onCommand(@NotNull CommandSender sender, @NotNull String alias, @NotNull Arguments args) throws CommandException {
         World world = null;
         if (sender instanceof Player player) {
             world = player.getWorld();
         } else {
-            if (argumentsInvalid(sender, args, 1, "[" + localizer().getMessage("syntax.worldName") + "]")) {
-                return true;
-            }
+            CommandAssertions.invalidArguments(args, Argument.input("syntax.worldName", true));
         }
 
-        world = ArgumentUtils.getOrDefault(args, 0, ArgumentUtils::getWorld, world);
-
-        if (world == null) {
-            messageSender().sendError(sender, localizer().getMessage("error.invalidWorld"));
-            return true;
-        }
+        world = args.asWorld(0, world);
 
         boolean enabled = configuration.getWorldSettings(world).isEnabled();
-        if (!enabled) {
-            messageSender().sendError(sender, localizer().getMessage("error.worldNotEnabled",
-                    Replacement.create("WORLD", world.getName()).addFormatting('6')));
-            return true;
-        }
-        if (!nightManager.getBloodWorldsSet().contains(world)) {
-            nightManager.forceNight(world);
-            messageSender().sendMessage(sender, localizer().getMessage("forceNight.enabeld",
-                    Replacement.create("WORLD", world.getName()).addFormatting('6')));
-        } else {
-            messageSender().sendError(sender, localizer().getMessage("forceNight.alreadyActive",
-                    Replacement.create("WORLD", world.getName()).addFormatting('6')));
-        }
-        return true;
+        CommandAssertions.isTrue(!enabled, "error.worldNotEnabled", Replacement.create("WORLD", world));
+        CommandAssertions.isTrue(!nightManager.getBloodWorldsSet().contains(world), "forceNight.alreadyActive",
+                Replacement.create("WORLD", world.getName()));
+        nightManager.forceNight(world);
+        messageSender().sendMessage(sender, "forceNight.enabled",
+                Replacement.create("WORLD", world.getName()));
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        if (args.length == 1) {
-            return TabCompleteUtil.completeWorlds(args[0]);
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull Arguments args) throws CommandException {
+        if (args.sizeIs(1)) {
+            return Completion.completeWorlds(args.asString(0));
         }
         return Collections.emptyList();
     }

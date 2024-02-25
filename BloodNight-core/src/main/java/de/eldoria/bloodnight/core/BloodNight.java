@@ -30,18 +30,20 @@ import de.eldoria.bloodnight.core.mobfactory.MobFactory;
 import de.eldoria.bloodnight.core.mobfactory.SpecialMobRegistry;
 import de.eldoria.bloodnight.hooks.HookService;
 import de.eldoria.bloodnight.util.Permissions;
-import de.eldoria.eldoutilities.bstats.EldoMetrics;
-import de.eldoria.eldoutilities.bstats.charts.MultiLineChart;
 import de.eldoria.eldoutilities.localization.ILocalizer;
+import de.eldoria.eldoutilities.localization.Localizer;
 import de.eldoria.eldoutilities.messages.MessageSender;
+import de.eldoria.eldoutilities.metrics.EldoMetrics;
 import de.eldoria.eldoutilities.plugin.EldoPlugin;
 import de.eldoria.eldoutilities.updater.Updater;
-import de.eldoria.eldoutilities.updater.butlerupdater.ButlerUpdateData;
+import de.eldoria.eldoutilities.updater.lynaupdater.LynaUpdateData;
 import lombok.Getter;
+import org.bstats.charts.MultiLineChart;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -65,6 +67,11 @@ public class BloodNight extends EldoPlugin {
         return getInstance().getLogger();
     }
 
+    @Override
+    public Level getLogLevel() {
+        return null;
+    }
+
     public static IBloodNightAPI getBloodNightAPI() {
         return instance.bloodNightAPI;
     }
@@ -77,7 +84,7 @@ public class BloodNight extends EldoPlugin {
 
             configuration = new Configuration(this);
 
-            ILocalizer localizer = ILocalizer.create(this, "de_DE", "en_US", "es_ES", "tr", "zh_CN");
+            ILocalizer localizer = Localizer.create(this, "de_DE", "en_US", "es_ES", "tr", "zh_CN");
 
             Map<String, String> mobLocaleCodes = SpecialMobRegistry.getRegisteredMobs().stream()
                     .map(MobFactory::getMobName)
@@ -87,7 +94,7 @@ public class BloodNight extends EldoPlugin {
             localizer.addLocaleCodes(mobLocaleCodes);
 
             localizer.setLocale(configuration.getGeneralSettings().getLanguage());
-            MessageSender.create(this, configuration.getGeneralSettings().getPrefix());
+            MessageSender.builder(this).prefix(configuration.getGeneralSettings().getPrefix()).register();
 
             registerListener();
             bloodNightAPI = new BloodNightAPI(nightManager, configuration);
@@ -97,9 +104,7 @@ public class BloodNight extends EldoPlugin {
             enableMetrics();
 
             if (configuration.getGeneralSettings().isUpdateReminder()) {
-                Updater.butler(new ButlerUpdateData(this, Permissions.Admin.RELOAD, true,
-                        configuration.getGeneralSettings().isAutoUpdater(), 4, "https://plugins.eldoria.de"))
-                        .start();
+                Updater.lyna(LynaUpdateData.builder(this, 4).notifyPermission(Permissions.Admin.RELOAD).notifyUpdate(true).build()).start();
             }
 
 
@@ -112,9 +117,9 @@ public class BloodNight extends EldoPlugin {
         onReload();
 
         if (initialized) {
-            logger().info("§2BloodNight reloaded!");
+            logger().info("BloodNight reloaded!");
         } else {
-            logger().info("§2BloodNight enabled!");
+            logger().info("BloodNight enabled!");
             initialized = true;
         }
 

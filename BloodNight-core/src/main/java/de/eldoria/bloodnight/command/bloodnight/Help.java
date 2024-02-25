@@ -1,6 +1,10 @@
 package de.eldoria.bloodnight.command.bloodnight;
 
-import de.eldoria.eldoutilities.simplecommands.EldoCommand;
+import de.eldoria.eldoutilities.commands.command.AdvancedCommand;
+import de.eldoria.eldoutilities.commands.command.CommandMeta;
+import de.eldoria.eldoutilities.commands.command.util.Arguments;
+import de.eldoria.eldoutilities.commands.exceptions.CommandException;
+import de.eldoria.eldoutilities.commands.executor.ITabExecutor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
@@ -10,31 +14,37 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.List;
 
-public class Help extends EldoCommand {
+public class Help extends AdvancedCommand implements ITabExecutor {
     public Help(Plugin plugin) {
-        super(plugin);
+        super(plugin,CommandMeta.builder("help").build());
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        messageSender().sendMessage(sender, localizer().getMessage("help.help") + "\n"
-                + "§6/bn about§r\n" + localizer().getMessage("help.about") + "\n"
-                + "§6/bn forceNight§r\n" + localizer().getMessage("help.forceNight") + "\n"
-                + "§6/bn cancelNight§r\n" + localizer().getMessage("help.cancelNight") + "\n"
-                + "§6/bn manageMob§r\n" + localizer().getMessage("help.manageMob") + "\n"
-                + "§6/bn manageMobs§r\n" + localizer().getMessage("help.manageMobs") + "\n"
-                + "§6/bn manageNight§r\n" + localizer().getMessage("help.manageNight") + "\n"
-                + "§6/bn manageWorlds§r\n" + localizer().getMessage("help.manageWorlds") + "\n"
-                + "§6/bn nightSelection§r\n" + localizer().getMessage("help.nightSelection") + "\n"
-                + "§6/bn reload§r\n" + localizer().getMessage("help.reload") + "\n"
-                + "§6/bn spawnMob§r\n" + localizer().getMessage("help.spawnMob")
+    public void onCommand(@NotNull CommandSender sender, @NotNull String alias, @NotNull Arguments args) throws CommandException {
+        messageSender().sendMessage(sender, """
+                $help.help$
+                <aqua>/bn about<default>
+                $help.about$
+                <aqua>/bn forceNight<default>
+                $help.forceNight$
+                <aqua>/bn cancelNight<default>
+                $help.cancelNight$
+                <aqua>/bn manageMob<default>
+                $help.manageMob$
+                <aqua>/bn manageMobs<default>
+                $help.manageMobs$
+                <aqua>/bn manageNight<default>
+                $help.manageNight$
+                <aqua>/bn manageWorlds<default>
+                $help.manageWorlds$
+                <aqua>/bn nightSelection<default>
+                $help.nightSelection$
+                <aqua>/bn reload<default>
+                $help.reload$
+                <aqua>/bn spawnMob<default>
+                $help.spawnMob$
+                """.stripIndent()
         );
-        return true;
-    }
 
-    @Override
-    public @Nullable
-    List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        return Collections.emptyList();
     }
 }

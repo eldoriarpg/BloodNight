@@ -24,18 +24,33 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.block.Beehive;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Bee;
+import org.bukkit.entity.Boss;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Monster;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.*;
+import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityDropItemEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -238,7 +253,7 @@ public class MobManager implements Listener {
             } else {
                 BloodNight.logger().config("No mob found for " + specialMob.get() + " in group ");
             }
-        } else if(!configuration.getGeneralSettings().getNoVanillaDropIncrease().contains(entity.getType())){
+        } else if (!configuration.getGeneralSettings().getNoVanillaDropIncrease().contains(entity.getType())) {
             // If it is a vanilla mob just increase the drops.
             VanillaDropMode dropMode = vanillaMobSettings.getVanillaDropMode();
             switch (dropMode) {
@@ -347,16 +362,25 @@ public class MobManager implements Listener {
                 }).runTaskTimer(BloodNight.getInstance(), 0, 1);
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onItemPickup(EntityPickupItemEvent event) {
+        ItemStack stack = event.getItem().getItemStack();
         if (event.getEntity() instanceof Player) {
             // Remove remaining picked up tags when a player picks up an item.
             // this is a bugfix and can be removed later.
-            removePickupTag(event.getItem().getItemStack());
+            removePickupTag(stack);
             return;
         }
         if (!configuration.getWorldSettings(event.getEntity().getWorld()).isEnabled()) return;
-        addPickupTag(event.getItem().getItemStack());
+        // This doesn't work anymore. https://github.com/PaperMC/Paper/pull/10256
+        // From now on we just cancel any pickup by monsters during bloodnight.
+        if (event.getEntity() instanceof Monster) {
+            event.setCancelled(true);
+        }
+        var meta = stack.getItemMeta();
+        meta.setLore(List.of("Picked up"));
+        stack.setItemMeta(meta);
+        event.getItem().setItemStack(addPickupTag(stack));
     }
 
     public void onHopperPickUp(InventoryPickupItemEvent event) {
@@ -371,8 +395,9 @@ public class MobManager implements Listener {
         removePickupTag(event.getItemDrop().getItemStack());
     }
 
-    private void addPickupTag(ItemStack itemStack) {
+    private ItemStack addPickupTag(ItemStack itemStack) {
         DataContainerUtil.setIfAbsent(itemStack, PICKED_UP, PersistentDataType.BYTE, DataContainerUtil.booleanToByte(true));
+        return itemStack;
     }
 
     private void removePickupTag(ItemStack itemStack) {
