@@ -119,7 +119,10 @@ public final class CommandUtil {
     }
 
     public static String changeableValue(String field, Object value, String command) {
-        return "<aqua>%s: <gold>%s %s".formatted(escape(field), value, changeButton(command));
+        return "%s %s".formatted(value(field, value), changeButton(command));
+    }
+    public static String value(String field, Object value) {
+        return "<aqua>%s: <gold>%s".formatted(escape(field), value);
     }
 
     public static String getToggleField(boolean currValue, String cmd, String field) {
