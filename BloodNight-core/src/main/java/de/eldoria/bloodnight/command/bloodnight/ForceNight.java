@@ -12,9 +12,7 @@ import de.eldoria.eldoutilities.commands.command.util.CommandAssertions;
 import de.eldoria.eldoutilities.commands.exceptions.CommandException;
 import de.eldoria.eldoutilities.commands.executor.ITabExecutor;
 import de.eldoria.eldoutilities.messages.Replacement;
-import de.eldoria.eldoutilities.simplecommands.TabCompleteUtil;
 import org.bukkit.World;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -31,7 +29,7 @@ public class ForceNight extends AdvancedCommand implements ITabExecutor {
     public ForceNight(Plugin plugin, NightManager nightManager, Configuration configuration) {
         super(plugin, CommandMeta.builder("forceNight")
                 .withPermission(Permissions.Admin.FORCE_NIGHT)
-                .addArgument("world", false)
+                .addArgument("syntax.worldName", false)
                 .build());
         this.nightManager = nightManager;
         this.configuration = configuration;

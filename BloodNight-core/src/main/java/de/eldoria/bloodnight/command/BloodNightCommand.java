@@ -19,6 +19,7 @@ import de.eldoria.bloodnight.util.Permissions;
 import de.eldoria.eldoutilities.commands.command.AdvancedCommand;
 import de.eldoria.eldoutilities.commands.command.CommandMeta;
 import de.eldoria.eldoutilities.commands.defaultcommands.DefaultAbout;
+import de.eldoria.eldoutilities.commands.defaultcommands.DefaultDebug;
 import de.eldoria.eldoutilities.simplecommands.commands.DefaultDebug;
 import org.bukkit.plugin.Plugin;
 
@@ -40,9 +41,9 @@ public class BloodNightCommand extends AdvancedCommand {
                 .withSubCommand("manageNight", new ManageNight(plugin, configuration))
                 .withSubCommand("manageMobs", new ManageMobs(plugin, configuration, inventoryListener))
                 .withSubCommand("nightSelection", new ManageNightSelection(plugin, configuration, inventoryListener))
-                .withSubCommand("deathActions", new ManageDeathActions(plugin, configuration))
-                .withSubCommand("reload", new Reload(plugin))
-                .withSubCommand("debug", new DefaultDebug(plugin, Permissions.Admin.RELOAD))
+                .withSubCommand(new ManageDeathActions(plugin, configuration))
+                .withSubCommand(new Reload(plugin))
+                .withSubCommand(new DefaultDebug(plugin, Permissions.Admin.RELOAD))
         );
     }
 }

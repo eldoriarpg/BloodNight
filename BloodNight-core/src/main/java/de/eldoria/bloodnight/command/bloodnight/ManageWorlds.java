@@ -6,265 +6,175 @@ import de.eldoria.bloodnight.config.worldsettings.BossBarSettings;
 import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.util.Permissions;
-import de.eldoria.eldoutilities.simplecommands.EldoCommand;
-import de.eldoria.eldoutilities.simplecommands.TabCompleteUtil;
+import de.eldoria.eldoutilities.commands.Completion;
+import de.eldoria.eldoutilities.commands.command.AdvancedCommand;
+import de.eldoria.eldoutilities.commands.command.CommandMeta;
+import de.eldoria.eldoutilities.commands.command.util.Arguments;
+import de.eldoria.eldoutilities.commands.command.util.CommandAssertions;
+import de.eldoria.eldoutilities.commands.command.util.Input;
+import de.eldoria.eldoutilities.commands.exceptions.CommandException;
+import de.eldoria.eldoutilities.commands.executor.IPlayerTabExecutor;
 import de.eldoria.eldoutilities.utils.ArgumentUtils;
-import de.eldoria.eldoutilities.utils.EnumUtil;
-import de.eldoria.eldoutilities.utils.Parser;
-import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.World;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarFlag;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
-public class ManageWorlds extends EldoCommand {
+import static de.eldoria.eldoutilities.localization.ILocalizer.escape;
+
+public class ManageWorlds extends AdvancedCommand implements IPlayerTabExecutor {
     private final Configuration configuration;
-    private final BukkitAudiences bukkitAudiences;
 
     public ManageWorlds(Plugin plugin, Configuration configuration) {
-        super(plugin);
+        super(plugin, CommandMeta.builder("manageWorlds").withPermission(Permissions.Admin.MANAGE_WORLDS)
+                .addArgument("syntax.worldName", true)
+                .addArgument("syntax.field", false)
+                .addArgument("syntax.value", false)
+                .build());
         this.configuration = configuration;
-        bukkitAudiences = BukkitAudiences.create(BloodNight.getInstance());
     }
 
-    // world field value page
+    // world field value page <- Stupid decision btw
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (denyConsole(sender)) {
-            return true;
-        }
-
-        if (denyAccess(sender, Permissions.Admin.MANAGE_WORLDS)) {
-            return true;
-        }
-
-        Player player = getPlayerFromSender(sender);
-        World world1 = player.getWorld();
-
-        World world = ArgumentUtils.getOrDefault(args, 0, ArgumentUtils::getWorld, world1);
-
-
-        if (world == null) {
-            messageSender().sendError(sender, localizer().getMessage("error.invalidWorld"));
-            return true;
-        }
-
+    public void onCommand(@NotNull Player player, @NotNull String alias, @NotNull Arguments args) throws CommandException {
+        World world = args.asWorld(0, player.getWorld());
         WorldSettings worldSettings = configuration.getWorldSettings(world);
 
-        if (args.length < 2) {
-            sendWorldPage(world, sender, 0);
-            return true;
+        if (args.size() < 2) {
+            sendWorldPage(world, player, 0);
+            return;
         }
 
-        // world field value
-        if (argumentsInvalid(sender, args, 3,
-                "[" + localizer().getMessage("syntax.worldName") + "] [<"
-                        + localizer().getMessage("syntax.field") + "> <"
-                        + localizer().getMessage("syntax.value") + ">]")) {
-            return true;
-        }
 
-        String field = args[1];
-        String value = args[2];
+        String field = args.asString(1);
+        Input value = args.get(2);
         Optional<Integer> optPage = CommandUtil.findPage(configuration.getWorldSettings().values(), 2,
                 w -> w.getWorldName().equalsIgnoreCase(world.getName()));
 
         if ("page".equalsIgnoreCase(field)) {
-            optPage = Parser.parseInt(value);
-            optPage.ifPresent(integer -> sendWorldPage(world, sender, integer));
-            return true;
+            sendWorldPage(world, player, value.asInt());
+            return;
         }
 
         if ("bossBar".equalsIgnoreCase(field)) {
-            if (!TabCompleteUtil.isCommand(value, "state", "title", "color", "toggleEffect")) {
-                messageSender().sendError(sender, localizer().getMessage("error.invalidField"));
-            }
-            if (argumentsInvalid(sender, args, 4,
-                    "[" + localizer().getMessage("syntax.worldName") + "] [" +
-                            "bossBar <"
-                            + localizer().getMessage("syntax.field") + "> <"
-                            + localizer().getMessage("syntax.value") + ">]")) {
-                return true;
-            }
-            String bossBarValue = args[3];
+            CommandAssertions.isTrue(Completion.isCommand(value.asString(), "state", "title", "color", "toggleEffect"), "error.invalidField");
+            Input bossBarValue = args.get(3);
             BossBarSettings bbs = worldSettings.getBossBarSettings();
-            if ("state".equalsIgnoreCase(value)) {
-                Optional<Boolean> aBoolean = Parser.parseBoolean(bossBarValue);
-                if (!aBoolean.isPresent()) {
-                    messageSender().sendError(sender, localizer().getMessage("error.invalidBoolean"));
-                    return true;
-                }
-                bbs.setEnabled(aBoolean.get());
+            if ("state".equalsIgnoreCase(value.asString())) {
+                bbs.setEnabled(bossBarValue.asBoolean());
             }
-            if ("title".equalsIgnoreCase(value)) {
-                String title = String.join(" ", Arrays.copyOfRange(args, 3, args.length));
-                bbs.setTitle(title);
+            if ("title".equalsIgnoreCase(value.asString())) {
+                bbs.setTitle(args.join(3));
             }
-            if ("color".equalsIgnoreCase(value)) {
-                Optional<BarColor> parse = EnumUtil.parse(bossBarValue, BarColor.class);
-                if (parse.isEmpty()) {
-                    messageSender().sendError(sender, localizer().getMessage("error.invalidValue"));
-                    return true;
-                }
-                bbs.setColor(parse.get());
+            if ("color".equalsIgnoreCase(value.asString())) {
+                bbs.setColor(bossBarValue.asEnum(BarColor.class));
             }
-            if ("toggleEffect".equalsIgnoreCase(value)) {
-                Optional<BarFlag> parse = EnumUtil.parse(bossBarValue, BarFlag.class);
-                if (parse.isEmpty()) {
-                    messageSender().sendError(sender, localizer().getMessage("error.invalidValue"));
-                    return true;
-                }
-                bbs.toggleEffect(parse.get());
+            if ("toggleEffect".equalsIgnoreCase(value.asString())) {
+                bbs.toggleEffect(bossBarValue.asEnum(BarFlag.class));
             }
 
-            sendWorldPage(world, sender, optPage.get());
+            sendWorldPage(world, player, optPage.get());
             configuration.save();
-            return true;
+            return;
         }
 
-        if (TabCompleteUtil.isCommand(field, "state", "creeperBlockDamage", "manageCreeperAlways")) {
-            Optional<Boolean> aBoolean = Parser.parseBoolean(value);
-            if (!aBoolean.isPresent()) {
-                messageSender().sendError(sender, "invalid boolean");
-                return true;
-            }
-            if ("state".equalsIgnoreCase(field)) {
-                worldSettings.setEnabled(aBoolean.get());
-            }
-            if ("creeperBlockDamage".equalsIgnoreCase(field)) {
-                worldSettings.setCreeperBlockDamage(aBoolean.get());
-            }
-            if ("manageCreeperAlways".equalsIgnoreCase(field)) {
-                worldSettings.setAlwaysManageCreepers(aBoolean.get());
-            }
-            sendWorldPage(world, sender, optPage.get());
-            configuration.save();
-            return true;
+        CommandAssertions.isTrue(Completion.isCommand(field, "state", "creeperBlockDamage", "manageCreeperAlways"), "error.invalidField");
+        if ("state".equalsIgnoreCase(field)) {
+            worldSettings.setEnabled(value.asBoolean());
         }
-        messageSender().sendError(sender, localizer().getMessage("error.invalidField"));
-        return true;
+        if ("creeperBlockDamage".equalsIgnoreCase(field)) {
+            worldSettings.setCreeperBlockDamage(value.asBoolean());
+        }
+        if ("manageCreeperAlways".equalsIgnoreCase(field)) {
+            worldSettings.setAlwaysManageCreepers(value.asBoolean());
+        }
+        sendWorldPage(world, player, optPage.get());
+        configuration.save();
     }
 
     private void sendWorldPage(World world, CommandSender sender, int page) {
-        TextComponent component = CommandUtil.getPage(
+        String component = CommandUtil.getPage(
                 new ArrayList<>(configuration.getWorldSettings().values()),
                 page,
                 2, 7,
                 entry -> {
                     String cmd = "/bloodnight manageWorlds " + ArgumentUtils.escapeWorldName(entry.getWorldName()) + " ";
                     BossBarSettings bbs = entry.getBossBarSettings();
-                    return Component.text()
-                            // World State
-                            .append(Component.text(entry.getWorldName(), NamedTextColor.GOLD, TextDecoration.BOLD))
-                            .append(Component.text("  "))
-                            .append(CommandUtil.getBooleanField(entry.isEnabled(),
-                                    cmd + "state {bool} ",
-                                    "",
-                                    localizer().getMessage("state.enabled"),
-                                    localizer().getMessage("state.disabled")))
-                            .append(Component.newline())
-                            .append(CommandUtil.getBooleanField(entry.isCreeperBlockDamage(),
-                                    cmd + "creeperBlockDamage {bool} ",
-                                    localizer().getMessage("field.creeperBlockDamage"),
-                                    localizer().getMessage("state.enabled"),
-                                    localizer().getMessage("state.disabled")))
-                            .append(Component.newline())
-                            .append(CommandUtil.getBooleanField(entry.isAlwaysManageCreepers(),
-                                    cmd + "manageCreeperAlways {bool} ",
-                                    localizer().getMessage("field.alwaysManageCreepers"),
-                                    localizer().getMessage("state.enabled"),
-                                    localizer().getMessage("state.disabled")))
-                            .append(Component.newline()).append(Component.text("  "))
-                            // boss bar state
-                            .append(Component.text(localizer().getMessage("field.bossBarSettings") + ": ", NamedTextColor.AQUA))
-                            .append(CommandUtil.getBooleanField(bbs.isEnabled(),
-                                    cmd + "bossBar state {bool} ",
-                                    "",
-                                    localizer().getMessage("state.enabled"),
-                                    localizer().getMessage("state.disabled")))
-                            .append(Component.newline()).append(Component.text("  "))
-                            // title
-                            .append(Component.text(localizer().getMessage("field.title") + ": ", NamedTextColor.AQUA))
-                            .append(Component.text(bbs.getTitle(), NamedTextColor.GOLD))
-                            .append(Component.text(" [" + localizer().getMessage("action.change") + "] ", NamedTextColor.GREEN)
-                                    .clickEvent(ClickEvent.suggestCommand(cmd + "bossBar title " + bbs.getTitle().replace("§", "&"))))
-                            .append(Component.newline()).append(Component.text("  "))
-                            // Color
-                            .append(Component.text(localizer().getMessage("field.color") + ": ", NamedTextColor.AQUA))
-                            .append(Component.text(bbs.getColor().toString(), toKyoriColor(bbs.getColor())))
-                            .append(Component.text(" [" + localizer().getMessage("action.change") + "] ", NamedTextColor.GREEN)
-                                    .clickEvent(ClickEvent.suggestCommand(cmd + "bossBar color ")))
-                            .append(Component.newline()).append(Component.text("  "))
-                            // Effects
-                            .append(Component.text(localizer().getMessage("field.effects") + ": ", NamedTextColor.AQUA))
-                            .append(CommandUtil.getToggleField(bbs.isEffectEnabled(BarFlag.CREATE_FOG),
-                                    cmd + "bossBar toggleEffect CREATE_FOG",
-                                    localizer().getMessage("state.fog")))
-                            .append(Component.space())
-                            .append(CommandUtil.getToggleField(bbs.isEffectEnabled(BarFlag.DARKEN_SKY),
-                                    cmd + "bossBar toggleEffect DARKEN_SKY",
-                                    localizer().getMessage("state.darkenSky")))
-                            .append(Component.space())
-                            .append(CommandUtil.getToggleField(bbs.isEffectEnabled(BarFlag.PLAY_BOSS_MUSIC),
-                                    cmd + "bossBar toggleEffect PLAY_BOSS_MUSIC",
-                                    localizer().getMessage("state.music")))
-                            .build();
+                    return """
+                            <gold><bold><%s></bold> %s
+                            %s
+                            %s
+                            <aqua>%s:
+                              %s
+                              <aqua>%s: <gold>%s <click:suggest_command:'%s'><green>[%s]
+                              <aqua>%s: <#%s>%s <click:suggest_command:'%s'><green>[%s]
+                              <aqua>%s: %s %s %s
+                            """.stripIndent()
+                            .formatted(
+                                    entry.getWorldName(), CommandUtil.getBooleanField(entry.isEnabled(), cmd + "state {bool} ", "", "state.enabled", "state.disabled"),
+                                    CommandUtil.getBooleanField(entry.isCreeperBlockDamage(), cmd + "creeperBlockDamage {bool} ", "field.creeperBlockDamage", "state.enabled", "state.disabled"),
+                                    CommandUtil.getBooleanField(entry.isAlwaysManageCreepers(), cmd + "manageCreeperAlways {bool} ", "field.alwaysManageCreepers", "state.enabled", "state.disabled"),
+                                    escape("field.bossBarSettings"),
+                                    CommandUtil.getBooleanField(bbs.isEnabled(), cmd + "bossBar state {bool} ", "", "state.enabled", "state.disabled"),
+                                    escape("field.title"), bbs.getTitle().replace(" §", "&"), cmd + "bossBar title " + bbs.getTitle().replace("§", "&"), escape("action.change"),
+                                    escape("field.color"), toKyoriColor(bbs.getColor()).asHexString(), bbs.getColor(), cmd + "bossBar color ", escape("action.change"),
+                                    escape("field.effects"),
+                                    CommandUtil.getToggleField(bbs.isEffectEnabled(BarFlag.CREATE_FOG), cmd + "bossBar toggleEffect CREATE_FOG", "state.fog"),
+                                    CommandUtil.getToggleField(bbs.isEffectEnabled(BarFlag.DARKEN_SKY), cmd + "bossBar toggleEffect DARKEN_SKY", "state.darkenSky"),
+                                    CommandUtil.getToggleField(bbs.isEffectEnabled(BarFlag.PLAY_BOSS_MUSIC), cmd + "bossBar toggleEffect PLAY_BOSS_MUSIC", "state.music")
+                            );
                 },
-                localizer().getMessage("manageWorlds.title"),
+                "manageWorlds.title",
                 "/bloodnight manageWorlds " + ArgumentUtils.escapeWorldName(world) + " page {page}");
-
-        bukkitAudiences.sender(sender).sendMessage(Identity.nil(), component);
+        messageSender().sendMessage(sender, component);
     }
 
-
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        if (args.length == 1) {
-            return TabCompleteUtil.completeWorlds(args[0]);
+    public @Nullable List<String> onTabComplete(@NotNull Player player, @NotNull String alias, @NotNull Arguments args) throws CommandException {
+        if (args.sizeIs(1)) {
+            return Completion.completeWorlds(args.asString(0));
         }
-        if (args.length == 2) {
-            return TabCompleteUtil.complete(args[1], "bossBar", "state", "creeperBlockDamage", "manageCreeperAlways");
+        if (args.sizeIs(2)) {
+            return Completion.complete(args.asString(1), "bossBar", "state", "creeperBlockDamage", "manageCreeperAlways");
         }
 
-        String field = args[1];
+        String field = args.asString(1);
         if ("bossBar".equalsIgnoreCase(field)) {
-            if (args.length == 3) {
-                return TabCompleteUtil.complete(args[2], "state", "title", "color", "toggleEffect");
+            if (args.sizeIs(3)) {
+                return Completion.complete(args.asString(2), "state", "title", "color", "toggleEffect");
             }
-            String bossField = args[2];
-            String bossValue = args[3];
+            String bossField = args.asString(2);
+            String bossValue = args.asString(3);
 
             if ("state".equalsIgnoreCase(bossField)) {
-                return TabCompleteUtil.completeBoolean(bossValue);
+                return Completion.completeBoolean(bossValue);
             }
             if ("title".equalsIgnoreCase(bossField)) {
-                return TabCompleteUtil.completeFreeInput(ArgumentUtils.getRangeAsString(args, 3), 16, localizer().getMessage("field.title"), localizer());
+                return Completion.completeFreeInput(args.join(3), 16, localizer().getMessage("field.title"));
             }
             if ("color".equalsIgnoreCase(bossField)) {
-                return TabCompleteUtil.complete(bossValue, BarColor.class);
+                return Completion.complete(bossValue, BarColor.class);
             }
             if ("toggleEffect".equalsIgnoreCase(bossField)) {
-                return TabCompleteUtil.complete(bossValue, BarFlag.class);
+                return Completion.complete(bossValue, BarFlag.class);
             }
             return Collections.emptyList();
         }
 
-        if (TabCompleteUtil.isCommand(field, "state", "creeperBlockDamage", "manageCreeperAlways")) {
-            return TabCompleteUtil.completeBoolean(args[2]);
+        if (Completion.isCommand(field, "state", "creeperBlockDamage", "manageCreeperAlways")) {
+            return Completion.completeBoolean(args.asString(2));
         }
         return Collections.emptyList();
     }

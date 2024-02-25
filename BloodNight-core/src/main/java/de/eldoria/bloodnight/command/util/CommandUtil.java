@@ -11,6 +11,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import static de.eldoria.eldoutilities.localization.ILocalizer.escape;
+
 public final class CommandUtil {
     private CommandUtil() {
     }
@@ -93,25 +95,25 @@ public final class CommandUtil {
             builder.newLine();
         }
 
-        builder.text("<yellow>=====<| <aqua>%s<yellow> |>=====", title);
+        builder.text("<yellow>=====<| <aqua>%s<yellow> |>=====", escape(title));
         builder.text(elements.stream().map(mapping).toList());
 
         return builder.newLine().text(getPageFooter(page, CommandUtil.pageCount(content, elementsPerPage), pageCommand)).build();
     }
 
     public static String getHeader(String title) {
-        return "<yellow>=====<| <aqua>%s <yellow>|>=====".formatted(ILocalizer.escape(title));
+        return "<yellow>=====<| <aqua>%s <yellow>|>=====".formatted(escape(title));
     }
 
     public static String getBooleanField(boolean currValue, String cmd, String field, String postive, String negative) {
         return "<aqua>%s: <click:run_command:'%s'><%s>%s</click> <click:run_command:'%s'><%s>%s</click>".formatted(
-                field,
-                cmd.replace("{bool}", "true"), currValue ? "green" : "dark_gray", postive,
-                cmd.replace("{bool}", "false"), !currValue ? "red" : "dark_gray", negative);
+                escape(field),
+                cmd.replace("{bool}", "true"), currValue ? "green" : "dark_gray", escape(postive),
+                cmd.replace("{bool}", "false"), !currValue ? "red" : "dark_gray", escape(negative));
     }
 
     public static String getToggleField(boolean currValue, String cmd, String field) {
         String newCmd = cmd.replace("{bool}", String.valueOf(!currValue));
-        return "<click:run_command:'%s'><%s>[%s]".formatted(newCmd, currValue ? "green" : "dark_gray", field);
+        return "<click:run_command:'%s'><%s>[%s]".formatted(newCmd, currValue ? "green" : "dark_gray", escape(field));
     }
 }

@@ -5,18 +5,13 @@ import de.eldoria.eldoutilities.commands.command.CommandMeta;
 import de.eldoria.eldoutilities.commands.command.util.Arguments;
 import de.eldoria.eldoutilities.commands.exceptions.CommandException;
 import de.eldoria.eldoutilities.commands.executor.ITabExecutor;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.Collections;
-import java.util.List;
 
 public class Help extends AdvancedCommand implements ITabExecutor {
     public Help(Plugin plugin) {
-        super(plugin,CommandMeta.builder("help").build());
+        super(plugin, CommandMeta.builder("help").build());
     }
 
     @Override
