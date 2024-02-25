@@ -1,6 +1,5 @@
 package de.eldoria.bloodnight.command.util;
 
-import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.localization.MessageComposer;
 
 import java.util.ArrayList;
@@ -110,6 +109,17 @@ public final class CommandUtil {
                 escape(field),
                 cmd.replace("{bool}", "true"), currValue ? "green" : "dark_gray", escape(postive),
                 cmd.replace("{bool}", "false"), !currValue ? "red" : "dark_gray", escape(negative));
+    }
+
+    public static String changeButton(String command) {
+        return changeButton(command, "green", "action.change");
+    }
+    public static String changeButton(String command, String label, String color) {
+        return "<click:run_command:'%s'><%s>[%s]</click>".formatted(command, color, escape(label));
+    }
+
+    public static String changeableValue(String field, Object value, String command) {
+        return "<aqua>%s: <gold>%s %s".formatted(escape(field), value, changeButton(command));
     }
 
     public static String getToggleField(boolean currValue, String cmd, String field) {
