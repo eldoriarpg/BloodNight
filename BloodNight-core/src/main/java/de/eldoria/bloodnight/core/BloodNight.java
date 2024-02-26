@@ -103,6 +103,7 @@ public class BloodNight extends EldoPlugin {
             MessageSender.builder(this)
                     .prefix(configuration.getGeneralSettings().getPrefix())
                     .messageColor(NamedTextColor.AQUA)
+                    .errorColor(NamedTextColor.RED)
                     .addTag(t ->{
                         t.tag("field", Tag.styling(NamedTextColor.AQUA));
                         t.tag("value", Tag.styling(NamedTextColor.GOLD));
