@@ -102,7 +102,7 @@ public class BloodNight extends EldoPlugin {
             localizer.setLocale(configuration.getGeneralSettings().getLanguage());
             MessageSender.builder(this)
                     .prefix(configuration.getGeneralSettings().getPrefix())
-                    .messageColor(NamedTextColor.AQUA)
+                    .messageColor(NamedTextColor.GREEN)
                     .errorColor(NamedTextColor.RED)
                     .addTag(t ->{
                         t.tag("field", Tag.styling(NamedTextColor.AQUA));
