@@ -227,10 +227,10 @@ public class ManageNightSelection extends AdvancedCommand implements IPlayerTabE
                                                 escape(getMoonPhaseName(e.getKey())),
                                                 getMoonPhaseSign(e.getKey()),
                                                 escape("field.probability"), e.getValue());
-                                return "<gold><hover:show_text:'%s'>| %s:%s |".formatted(hover, e.getKey(), e.getValue());
+                                return "<value><hover:show_text:'%s'>| %s:%s |".formatted(hover, e.getKey(), e.getValue());
                             }).toList();
                             yield """
-                                    <aqua>%s: %s
+                                    <field>%s: %s
                                     %s
                                     """.stripIndent()
                                     .formatted(
@@ -264,7 +264,7 @@ public class ManageNightSelection extends AdvancedCommand implements IPlayerTabE
                     };
 
                     var a = """
-                            <gold><bold>%s</bold>
+                            <header>%s</header>
                             %s:
                             %s %s %s %s %s %s
                             """.stripIndent()

@@ -215,13 +215,13 @@ public class ManagePlayerDeathActions extends AdvancedCommand implements IPlayer
         String cmd = "/bloodnight deathActions player " + ArgumentUtils.escapeWorldName(world.getName()) + " ";
         var actions = """
                 %s
-                <aqua>%s <click:run_command:'%s'><green>[%s]</click>
-                <aqua>%s <click:run_command:'%s'><green>[%s]</click>
-                <aqua>%s <click:run_command:'%s'><green>[%s]</click> <click:run_command:'%s'><dark_green>[%s]</click>
-                <aqua>%s <click:run_command:'%s'><green>[%s]</click>
-                <aqua>%s <click:run_command:'%s'><green>[%s]</click>
-                <aqua>%s: <gold>%s <click:suggest_command:'%s'><green>[%s]</click>
-                <aqua>%s: <gold>%s <click:suggest_command:'%s'><green>[%s]</click>
+                <field>%s <click:run_command:'%s'><change>[%s]</click>
+                <field>%s <click:run_command:'%s'><change>[%s]</click>
+                <field>%s <click:run_command:'%s'><change>[%s]</click> <click:run_command:'%s'><add>[%s]</click>
+                <field>%s <click:run_command:'%s'><change>[%s]</click>
+                <field>%s <click:run_command:'%s'><change>[%s]</click>
+                <field>%s: <value>%s <click:suggest_command:'%s'><change>[%s]</click>
+                <field>%s: <value>%s <click:suggest_command:'%s'><change>[%s]</click>
                 """.stripIndent()
                 .formatted(CommandUtil.getHeader("manageDeathActions.player.title"),
                         escape("field.lightningSettings"), cmd + "lightning", escape("action.change"),

@@ -266,9 +266,9 @@ public class ManageMobs extends AdvancedCommand implements IPlayerTabExecutor {
                         getBooleanField(mSet.isNaturalDrops(), cmd + "naturalDrops {bool}", "field.naturalDrops", "state.allow", "state.deny"),
                         // default drops
                         value("field.defaultDrops", mSet.getDefaultDrops().size() + " " + escape("field.drops")),
-                        changeButton(cmd + "defaultDrops changeContent", "action.content", "green"),
-                        changeButton(cmd + "defaultDrops changeWeight", "action.weight", "gold"),
-                        changeButton(cmd + "defaultDrops clear", "action.clear", "red"),
+                        changeButton(cmd + "defaultDrops changeContent", "action.content", "change"),
+                        changeButton(cmd + "defaultDrops changeWeight", "action.weight", "weight"),
+                        changeButton(cmd + "defaultDrops clear", "action.clear", "delete"),
                         // default drop amount
                         changeableValue("field.dropAmount", mSet.getDropAmount() + "x", cmd + "dropAmount "),
                         // Vanilla Mobs submenu

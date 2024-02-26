@@ -19,7 +19,7 @@ import java.util.Map;
 @SerializableAs("bloodNightGeneralSettings")
 public class GeneralSettings implements ConfigurationSerializable {
     private String language = "en_US";
-    private String prefix = "§4[BN]";
+    private String prefix = "<red>[BN]";
     private BroadcastLevel broadcastLevel = BroadcastLevel.SERVER;
     private BroadcastMethod broadcastMethod = BroadcastMethod.SUBTITLE;
     private BroadcastMethod messageMethod = BroadcastMethod.SUBTITLE;

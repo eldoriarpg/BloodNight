@@ -247,37 +247,37 @@ public class ManageMob extends AdvancedCommand implements IPlayerTabExecutor {
                     String cmd = "/bloodnight manageMob " + mobGroup.getKey() + " " + ArgumentUtils.escapeWorldName(world.getName()) + " " + entry.getMobName() + " ";
                     var healthModifier = switch (entry.getHealthModifier()) {
                         case DEFAULT ->
-                                "<gold>%s (%sx)".formatted(escape("action.default"), mobSettings.getHealthModifier());
-                        case MULTIPLY -> "<gold>%sx".formatted(entry.getHealth());
-                        case VALUE -> "<gold>%s %s".formatted(entry.getHealth(), escape("field.health"));
+                                "<value>%s (%sx)".formatted(escape("action.default"), mobSettings.getHealthModifier());
+                        case MULTIPLY -> "<value>%sx".formatted(entry.getHealth());
+                        case VALUE -> "<value>%s %s".formatted(entry.getHealth(), escape("field.health"));
                     };
                     var damageModifier = switch (entry.getDamageModifier()) {
                         case DEFAULT ->
-                                "<gold>%s (%sx)".formatted(escape("action.default"), mobSettings.getDamageMultiplier());
-                        case MULTIPLY -> "<gold>%sx".formatted(entry.getDamage());
-                        case VALUE -> "<gold>%s %s".formatted(entry.getDamage(), escape("field.health"));
+                                "<value>%s (%sx)".formatted(escape("action.default"), mobSettings.getDamageMultiplier());
+                        case MULTIPLY -> "<value>%sx".formatted(entry.getDamage());
+                        case VALUE -> "<value>%s %s".formatted(entry.getDamage(), escape("field.health"));
                     };
 
 
                     return """
-                            <gold><bold>%s</bold> %s
+                            <header>%s</header> %s
                               %s
                               %s
-                              <aqua>%s: %s %s %s
+                              <field>%s: %s %s %s
                               %s
-                              <aqua>Health Modifier: %s %s %s
-                              <aqua>%s: %s %s
-                              <aqua>Damage Modifier: %s %s %s
-                              <aqua>%s: %s %s
+                              <field>Health Modifier: %s %s %s
+                              <field>%s: %s %s
+                              <field>Damage Modifier: %s %s %s
+                              <field>%s: %s %s
                             """.stripIndent()
                             .formatted(
                                     entry.getMobName(), getBooleanField(entry.isActive(), cmd + "state {bool}", "", "state.enabled", "state.disabled"),
                                     changeableValue("field.displayName", entry.getDisplayName(), cmd + "displayName " + entry.getDisplayName().replace("§", "&")),
                                     changeableValue("field.dropAmount", entry.getDropAmount() == 0 ? escape("action.default") : entry.getDropAmount() + "x", cmd + "dropAmount "),
                                     escape("field.drops"), entry.getDrops().size() + " " + escape("field.drops"),
-                                    changeButton(cmd + "drops changeContent", "action.content", "green"),
-                                    changeButton(cmd + "drops changeWeight", "action.weight", "gold"),
-                                    changeButton(cmd + "drops clear", "action.clear", "red"),
+                                    changeButton(cmd + "drops changeContent", "action.content", "change"),
+                                    changeButton(cmd + "drops changeWeight", "action.weight", "weight"),
+                                    changeButton(cmd + "drops clear", "action.clear", "delete"),
                                     getBooleanField(entry.isOverrideDefaultDrops(), cmd + "overrideDefault {bool} " + page, "field.overrideDefaultDrops", "state.override", "state.combine"),
                                     getToggleField(entry.getHealthModifier() == MobValueModifier.DEFAULT, cmd + "healthModifier DEFAULT", "action.default"),
                                     getToggleField(entry.getHealthModifier() == MobValueModifier.MULTIPLY, cmd + "healthModifier MULTIPLY", "action.multiply"),

@@ -121,12 +121,12 @@ public class ManageNight extends AdvancedCommand implements IPlayerTabExecutor {
 
         var duration = switch (durationMode) {
             case NORMAL -> """
-                    <gold>>
-                    <gold>>""".stripIndent();
+                    <value>>
+                    <value>>""".stripIndent();
             //night duration
             case EXTENDED -> """
                     %s
-                    <gold>>
+                    <value>>
                     """.stripIndent()
                     .formatted(
                             changeableValue("field.nightDuration", nightSettings.getNightDuration() + " " + escape("value.seconds"), cmd + "nightDuration ")

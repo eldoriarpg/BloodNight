@@ -38,6 +38,12 @@ import de.eldoria.eldoutilities.plugin.EldoPlugin;
 import de.eldoria.eldoutilities.updater.Updater;
 import de.eldoria.eldoutilities.updater.lynaupdater.LynaUpdateData;
 import lombok.Getter;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.StyleBuilderApplicable;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.minimessage.tag.Tag;
 import org.bstats.charts.MultiLineChart;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -94,7 +100,20 @@ public class BloodNight extends EldoPlugin {
             localizer.addLocaleCodes(mobLocaleCodes);
 
             localizer.setLocale(configuration.getGeneralSettings().getLanguage());
-            MessageSender.builder(this).prefix(configuration.getGeneralSettings().getPrefix()).register();
+            MessageSender.builder(this)
+                    .prefix(configuration.getGeneralSettings().getPrefix())
+                    .messageColor(NamedTextColor.AQUA)
+                    .addTag(t ->{
+                        t.tag("field", Tag.styling(NamedTextColor.AQUA));
+                        t.tag("value", Tag.styling(NamedTextColor.GOLD));
+                        t.tag("add", Tag.styling(NamedTextColor.DARK_GREEN));
+                        t.tag("inactive", Tag.styling(NamedTextColor.GRAY));
+                        t.tag("change", Tag.styling(NamedTextColor.YELLOW));
+                        t.tag("weight", Tag.styling(NamedTextColor.GOLD));
+                        t.tag("delete", Tag.styling(NamedTextColor.RED));
+                        t.tag("header", Tag.styling(c -> c.decorate(TextDecoration.BOLD).color(NamedTextColor.GOLD)));
+                    })
+                    .register();
 
             registerListener();
             bloodNightAPI = new BloodNightAPI(nightManager, configuration);

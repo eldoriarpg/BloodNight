@@ -18,25 +18,25 @@ public class Help extends AdvancedCommand implements ITabExecutor {
     public void onCommand(@NotNull CommandSender sender, @NotNull String alias, @NotNull Arguments args) throws CommandException {
         messageSender().sendMessage(sender, """
                 $help.help$
-                <aqua>/bn about<default>
+                <field>/bn about<default>
                 $help.about$
-                <aqua>/bn forceNight<default>
+                <field>/bn forceNight<default>
                 $help.forceNight$
-                <aqua>/bn cancelNight<default>
+                <field>/bn cancelNight<default>
                 $help.cancelNight$
-                <aqua>/bn manageMob<default>
+                <field>/bn manageMob<default>
                 $help.manageMob$
-                <aqua>/bn manageMobs<default>
+                <field>/bn manageMobs<default>
                 $help.manageMobs$
-                <aqua>/bn manageNight<default>
+                <field>/bn manageNight<default>
                 $help.manageNight$
-                <aqua>/bn manageWorlds<default>
+                <field>/bn manageWorlds<default>
                 $help.manageWorlds$
-                <aqua>/bn nightSelection<default>
+                <field>/bn nightSelection<default>
                 $help.nightSelection$
-                <aqua>/bn reload<default>
+                <field>/bn reload<default>
                 $help.reload$
-                <aqua>/bn spawnMob<default>
+                <field>/bn spawnMob<default>
                 $help.spawnMob$
                 """.stripIndent()
         );

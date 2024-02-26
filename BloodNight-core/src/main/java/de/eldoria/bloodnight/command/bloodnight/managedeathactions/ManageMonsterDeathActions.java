@@ -52,8 +52,8 @@ public class ManageMonsterDeathActions extends AdvancedCommand {
             String cmd = "/bloodnight deathActions monster {command} " + ArgumentUtils.escapeWorldName(world.getName());
             String action = """
                     %s
-                    <aqua>%s <click:run_command:''><green>[%s]</click>
-                    <aqua>%s <click:run_command:''><green>[%s]</click>
+                    <field>%s <click:run_command:'%s'><change>[%s]</click>
+                    <field>%s <click:run_command:'%s'><change>[%s]</click>
                     """.stripIndent()
                     .formatted(CommandUtil.getHeader("manageDeathActions.monster.title"),
                             escape("field.lightningSettings"), cmd.replace("{command}", "lightning"), escape("action.change"),

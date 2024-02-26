@@ -113,14 +113,14 @@ public class ManageWorlds extends AdvancedCommand implements IPlayerTabExecutor 
                     String cmd = "/bloodnight manageWorlds " + ArgumentUtils.escapeWorldName(entry.getWorldName()) + " ";
                     BossBarSettings bbs = entry.getBossBarSettings();
                     return """
-                            <gold><bold><%s></bold> %s
+                            <header><%s></header> %s
                             %s
                             %s
-                            <aqua>%s:
+                            <field>%s:
                               %s
-                              <aqua>%s: <gold>%s <click:suggest_command:'%s'><green>[%s]
-                              <aqua>%s: <#%s>%s <click:suggest_command:'%s'><green>[%s]
-                              <aqua>%s: %s %s %s
+                              <field>%s: <value>%s <click:suggest_command:'%s'><change>[%s]
+                              <field>%s: <#%s>%s <click:suggest_command:'%s'><change>[%s]
+                              <field>%s: %s %s %s
                             """.stripIndent()
                             .formatted(
                                     entry.getWorldName(), CommandUtil.getBooleanField(entry.isEnabled(), cmd + "state {bool} ", "", "state.enabled", "state.disabled"),

@@ -45,19 +45,19 @@ public final class CommandUtil {
         builder.text("<yellow>=====<| ");
 
         if (page != 0) {
-            builder.text("<click:run_command:'%s'><aqua><<< </click>",
+            builder.text("<click:run_command:'%s'><field><<< </click>",
                     pageCommand.replace("{page}", String.valueOf(page - 1)));
         } else {
-            builder.text("<gray><<< ");
+            builder.text("<inactive><<< ");
         }
 
         builder.text("<yellow>%s/%s", page + 1, pageMax + 1);
 
         if (page != pageMax) {
-            builder.text("<click:run_command:'%s'><aqua> >>>",
+            builder.text("<click:run_command:'%s'><field> >>>",
                     pageCommand.replace("{page}", String.valueOf(page + 1)));
         } else {
-            builder.text("<gray> >>>");
+            builder.text("<inactive> >>>");
         }
 
 
@@ -94,25 +94,25 @@ public final class CommandUtil {
             builder.newLine();
         }
 
-        builder.text("<yellow>=====<| <aqua>%s<yellow> |>=====", escape(title));
+        builder.text("<yellow>=====<| <field>%s<yellow> |>=====", escape(title));
         builder.text(elements.stream().map(mapping).toList());
 
         return builder.newLine().text(getPageFooter(page, CommandUtil.pageCount(content, elementsPerPage), pageCommand)).build();
     }
 
     public static String getHeader(String title) {
-        return "<yellow>=====<| <aqua>%s <yellow>|>=====".formatted(escape(title));
+        return "<yellow>=====<| <field>%s <yellow>|>=====".formatted(escape(title));
     }
 
     public static String getBooleanField(boolean currValue, String cmd, String field, String postive, String negative) {
-        return "<aqua>%s: <click:run_command:'%s'><%s>%s</click> <click:run_command:'%s'><%s>%s</click>".formatted(
+        return "<field>%s: <click:run_command:'%s'><%s>%s</click> <click:run_command:'%s'><%s>%s</click>".formatted(
                 escape(field),
-                cmd.replace("{bool}", "true"), currValue ? "green" : "dark_gray", escape(postive),
-                cmd.replace("{bool}", "false"), !currValue ? "red" : "dark_gray", escape(negative));
+                cmd.replace("{bool}", "true"), currValue ? "change" : "inactive", escape(postive),
+                cmd.replace("{bool}", "false"), !currValue ? "remove" : "inactive", escape(negative));
     }
 
     public static String changeButton(String command) {
-        return changeButton(command, "green", "action.change");
+        return changeButton(command, "change", "action.change");
     }
     public static String changeButton(String command, String label, String color) {
         return "<click:run_command:'%s'><%s>[%s]</click>".formatted(command, color, escape(label));
@@ -122,7 +122,7 @@ public final class CommandUtil {
         return "%s %s".formatted(value(field, value), changeButton(command));
     }
     public static String value(String field, Object value) {
-        return "<aqua>%s: <gold>%s".formatted(escape(field), value);
+        return "<field>%s: <gold>%s".formatted(escape(field), value);
     }
 
     public static String getToggleField(boolean currValue, String cmd, String field) {
