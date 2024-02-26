@@ -78,7 +78,7 @@ public class ManageMob extends AdvancedCommand implements IPlayerTabExecutor {
         World world = args.asWorld(1, player.getWorld());
 
         WorldSettings worldSettings = configuration.getWorldSettings(world);
-        CommandAssertions.isTrue(worldSettings.isEnabled(), "error.worldNotEnabled", Replacement.create("world", world));
+        CommandAssertions.isTrue(worldSettings.isEnabled(), "error.worldNotEnabled", Replacement.create("WORLD", world));
 
         String mobGroupName = args.asString(0);
 

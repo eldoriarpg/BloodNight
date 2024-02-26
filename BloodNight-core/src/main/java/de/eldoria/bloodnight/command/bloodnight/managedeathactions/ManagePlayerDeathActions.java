@@ -232,7 +232,7 @@ public class ManagePlayerDeathActions extends AdvancedCommand implements IPlayer
                         escape("field.loseInventory"), playerDeathActions.getLoseInvProbability(), cmd + "loseInv ", escape("action.change"),
                         escape("field.loseExperience"), playerDeathActions.getLoseExpProbability(), cmd + "loseExp ", escape("action.change")
                 );
-        messageSender().sendMessage(player, actions, Replacement.create("count", playerDeathActions.getDeathCommands().size()));
+        messageSender().sendMessage(player, actions, Replacement.create("COUNT", playerDeathActions.getDeathCommands().size()));
     }
 
 

@@ -292,7 +292,7 @@ public class ManageNightSelection extends AdvancedCommand implements IPlayerTabE
                     return a;
                 }, "nightSelection.title.menu",
                 "/bloodnight nightSelection " + ArgumentUtils.escapeWorldName(world) + " page {page}");
-        messageSender().sendMessage(sender, page, Replacement.create("world", world));
+        messageSender().sendMessage(sender, page, Replacement.create("WORLD", world));
     }
 
     @Override
