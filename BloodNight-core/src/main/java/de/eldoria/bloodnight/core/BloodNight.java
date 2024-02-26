@@ -106,6 +106,7 @@ public class BloodNight extends EldoPlugin {
                     .prefix(configuration.getGeneralSettings().getPrefix().replaceAll("§[a-f0-9]", ""))
                     .messageColor(NamedTextColor.GREEN)
                     .errorColor(NamedTextColor.RED)
+                    .localizer(localizer)
                     .addTag(t -> {
                         t.tag("field", Tag.styling(NamedTextColor.AQUA));
                         t.tag("value", Tag.styling(NamedTextColor.GOLD));
