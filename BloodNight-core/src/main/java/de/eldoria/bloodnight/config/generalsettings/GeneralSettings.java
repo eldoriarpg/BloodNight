@@ -1,6 +1,7 @@
 package de.eldoria.bloodnight.config.generalsettings;
 
 import de.eldoria.bloodnight.core.BloodNight;
+import de.eldoria.eldoutilities.messages.conversion.MiniMessageConversion;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
 import lombok.Getter;
@@ -14,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@Getter
 @Setter
 @SerializableAs("bloodNightGeneralSettings")
 public class GeneralSettings implements ConfigurationSerializable {
@@ -77,5 +77,65 @@ public class GeneralSettings implements ConfigurationSerializable {
                 .add("ignoreSpawnerMobs", ignoreSpawnerMobs)
                 .add("blockedCommands", blockedCommands)
                 .build();
+    }
+
+    public String language() {
+        return language;
+    }
+
+    public String prefix() {
+        return MiniMessageConversion.convertLegacyColorCodes(prefix);
+    }
+
+    public BroadcastLevel broadcastLevel() {
+        return broadcastLevel;
+    }
+
+    public BroadcastMethod broadcastMethod() {
+        return broadcastMethod;
+    }
+
+    public BroadcastMethod messageMethod() {
+        return messageMethod;
+    }
+
+    public int mobTick() {
+        return mobTick;
+    }
+
+    public boolean blindness() {
+        return blindness;
+    }
+
+    public boolean joinWorldWarning() {
+        return joinWorldWarning;
+    }
+
+    public boolean updateReminder() {
+        return updateReminder;
+    }
+
+    public boolean autoUpdater() {
+        return autoUpdater;
+    }
+
+    public boolean beeFix() {
+        return beeFix;
+    }
+
+    public boolean spawnerDropSuppression() {
+        return spawnerDropSuppression;
+    }
+
+    public boolean ignoreSpawnerMobs() {
+        return ignoreSpawnerMobs;
+    }
+
+    public List<String> blockedCommands() {
+        return blockedCommands;
+    }
+
+    public List<EntityType> noVanillaDropIncrease() {
+        return noVanillaDropIncrease;
     }
 }

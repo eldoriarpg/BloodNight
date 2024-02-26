@@ -70,7 +70,7 @@ public class ManageNightSelection extends AdvancedCommand implements IPlayerTabE
     private final BukkitAudiences bukkitAudiences;
 
     public ManageNightSelection(Plugin plugin, Configuration configuration, InventoryListener inventoryListener) {
-        super(plugin, CommandMeta.builder("manageNightSelection")
+        super(plugin, CommandMeta.builder("nightSelection")
                 .addArgument("syntax.worldName", false)
                 .addArgument("syntax.field", false)
                 .addArgument("syntax.value", false)
@@ -87,14 +87,14 @@ public class ManageNightSelection extends AdvancedCommand implements IPlayerTabE
 
     private static String getMoonPhaseSign(int phase) {
         return switch (phase) {
-            case 0 -> "§f████";
-            case 1 -> "§f███§8█";
-            case 2 -> "§f██§8██";
-            case 3 -> "§f█§8███";
-            case 4 -> "§8████";
-            case 5 -> "§8███§f█";
-            case 6 -> "§8██§f██";
-            case 7 -> "§8█§f███";
+            case 0 -> "<white>████";
+            case 1 -> "<white>███<gray>█";
+            case 2 -> "<white>██<gray>██";
+            case 3 -> "<white>█<gray>███";
+            case 4 -> "<gray>████";
+            case 5 -> "<gray>███<white>█";
+            case 6 -> "<gray>██<white>██";
+            case 7 -> "<gray>█<white>███";
             default -> throw new IllegalStateException("Unexpected value: " + phase);
         };
     }
@@ -234,7 +234,8 @@ public class ManageNightSelection extends AdvancedCommand implements IPlayerTabE
                                     %s
                                     """.stripIndent()
                                     .formatted(
-                                            escape("field.moonPhase"), changeButton(cmd + "moonPhase none"),
+                                            escape("field.moonPhase"),
+                                            changeButton(cmd + "moonPhase none"),
                                             String.join(" ", phases)
                                     );
                         }
@@ -252,9 +253,13 @@ public class ManageNightSelection extends AdvancedCommand implements IPlayerTabE
                                 """.stripIndent()
                                 .formatted(
                                         changeableValue("field.amount", ns.getPhaseCustom().size(), cmd + "phaseAmount "),
-                                        escape("field.amount"), changeButton(cmd + "phase none ")
+                                        escape("field.amount"),
+                                        changeButton(cmd + "phase none ")
                                 );
                         case CURVE -> """
+                                %s
+                                %s
+                                %s
                                 """.stripIndent()
                                 .formatted(
                                         changeableValue("field.length", ns.getPeriod(), cmd + "period "),
@@ -267,6 +272,7 @@ public class ManageNightSelection extends AdvancedCommand implements IPlayerTabE
                             <header>%s</header>
                             %s:
                             %s %s %s %s %s %s
+                            %s
                             """.stripIndent()
                             .formatted(
                                     s.getWorldName(),
@@ -277,9 +283,9 @@ public class ManageNightSelection extends AdvancedCommand implements IPlayerTabE
                                     getToggleField(ns.getNightSelectionType() == MOON_PHASE, cmd + "type moon_phase", "state.moonPhase"),
                                     getToggleField(ns.getNightSelectionType() == REAL_MOON_PHASE, cmd + "type real_moon_phase", "state.realMoonPhase"),
                                     getToggleField(ns.getNightSelectionType() == INTERVAL, cmd + "type interval", "state.interval"),
-                                    getToggleField(ns.getNightSelectionType() == INTERVAL, cmd + "type interval", "state.interval"),
                                     getToggleField(ns.getNightSelectionType() == PHASE, cmd + "type phase", "state.phase"),
-                                    getToggleField(ns.getNightSelectionType() == CURVE, cmd + "type curve", "state.curve")
+                                    getToggleField(ns.getNightSelectionType() == CURVE, cmd + "type curve", "state.curve"),
+                                    type
                             );
                     TextComponent.Builder builder = Component.text()
                             .append(Component.text(s.getWorldName(), NamedTextColor.GOLD, TextDecoration.BOLD))

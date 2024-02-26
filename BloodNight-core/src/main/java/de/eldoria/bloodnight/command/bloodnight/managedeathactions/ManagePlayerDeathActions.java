@@ -53,7 +53,7 @@ public class ManagePlayerDeathActions extends AdvancedCommand implements IPlayer
 
     public ManagePlayerDeathActions(Plugin plugin, Configuration configuration) {
         super(plugin, CommandMeta.builder("player")
-                .addArgument("syntax.worldName", true)
+                .addArgument("syntax.worldName", false)
                 .addArgument("syntax.field", false)
                 .addArgument("syntax.value", false)
                 .build());

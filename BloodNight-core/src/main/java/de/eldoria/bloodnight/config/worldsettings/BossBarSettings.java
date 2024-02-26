@@ -1,11 +1,13 @@
 package de.eldoria.bloodnight.config.worldsettings;
 
 import com.google.common.collect.Lists;
+import de.eldoria.eldoutilities.messages.conversion.MiniMessageConversion;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
 import de.eldoria.eldoutilities.utils.EnumUtil;
 import lombok.Getter;
 import lombok.Setter;
+import net.kyori.adventure.bossbar.BossBar;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarFlag;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -13,9 +15,12 @@ import org.bukkit.configuration.serialization.SerializableAs;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Getter
@@ -27,11 +32,11 @@ public class BossBarSettings implements ConfigurationSerializable {
      * Boss bar title with § as color identifier
      */
     private String title = "§c§lBlood Night";
-    private BarColor color = BarColor.RED;
-    private List<BarFlag> effects = new ArrayList<>() {
+    private BossBar.Color color = BossBar.Color.RED;
+    private List<BossBar.Flag> effects = new ArrayList<>() {
         {
-            add(BarFlag.CREATE_FOG);
-            add(BarFlag.DARKEN_SKY);
+            add(BossBar.Flag.CREATE_WORLD_FOG);
+            add(BossBar.Flag.DARKEN_SCREEN);
         }
     };
 
@@ -42,12 +47,12 @@ public class BossBarSettings implements ConfigurationSerializable {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
         this.enabled = map.getValue("enabled");
         setTitle(map.getValue("title"));
-        this.color = map.getValue("color", v -> EnumUtil.parse(v, BarColor.class).orElse(BarColor.RED));
+        this.color = map.getValue("color", v -> EnumUtil.parse(v, BossBar.Color.class).orElse(BossBar.Color.RED));
         List<String> effects = map.getValue("effects");
-        this.effects = effects.stream().map(v -> EnumUtil.parse(v, BarFlag.class).orElse(null)).filter(Objects::nonNull).collect(Collectors.toList());
+        this.effects = effects.stream().map(v -> EnumUtil.parse(v, BossBar.Flag.class).orElse(null)).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
-    public void toggleEffect(BarFlag flag) {
+    public void toggleEffect(BossBar.Flag flag) {
         if (effects.contains(flag)) {
             effects.remove(flag);
         } else {
@@ -55,16 +60,16 @@ public class BossBarSettings implements ConfigurationSerializable {
         }
     }
 
-    public BarFlag[] getEffects() {
-        return effects.toArray(new BarFlag[0]);
+    public Set<BossBar.Flag> getEffects() {
+        return Set.copyOf(effects);
     }
 
-    public boolean isEffectEnabled(BarFlag flag) {
+    public boolean isEffectEnabled(BossBar.Flag flag) {
         return effects.contains(flag);
     }
 
     public void setTitle(String title) {
-        this.title = title.replace("&", "§");
+        this.title = MiniMessageConversion.convertLegacyColorCodes(title);
     }
 
     @Override
@@ -73,7 +78,7 @@ public class BossBarSettings implements ConfigurationSerializable {
                 .add("enabled", enabled)
                 .add("title", title)
                 .add("color", color)
-                .add("effects", Lists.newArrayList(effects).stream().map(BarFlag::toString).collect(Collectors.toList()))
+                .add("effects", Lists.newArrayList(effects).stream().map(BossBar.Flag::name).collect(Collectors.toList()))
                 .build();
     }
 }

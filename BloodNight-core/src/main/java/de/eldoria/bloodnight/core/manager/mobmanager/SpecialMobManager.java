@@ -76,7 +76,7 @@ public class SpecialMobManager extends BukkitRunnable implements Listener {
     @Override
     public void run() {
         for (World bloodWorld : nightManager.getBloodWorldsSet()) {
-            getWorldMobs(bloodWorld).tick(configuration.getGeneralSettings().getMobTick());
+            getWorldMobs(bloodWorld).tick(configuration.getGeneralSettings().mobTick());
         }
 
         for (int i = 0; i < Math.min(lostEntities.size(), 10); i++) {

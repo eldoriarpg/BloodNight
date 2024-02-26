@@ -101,9 +101,9 @@ public class BloodNight extends EldoPlugin {
                             k -> String.join(" ", k.split("(?<=.)(?=\\p{Lu})"))));
             localizer.addLocaleCodes(mobLocaleCodes);
 
-            localizer.setLocale(configuration.getGeneralSettings().getLanguage());
+            localizer.setLocale(configuration.getGeneralSettings().language());
             MessageSender.builder(this)
-                    .prefix(configuration.getGeneralSettings().getPrefix().replaceAll("§[a-f0-9]", ""))
+                    .prefix(configuration.getGeneralSettings().prefix())
                     .messageColor(NamedTextColor.GREEN)
                     .errorColor(NamedTextColor.RED)
                     .localizer(localizer)
@@ -111,9 +111,11 @@ public class BloodNight extends EldoPlugin {
                         t.tag("field", Tag.styling(NamedTextColor.AQUA));
                         t.tag("value", Tag.styling(NamedTextColor.GOLD));
                         t.tag("add", Tag.styling(NamedTextColor.DARK_GREEN));
+                        t.tag("active", Tag.styling(NamedTextColor.GREEN));
                         t.tag("inactive", Tag.styling(NamedTextColor.GRAY));
                         t.tag("change", Tag.styling(NamedTextColor.YELLOW));
                         t.tag("weight", Tag.styling(NamedTextColor.GOLD));
+                        t.tag("remove", Tag.styling(NamedTextColor.RED));
                         t.tag("delete", Tag.styling(NamedTextColor.RED));
                         t.tag("header", Tag.styling(c -> c.decorate(TextDecoration.BOLD).color(NamedTextColor.GOLD)));
                     })
@@ -126,7 +128,7 @@ public class BloodNight extends EldoPlugin {
 
             enableMetrics();
 
-            if (configuration.getGeneralSettings().isUpdateReminder()) {
+            if (configuration.getGeneralSettings().updateReminder()) {
                 Updater.lyna(LynaUpdateData.builder(this, 4).notifyPermission(Permissions.Admin.RELOAD).notifyUpdate(true).build()).start();
             }
 
@@ -151,7 +153,7 @@ public class BloodNight extends EldoPlugin {
 
     public void onReload() {
         configuration.reload();
-        ILocalizer.getPluginLocalizer(this).setLocale(configuration.getGeneralSettings().getLanguage());
+        ILocalizer.getPluginLocalizer(this).setLocale(configuration.getGeneralSettings().language());
 
         logger().config("§cDebug mode active");
 
@@ -187,9 +189,9 @@ public class BloodNight extends EldoPlugin {
 
             metrics.addCustomChart(new MultiLineChart("update_settings", () -> {
                 Map<String, Integer> map = new HashMap<>();
-                map.put("Update Check", configuration.getGeneralSettings().isUpdateReminder() ? 1 : 0);
-                if (configuration.getGeneralSettings().isUpdateReminder()) {
-                    map.put("Auto Update", configuration.getGeneralSettings().isUpdateReminder() ? 1 : 0);
+                map.put("Update Check", configuration.getGeneralSettings().updateReminder() ? 1 : 0);
+                if (configuration.getGeneralSettings().updateReminder()) {
+                    map.put("Auto Update", configuration.getGeneralSettings().updateReminder() ? 1 : 0);
                     return map;
                 }
                 map.put("Auto Update", 0);

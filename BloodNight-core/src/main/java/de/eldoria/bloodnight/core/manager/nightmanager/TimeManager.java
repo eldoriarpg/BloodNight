@@ -109,7 +109,7 @@ public class TimeManager extends BukkitRunnable implements Listener {
 
             BloodNightData bloodNightData = entry.getValue();
             ObjUtil.nonNull(bloodNightData.getBossBar(), bossBar -> {
-                bossBar.setProgress(NightUtil.getNightProgress(world, configuration.getWorldSettings(world)));
+                bossBar.progress(NightUtil.getNightProgress(world, configuration.getWorldSettings(world)));
             });
         }
     }

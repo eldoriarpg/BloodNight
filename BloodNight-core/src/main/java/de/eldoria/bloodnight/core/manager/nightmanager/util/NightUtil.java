@@ -20,11 +20,11 @@ public class NightUtil {
      * @param worldSettings settings of the world
      * @return the night progress where 0 ist the end and 1 ist the start.
      */
-    public double getNightProgress(World world, WorldSettings worldSettings) {
+    public float getNightProgress(World world, WorldSettings worldSettings) {
         NightSettings settings = worldSettings.getNightSettings();
         long total = getDiff(settings.getNightBegin(), settings.getNightEnd());
         long left = getDiff(world.getFullTime(), settings.getNightEnd());
-        return EMath.clamp(0, 1, left / (double) total);
+        return EMath.clamp(0, 1, left / (float) total);
     }
 
     public int getSecondsRemaining(World world, WorldSettings worldSettings) {

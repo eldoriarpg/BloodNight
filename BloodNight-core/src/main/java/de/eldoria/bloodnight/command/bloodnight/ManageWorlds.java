@@ -14,7 +14,9 @@ import de.eldoria.eldoutilities.commands.command.util.CommandAssertions;
 import de.eldoria.eldoutilities.commands.command.util.Input;
 import de.eldoria.eldoutilities.commands.exceptions.CommandException;
 import de.eldoria.eldoutilities.commands.executor.IPlayerTabExecutor;
+import de.eldoria.eldoutilities.messages.Replacement;
 import de.eldoria.eldoutilities.utils.ArgumentUtils;
+import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -33,13 +35,16 @@ import java.util.List;
 import java.util.Optional;
 
 import static de.eldoria.eldoutilities.localization.ILocalizer.escape;
+import static net.kyori.adventure.bossbar.BossBar.Flag.CREATE_WORLD_FOG;
+import static net.kyori.adventure.bossbar.BossBar.Flag.DARKEN_SCREEN;
+import static net.kyori.adventure.bossbar.BossBar.Flag.PLAY_BOSS_MUSIC;
 
 public class ManageWorlds extends AdvancedCommand implements IPlayerTabExecutor {
     private final Configuration configuration;
 
     public ManageWorlds(Plugin plugin, Configuration configuration) {
         super(plugin, CommandMeta.builder("manageWorlds").withPermission(Permissions.Admin.MANAGE_WORLDS)
-                .addArgument("syntax.worldName", true)
+                .addArgument("syntax.worldName", false)
                 .addArgument("syntax.field", false)
                 .addArgument("syntax.value", false)
                 .build());
@@ -79,10 +84,10 @@ public class ManageWorlds extends AdvancedCommand implements IPlayerTabExecutor 
                 bbs.setTitle(args.join(3));
             }
             if ("color".equalsIgnoreCase(value.asString())) {
-                bbs.setColor(bossBarValue.asEnum(BarColor.class));
+                bbs.setColor(bossBarValue.asEnum(BossBar.Color.class));
             }
             if ("toggleEffect".equalsIgnoreCase(value.asString())) {
-                bbs.toggleEffect(bossBarValue.asEnum(BarFlag.class));
+                bbs.toggleEffect(bossBarValue.asEnum(BossBar.Flag.class));
             }
 
             sendWorldPage(world, player, optPage.get());
@@ -113,13 +118,14 @@ public class ManageWorlds extends AdvancedCommand implements IPlayerTabExecutor 
                     String cmd = "/bloodnight manageWorlds " + ArgumentUtils.escapeWorldName(entry.getWorldName()) + " ";
                     BossBarSettings bbs = entry.getBossBarSettings();
                     return """
+                            
                             <header><%s></header> %s
                             %s
                             %s
                             <field>%s:
                               %s
-                              <field>%s: <value>%s <click:suggest_command:'%s'><change>[%s]
-                              <field>%s: <#%s>%s <click:suggest_command:'%s'><change>[%s]
+                              <field>%s: <value>%s <reset><click:suggest_command:'%s'><change>[%s]</click>
+                              <field>%s: %s <click:suggest_command:'%s'><change>[%s]</click>
                               <field>%s: %s %s %s
                             """.stripIndent()
                             .formatted(
@@ -129,16 +135,16 @@ public class ManageWorlds extends AdvancedCommand implements IPlayerTabExecutor 
                                     escape("field.bossBarSettings"),
                                     CommandUtil.getBooleanField(bbs.isEnabled(), cmd + "bossBar state {bool} ", "", "state.enabled", "state.disabled"),
                                     escape("field.title"), bbs.getTitle().replace(" §", "&"), cmd + "bossBar title " + bbs.getTitle().replace("§", "&"), escape("action.change"),
-                                    escape("field.color"), toKyoriColor(bbs.getColor()).asHexString(), bbs.getColor(), cmd + "bossBar color ", escape("action.change"),
+                                    escape("field.color"), bbs.getColor(), cmd + "bossBar color ", escape("action.change"),
                                     escape("field.effects"),
-                                    CommandUtil.getToggleField(bbs.isEffectEnabled(BarFlag.CREATE_FOG), cmd + "bossBar toggleEffect CREATE_FOG", "state.fog"),
-                                    CommandUtil.getToggleField(bbs.isEffectEnabled(BarFlag.DARKEN_SKY), cmd + "bossBar toggleEffect DARKEN_SKY", "state.darkenSky"),
-                                    CommandUtil.getToggleField(bbs.isEffectEnabled(BarFlag.PLAY_BOSS_MUSIC), cmd + "bossBar toggleEffect PLAY_BOSS_MUSIC", "state.music")
+                                    CommandUtil.getToggleField(bbs.isEffectEnabled(CREATE_WORLD_FOG), cmd + "bossBar toggleEffect " + CREATE_WORLD_FOG, "state.fog"),
+                                    CommandUtil.getToggleField(bbs.isEffectEnabled(DARKEN_SCREEN), cmd + "bossBar toggleEffect " + DARKEN_SCREEN, "state.darkenSky"),
+                                    CommandUtil.getToggleField(bbs.isEffectEnabled(PLAY_BOSS_MUSIC), cmd + "bossBar toggleEffect " + PLAY_BOSS_MUSIC, "state.music")
                             );
                 },
                 "manageWorlds.title",
                 "/bloodnight manageWorlds " + ArgumentUtils.escapeWorldName(world) + " page {page}");
-        messageSender().sendMessage(sender, component);
+        messageSender().sendMessage(sender, component, Replacement.create("world", world));
     }
 
     @Override
@@ -165,10 +171,10 @@ public class ManageWorlds extends AdvancedCommand implements IPlayerTabExecutor 
                 return Completion.completeFreeInput(args.join(3), 16, localizer().getMessage("field.title"));
             }
             if ("color".equalsIgnoreCase(bossField)) {
-                return Completion.complete(bossValue, BarColor.class);
+                return Completion.complete(bossValue, BossBar.Color.class);
             }
             if ("toggleEffect".equalsIgnoreCase(bossField)) {
-                return Completion.complete(bossValue, BarFlag.class);
+                return Completion.complete(bossValue, BossBar.Flag.class);
             }
             return Collections.emptyList();
         }

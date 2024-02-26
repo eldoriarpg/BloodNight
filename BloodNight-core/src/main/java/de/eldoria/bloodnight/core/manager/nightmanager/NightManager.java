@@ -18,12 +18,11 @@ import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.messages.MessageSender;
 import de.eldoria.eldoutilities.scheduling.DelayedActions;
 import de.eldoria.eldoutilities.utils.ObjUtil;
+import net.kyori.adventure.bossbar.BossBar;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.Statistic;
 import org.bukkit.World;
-import org.bukkit.boss.BarStyle;
-import org.bukkit.boss.BossBar;
 import org.bukkit.boss.KeyedBossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -181,7 +180,7 @@ public class NightManager extends BukkitRunnable implements Listener {
         BossBar bossBar = null;
         BossBarSettings bbS = settings.getBossBarSettings();
         if (bbS.isEnabled()) {
-            bossBar = Bukkit.createBossBar(C.getBossBarNamespace(world), bbS.getTitle(), bbS.getColor(), BarStyle.SOLID, bbS.getEffects());
+            bossBar = BossBar.bossBar(messageSender.serializeMessage(bbS.getTitle()),1.0f, bbS.getColor(), BossBar.Overlay.PROGRESS, bbS.getEffects());
         }
 
         bloodWorlds.put(world, new BloodNightData(world, bossBar));
@@ -242,7 +241,7 @@ public class NightManager extends BukkitRunnable implements Listener {
         if (worldSettings.getMobSettings().isForcePhantoms()) {
             player.setStatistic(Statistic.TIME_SINCE_REST, 720000);
         }
-        if (configuration.getGeneralSettings().isBlindness()) {
+        if (configuration.getGeneralSettings().blindness()) {
             player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 5 * 20, 1, false, true));
         }
 
@@ -258,7 +257,7 @@ public class NightManager extends BukkitRunnable implements Listener {
 
         getBloodNightData(world).removePlayer(player);
 
-        if (configuration.getGeneralSettings().isBlindness()) {
+        if (configuration.getGeneralSettings().blindness()) {
             player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 5 * 20, 1, false, true));
         }
 

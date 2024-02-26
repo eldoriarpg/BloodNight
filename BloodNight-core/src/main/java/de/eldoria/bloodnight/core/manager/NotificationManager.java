@@ -57,7 +57,7 @@ public class NotificationManager implements Listener {
 
     private void dispatchBroadcast(World world, String message, TagResolver... tagResolver) {
         Collection<? extends Player> players;
-        switch (configuration.getGeneralSettings().getBroadcastLevel()) {
+        switch (configuration.getGeneralSettings().broadcastLevel()) {
             case SERVER:
                 players = Bukkit.getOnlinePlayers();
                 break;
@@ -67,7 +67,7 @@ public class NotificationManager implements Listener {
             case NONE:
                 return;
             default:
-                throw new IllegalStateException("Unexpected value: " + configuration.getGeneralSettings().getBroadcastLevel());
+                throw new IllegalStateException("Unexpected value: " + configuration.getGeneralSettings().broadcastLevel());
         }
 
 
@@ -78,7 +78,7 @@ public class NotificationManager implements Listener {
 
     private void sendBroadcast(Player player, String message, TagResolver... tagResolver) {
         String m = "§a" + message.replace("§r", "§r§a");
-        switch (configuration.getGeneralSettings().getBroadcastMethod()) {
+        switch (configuration.getGeneralSettings().broadcastMethod()) {
             case CHAT -> messageSender.sendMessage(player, message, tagResolver);
             case TITLE ->
                     messageSender.sendTitle(player, m, "", times(ofSeconds(1), ofSeconds(5), ofSeconds(1)), tagResolver);
@@ -88,17 +88,17 @@ public class NotificationManager implements Listener {
     }
 
     private void sendMessage(Player player, String message) {
-        String m = "§a" + message.replace("§r", "§r§a");
-        switch (configuration.getGeneralSettings().getMessageMethod()) {
+        switch (configuration.getGeneralSettings().messageMethod()) {
             case CHAT -> messageSender.sendMessage(player, message);
-            case TITLE -> player.sendTitle(m, "", 10, 70, 20);
-            case SUBTITLE -> player.sendTitle("", m, 10, 70, 20);
+            case TITLE -> messageSender.sendTitle(player, message, "", times(ofSeconds(1), ofSeconds(5), ofSeconds(1)));
+            case SUBTITLE ->
+                    messageSender.sendTitle(player, "", message, times(ofSeconds(1), ofSeconds(5), ofSeconds(1)));
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerWorldChange(PlayerChangedWorldEvent event) {
-        if (!configuration.getGeneralSettings().isJoinWorldWarning()) return;
+        if (!configuration.getGeneralSettings().joinWorldWarning()) return;
 
         boolean origin = nightManager.isBloodNightActive(event.getFrom());
         boolean destination = nightManager.isBloodNightActive(event.getPlayer().getWorld());
@@ -114,7 +114,7 @@ public class NotificationManager implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        if (!configuration.getGeneralSettings().isJoinWorldWarning()) return;
+        if (!configuration.getGeneralSettings().joinWorldWarning()) return;
 
         if (nightManager.isBloodNightActive(event.getPlayer().getWorld())) {
             sendMessage(event.getPlayer(), localizer.getMessage("notify.bloodNightJoined"));

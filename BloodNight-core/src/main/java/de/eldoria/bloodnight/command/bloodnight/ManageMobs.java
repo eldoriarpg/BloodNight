@@ -239,14 +239,14 @@ public class ManageMobs extends AdvancedCommand implements IPlayerTabExecutor {
                   %s
                   %s
                   %s
+                  %s
                   %s %s %s %s
                   %s
-                %s:
+                %s
                   %s
                   %s
                   %s
-                  %s: %s %s %s
-                  %s
+                  %s %s %s %s
                 """.stripIndent()
                 .formatted(
                         getHeader("manageMobs.title"),

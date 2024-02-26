@@ -125,15 +125,14 @@ public class ManageNight extends AdvancedCommand implements IPlayerTabExecutor {
                     <value>>""".stripIndent();
             //night duration
             case EXTENDED -> """
-                    %s
-                    <value>>
-                    """.stripIndent()
+                    <value>> %s
+                    <value>>""".stripIndent()
                     .formatted(
                             changeableValue("field.nightDuration", nightSettings.getNightDuration() + " " + escape("value.seconds"), cmd + "nightDuration ")
                     );
             case RANGE -> """
-                    
-                    """.stripIndent()
+                    <value>> %s
+                    <value>> %s""".stripIndent()
                             .formatted(
                                     changeableValue("field.minDuration", nightSettings.getNightDuration() + " " + escape("value.seconds"), cmd + "nightDuration "),
                                     changeableValue("field.maxDuration", nightSettings.getMaxNightDuration() + " " + escape("value.seconds"), cmd + "maxNightDuration ")
@@ -147,6 +146,7 @@ public class ManageNight extends AdvancedCommand implements IPlayerTabExecutor {
                 %s
                 %s
                 %s %s %s
+                %s
                 """.stripIndent()
                 .formatted(
                         getHeader("manageNight.title"),
@@ -161,7 +161,8 @@ public class ManageNight extends AdvancedCommand implements IPlayerTabExecutor {
                         // Night duration type
                         getToggleField(durationMode == NightSettings.NightDuration.NORMAL, cmd + "durationMode NORMAL", "state.normal"),
                         getToggleField(durationMode == NightSettings.NightDuration.EXTENDED, cmd + "durationMode EXTENDED", "state.extended"),
-                        getToggleField(durationMode == NightSettings.NightDuration.RANGE, cmd + "durationMode RANGE", "state.range")
+                        getToggleField(durationMode == NightSettings.NightDuration.RANGE, cmd + "durationMode RANGE", "state.range"),
+                        duration
                 );
 
         messageSender().sendMessage(sender, a, Replacement.create("WORLD", worldSettings.getWorldName()));

@@ -81,7 +81,7 @@ public class MobManager implements Listener {
         if (event.getSpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER) {
             PersistentDataContainer data = event.getEntity().getPersistentDataContainer();
             data.set(SPAWNER_SPAWNED, PersistentDataType.BYTE, (byte) 1);
-            if (configuration.getGeneralSettings().isIgnoreSpawnerMobs()) {
+            if (configuration.getGeneralSettings().ignoreSpawnerMobs()) {
                 return;
             }
         }
@@ -185,7 +185,7 @@ public class MobManager implements Listener {
             return;
         }
 
-        if (configuration.getGeneralSettings().isIgnoreSpawnerMobs()) {
+        if (configuration.getGeneralSettings().spawnerDropSuppression()) {
             if (entity.getPersistentDataContainer().has(SPAWNER_SPAWNED, PersistentDataType.BYTE)) {
                 return;
             }
@@ -196,7 +196,7 @@ public class MobManager implements Listener {
         SpecialMobUtil.dispatchShockwave(shockwaveSettings, event.getEntity().getLocation());
         SpecialMobUtil.dispatchLightning(worldSettings.getDeathActionSettings().getMobDeathActions().getLightningSettings(), event.getEntity().getLocation());
 
-        if (configuration.getGeneralSettings().isSpawnerDropSuppression()) {
+        if (configuration.getGeneralSettings().spawnerDropSuppression()) {
             if (entity.getPersistentDataContainer().has(SPAWNER_SPAWNED, PersistentDataType.BYTE)) {
                 return;
             }
@@ -253,7 +253,7 @@ public class MobManager implements Listener {
             } else {
                 BloodNight.logger().config("No mob found for " + specialMob.get() + " in group ");
             }
-        } else if (!configuration.getGeneralSettings().getNoVanillaDropIncrease().contains(entity.getType())) {
+        } else if (!configuration.getGeneralSettings().noVanillaDropIncrease().contains(entity.getType())) {
             // If it is a vanilla mob just increase the drops.
             VanillaDropMode dropMode = vanillaMobSettings.getVanillaDropMode();
             switch (dropMode) {
@@ -317,7 +317,7 @@ public class MobManager implements Listener {
             }
         }
 
-        if (!configuration.getGeneralSettings().isBeeFix()) return;
+        if (!configuration.getGeneralSettings().beeFix()) return;
         AtomicInteger hives = new AtomicInteger(0);
         AtomicInteger entites = new AtomicInteger(0);
 

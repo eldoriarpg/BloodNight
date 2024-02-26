@@ -107,12 +107,12 @@ public final class CommandUtil {
     public static String getBooleanField(boolean currValue, String cmd, String field, String postive, String negative) {
         return "<field>%s: <click:run_command:'%s'><%s>%s</click> <click:run_command:'%s'><%s>%s</click>".formatted(
                 escape(field),
-                cmd.replace("{bool}", "true"), currValue ? "change" : "inactive", escape(postive),
+                cmd.replace("{bool}", "true"), currValue ? "active" : "inactive", escape(postive),
                 cmd.replace("{bool}", "false"), !currValue ? "remove" : "inactive", escape(negative));
     }
 
     public static String changeButton(String command) {
-        return changeButton(command, "change", "action.change");
+        return changeButton(command, "action.change", "change");
     }
     public static String changeButton(String command, String label, String color) {
         return "<click:run_command:'%s'><%s>[%s]</click>".formatted(command, color, escape(label));

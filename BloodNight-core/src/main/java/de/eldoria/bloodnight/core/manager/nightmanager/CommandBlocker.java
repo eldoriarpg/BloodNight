@@ -32,7 +32,7 @@ public class CommandBlocker implements Listener {
 
     private boolean isBlocked(String command) {
         String lowerCommand = command.toLowerCase().substring(1, command.length());
-        for (String blockedCommand : configuration.getGeneralSettings().getBlockedCommands()) {
+        for (String blockedCommand : configuration.getGeneralSettings().blockedCommands()) {
             if (lowerCommand.startsWith(blockedCommand.toLowerCase())) {
                 return true;
             }

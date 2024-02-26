@@ -263,7 +263,7 @@ public class ManageMob extends AdvancedCommand implements IPlayerTabExecutor {
                             <header>%s</header> %s
                               %s
                               %s
-                              <field>%s: %s %s %s
+                              <field>%s: <value>%s %s %s %s
                               %s
                               <field>Health Modifier: %s %s %s
                               <field>%s: %s %s
@@ -271,10 +271,15 @@ public class ManageMob extends AdvancedCommand implements IPlayerTabExecutor {
                               <field>%s: %s %s
                             """.stripIndent()
                             .formatted(
+                                    // Mob name state
                                     entry.getMobName(), getBooleanField(entry.isActive(), cmd + "state {bool}", "", "state.enabled", "state.disabled"),
+                                    // Display Name
                                     changeableValue("field.displayName", entry.getDisplayName(), cmd + "displayName " + entry.getDisplayName().replace("§", "&")),
+                                    // Drop amount
                                     changeableValue("field.dropAmount", entry.getDropAmount() == 0 ? escape("action.default") : entry.getDropAmount() + "x", cmd + "dropAmount "),
-                                    escape("field.drops"), entry.getDrops().size() + " " + escape("field.drops"),
+                                    // Drops
+                                    escape("field.drops"),
+                                    entry.getDrops().size() + " " + escape("field.drops"),
                                     changeButton(cmd + "drops changeContent", "action.content", "change"),
                                     changeButton(cmd + "drops changeWeight", "action.weight", "weight"),
                                     changeButton(cmd + "drops clear", "action.clear", "delete"),
