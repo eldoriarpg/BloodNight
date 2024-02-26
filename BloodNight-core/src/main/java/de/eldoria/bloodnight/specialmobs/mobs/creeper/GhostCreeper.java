@@ -15,8 +15,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class GhostCreeper extends ExtendedSpecialMob<Vex, Creeper> {
 
-    private final boolean legacy;
-
     public GhostCreeper(Creeper creeper) {
         super(EntityType.VEX, creeper);
         Version optVersion = ServerVersion.getVersion();
@@ -34,9 +32,6 @@ public class GhostCreeper extends ExtendedSpecialMob<Vex, Creeper> {
 
     @Override
     public void tick() {
-        if (legacy) {
-            SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.INVISIBILITY, 4, false);
-        }
         SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.SPEED, 4, false);
         super.tick();
     }
