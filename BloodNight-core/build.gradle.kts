@@ -62,6 +62,8 @@ publishing {
 tasks {
     shadowJar {
         relocate("de.eldoria.eldoutilities", shadebase + "eldoutilities")
+        relocate("org.bstats", shadebase + "bstats")
+
         relocate("net.kyori", shadebase + "kyori")
         mergeServiceFiles()
         archiveBaseName.set(project.parent?.name)

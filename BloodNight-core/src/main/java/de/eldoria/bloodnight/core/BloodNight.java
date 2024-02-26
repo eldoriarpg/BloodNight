@@ -35,20 +35,22 @@ import de.eldoria.eldoutilities.localization.Localizer;
 import de.eldoria.eldoutilities.messages.MessageSender;
 import de.eldoria.eldoutilities.metrics.EldoMetrics;
 import de.eldoria.eldoutilities.plugin.EldoPlugin;
+import de.eldoria.eldoutilities.serialization.wrapper.MapEntry;
 import de.eldoria.eldoutilities.updater.Updater;
 import de.eldoria.eldoutilities.updater.lynaupdater.LynaUpdateData;
 import lombok.Getter;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.Style;
-import net.kyori.adventure.text.format.StyleBuilderApplicable;
-import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import org.bstats.charts.MultiLineChart;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -75,7 +77,7 @@ public class BloodNight extends EldoPlugin {
 
     @Override
     public Level getLogLevel() {
-        return null;
+        return Level.INFO;
     }
 
     public static IBloodNightAPI getBloodNightAPI() {
@@ -101,10 +103,10 @@ public class BloodNight extends EldoPlugin {
 
             localizer.setLocale(configuration.getGeneralSettings().getLanguage());
             MessageSender.builder(this)
-                    .prefix(configuration.getGeneralSettings().getPrefix())
+                    .prefix(configuration.getGeneralSettings().getPrefix().replaceAll("§[a-f0-9]", ""))
                     .messageColor(NamedTextColor.GREEN)
                     .errorColor(NamedTextColor.RED)
-                    .addTag(t ->{
+                    .addTag(t -> {
                         t.tag("field", Tag.styling(NamedTextColor.AQUA));
                         t.tag("value", Tag.styling(NamedTextColor.GOLD));
                         t.tag("add", Tag.styling(NamedTextColor.DARK_GREEN));
@@ -174,7 +176,7 @@ public class BloodNight extends EldoPlugin {
                 MobSetting.class, VanillaMobSettings.class, WorldSettings.class, Drop.class, BossBarSettings.class,
                 MobSettings.MobTypes.class, SoundSettings.class, SoundEntry.class, PotionEffectSettings.class,
                 PlayerDeathActions.class, MobDeathActions.class, LightningSettings.class, ShockwaveSettings.class,
-                DeathActionSettings.class);
+                DeathActionSettings.class, MapEntry.class);
     }
 
     private void enableMetrics() {
