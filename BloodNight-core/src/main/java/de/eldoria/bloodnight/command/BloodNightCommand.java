@@ -21,6 +21,8 @@ import de.eldoria.eldoutilities.commands.defaultcommands.DefaultAbout;
 import de.eldoria.eldoutilities.commands.defaultcommands.DefaultDebug;
 import org.bukkit.plugin.Plugin;
 
+import static io.lumine.mythic.core.skills.placeholders.Placeholder.meta;
+
 public class BloodNightCommand extends AdvancedCommand {
 
     public BloodNightCommand(Configuration configuration, Plugin plugin,
@@ -30,7 +32,7 @@ public class BloodNightCommand extends AdvancedCommand {
         meta(CommandMeta.builder("bloodnight")
                 .withDefaultCommand(help)
                 .withSubCommand(help)
-                .withSubCommand(new DefaultAbout(plugin, "https://bn.discord.eldoria.de"))
+                .withSubCommand(new DefaultAbout(plugin, "https://bn.discord.eldoria.de", "commands.about"))
                 .withSubCommand(new SpawnMob(plugin, nightManager, mobManager))
                 .withSubCommand(new CancelNight(plugin, nightManager, configuration))
                 .withSubCommand(new ForceNight(plugin, nightManager, configuration))
