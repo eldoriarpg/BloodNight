@@ -21,8 +21,6 @@ import de.eldoria.eldoutilities.commands.defaultcommands.DefaultAbout;
 import de.eldoria.eldoutilities.commands.defaultcommands.DefaultDebug;
 import org.bukkit.plugin.Plugin;
 
-import static io.lumine.mythic.core.skills.placeholders.Placeholder.meta;
-
 public class BloodNightCommand extends AdvancedCommand {
 
     public BloodNightCommand(Configuration configuration, Plugin plugin,
