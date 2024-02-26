@@ -35,8 +35,8 @@ public class PlayerDeathActions extends DeathActions {
     /**
      * Probability of the player to lose and not drop its inventory.
      */
-    private int loseInvProbability = 0;
-    private int loseExpProbability = 0;
+    private int loseInvProbability;
+    private int loseExpProbability;
 
     public PlayerDeathActions(Map<String, Object> objectMap) {
         super(objectMap);

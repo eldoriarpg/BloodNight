@@ -114,6 +114,7 @@ public final class CommandUtil {
     public static String changeButton(String command) {
         return changeButton(command, "action.change", "change");
     }
+
     public static String changeButton(String command, String label, String color) {
         return "<click:run_command:'%s'><%s>[%s]</click>".formatted(command, color, escape(label));
     }
@@ -121,6 +122,7 @@ public final class CommandUtil {
     public static String changeableValue(String field, Object value, String command) {
         return "%s %s".formatted(value(field, value), changeButton(command));
     }
+
     public static String value(String field, Object value) {
         return "<field>%s: <gold>%s".formatted(escape(field), value);
     }

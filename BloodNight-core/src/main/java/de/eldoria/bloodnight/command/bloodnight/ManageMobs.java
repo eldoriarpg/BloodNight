@@ -1,7 +1,6 @@
 package de.eldoria.bloodnight.command.bloodnight;
 
 import de.eldoria.bloodnight.command.InventoryListener;
-import de.eldoria.bloodnight.command.util.CommandUtil;
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.config.worldsettings.mobsettings.Drop;
@@ -21,12 +20,7 @@ import de.eldoria.eldoutilities.commands.executor.IPlayerTabExecutor;
 import de.eldoria.eldoutilities.messages.Replacement;
 import de.eldoria.eldoutilities.utils.ArgumentUtils;
 import de.eldoria.eldoutilities.utils.ArrayUtil;
-import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -221,7 +215,6 @@ public class ManageMobs extends AdvancedCommand implements IPlayerTabExecutor {
             return;
         }
         messageSender().sendError(player, localizer().getMessage("error.invalidField"));
-        return;
     }
 
 

@@ -32,9 +32,9 @@ public class ManageMonsterDeathActions extends AdvancedCommand {
     }
 
     static class Base extends AdvancedCommand {
-        private final Configuration configuration;
         protected final InventoryActionHandler inventoryActions;
         protected final DelayedActions delayedActions;
+        private final Configuration configuration;
 
         public Base(Plugin plugin, CommandMeta meta, Configuration configuration) {
             super(plugin, meta);

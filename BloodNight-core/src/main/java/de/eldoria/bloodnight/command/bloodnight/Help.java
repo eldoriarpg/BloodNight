@@ -53,7 +53,7 @@ public class Help extends AdvancedCommand implements ITabExecutor {
                         escape("help.nightSelection"),
                         escape("help.reload"),
                         escape("help.spawnMob")
-                        )
+                )
         );
 
     }

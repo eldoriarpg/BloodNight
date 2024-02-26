@@ -22,7 +22,7 @@ public class NightSettings implements ConfigurationSerializable {
     /**
      * If false a blood night can not be skipped by sleeping in a bed.
      */
-    private boolean skippable = false;
+    private boolean skippable;
     /**
      * Tick when a night starts to be a night.
      */
@@ -51,7 +51,7 @@ public class NightSettings implements ConfigurationSerializable {
     /**
      * The duration of the current night in ticks.
      */
-    private transient int currentDuration = 0;
+    private transient int currentDuration;
 
     public NightSettings() {
     }

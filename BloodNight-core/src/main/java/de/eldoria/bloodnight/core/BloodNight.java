@@ -63,7 +63,7 @@ public class BloodNight extends EldoPlugin {
     private MobManager mobManager;
     private Configuration configuration;
     private InventoryListener inventoryListener;
-    private boolean initialized = false;
+    private boolean initialized;
     private BloodNightAPI bloodNightAPI;
     private HookService hookService;
 
@@ -75,13 +75,13 @@ public class BloodNight extends EldoPlugin {
         return getInstance().getLogger();
     }
 
+    public static IBloodNightAPI getBloodNightAPI() {
+        return instance.bloodNightAPI;
+    }
+
     @Override
     public Level getLogLevel() {
         return Level.INFO;
-    }
-
-    public static IBloodNightAPI getBloodNightAPI() {
-        return instance.bloodNightAPI;
     }
 
     @Override

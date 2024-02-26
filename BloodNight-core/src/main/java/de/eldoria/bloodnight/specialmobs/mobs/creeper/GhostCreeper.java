@@ -15,7 +15,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class GhostCreeper extends ExtendedSpecialMob<Vex, Creeper> {
 
-    private boolean legacy = false;
+    private final boolean legacy;
 
     public GhostCreeper(Creeper creeper) {
         super(EntityType.VEX, creeper);

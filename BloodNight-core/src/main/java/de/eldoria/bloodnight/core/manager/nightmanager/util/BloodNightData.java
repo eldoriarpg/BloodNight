@@ -4,7 +4,6 @@ import de.eldoria.bloodnight.config.worldsettings.sound.SoundSettings;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.util.C;
 import de.eldoria.eldoutilities.messages.MessageSender;
-import de.eldoria.eldoutilities.utils.ObjUtil;
 import lombok.Getter;
 import net.kyori.adventure.bossbar.BossBar;
 import org.bukkit.Bukkit;
@@ -17,7 +16,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.UUID;
 
 @Getter
 public

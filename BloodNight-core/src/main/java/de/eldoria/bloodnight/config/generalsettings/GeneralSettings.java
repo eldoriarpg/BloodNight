@@ -4,7 +4,6 @@ import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.eldoutilities.messages.conversion.MiniMessageConversion;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
-import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
@@ -27,10 +26,10 @@ public class GeneralSettings implements ConfigurationSerializable {
     private boolean blindness = true;
     private boolean joinWorldWarning = true;
     private boolean updateReminder = true;
-    private boolean autoUpdater = false;
-    private boolean beeFix = false;
+    private boolean autoUpdater;
+    private boolean beeFix;
     private boolean spawnerDropSuppression = true;
-    private boolean ignoreSpawnerMobs = false;
+    private boolean ignoreSpawnerMobs;
     private List<String> blockedCommands = new ArrayList<>();
     private List<EntityType> noVanillaDropIncrease = new ArrayList<>();
 

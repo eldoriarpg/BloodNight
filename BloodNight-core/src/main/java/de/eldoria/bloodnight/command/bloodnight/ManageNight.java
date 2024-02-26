@@ -1,6 +1,5 @@
 package de.eldoria.bloodnight.command.bloodnight;
 
-import de.eldoria.bloodnight.command.util.CommandUtil;
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.config.worldsettings.NightSettings;
 import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
@@ -17,12 +16,7 @@ import de.eldoria.eldoutilities.commands.executor.IPlayerTabExecutor;
 import de.eldoria.eldoutilities.messages.Replacement;
 import de.eldoria.eldoutilities.utils.ArgumentUtils;
 import de.eldoria.eldoutilities.utils.ArrayUtil;
-import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -133,10 +127,10 @@ public class ManageNight extends AdvancedCommand implements IPlayerTabExecutor {
             case RANGE -> """
                     <value>> %s
                     <value>> %s""".stripIndent()
-                            .formatted(
-                                    changeableValue("field.minDuration", nightSettings.getNightDuration() + " " + escape("value.seconds"), cmd + "nightDuration "),
-                                    changeableValue("field.maxDuration", nightSettings.getMaxNightDuration() + " " + escape("value.seconds"), cmd + "maxNightDuration ")
-                            );
+                    .formatted(
+                            changeableValue("field.minDuration", nightSettings.getNightDuration() + " " + escape("value.seconds"), cmd + "nightDuration "),
+                            changeableValue("field.maxDuration", nightSettings.getMaxNightDuration() + " " + escape("value.seconds"), cmd + "maxNightDuration ")
+                    );
         };
 
         var a = """

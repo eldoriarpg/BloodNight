@@ -155,7 +155,6 @@ public class ManagePlayerDeathActions extends AdvancedCommand implements IPlayer
                                                         sendPlayerDeathActions(player, world, playerDeathActions);
                                                     });
                                             player.closeInventory();
-                                            return;
                                         }
                                         case RIGHT, SHIFT_RIGHT -> {
                                             deathCommands.remove(pos);
@@ -208,7 +207,6 @@ public class ManagePlayerDeathActions extends AdvancedCommand implements IPlayer
         }
 
         sendPlayerDeathActions(player, world, playerDeathActions);
-        return;
     }
 
     private void sendPlayerDeathActions(Player player, World world, PlayerDeathActions playerDeathActions) {

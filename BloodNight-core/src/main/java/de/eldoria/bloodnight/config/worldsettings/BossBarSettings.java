@@ -8,15 +8,11 @@ import de.eldoria.eldoutilities.utils.EnumUtil;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.bossbar.BossBar;
-import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BarFlag;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;

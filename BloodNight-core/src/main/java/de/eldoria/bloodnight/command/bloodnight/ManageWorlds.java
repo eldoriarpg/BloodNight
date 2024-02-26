@@ -4,7 +4,6 @@ import de.eldoria.bloodnight.command.util.CommandUtil;
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.config.worldsettings.BossBarSettings;
 import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
-import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.util.Permissions;
 import de.eldoria.eldoutilities.commands.Completion;
 import de.eldoria.eldoutilities.commands.command.AdvancedCommand;
@@ -17,12 +16,10 @@ import de.eldoria.eldoutilities.commands.executor.IPlayerTabExecutor;
 import de.eldoria.eldoutilities.messages.Replacement;
 import de.eldoria.eldoutilities.utils.ArgumentUtils;
 import net.kyori.adventure.bossbar.BossBar;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.World;
 import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BarFlag;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -118,7 +115,7 @@ public class ManageWorlds extends AdvancedCommand implements IPlayerTabExecutor 
                     String cmd = "/bloodnight manageWorlds " + ArgumentUtils.escapeWorldName(entry.getWorldName()) + " ";
                     BossBarSettings bbs = entry.getBossBarSettings();
                     return """
-                            
+                                                        
                             <header><%s></header> %s
                             %s
                             %s

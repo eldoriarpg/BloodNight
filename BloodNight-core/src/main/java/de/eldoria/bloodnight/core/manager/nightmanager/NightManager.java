@@ -73,7 +73,7 @@ public class NightManager extends BukkitRunnable implements Listener {
     private TimeManager timeManager;
     private SoundManager soundManager;
 
-    private boolean initialized = false;
+    private boolean initialized;
 
     public NightManager(Plugin plugin, Configuration configuration) {
         this.plugin = plugin;
@@ -180,7 +180,7 @@ public class NightManager extends BukkitRunnable implements Listener {
         BossBar bossBar = null;
         BossBarSettings bbS = settings.getBossBarSettings();
         if (bbS.isEnabled()) {
-            bossBar = BossBar.bossBar(messageSender.serializeMessage(bbS.getTitle()),1.0f, bbS.getColor(), BossBar.Overlay.PROGRESS, bbS.getEffects());
+            bossBar = BossBar.bossBar(messageSender.serializeMessage(bbS.getTitle()), 1.0f, bbS.getColor(), BossBar.Overlay.PROGRESS, bbS.getEffects());
         }
 
         bloodWorlds.put(world, new BloodNightData(world, bossBar));
