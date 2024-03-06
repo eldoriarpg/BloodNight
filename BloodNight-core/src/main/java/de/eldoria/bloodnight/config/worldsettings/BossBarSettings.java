@@ -27,7 +27,7 @@ public class BossBarSettings implements ConfigurationSerializable {
     /**
      * Boss bar title with § as color identifier
      */
-    private String title = "§c§lBlood Night";
+    private String title = "<red><bold>Blood Night";
     private BossBar.Color color = BossBar.Color.RED;
     private List<BossBar.Flag> effects = new ArrayList<>() {
         {

@@ -21,6 +21,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.util.Collection;
 
+import static de.eldoria.eldoutilities.localization.ILocalizer.escape;
 import static java.time.Duration.ofSeconds;
 import static net.kyori.adventure.title.Title.Times.times;
 
@@ -42,16 +43,16 @@ public class NotificationManager implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBloodNightEnd(BloodNightEndEvent event) {
         dispatchBroadcast(event.getWorld(),
-                "notify.nightEnd",
-                Replacement.create("WORLD", getAlias(event.getWorld()))
+                escape("notify.nightEnd"),
+                Replacement.create("world", getAlias(event.getWorld()))
         );
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBloodNightStart(BloodNightBeginEvent event) {
         dispatchBroadcast(event.getWorld(),
-                "notify.nightStart",
-                Replacement.create("WORLD", getAlias(event.getWorld()))
+                escape("notify.nightStart"),
+                Replacement.create("world", getAlias(event.getWorld()))
         );
     }
 
@@ -77,13 +78,12 @@ public class NotificationManager implements Listener {
     }
 
     private void sendBroadcast(Player player, String message, TagResolver... tagResolver) {
-        String m = "§a" + message.replace("§r", "§r§a");
         switch (configuration.getGeneralSettings().broadcastMethod()) {
             case CHAT -> messageSender.sendMessage(player, message, tagResolver);
             case TITLE ->
-                    messageSender.sendTitle(player, m, "", times(ofSeconds(1), ofSeconds(5), ofSeconds(1)), tagResolver);
+                    messageSender.sendTitle(player, message, "", times(ofSeconds(1), ofSeconds(5), ofSeconds(1)), tagResolver);
             case SUBTITLE ->
-                    messageSender.sendTitle(player, "", m, times(ofSeconds(1), ofSeconds(5), ofSeconds(1)), tagResolver);
+                    messageSender.sendTitle(player, "", message, times(ofSeconds(1), ofSeconds(5), ofSeconds(1)), tagResolver);
         }
     }
 
