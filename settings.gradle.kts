@@ -12,7 +12,7 @@ pluginManagement {
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
-            version("eldoutil", "2.0.5")
+            version("eldoutil", "2.0.6-SNAPSHOT")
             library("eldoutil.core", "de.eldoria.util", "core").versionRef("eldoutil")
             library("eldoutil.updater", "de.eldoria.util", "updater").versionRef("eldoutil")
             library("eldoutil.messaging", "de.eldoria.util", "messaging").versionRef("eldoutil")

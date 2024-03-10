@@ -129,7 +129,11 @@ public class BloodNight extends EldoPlugin {
             enableMetrics();
 
             if (configuration.getGeneralSettings().updateReminder()) {
-                Updater.lyna(LynaUpdateData.builder(this, 4).notifyPermission(Permissions.Admin.RELOAD).notifyUpdate(true).build()).start();
+                Updater.lyna(LynaUpdateData.builder(this, 4)
+                        .notifyPermission(Permissions.Admin.RELOAD)
+                        .updateUrl("https://bn.discord.eldoria.de/")
+                        .notifyUpdate(true).build())
+                        .start();
             }
 
 
