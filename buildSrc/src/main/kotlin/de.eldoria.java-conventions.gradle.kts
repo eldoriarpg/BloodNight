@@ -4,7 +4,6 @@ plugins {
 }
 
 repositories {
-    mavenLocal()
     mavenCentral()
     maven("https://repo.spongepowered.org/maven")
     maven("https://repo1.maven.org/maven2/")
