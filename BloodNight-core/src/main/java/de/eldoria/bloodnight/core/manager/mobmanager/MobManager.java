@@ -374,13 +374,13 @@ public class MobManager implements Listener {
         if (!configuration.getWorldSettings(event.getEntity().getWorld()).isEnabled()) return;
         // This doesn't work anymore. https://github.com/PaperMC/Paper/pull/10256
         // From now on we just cancel any pickup by monsters during bloodnight.
-        if (event.getEntity() instanceof Monster) {
+        if (event.getEntity() instanceof Monster && nightManager.isBloodNightActive(event.getEntity().getWorld())) {
             event.setCancelled(true);
+            return;
         }
-        var meta = stack.getItemMeta();
-        meta.setLore(List.of("Picked up"));
-        stack.setItemMeta(meta);
-        event.getItem().setItemStack(addPickupTag(stack));
+        //var meta = stack.getItemMeta();
+        //stack.setItemMeta(meta);
+        //event.getItem().setItemStack(addPickupTag(stack));
     }
 
     public void onHopperPickUp(InventoryPickupItemEvent event) {
