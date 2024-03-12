@@ -4,6 +4,8 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class Permissions {
+    public static final String BASE = "bloodnight";
+
     @UtilityClass
     public static class Admin {
         public static final String ADMIN = BASE + ".admin";
@@ -23,6 +25,4 @@ public class Permissions {
         public static final String BYPASS = BASE + ".bypass";
         public static final String COMMAND_BLOCK = BYPASS + ".blockedcommands";
     }
-
-    public static final String BASE = "bloodnight";
 }

@@ -47,13 +47,13 @@ public class MoonPhase {
         int golden = (year % 19) + 1;                   // Golden number
         // Age of the moon on Jan. 1
         int epact = ((11 * golden) + 20                 // Golden number
-                + (((8 * cent) + 5) / 25) - 5       // 400 year cycle
-                - (((3 * cent) / 4) - 12)) % 30;    //Leap year correction
+                     + (((8 * cent) + 5) / 25) - 5       // 400 year cycle
+                     - (((3 * cent) / 4) - 12)) % 30;    //Leap year correction
         if (epact <= 0) {
             epact += 30;
         }                        // Age range is 1 .. 30
         if ((epact == 25 && golden > 11) ||
-                epact == 24) {
+            epact == 24) {
             epact++;
 
             // Calculate the phase, using the magic numbers defined above.

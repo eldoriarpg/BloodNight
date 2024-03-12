@@ -21,13 +21,12 @@ import java.util.Map;
 public class TimeManager extends BukkitRunnable implements Listener {
     private final Configuration configuration;
     private final NightManager nightManager;
-    private boolean ignoreSkip = false;
     /**
      * Map contains for every active world a boolean if it is currently night.
      */
     private final Map<String, Boolean> timeState = new HashMap<>();
-
     private final Map<String, Double> customTimes = new HashMap<>();
+    private boolean ignoreSkip;
     // <--- World consistency ---> //
 
 
@@ -109,7 +108,7 @@ public class TimeManager extends BukkitRunnable implements Listener {
 
             BloodNightData bloodNightData = entry.getValue();
             ObjUtil.nonNull(bloodNightData.getBossBar(), bossBar -> {
-                bossBar.setProgress(NightUtil.getNightProgress(world, configuration.getWorldSettings(world)));
+                bossBar.progress(NightUtil.getNightProgress(world, configuration.getWorldSettings(world)));
             });
         }
     }
