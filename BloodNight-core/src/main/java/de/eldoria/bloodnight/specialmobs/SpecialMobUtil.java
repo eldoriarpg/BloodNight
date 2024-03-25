@@ -9,8 +9,20 @@ import de.eldoria.bloodnight.util.VectorUtil;
 import de.eldoria.eldoutilities.serialization.TypeConversion;
 import de.eldoria.eldoutilities.utils.EMath;
 import de.eldoria.eldoutilities.utils.ERandom;
-import org.bukkit.*;
-import org.bukkit.entity.*;
+import org.bukkit.EntityEffect;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
+import org.bukkit.World;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
+import org.bukkit.entity.Projectile;
+import org.bukkit.entity.ThrownPotion;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
@@ -341,7 +353,7 @@ public final class SpecialMobUtil {
      */
     public static void dispatchShockwave(ShockwaveSettings settings, Location location) {
         if (settings.getShockwaveProbability() < ThreadLocalRandom.current().nextInt(101)
-                || settings.getShockwaveProbability() == 0) return;
+            || settings.getShockwaveProbability() == 0) return;
 
 
         Collection<Vector> randomVector = ERandom.getRandomVector(100);

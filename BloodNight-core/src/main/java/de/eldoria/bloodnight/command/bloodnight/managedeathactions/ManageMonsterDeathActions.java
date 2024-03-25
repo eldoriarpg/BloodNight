@@ -3,101 +3,110 @@ package de.eldoria.bloodnight.command.bloodnight.managedeathactions;
 import de.eldoria.bloodnight.command.util.CommandUtil;
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.config.worldsettings.deathactions.MobDeathActions;
-import de.eldoria.eldoutilities.simplecommands.EldoCommand;
-import de.eldoria.eldoutilities.simplecommands.TabCompleteUtil;
+import de.eldoria.eldoutilities.commands.command.AdvancedCommand;
+import de.eldoria.eldoutilities.commands.command.CommandMeta;
+import de.eldoria.eldoutilities.commands.command.util.Arguments;
+import de.eldoria.eldoutilities.commands.exceptions.CommandException;
+import de.eldoria.eldoutilities.commands.executor.IPlayerTabExecutor;
+import de.eldoria.eldoutilities.inventory.InventoryActionHandler;
+import de.eldoria.eldoutilities.scheduling.DelayedActions;
 import de.eldoria.eldoutilities.utils.ArgumentUtils;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.World;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.List;
+import static de.eldoria.eldoutilities.localization.ILocalizer.escape;
 
-public class ManageMonsterDeathActions extends EldoCommand {
+public class ManageMonsterDeathActions extends AdvancedCommand {
     private final Configuration configuration;
-    private final BukkitAudiences bukkitAudiences;
 
-    public ManageMonsterDeathActions(Plugin plugin, Configuration configuration, BukkitAudiences bukkitAudiences) {
-        super(plugin);
+    public ManageMonsterDeathActions(Plugin plugin, Configuration configuration) {
+        super(plugin, CommandMeta.builder("monster")
+                .addArgument("syntax.worldName", false)
+                .withDefaultCommand(new Show(plugin, configuration))
+                .withSubCommand(new Lightning(plugin, configuration))
+                .withSubCommand(new Shockwave(plugin, configuration))
+                .build());
         this.configuration = configuration;
-        this.bukkitAudiences = bukkitAudiences;
     }
 
-    @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        Player player = (Player) sender;
+    static class Base extends AdvancedCommand {
+        protected final InventoryActionHandler inventoryActions;
+        protected final DelayedActions delayedActions;
+        private final Configuration configuration;
 
-        World world = ArgumentUtils.getOrDefault(args, 0, ArgumentUtils::getWorld, player.getWorld());
-
-        if (world == null) {
-            messageSender().sendLocalizedError(sender, "error.invalidWorld");
-            return true;
+        public Base(Plugin plugin, CommandMeta meta, Configuration configuration) {
+            super(plugin, meta);
+            this.configuration = configuration;
+            this.inventoryActions = InventoryActionHandler.create(plugin);
+            this.delayedActions = DelayedActions.start(plugin);
         }
 
-        MobDeathActions mobDeathActions = configuration.getWorldSettings(world).getDeathActionSettings().getMobDeathActions();
-
-        if (args.length < 2) {
-            sendMobDeathActions(player, world, mobDeathActions);
-            return true;
+        MobDeathActions actions(Player player, Arguments args) {
+            World world = args.asWorld(0, player.getWorld());
+            return configuration.getWorldSettings(world).getDeathActionSettings().getMobDeathActions();
         }
 
-        if (argumentsInvalid(sender, args, 1,
-                "<monster|player> <$syntax.worldName$> [<$syntax.field$> <$syntax.value$>]")) return true;
+        void sendMobDeathActions(Player player, World world) {
+            String cmd = "/bloodnight deathActions monster {command} " + ArgumentUtils.escapeWorldName(world.getName());
+            String action = """
+                    %s
+                    <field>%s <click:run_command:'%s'><change>[%s]</click>
+                    <field>%s <click:run_command:'%s'><change>[%s]</click>
+                    """.stripIndent()
+                    .formatted(CommandUtil.getHeader("manageDeathActions.monster.title"),
+                            escape("field.lightningSettings"), cmd.replace("{command}", "lightning"), escape("action.change"),
+                            escape("field.shockwaveSettings"), cmd.replace("{command}", "shockwave"), escape("action.change")
+                    );
 
-        String field = args[1];
-        String value = ArgumentUtils.getOrDefault(args, 2, "none");
-
-
-        if ("lightning".equalsIgnoreCase(field)) {
-            DeathActionUtil.buildLightningUI(mobDeathActions.getLightningSettings(), player, configuration, localizer(), () -> sendMobDeathActions(player, world, mobDeathActions));
-            return true;
+            messageSender().sendMessage(player, action);
         }
-
-        if ("shockwave".equalsIgnoreCase(field)) {
-            DeathActionUtil.buildShockwaveUI(mobDeathActions.getShockwaveSettings(), player, configuration, localizer(),
-                    () -> sendMobDeathActions(player, world, mobDeathActions));
-
-            return true;
-        }
-        messageSender().sendError(sender, "error.invalidField");
-        return true;
     }
 
-    @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        if (args.length == 1) {
-            return TabCompleteUtil.completeWorlds(args[0]);
+    static class Show extends Base implements IPlayerTabExecutor {
+        public Show(Plugin plugin, Configuration configuration) {
+            super(plugin, CommandMeta.builder("show").hidden().build(), configuration);
         }
 
-        if (args.length == 2) {
-            return TabCompleteUtil.complete(args[1], "lightning", "shockwave");
+        @Override
+        public void onCommand(@NotNull Player player, @NotNull String alias, @NotNull Arguments args) throws CommandException {
+            World world = args.asWorld(0, player.getWorld());
+            sendMobDeathActions(player, world);
         }
-        return Collections.emptyList();
     }
 
-    private void sendMobDeathActions(Player player, World world, MobDeathActions mobDeathActions) {
-        String cmd = "/bloodnight deathActions monster " + ArgumentUtils.escapeWorldName(world.getName()) + " ";
-        TextComponent build = Component.text()
-                .append(CommandUtil.getHeader(localizer().getMessage("manageDeathActions.monster.title")))
-                .append(Component.newline())
-                .append(Component.text(localizer().getMessage("field.lightningSettings"), NamedTextColor.AQUA))
-                .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                        .clickEvent(ClickEvent.runCommand(cmd + "lightning")))
-                .append(Component.newline())
-                .append(Component.text(localizer().getMessage("field.shockwaveSettings"), NamedTextColor.AQUA))
-                .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                        .clickEvent(ClickEvent.runCommand(cmd + "shockwave")))
-                .build();
+    static class Lightning extends Base implements IPlayerTabExecutor {
+        private final Configuration configuration;
 
-        bukkitAudiences.player(player).sendMessage(build);
+        public Lightning(Plugin plugin, Configuration configuration) {
+            super(plugin, CommandMeta.builder("lightning").hidden().build(), configuration);
+            this.configuration = configuration;
+        }
+
+        @Override
+        public void onCommand(@NotNull Player player, @NotNull String alias, @NotNull Arguments args) throws CommandException {
+            MobDeathActions mobDeathActions = actions(player, args);
+            DeathActionUtil.buildLightningUI(mobDeathActions.getLightningSettings(), player, inventoryActions,
+                    configuration, localizer(), () -> sendMobDeathActions(player, args.asWorld(0)));
+        }
+
+    }
+
+    static class Shockwave extends Base implements IPlayerTabExecutor {
+        private final Configuration configuration;
+
+        public Shockwave(Plugin plugin, Configuration configuration) {
+            super(plugin, CommandMeta.builder("lightning").hidden().build(), configuration);
+            this.configuration = configuration;
+        }
+
+        @Override
+        public void onCommand(@NotNull Player player, @NotNull String alias, @NotNull Arguments args) throws CommandException {
+            MobDeathActions mobDeathActions = actions(player, args);
+            DeathActionUtil.buildShockwaveUI(mobDeathActions.getShockwaveSettings(), player, inventoryActions, delayedActions,
+                    configuration, localizer(), () -> sendMobDeathActions(player, args.asWorld(0)));
+        }
+
     }
 }

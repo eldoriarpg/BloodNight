@@ -1,26 +1,23 @@
 package de.eldoria.bloodnight.command.bloodnight;
 
-import de.eldoria.bloodnight.command.util.CommandUtil;
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.config.worldsettings.NightSettings;
 import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.util.Permissions;
-import de.eldoria.eldoutilities.localization.Replacement;
-import de.eldoria.eldoutilities.simplecommands.EldoCommand;
-import de.eldoria.eldoutilities.simplecommands.TabCompleteUtil;
+import de.eldoria.eldoutilities.commands.Completion;
+import de.eldoria.eldoutilities.commands.command.AdvancedCommand;
+import de.eldoria.eldoutilities.commands.command.CommandMeta;
+import de.eldoria.eldoutilities.commands.command.util.Arguments;
+import de.eldoria.eldoutilities.commands.command.util.CommandAssertions;
+import de.eldoria.eldoutilities.commands.command.util.Input;
+import de.eldoria.eldoutilities.commands.exceptions.CommandException;
+import de.eldoria.eldoutilities.commands.executor.IPlayerTabExecutor;
+import de.eldoria.eldoutilities.messages.Replacement;
 import de.eldoria.eldoutilities.utils.ArgumentUtils;
 import de.eldoria.eldoutilities.utils.ArrayUtil;
-import de.eldoria.eldoutilities.utils.EnumUtil;
-import de.eldoria.eldoutilities.utils.Parser;
-import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.World;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -29,228 +26,166 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
-public class ManageNight extends EldoCommand {
+import static de.eldoria.bloodnight.command.util.CommandUtil.changeableValue;
+import static de.eldoria.bloodnight.command.util.CommandUtil.getBooleanField;
+import static de.eldoria.bloodnight.command.util.CommandUtil.getHeader;
+import static de.eldoria.bloodnight.command.util.CommandUtil.getToggleField;
+import static de.eldoria.eldoutilities.localization.ILocalizer.escape;
+
+public class ManageNight extends AdvancedCommand implements IPlayerTabExecutor {
     private final Configuration configuration;
     private final BukkitAudiences bukkitAudiences;
 
     public ManageNight(Plugin plugin, Configuration configuration) {
-        super(plugin);
+        super(plugin, CommandMeta.builder("manageNight")
+                .withPermission(Permissions.Admin.MANAGE_NIGHT)
+                .addArgument("syntax.worldName", false)
+                .addArgument("syntax.field", false)
+                .addArgument("syntax.value", false)
+                .build());
         this.configuration = configuration;
         bukkitAudiences = BukkitAudiences.create(BloodNight.getInstance());
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (denyConsole(sender)) {
-            return true;
-        }
-
-        if (denyAccess(sender, Permissions.Admin.MANAGE_NIGHT)) {
-            return true;
-        }
-
-        Player player = getPlayerFromSender(sender);
-
-        World world = ArgumentUtils.getOrDefault(args, 0, ArgumentUtils::getWorld, player.getWorld());
-
-        if (world == null) {
-            messageSender().sendError(sender, localizer().getMessage("error.invalidWorld"));
-            return true;
-        }
+    public void onCommand(@NotNull Player player, @NotNull String alias, @NotNull Arguments args) throws CommandException {
+        World world = args.asWorld(0, player.getWorld());
 
         WorldSettings worldSettings = configuration.getWorldSettings(world);
-        if (args.length < 2) {
-            sendNightSettings(sender, worldSettings);
-            return true;
+        if (args.size() < 2) {
+            sendNightSettings(player, worldSettings);
+            return;
         }
 
-        if (argumentsInvalid(sender, args, 3,
-                "[" + localizer().getMessage("syntax.worldName") + "] [<"
-                        + localizer().getMessage("syntax.field") + "> <"
-                        + localizer().getMessage("syntax.value") + ">]")) {
-            return true;
-        }
 
-        String cmd = args[1];
-        String value = args[2];
-        Optional<Double> optionalDouble = Parser.parseDouble(value);
-        Optional<Integer> optionalInt = Parser.parseInt(value);
-        Optional<Boolean> optionalBoolean = Parser.parseBoolean(value);
+        String cmd = args.asString(1);
+        Input value = args.get(2);
 
         NightSettings nightSettings = worldSettings.getNightSettings();
 
         if (ArrayUtil.arrayContains(new String[]{"enable", "skippable"}, cmd)) {
-            if (!optionalBoolean.isPresent()) {
-                messageSender().sendError(sender, localizer().getMessage("error.invalidBoolean"));
-                return true;
-            }
-
             if ("enable".equalsIgnoreCase(cmd)) {
-                worldSettings.setEnabled(optionalBoolean.get());
+                worldSettings.setEnabled(value.asBoolean());
             }
             if ("skippable".equalsIgnoreCase(cmd)) {
-                nightSettings.setSkippable(optionalBoolean.get());
+                nightSettings.setSkippable(value.asBoolean());
             }
             configuration.save();
-            sendNightSettings(sender, worldSettings);
-            return true;
+            sendNightSettings(player, worldSettings);
+            return;
         }
 
         if (ArrayUtil.arrayContains(new String[]{"nightBegin", "nightEnd", "nightDuration", "maxNightDuration"}, cmd)) {
-            if (!optionalInt.isPresent()) {
-                messageSender().sendError(sender, localizer().getMessage("error.invalidNumber"));
-                return true;
-            }
             if ("nightBegin".equalsIgnoreCase(cmd)) {
-                if (invalidRange(sender, optionalInt.get(), 0, 24000)) {
-                    return true;
-                }
-                nightSettings.setNightBegin(optionalInt.get());
+                CommandAssertions.range(value.asInt(), 0, 24000);
+                nightSettings.setNightBegin(value.asInt());
             }
             if ("nightEnd".equalsIgnoreCase(cmd)) {
-                if (invalidRange(sender, optionalInt.get(), 0, 24000)) {
-                    return true;
-                }
-                nightSettings.setNightEnd(optionalInt.get());
+                CommandAssertions.range(value.asInt(), 0, 24000);
+                nightSettings.setNightEnd(value.asInt());
             }
             if ("nightDuration".equalsIgnoreCase(cmd)) {
-                if (invalidRange(sender, optionalInt.get(), 0, 86400)) {
-                    return true;
-                }
-                nightSettings.setNightDuration(optionalInt.get());
+                CommandAssertions.range(value.asInt(), 0, 86400);
+                nightSettings.setNightDuration(value.asInt());
             }
             if ("maxNightDuration".equalsIgnoreCase(cmd)) {
-                if (invalidRange(sender, optionalInt.get(), nightSettings.getNightDuration(), 86400)) {
-                    return true;
-                }
-                nightSettings.setMaxNightDuration(optionalInt.get());
+                CommandAssertions.range(value.asInt(), 0, 86400);
+                nightSettings.setMaxNightDuration(value.asInt());
             }
             configuration.save();
-            sendNightSettings(sender, worldSettings);
-            return true;
+            sendNightSettings(player, worldSettings);
+            return;
         }
 
         if ("durationMode".equalsIgnoreCase(cmd)) {
-            Optional<NightSettings.NightDuration> parse = EnumUtil.parse(value, NightSettings.NightDuration.class);
-            if (parse.isEmpty()) {
-                messageSender().sendLocalizedError(sender, "error.invalidValue");
-                return true;
-            }
-            nightSettings.setNightDurationMode(parse.get());
+            nightSettings.setNightDurationMode(value.asEnum(NightSettings.NightDuration.class));
             configuration.save();
-            sendNightSettings(sender, worldSettings);
-            return true;
+            sendNightSettings(player, worldSettings);
+            return;
         }
 
         messageSender().sendError(player, localizer().getMessage("error.invalidField"));
-        return true;
     }
 
     private void sendNightSettings(CommandSender sender, WorldSettings worldSettings) {
         NightSettings nightSettings = worldSettings.getNightSettings();
         String cmd = "/bloodnight manageNight " + ArgumentUtils.escapeWorldName(worldSettings.getWorldName()) + " ";
         NightSettings.NightDuration durationMode = nightSettings.getNightDurationMode();
-        TextComponent.Builder builder = Component.text()
-                .append(Component.newline())
-                .append(Component.newline())
-                .append(Component.newline())
-                .append(Component.newline())
-                .append(CommandUtil.getHeader(localizer().getMessage("manageNight.title",
-                        Replacement.create("WORLD", worldSettings.getWorldName()).addFormatting('6'))))
-                .append(Component.newline())
-                // World state
-                .append(CommandUtil.getBooleanField(
-                        worldSettings.isEnabled(),
-                        cmd + "enable {bool}",
-                        localizer().getMessage("field.active"),
-                        localizer().getMessage("state.enabled"),
-                        localizer().getMessage("state.disabled")))
-                .append(Component.newline())
-                // skippable
-                .append(CommandUtil.getBooleanField(nightSettings.isSkippable(),
-                        cmd + "skippable {bool}",
-                        localizer().getMessage("field.sleep"),
-                        localizer().getMessage("state.allow"),
-                        localizer().getMessage("state.deny")))
-                .append(Component.newline())
-                // night begin
-                .append(Component.text(localizer().getMessage("field.nightBegin") + ": ", NamedTextColor.AQUA))
-                .append(Component.text(nightSettings.getNightBegin() + " ", NamedTextColor.GOLD))
-                .append(Component.text("[" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                        .clickEvent(ClickEvent.suggestCommand(cmd + "nightBegin ")))
-                .append(Component.newline())
-                // night end
-                .append(Component.text(localizer().getMessage("field.nightEnd") + ": ", NamedTextColor.AQUA))
-                .append(Component.text(nightSettings.getNightEnd() + " ", NamedTextColor.GOLD))
-                .append(Component.text("[" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                        .clickEvent(ClickEvent.suggestCommand(cmd + "nightEnd ")))
-                .append(Component.newline())
-                // override night duration
-                .append(CommandUtil.getToggleField(durationMode == NightSettings.NightDuration.NORMAL,
-                        cmd + "durationMode NORMAL",
-                        localizer().getMessage("state.normal")))
-                .append(Component.space())
-                .append(CommandUtil.getToggleField(durationMode == NightSettings.NightDuration.EXTENDED,
-                        cmd + "durationMode EXTENDED",
-                        localizer().getMessage("state.extended")))
-                .append(Component.space())
-                .append(CommandUtil.getToggleField(durationMode == NightSettings.NightDuration.RANGE,
-                        cmd + "durationMode RANGE",
-                        localizer().getMessage("state.range")))
-                .append(Component.newline());
-        switch (durationMode) {
-            case NORMAL -> builder.append(Component.text(">", NamedTextColor.GOLD))
-                                  .append(Component.newline())
-                                  .append(Component.text(">", NamedTextColor.GOLD));
-            case EXTENDED ->
-                //night duration
-                    builder.append(Component.text(localizer().getMessage("field.nightDuration") + ": ", NamedTextColor.AQUA))
-                           .append(Component.text(nightSettings.getNightDuration() + " " + localizer().getMessage("value.seconds"), NamedTextColor.GOLD))
-                           .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                                            .clickEvent(ClickEvent.suggestCommand(cmd + "nightDuration ")))
-                           .append(Component.newline())
-                           .append(Component.text(">", NamedTextColor.GOLD));
-            case RANGE ->
-                    builder.append(Component.text(localizer().getMessage("field.minDuration") + ": ", NamedTextColor.AQUA))
-                           .append(Component.text(nightSettings.getNightDuration() + " " + localizer().getMessage("value.seconds"), NamedTextColor.GOLD))
-                           .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                                            .clickEvent(ClickEvent.suggestCommand(cmd + "nightDuration ")))
-                           .append(Component.newline())
-                           .append(Component.text(localizer().getMessage("field.maxDuration") + ": ", NamedTextColor.AQUA))
-                           .append(Component.text(nightSettings.getMaxNightDuration() + " " + localizer().getMessage("value.seconds"), NamedTextColor.GOLD))
-                           .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                                            .clickEvent(ClickEvent.suggestCommand(cmd + "maxNightDuration ")));
-        }
 
-        bukkitAudiences.sender(sender).sendMessage(Identity.nil(), builder.build());
+        var duration = switch (durationMode) {
+            case NORMAL -> """
+                    <value>>
+                    <value>>""".stripIndent();
+            //night duration
+            case EXTENDED -> """
+                    <value>> %s
+                    <value>>""".stripIndent()
+                    .formatted(
+                            changeableValue("field.nightDuration", nightSettings.getNightDuration() + " " + escape("value.seconds"), cmd + "nightDuration ")
+                    );
+            case RANGE -> """
+                    <value>> %s
+                    <value>> %s""".stripIndent()
+                    .formatted(
+                            changeableValue("field.minDuration", nightSettings.getNightDuration() + " " + escape("value.seconds"), cmd + "nightDuration "),
+                            changeableValue("field.maxDuration", nightSettings.getMaxNightDuration() + " " + escape("value.seconds"), cmd + "maxNightDuration ")
+                    );
+        };
+
+        var a = """
+                %s
+                %s
+                %s
+                %s
+                %s
+                %s %s %s
+                %s
+                """.stripIndent()
+                .formatted(
+                        getHeader("manageNight.title"),
+                        // World state
+                        getBooleanField(worldSettings.isEnabled(), cmd + "enable {bool}", "field.active", "state.enabled", "state.disabled"),
+                        // skippable
+                        getBooleanField(nightSettings.isSkippable(), cmd + "skippable {bool}", "field.sleep", "state.allow", "state.deny"),
+                        // night begin
+                        changeableValue("field.nightBegin", nightSettings.getNightBegin(), cmd + "nightBegin "),
+                        // night end
+                        changeableValue("field.nightEnd", nightSettings.getNightEnd(), cmd + "nightEnd "),
+                        // Night duration type
+                        getToggleField(durationMode == NightSettings.NightDuration.NORMAL, cmd + "durationMode NORMAL", "state.normal"),
+                        getToggleField(durationMode == NightSettings.NightDuration.EXTENDED, cmd + "durationMode EXTENDED", "state.extended"),
+                        getToggleField(durationMode == NightSettings.NightDuration.RANGE, cmd + "durationMode RANGE", "state.range"),
+                        duration
+                );
+
+        messageSender().sendMessage(sender, a, Replacement.create("WORLD", worldSettings.getWorldName()));
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        if (args.length == 1) {
-            return TabCompleteUtil.completeWorlds(args[0]);
+    public @Nullable List<String> onTabComplete(@NotNull Player player, @NotNull String alias, @NotNull Arguments args) throws CommandException {
+        if (args.size() == 1) {
+            return Completion.completeWorlds(args.asString(0));
         }
-        if (args.length == 2) {
-            return TabCompleteUtil.complete(args[1], "nightBegin", "nightEnd", "nightDuration",
+        if (args.size() == 2) {
+            return Completion.complete(args.asString(1), "nightBegin", "nightEnd", "nightDuration",
                     "enable", "skippable", "overrideDuration");
         }
 
-        String field = args[1];
-        String value = args[2];
-        if (TabCompleteUtil.isCommand(field, "nightBegin", "nightEnd", "nightDuration", "maxNightDuration")) {
-            return TabCompleteUtil.isCommand(field, "nightBegin", "nightEnd")
-                    ? TabCompleteUtil.completeInt(value, 1, 24000, localizer())
-                    : TabCompleteUtil.completeInt(value, 1, 86400, localizer());
+        String field = args.asString(1);
+        String value = args.asString(2);
+        if (Completion.isCommand(field, "nightBegin", "nightEnd", "nightDuration", "maxNightDuration")) {
+            return Completion.isCommand(field, "nightBegin", "nightEnd")
+                    ? Completion.completeInt(value, 1, 24000)
+                    : Completion.completeInt(value, 1, 86400);
         }
 
-        if (TabCompleteUtil.isCommand(field, "enable", "skippable")) {
-            return TabCompleteUtil.completeBoolean(value);
+        if (Completion.isCommand(field, "enable", "skippable")) {
+            return Completion.completeBoolean(value);
         }
 
-        if (TabCompleteUtil.isCommand(field, "durationMode")) {
-            return TabCompleteUtil.complete(value, NightSettings.NightDuration.class);
+        if (Completion.isCommand(field, "durationMode")) {
+            return Completion.complete(value, NightSettings.NightDuration.class);
         }
         return Collections.emptyList();
     }

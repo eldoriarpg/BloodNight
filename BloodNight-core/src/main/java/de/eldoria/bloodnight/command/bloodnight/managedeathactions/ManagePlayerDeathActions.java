@@ -6,30 +6,27 @@ import de.eldoria.bloodnight.config.worldsettings.deathactions.PlayerDeathAction
 import de.eldoria.bloodnight.config.worldsettings.deathactions.PotionEffectSettings;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.eldoutilities.builder.ItemStackBuilder;
+import de.eldoria.eldoutilities.commands.Completion;
+import de.eldoria.eldoutilities.commands.command.AdvancedCommand;
+import de.eldoria.eldoutilities.commands.command.CommandMeta;
+import de.eldoria.eldoutilities.commands.command.util.Arguments;
+import de.eldoria.eldoutilities.commands.command.util.CommandAssertions;
+import de.eldoria.eldoutilities.commands.command.util.Input;
+import de.eldoria.eldoutilities.commands.exceptions.CommandException;
+import de.eldoria.eldoutilities.commands.executor.IPlayerTabExecutor;
 import de.eldoria.eldoutilities.conversation.ConversationRequester;
-import de.eldoria.eldoutilities.core.EldoUtilities;
 import de.eldoria.eldoutilities.inventory.ActionConsumer;
 import de.eldoria.eldoutilities.inventory.ActionItem;
+import de.eldoria.eldoutilities.inventory.InventoryActionHandler;
 import de.eldoria.eldoutilities.inventory.InventoryActions;
-import de.eldoria.eldoutilities.localization.Replacement;
-import de.eldoria.eldoutilities.messages.MessageChannel;
-import de.eldoria.eldoutilities.messages.MessageType;
-import de.eldoria.eldoutilities.simplecommands.EldoCommand;
-import de.eldoria.eldoutilities.simplecommands.TabCompleteUtil;
+import de.eldoria.eldoutilities.messages.Replacement;
+import de.eldoria.eldoutilities.pdc.DataContainerUtil;
+import de.eldoria.eldoutilities.scheduling.DelayedActions;
 import de.eldoria.eldoutilities.utils.ArgumentUtils;
-import de.eldoria.eldoutilities.utils.DataContainerUtil;
-import de.eldoria.eldoutilities.utils.Parser;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.meta.PotionMeta;
@@ -39,50 +36,51 @@ import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-public class ManagePlayerDeathActions extends EldoCommand {
+import static de.eldoria.eldoutilities.localization.ILocalizer.escape;
+
+public class ManagePlayerDeathActions extends AdvancedCommand implements IPlayerTabExecutor {
     private final Configuration configuration;
     private final ConversationRequester conversationRequester;
-    private final BukkitAudiences bukkitAudiences;
+    private final InventoryActionHandler inventoryActions;
+    private final DelayedActions delayedActions;
 
-    public ManagePlayerDeathActions(Plugin plugin, Configuration configuration, ConversationRequester conversation, BukkitAudiences bukkitAudiences) {
-        super(plugin);
+    public ManagePlayerDeathActions(Plugin plugin, Configuration configuration) {
+        super(plugin, CommandMeta.builder("player")
+                .addArgument("syntax.worldName", false)
+                .addArgument("syntax.field", false)
+                .addArgument("syntax.value", false)
+                .build());
         this.configuration = configuration;
-        this.conversationRequester = conversation;
-        this.bukkitAudiences = bukkitAudiences;
+        this.conversationRequester = ConversationRequester.start(plugin);
+        this.inventoryActions = InventoryActionHandler.create(plugin);
+        this.delayedActions = DelayedActions.start(plugin);
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        Player player = (Player) sender;
-
-        World world = ArgumentUtils.getOrDefault(args, 0, ArgumentUtils::getWorld, player.getWorld());
-
-        if (world == null) {
-            messageSender().sendLocalizedError(sender, "error.invalidWorld");
-            return true;
-        }
+    public void onCommand(@NotNull Player player, @NotNull String alias, @NotNull Arguments args) throws CommandException {
+        World world = args.asWorld(0, player.getWorld());
 
         PlayerDeathActions playerDeathActions = configuration.getWorldSettings(world).getDeathActionSettings().getPlayerDeathActions();
 
-        if (args.length < 2) {
+        if (args.size() < 2) {
             sendPlayerDeathActions(player, world, playerDeathActions);
-            return true;
+            return;
         }
 
-        if (argumentsInvalid(sender, args, 2, "<monster|player> <$syntax.worldName$> [<$syntax.field$> <$syntax.value$>]")) {
-            return true;
-        }
-
-
-        String field = args[1];
-        String value = ArgumentUtils.getOrDefault(args, 2, "none");
+        String field = args.asString(1);
+        Input value = args.get(2, Input.of(plugin(), "none"));
 
         if ("effects".equalsIgnoreCase(field)) {
             Inventory inventory = Bukkit.createInventory(player, 54,
                     localizer().getMessage("manageDeathActions.inventory.respawnEffects.title"));
-            InventoryActions actions = EldoUtilities.getInventoryActions().wrap(player, inventory,
+            InventoryActions actions = inventoryActions.wrap(player, inventory,
                     e -> {
                         configuration.save();
                         sendPlayerDeathActions(player, world, playerDeathActions);
@@ -112,11 +110,11 @@ public class ManagePlayerDeathActions extends EldoCommand {
                         ActionConsumer.getIntRange(valueKey, 0, 600),
                         stack -> {
                             Optional<Integer> integer = DataContainerUtil.get(stack, valueKey, PersistentDataType.INTEGER);
-                            if (!integer.isPresent()) return;
+                            if (integer.isEmpty()) return;
                             Optional<String> optionalName = DataContainerUtil.get(stack, typeKey, PersistentDataType.STRING);
                             optionalName.ifPresent(name -> {
                                 PotionEffectType type = PotionEffectType.getByName(name);
-                                if(integer.get() == 0){
+                                if (integer.get() == 0) {
                                     respawnEffects.remove(type);
                                     return;
                                 }
@@ -127,13 +125,13 @@ public class ManagePlayerDeathActions extends EldoCommand {
             }
 
             player.openInventory(inventory);
-            return true;
+            return;
         }
 
         if ("commands".equalsIgnoreCase(field)) {
             List<String> deathCommands = playerDeathActions.getDeathCommands();
             Inventory inventory = Bukkit.createInventory(player, 54, "Manage Death Commands");
-            InventoryActions actions = EldoUtilities.getInventoryActions().wrap(player, inventory, e -> configuration.save());
+            InventoryActions actions = inventoryActions.wrap(player, inventory, e -> configuration.save());
 
             int pos = 0;
             for (String deathCommand : deathCommands) {
@@ -157,7 +155,6 @@ public class ManagePlayerDeathActions extends EldoCommand {
                                                         sendPlayerDeathActions(player, world, playerDeathActions);
                                                     });
                                             player.closeInventory();
-                                            return;
                                         }
                                         case RIGHT, SHIFT_RIGHT -> {
                                             deathCommands.remove(pos);
@@ -172,116 +169,92 @@ public class ManagePlayerDeathActions extends EldoCommand {
             }
 
             player.openInventory(inventory);
-            return true;
+            return;
         }
 
         if ("addCommand".equalsIgnoreCase(field)) {
-            if ("none".equalsIgnoreCase(value)) {
-                messageSender().send(MessageChannel.CHAT, MessageType.ERROR, sender, localizer().getMessage("error.noCommand"));
-                return true;
-            }
-            String cmd = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
-            playerDeathActions.getDeathCommands().add(String.join(" ", Arrays.copyOfRange(args, 2, args.length)));
+            CommandAssertions.isTrue("none".equalsIgnoreCase(value.asString()), "error.noCommand");
+            playerDeathActions.getDeathCommands().add(args.join(2));
             configuration.save();
             sendPlayerDeathActions(player, world, playerDeathActions);
-            return true;
+            return;
         }
 
-        if (TabCompleteUtil.isCommand(field, "loseExp", "loseInv")) {
-            Optional<Integer> optionalInt = Parser.parseInt(value);
-            if (!optionalInt.isPresent()) {
-                messageSender().sendError(player, localizer().getMessage("error.invalidNumber"));
-                return true;
-            }
-            if (invalidRange(sender, optionalInt.get(), 0, 100)) {
-                return true;
-            }
+        if (Completion.isCommand(field, "loseExp", "loseInv")) {
+            int val = value.asInt();
+            CommandAssertions.range(val, 0, 100);
             if ("loseExp".equalsIgnoreCase(field)) {
-                playerDeathActions.setLoseExpProbability(optionalInt.get());
+                playerDeathActions.setLoseExpProbability(val);
             }
             if ("loseInv".equalsIgnoreCase(field)) {
-                playerDeathActions.setLoseInvProbability(optionalInt.get());
+                playerDeathActions.setLoseInvProbability(val);
             }
             configuration.save();
             sendPlayerDeathActions(player, world, playerDeathActions);
-            return true;
+            return;
         }
 
         if ("lightning".equalsIgnoreCase(field)) {
-            DeathActionUtil.buildLightningUI(playerDeathActions.getLightningSettings(), player, configuration, localizer(),
-                    () -> sendPlayerDeathActions(player, world, playerDeathActions));
-            return true;
+            DeathActionUtil.buildLightningUI(playerDeathActions.getLightningSettings(), player, inventoryActions,
+                    configuration, localizer(), () -> sendPlayerDeathActions(player, world, playerDeathActions));
+            return;
         }
 
         if ("shockwave".equalsIgnoreCase(field)) {
-            DeathActionUtil.buildShockwaveUI(playerDeathActions.getShockwaveSettings(), player, configuration, localizer(),
-                    () -> sendPlayerDeathActions(player, world, playerDeathActions));
-            return true;
+            DeathActionUtil.buildShockwaveUI(playerDeathActions.getShockwaveSettings(), player, inventoryActions, delayedActions,
+                    configuration, localizer(), () -> sendPlayerDeathActions(player, world, playerDeathActions));
+            return;
         }
 
         sendPlayerDeathActions(player, world, playerDeathActions);
-        return true;
     }
 
     private void sendPlayerDeathActions(Player player, World world, PlayerDeathActions playerDeathActions) {
         String cmd = "/bloodnight deathActions player " + ArgumentUtils.escapeWorldName(world.getName()) + " ";
-        TextComponent build = Component.text()
-                .append(CommandUtil.getHeader(localizer().getMessage("manageDeathActions.player.title")))
-                .append(Component.newline())
-                .append(Component.text(localizer().getMessage("field.lightningSettings"), NamedTextColor.AQUA))
-                .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                        .clickEvent(ClickEvent.runCommand(cmd + "lightning")))
-                .append(Component.newline())
-                .append(Component.text(localizer().getMessage("field.shockwaveSettings"), NamedTextColor.AQUA))
-                .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                        .clickEvent(ClickEvent.runCommand(cmd + "shockwave")))
-                .append(Component.newline())
-                .append(Component.text(localizer().getMessage("field.deathCommands",
-                        Replacement.create("COUNT", playerDeathActions.getDeathCommands().size())), NamedTextColor.AQUA))
-                .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                        .clickEvent(ClickEvent.runCommand(cmd + "commands")))
-                .append(Component.text(" [" + localizer().getMessage("action.add") + "]", NamedTextColor.DARK_GREEN)
-                        .clickEvent(ClickEvent.suggestCommand(cmd + "addCommand")))
-                .append(Component.newline())
-                .append(Component.text(localizer().getMessage("field.respawnEffect"), NamedTextColor.AQUA))
-                .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                        .clickEvent(ClickEvent.runCommand(cmd + "effects")))
-                .append(Component.newline())
-                .append(Component.text(localizer().getMessage("field.loseInventory") + ": ", NamedTextColor.AQUA))
-                .append(Component.text(playerDeathActions.getLoseInvProbability() + "%", NamedTextColor.GOLD))
-                .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                        .clickEvent(ClickEvent.suggestCommand(cmd + "loseInv ")))
-                .append(Component.newline())
-                .append(Component.text(localizer().getMessage("field.loseExperience") + ": ", NamedTextColor.AQUA))
-                .append(Component.text(playerDeathActions.getLoseExpProbability() + "%", NamedTextColor.GOLD))
-                .append(Component.text(" [" + localizer().getMessage("action.change") + "]", NamedTextColor.GREEN)
-                        .clickEvent(ClickEvent.suggestCommand(cmd + "loseExp ")))
-                .build();
-
-        bukkitAudiences.player(player).sendMessage(build);
+        var actions = """
+                %s
+                <field>%s <click:run_command:'%s'><change>[%s]</click>
+                <field>%s <click:run_command:'%s'><change>[%s]</click>
+                <field>%s <click:run_command:'%s'><change>[%s]</click> <click:run_command:'%s'><add>[%s]</click>
+                <field>%s <click:run_command:'%s'><change>[%s]</click>
+                <field>%s <click:run_command:'%s'><change>[%s]</click>
+                <field>%s: <value>%s <click:suggest_command:'%s'><change>[%s]</click>
+                <field>%s: <value>%s <click:suggest_command:'%s'><change>[%s]</click>
+                """.stripIndent()
+                .formatted(CommandUtil.getHeader("manageDeathActions.player.title"),
+                        escape("field.lightningSettings"), cmd + "lightning", escape("action.change"),
+                        escape("field.shockwaveSettings"), cmd + "shockwave", escape("action.change"),
+                        escape("field.deathCommands"), cmd + "commands", escape("action.change"), cmd + "addCommand", escape("action.add"),
+                        escape("field.respawnEffect"), cmd + "effects", escape("action.change"),
+                        escape("field.loseInventory"), cmd + "loseInv", escape("action.change"),
+                        escape("field.loseInventory"), playerDeathActions.getLoseInvProbability(), cmd + "loseInv ", escape("action.change"),
+                        escape("field.loseExperience"), playerDeathActions.getLoseExpProbability(), cmd + "loseExp ", escape("action.change")
+                );
+        messageSender().sendMessage(player, actions, Replacement.create("COUNT", playerDeathActions.getDeathCommands().size()));
     }
 
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        if (args.length == 1) {
-            return TabCompleteUtil.completeWorlds(args[0]);
+    public @Nullable List<String> onTabComplete(@NotNull Player player, @NotNull String alias, @NotNull Arguments args) throws CommandException {
+        if (args.sizeIs(1)) {
+            return Completion.completeWorlds(args.asString(0));
         }
 
-        if (args.length == 2) {
-            return TabCompleteUtil.complete(args[1], "effects", "commands", "addCommand", "loseExp", "loseInv", "lightning", "shockwave");
+        if (args.sizeIs(2)) {
+            return Completion.complete(args.asString(1), "effects", "commands", "addCommand", "loseExp", "loseInv", "lightning", "shockwave");
         }
 
-        if (args.length >= 3) {
-            if (TabCompleteUtil.isCommand(args[1], "addCommand")) {
-                return TabCompleteUtil.completeFreeInput(String.join(" ", Arrays.copyOfRange(args, 2, args.length)), 140, localizer().getMessage("syntax.commandPlayer"), localizer());
+        if (args.size() >= 3) {
+            if (Completion.isCommand(args.asString(1), "addCommand")) {
+                return Completion.completeFreeInput(args.join(2), 140, localizer().getMessage("syntax.commandPlayer"));
             }
 
-            if (TabCompleteUtil.isCommand(args[1], "loseExp", "loseInv")) {
-                return TabCompleteUtil.completeInt(args[2], 0, 100, localizer());
+            if (Completion.isCommand(args.asString(1), "loseExp", "loseInv")) {
+                return Completion.completeInt(args.asString(2), 0, 100);
             }
             return Collections.emptyList();
         }
         return Collections.emptyList();
     }
+
 }

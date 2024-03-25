@@ -2,11 +2,11 @@ import de.chojo.PublishData
 
 plugins {
     java
-    id("de.chojo.publishdata") version "1.2.5"
+    id("de.chojo.publishdata") version "1.3.0"
 }
 
 group = "de.eldoria"
-version = "0.11.4"
+version = "0.12.0"
 
 subprojects {
     apply {

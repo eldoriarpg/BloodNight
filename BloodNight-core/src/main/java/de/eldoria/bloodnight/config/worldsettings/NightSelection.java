@@ -16,7 +16,11 @@ import org.bukkit.configuration.serialization.SerializableAs;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -49,7 +53,7 @@ public class NightSelection implements ConfigurationSerializable {
         put(2, 50);
     }};
 
-    private int currPhase = 0;
+    private int currPhase;
 
     /**
      * Length of a period.
@@ -58,7 +62,7 @@ public class NightSelection implements ConfigurationSerializable {
     /**
      * Current value of the curve.
      */
-    private int currCurvePos = 0;
+    private int currCurvePos;
     /**
      * Min curve value.
      */
@@ -79,7 +83,7 @@ public class NightSelection implements ConfigurationSerializable {
     /**
      * Current interval
      */
-    private int curInterval = 0;
+    private int curInterval;
 
     public NightSelection(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
@@ -266,6 +270,31 @@ public class NightSelection implements ConfigurationSerializable {
         }
     }
 
+    @Override
+    public String toString() {
+        String phases;
+        switch (nightSelectionType) {
+            case RANDOM:
+                return String.format("Mode: %s | Prob: %s", nightSelectionType, probability);
+            case MOON_PHASE:
+            case REAL_MOON_PHASE:
+                phases = getMoonPhase().entrySet().stream()
+                        .map(e -> e.getKey() + ":" + e.getValue())
+                        .collect(Collectors.joining(" | "));
+                return String.format("Mode: %s | Phases: %s", nightSelectionType, phases);
+            case INTERVAL:
+                return String.format("Mode: %s | Interval %d of %d with Prob %d", nightSelectionType, curInterval, interval - 1, intervalProbability);
+            case PHASE:
+                phases = getPhaseCustom().entrySet().stream()
+                        .map(e -> e.getKey() + ":" + e.getValue())
+                        .collect(Collectors.joining(" | "));
+                return String.format("Mode: %s | Phases: %s", nightSelectionType, phases);
+            case CURVE:
+                return String.format("Mode: %s | Pos %d on curve between %d and %d", nightSelectionType, currCurvePos, minCurveVal, maxCurveVal);
+        }
+        return "NightSelection{}";
+    }
+
     public enum NightSelectionType {
         /**
          * Determine bloodnight based on a random value.
@@ -291,30 +320,5 @@ public class NightSelection implements ConfigurationSerializable {
          * Determine bloodnight based on a smooth curve with a fixed length and a max and min probability.
          */
         CURVE
-    }
-
-    @Override
-    public String toString() {
-        String phases;
-        switch (nightSelectionType) {
-            case RANDOM:
-                return String.format("Mode: %s | Prob: %s", nightSelectionType, probability);
-            case MOON_PHASE:
-            case REAL_MOON_PHASE:
-                phases = getMoonPhase().entrySet().stream()
-                        .map(e -> e.getKey() + ":" + e.getValue())
-                        .collect(Collectors.joining(" | "));
-                return String.format("Mode: %s | Phases: %s", nightSelectionType, phases);
-            case INTERVAL:
-                return String.format("Mode: %s | Interval %d of %d with Prob %d", nightSelectionType, curInterval, interval - 1, intervalProbability);
-            case PHASE:
-                phases = getPhaseCustom().entrySet().stream()
-                        .map(e -> e.getKey() + ":" + e.getValue())
-                        .collect(Collectors.joining(" | "));
-                return String.format("Mode: %s | Phases: %s", nightSelectionType, phases);
-            case CURVE:
-                return String.format("Mode: %s | Pos %d on curve between %d and %d", nightSelectionType, currCurvePos, minCurveVal, maxCurveVal);
-        }
-        return "NightSelection{}";
     }
 }

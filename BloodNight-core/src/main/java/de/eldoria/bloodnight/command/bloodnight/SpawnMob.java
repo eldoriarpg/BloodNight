@@ -1,16 +1,19 @@
 package de.eldoria.bloodnight.command.bloodnight;
 
-import de.eldoria.bloodnight.core.manager.nightmanager.NightManager;
 import de.eldoria.bloodnight.core.manager.mobmanager.MobManager;
+import de.eldoria.bloodnight.core.manager.nightmanager.NightManager;
 import de.eldoria.bloodnight.core.mobfactory.MobFactory;
 import de.eldoria.bloodnight.core.mobfactory.SpecialMobRegistry;
 import de.eldoria.bloodnight.util.Permissions;
-import de.eldoria.eldoutilities.simplecommands.EldoCommand;
+import de.eldoria.eldoutilities.commands.command.AdvancedCommand;
+import de.eldoria.eldoutilities.commands.command.CommandMeta;
+import de.eldoria.eldoutilities.commands.command.util.Arguments;
+import de.eldoria.eldoutilities.commands.command.util.CommandAssertions;
+import de.eldoria.eldoutilities.commands.exceptions.CommandException;
+import de.eldoria.eldoutilities.commands.executor.IPlayerTabExecutor;
 import de.eldoria.eldoutilities.utils.ArrayUtil;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -22,66 +25,49 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class SpawnMob extends EldoCommand {
+public class SpawnMob extends AdvancedCommand implements IPlayerTabExecutor {
     private final NightManager nightManager;
     private final MobManager mobManager;
 
     public SpawnMob(Plugin plugin, NightManager nightManager, MobManager mobManager) {
-        super(plugin);
+        super(plugin, CommandMeta.builder("spawnMob")
+                .withPermission(Permissions.Admin.SPAWN_MOB)
+                .addArgument("mobName", true)
+                .build());
         this.nightManager = nightManager;
         this.mobManager = mobManager;
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (!(sender instanceof Player player)) {
-            messageSender().sendError(sender, localizer().getMessage("error.console"));
-            return true;
-        }
+    public void onCommand(@NotNull Player sender, @NotNull String alias, @NotNull Arguments args) throws CommandException {
+        if (nightManager.isBloodNightActive(sender.getWorld())) {
+            Block targetBlock = sender.getTargetBlock(null, 100);
+            CommandAssertions.isTrue(targetBlock.getType() != Material.AIR, "No Block in sight.");
 
-        if (denyAccess(sender, Permissions.Admin.SPAWN_MOB)) {
-            return true;
-        }
+            Optional<MobFactory> mobFactoryByName = SpecialMobRegistry.getMobFactoryByName(args.asString(0));
 
-        if (args.length == 0) {
-            messageSender().sendError(sender, "invalid syntax");
-            return true;
-        }
-
-        if (nightManager.isBloodNightActive(player.getWorld())) {
-            Block targetBlock = player.getTargetBlock(null, 100);
-            if (targetBlock.getType() == Material.AIR) {
-                messageSender().sendError(player, "No Block in sight.");
-                return true;
-            }
-
-            Optional<MobFactory> mobFactoryByName = SpecialMobRegistry.getMobFactoryByName(args[0]);
-
-            if (!mobFactoryByName.isPresent()) {
-                messageSender().sendError(player, "Invalid mob type");
-                return true;
-            }
+            CommandAssertions.isTrue(mobFactoryByName.isPresent(), "Invalid mob type");
 
             MobFactory mobFactory = mobFactoryByName.get();
 
             Entity entity = targetBlock.getWorld().spawnEntity(targetBlock.getLocation().add(0, 1, 0), mobFactory.getEntityType());
             mobManager.getSpecialMobManager().wrapMob(entity, mobFactory);
         } else {
-            messageSender().sendError(player, "no blood night active");
+            messageSender().sendError(sender, "No blood night active");
         }
-        return true;
     }
 
+
     @Override
-    public @Nullable
-    List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        if (args.length == 1) {
+    public @Nullable List<String> onTabComplete(@NotNull Player player, @NotNull String alias, @NotNull Arguments args) throws CommandException {
+        if (args.sizeIs(1)) {
             String[] strings = SpecialMobRegistry.getRegisteredMobs().stream()
                     .map(MobFactory::getMobName)
                     .toArray(String[]::new);
-            return ArrayUtil.startingWithInArray(args[0], strings)
+            return ArrayUtil.startingWithInArray(args.asString(0), strings)
                     .collect(Collectors.toList());
         }
         return Collections.emptyList();
     }
+
 }

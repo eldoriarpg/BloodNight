@@ -40,7 +40,7 @@ public class MobSetting implements ConfigurationSerializable {
      * added to default drops.
      */
     @Setter
-    private boolean overrideDefaultDrops = false;
+    private boolean overrideDefaultDrops;
     @Setter
     private List<Drop> drops = new ArrayList<>();
 
