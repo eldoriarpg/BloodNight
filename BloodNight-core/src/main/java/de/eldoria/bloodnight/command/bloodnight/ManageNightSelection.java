@@ -86,14 +86,14 @@ public class ManageNightSelection extends AdvancedCommand implements IPlayerTabE
 
     private static String getMoonPhaseSign(int phase) {
         return switch (phase) {
-            case 0 -> "<white>████";
-            case 1 -> "<white>███<gray>█";
-            case 2 -> "<white>██<gray>██";
-            case 3 -> "<white>█<gray>███";
-            case 4 -> "<gray>████";
-            case 5 -> "<gray>███<white>█";
-            case 6 -> "<gray>██<white>██";
-            case 7 -> "<gray>█<white>███";
+            case 0 -> "§f████";
+            case 1 -> "§f███§7█";
+            case 2 -> "§f██§7██";
+            case 3 -> "§f█§7███";
+            case 4 -> "§7████";
+            case 5 -> "§7███§f█";
+            case 6 -> "§7██§f██";
+            case 7 -> "§7█§f███";
             default -> throw new IllegalStateException("Unexpected value: " + phase);
         };
     }
