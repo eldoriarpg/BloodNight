@@ -86,6 +86,19 @@ public class ManageNightSelection extends AdvancedCommand implements IPlayerTabE
 
     private static String getMoonPhaseSign(int phase) {
         return switch (phase) {
+            case 0 -> "<white>████";
+            case 1 -> "<white>███<gray>█";
+            case 2 -> "<white>██<gray>██";
+            case 3 -> "<white>█<gray>███";
+            case 4 -> "<gray>████";
+            case 5 -> "<gray>███<white>█";
+            case 6 -> "<gray>██<white>██";
+            case 7 -> "<gray>█<white>███";
+            default -> throw new IllegalStateException("Unexpected value: " + phase);
+        };
+    }
+    private static String getMoonPhaseSignLegacy(int phase) {
+        return switch (phase) {
             case 0 -> "§f████";
             case 1 -> "§f███§7█";
             case 2 -> "§f██§7██";
@@ -399,7 +412,7 @@ public class ManageNightSelection extends AdvancedCommand implements IPlayerTabE
         private static List<String> getLore(int phase, int probability, boolean moon) {
             List<String> result = new ArrayList<>();
             if (moon) {
-                result.add(getMoonPhaseSign(phase));
+                result.add(getMoonPhaseSignLegacy(phase));
             }
             result.add("§6" + ILocalizer.getPluginLocalizer(BloodNight.class).getMessage("field.probability") + ": " + probability);
             return result;
