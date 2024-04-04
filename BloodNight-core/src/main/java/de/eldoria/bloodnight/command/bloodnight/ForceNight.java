@@ -47,8 +47,8 @@ public class ForceNight extends AdvancedCommand implements ITabExecutor {
         world = args.asWorld(0, world);
 
         boolean enabled = configuration.getWorldSettings(world).isEnabled();
-        CommandAssertions.isTrue(!enabled, "error.worldNotEnabled", Replacement.create("WORLD", world));
-        CommandAssertions.isTrue(!nightManager.getBloodWorldsSet().contains(world), "forceNight.alreadyActive",
+        CommandAssertions.isTrue(enabled, "error.worldNotEnabled", Replacement.create("WORLD", world));
+        CommandAssertions.isFalse(nightManager.getBloodWorldsSet().contains(world), "forceNight.alreadyActive",
                 Replacement.create("WORLD", world.getName()));
         nightManager.forceNight(world);
         messageSender().sendMessage(sender, "forceNight.enabled",

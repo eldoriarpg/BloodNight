@@ -18,8 +18,7 @@ public class GhostCreeper extends ExtendedSpecialMob<Vex, Creeper> {
     public GhostCreeper(Creeper creeper) {
         super(EntityType.VEX, creeper);
         Version optVersion = ServerVersion.getVersion();
-        // Entites can be invisible since 1.16.3. Hotfix for backwards compatibiliy to spigot 1.16.2
-        getBaseEntity().setInvulnerable(true);
+        getBaseEntity().setInvisible(true);
         new BukkitRunnable() {
             @Override
             public void run() {
