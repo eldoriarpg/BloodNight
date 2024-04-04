@@ -114,13 +114,19 @@ public final class CommandUtil {
     public static String changeButton(String command) {
         return changeButton(command, "action.change", "change");
     }
+    public static String changeButtonWithInput(String command) {
+        return changeButtonWithInput(command, "action.change", "change");
+    }
 
     public static String changeButton(String command, String label, String color) {
         return "<click:run_command:'%s'><%s>[%s]</click>".formatted(command, color, escape(label));
     }
+    public static String changeButtonWithInput(String command, String label, String color) {
+        return "<click:suggest_command:'%s'><%s>[%s]</click>".formatted(command, color, escape(label));
+    }
 
-    public static String changeableValue(String field, Object value, String command) {
-        return "%s %s".formatted(value(field, value), changeButton(command));
+    public static String changeableValueWithInput(String field, Object value, String command) {
+        return "%s %s".formatted(value(field, value), changeButtonWithInput(command));
     }
 
     public static String value(String field, Object value) {

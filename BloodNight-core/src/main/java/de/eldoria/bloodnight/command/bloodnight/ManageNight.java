@@ -27,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.List;
 
-import static de.eldoria.bloodnight.command.util.CommandUtil.changeableValue;
+import static de.eldoria.bloodnight.command.util.CommandUtil.changeableValueWithInput;
 import static de.eldoria.bloodnight.command.util.CommandUtil.getBooleanField;
 import static de.eldoria.bloodnight.command.util.CommandUtil.getHeader;
 import static de.eldoria.bloodnight.command.util.CommandUtil.getToggleField;
@@ -122,14 +122,14 @@ public class ManageNight extends AdvancedCommand implements IPlayerTabExecutor {
                     <value>> %s
                     <value>>""".stripIndent()
                     .formatted(
-                            changeableValue("field.nightDuration", nightSettings.getNightDuration() + " " + escape("value.seconds"), cmd + "nightDuration ")
+                            changeableValueWithInput("field.nightDuration", nightSettings.getNightDuration() + " " + escape("value.seconds"), cmd + "nightDuration ")
                     );
             case RANGE -> """
                     <value>> %s
                     <value>> %s""".stripIndent()
                     .formatted(
-                            changeableValue("field.minDuration", nightSettings.getNightDuration() + " " + escape("value.seconds"), cmd + "nightDuration "),
-                            changeableValue("field.maxDuration", nightSettings.getMaxNightDuration() + " " + escape("value.seconds"), cmd + "maxNightDuration ")
+                            changeableValueWithInput("field.minDuration", nightSettings.getNightDuration() + " " + escape("value.seconds"), cmd + "nightDuration "),
+                            changeableValueWithInput("field.maxDuration", nightSettings.getMaxNightDuration() + " " + escape("value.seconds"), cmd + "maxNightDuration ")
                     );
         };
 
@@ -149,9 +149,9 @@ public class ManageNight extends AdvancedCommand implements IPlayerTabExecutor {
                         // skippable
                         getBooleanField(nightSettings.isSkippable(), cmd + "skippable {bool}", "field.sleep", "state.allow", "state.deny"),
                         // night begin
-                        changeableValue("field.nightBegin", nightSettings.getNightBegin(), cmd + "nightBegin "),
+                        changeableValueWithInput("field.nightBegin", nightSettings.getNightBegin(), cmd + "nightBegin "),
                         // night end
-                        changeableValue("field.nightEnd", nightSettings.getNightEnd(), cmd + "nightEnd "),
+                        changeableValueWithInput("field.nightEnd", nightSettings.getNightEnd(), cmd + "nightEnd "),
                         // Night duration type
                         getToggleField(durationMode == NightSettings.NightDuration.NORMAL, cmd + "durationMode NORMAL", "state.normal"),
                         getToggleField(durationMode == NightSettings.NightDuration.EXTENDED, cmd + "durationMode EXTENDED", "state.extended"),

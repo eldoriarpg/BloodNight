@@ -42,7 +42,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static de.eldoria.bloodnight.command.util.CommandUtil.changeButton;
-import static de.eldoria.bloodnight.command.util.CommandUtil.changeableValue;
+import static de.eldoria.bloodnight.command.util.CommandUtil.changeableValueWithInput;
 import static de.eldoria.bloodnight.command.util.CommandUtil.getBooleanField;
 import static de.eldoria.bloodnight.command.util.CommandUtil.getHeader;
 import static de.eldoria.bloodnight.command.util.CommandUtil.getToggleField;
@@ -222,7 +222,7 @@ public class ManageMobs extends AdvancedCommand implements IPlayerTabExecutor {
         MobSettings mSet = worldSettings.getMobSettings();
         VanillaMobSettings vms = worldSettings.getMobSettings().getVanillaMobSettings();
         String cmd = "/bloodnight manageMobs " + ArgumentUtils.escapeWorldName(worldSettings.getWorldName()) + " ";
-        var notVanilla = changeableValue("field.customDropAmount", vms.getExtraDrops() + "x", cmd + "vanillaDropAmount ");
+        var notVanilla = changeableValueWithInput("field.customDropAmount", vms.getExtraDrops() + "x", cmd + "vanillaDropAmount ");
 
         var a = """
                 %s
@@ -244,15 +244,15 @@ public class ManageMobs extends AdvancedCommand implements IPlayerTabExecutor {
                 .formatted(
                         getHeader("manageMobs.title"),
                         // spawn percentage
-                        changeableValue("field.spawnPercentage", mSet.getSpawnPercentage() + "%", cmd + "spawnPercentage "),
+                        changeableValueWithInput("field.spawnPercentage", mSet.getSpawnPercentage() + "%", cmd + "spawnPercentage "),
                         // Display mobNamens
                         getBooleanField(mSet.isDisplayMobNames(), cmd + "displayName {bool}", "field.showMobNames", "state.enabled", "state.disabled"),
                         // Monster damage
-                        changeableValue("field.monsterDamage", mSet.getDamageMultiplier() + "x", cmd + "monsterDamage "),
+                        changeableValueWithInput("field.monsterDamage", mSet.getDamageMultiplier() + "x", cmd + "monsterDamage "),
                         // Player damage
-                        changeableValue("field.monsterHealth", mSet.getHealthModifier() + "x", cmd + "monsterHealth "),
+                        changeableValueWithInput("field.monsterHealth", mSet.getHealthModifier() + "x", cmd + "monsterHealth "),
                         // experience multiply
-                        changeableValue("field.experienceMultiplier", mSet.getExperienceMultiplier() + "x", cmd + "experience "),
+                        changeableValueWithInput("field.experienceMultiplier", mSet.getExperienceMultiplier() + "x", cmd + "experience "),
                         // force phantoms
                         getBooleanField(mSet.isForcePhantoms(), cmd + "forcePhantoms {bool}", "field.forcePhantoms", "state.enabled", "state.disabled"),
                         // natural drops
@@ -263,15 +263,15 @@ public class ManageMobs extends AdvancedCommand implements IPlayerTabExecutor {
                         changeButton(cmd + "defaultDrops changeWeight", "action.weight", "weight"),
                         changeButton(cmd + "defaultDrops clear", "action.clear", "delete"),
                         // default drop amount
-                        changeableValue("field.dropAmount", mSet.getDropAmount() + "x", cmd + "dropAmount "),
+                        changeableValueWithInput("field.dropAmount", mSet.getDropAmount() + "x", cmd + "dropAmount "),
                         // Vanilla Mobs submenu
                         escape("field.vanillaMobs"),
                         // Monster damage
-                        changeableValue("field.monsterDamage", vms.getDamageMultiplier() + "x", cmd + "vanillaMonsterDamage "),
+                        changeableValueWithInput("field.monsterDamage", vms.getDamageMultiplier() + "x", cmd + "vanillaMonsterDamage "),
                         // Player damage
-                        changeableValue("field.monsterHealth", vms.getHealthMultiplier() + "x", cmd + "vanillaMonsterHealth "),
+                        changeableValueWithInput("field.monsterHealth", vms.getHealthMultiplier() + "x", cmd + "vanillaMonsterHealth "),
                         // drops
-                        changeableValue("field.dropsMultiplier", vms.getDropMultiplier() + "x", cmd + "vanillaDropsMulti "),
+                        changeableValueWithInput("field.dropsMultiplier", vms.getDropMultiplier() + "x", cmd + "vanillaDropsMulti "),
                         // Drop Mode
                         escape("field.dropMode"),
                         getToggleField(vms.getVanillaDropMode() == VanillaDropMode.VANILLA, cmd + "vanillaDropMode VANILLA", "state.vanilla"),

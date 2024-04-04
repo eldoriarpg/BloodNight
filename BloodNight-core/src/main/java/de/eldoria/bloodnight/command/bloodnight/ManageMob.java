@@ -49,7 +49,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static de.eldoria.bloodnight.command.util.CommandUtil.changeButton;
-import static de.eldoria.bloodnight.command.util.CommandUtil.changeableValue;
+import static de.eldoria.bloodnight.command.util.CommandUtil.changeableValueWithInput;
 import static de.eldoria.bloodnight.command.util.CommandUtil.getBooleanField;
 import static de.eldoria.bloodnight.command.util.CommandUtil.getToggleField;
 import static de.eldoria.eldoutilities.localization.ILocalizer.escape;
@@ -273,9 +273,9 @@ public class ManageMob extends AdvancedCommand implements IPlayerTabExecutor {
                                     // Mob name state
                                     entry.getMobName(), getBooleanField(entry.isActive(), cmd + "state {bool}", "", "state.enabled", "state.disabled"),
                                     // Display Name
-                                    changeableValue("field.displayName", entry.getDisplayName(), cmd + "displayName " + entry.getDisplayName().replace("§", "&")),
+                                    changeableValueWithInput("field.displayName", entry.getDisplayName(), cmd + "displayName " + entry.getDisplayName().replace("§", "&")),
                                     // Drop amount
-                                    changeableValue("field.dropAmount", entry.getDropAmount() == 0 ? escape("action.default") : entry.getDropAmount() + "x", cmd + "dropAmount "),
+                                    changeableValueWithInput("field.dropAmount", entry.getDropAmount() == 0 ? escape("action.default") : entry.getDropAmount() + "x", cmd + "dropAmount "),
                                     // Drops
                                     escape("field.drops"),
                                     entry.getDrops().size() + " " + escape("field.drops"),
@@ -286,11 +286,11 @@ public class ManageMob extends AdvancedCommand implements IPlayerTabExecutor {
                                     getToggleField(entry.getHealthModifier() == MobValueModifier.DEFAULT, cmd + "healthModifier DEFAULT", "action.default"),
                                     getToggleField(entry.getHealthModifier() == MobValueModifier.MULTIPLY, cmd + "healthModifier MULTIPLY", "action.multiply"),
                                     getToggleField(entry.getHealthModifier() == MobValueModifier.VALUE, cmd + "healthModifier VALUE", "action.value"),
-                                    escape("field.health"), healthModifier, changeButton(cmd + "health "),
+                                    changeableValueWithInput("field.health", healthModifier, cmd + "health "),
                                     getToggleField(entry.getDamageModifier() == MobValueModifier.DEFAULT, cmd + "damageModifier DEFAULT", localizer().getMessage("action.default")),
                                     getToggleField(entry.getDamageModifier() == MobValueModifier.MULTIPLY, cmd + "damageModifier MULTIPLY", "action.multiply"),
                                     getToggleField(entry.getDamageModifier() == MobValueModifier.VALUE, cmd + "damageModifier VALUE", "action.value"),
-                                    escape("field.damage"), healthModifier, changeButton(cmd + "damage ")
+                                    changeableValueWithInput("field.damage", healthModifier, cmd + "damage ")
                             );
                 },
                 "manageMob.title",

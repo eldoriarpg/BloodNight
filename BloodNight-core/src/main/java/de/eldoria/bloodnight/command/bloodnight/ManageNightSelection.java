@@ -52,7 +52,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static de.eldoria.bloodnight.command.util.CommandUtil.changeButton;
-import static de.eldoria.bloodnight.command.util.CommandUtil.changeableValue;
+import static de.eldoria.bloodnight.command.util.CommandUtil.changeableValueWithInput;
 import static de.eldoria.bloodnight.command.util.CommandUtil.getToggleField;
 import static de.eldoria.bloodnight.config.worldsettings.NightSelection.NightSelectionType;
 import static de.eldoria.bloodnight.config.worldsettings.NightSelection.NightSelectionType.CURVE;
@@ -97,6 +97,7 @@ public class ManageNightSelection extends AdvancedCommand implements IPlayerTabE
             default -> throw new IllegalStateException("Unexpected value: " + phase);
         };
     }
+
     private static String getMoonPhaseSignLegacy(int phase) {
         return switch (phase) {
             case 0 -> "§f████";
@@ -226,7 +227,7 @@ public class ManageNightSelection extends AdvancedCommand implements IPlayerTabE
                                                                 
                                                                 
                                 """.stripIndent()
-                                .formatted(changeableValue("field.probability", ns.getProbability(), cmd + "probability "));
+                                .formatted(changeableValueWithInput("field.probability", ns.getProbability(), cmd + "probability "));
                         case REAL_MOON_PHASE, MOON_PHASE -> {
                             var phases = ns.getMoonPhase().entrySet().stream().map(e -> {
                                 var hover = """
@@ -256,15 +257,15 @@ public class ManageNightSelection extends AdvancedCommand implements IPlayerTabE
                                 %s
                                 """.stripIndent()
                                 .formatted(
-                                        changeableValue("field.interval", ns.getInterval(), cmd + "interval "),
-                                        changeableValue("field.intervalProbability", ns.getIntervalProbability(), cmd + "intervalProbability ")
+                                        changeableValueWithInput("field.interval", ns.getInterval(), cmd + "interval "),
+                                        changeableValueWithInput("field.intervalProbability", ns.getIntervalProbability(), cmd + "intervalProbability ")
                                 );
                         case PHASE -> """
                                 %s
                                 %s %s
                                 """.stripIndent()
                                 .formatted(
-                                        changeableValue("field.amount", ns.getPhaseCustom().size(), cmd + "phaseAmount "),
+                                        changeableValueWithInput("field.amount", ns.getPhaseCustom().size(), cmd + "phaseAmount "),
                                         escape("field.amount"),
                                         changeButton(cmd + "phase none ")
                                 );
@@ -274,9 +275,9 @@ public class ManageNightSelection extends AdvancedCommand implements IPlayerTabE
                                 %s
                                 """.stripIndent()
                                 .formatted(
-                                        changeableValue("field.length", ns.getPeriod(), cmd + "period "),
-                                        changeableValue("field.minProb", ns.getMinCurveVal(), cmd + "minCurveVal "),
-                                        changeableValue("field.maxProb", ns.getMaxCurveVal(), cmd + "maxCurveVal ")
+                                        changeableValueWithInput("field.length", ns.getPeriod(), cmd + "period "),
+                                        changeableValueWithInput("field.minProb", ns.getMinCurveVal(), cmd + "minCurveVal "),
+                                        changeableValueWithInput("field.maxProb", ns.getMaxCurveVal(), cmd + "maxCurveVal ")
                                 );
                     };
 
