@@ -94,7 +94,8 @@ public final class CommandUtil {
             builder.newLine();
         }
 
-        builder.text("<yellow>=====<| <field>%s<yellow> |>=====", escape(title));
+        builder.text("<yellow>=====<| <field>%s<yellow> |>=====", escape(title))
+                .newLine();
         builder.text(elements.stream().map(mapping).toList());
 
         return builder.newLine().text(getPageFooter(page, CommandUtil.pageCount(content, elementsPerPage), pageCommand)).build();

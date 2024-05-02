@@ -49,7 +49,7 @@ public class ManageMonsterDeathActions extends AdvancedCommand {
         }
 
         void sendMobDeathActions(Player player, World world) {
-            String cmd = "/bloodnight deathActions monster {command} " + ArgumentUtils.escapeWorldName(world.getName());
+            String cmd = "/bloodnight manageDeathActions monster {command} " + ArgumentUtils.escapeWorldName(world.getName());
             String action = """
                     %s
                     <field>%s <click:run_command:'%s'><change>[%s]</click>
@@ -97,7 +97,7 @@ public class ManageMonsterDeathActions extends AdvancedCommand {
         private final Configuration configuration;
 
         public Shockwave(Plugin plugin, Configuration configuration) {
-            super(plugin, CommandMeta.builder("lightning").hidden().build(), configuration);
+            super(plugin, CommandMeta.builder("shockwave").hidden().build(), configuration);
             this.configuration = configuration;
         }
 

@@ -115,7 +115,6 @@ public class ManageWorlds extends AdvancedCommand implements IPlayerTabExecutor 
                     String cmd = "/bloodnight manageWorlds " + ArgumentUtils.escapeWorldName(entry.getWorldName()) + " ";
                     BossBarSettings bbs = entry.getBossBarSettings();
                     return """
-                                                        
                             <header><%s></header> %s
                             %s
                             %s
@@ -126,11 +125,12 @@ public class ManageWorlds extends AdvancedCommand implements IPlayerTabExecutor 
                               <field>%s: %s %s %s
                             """.stripIndent()
                             .formatted(
+                                    // header
                                     entry.getWorldName(), CommandUtil.getBooleanField(entry.isEnabled(), cmd + "state {bool} ", "", "state.enabled", "state.disabled"),
                                     CommandUtil.getBooleanField(entry.isCreeperBlockDamage(), cmd + "creeperBlockDamage {bool} ", "field.creeperBlockDamage", "state.enabled", "state.disabled"),
                                     CommandUtil.getBooleanField(entry.isAlwaysManageCreepers(), cmd + "manageCreeperAlways {bool} ", "field.alwaysManageCreepers", "state.enabled", "state.disabled"),
                                     escape("field.bossBarSettings"),
-                                    CommandUtil.getBooleanField(bbs.isEnabled(), cmd + "bossBar state {bool} ", "", "state.enabled", "state.disabled"),
+                                    CommandUtil.getBooleanField(bbs.isEnabled(), cmd + "bossBar state {bool} ", "field.state", "state.enabled", "state.disabled"),
                                     escape("field.title"), bbs.getTitle(), cmd + "bossBar title " + bbs.getTitle(), escape("action.change"),
                                     escape("field.color"), bbs.getColor(), cmd + "bossBar color ", escape("action.change"),
                                     escape("field.effects"),

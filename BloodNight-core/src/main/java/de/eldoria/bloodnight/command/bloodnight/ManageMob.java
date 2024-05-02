@@ -265,9 +265,9 @@ public class ManageMob extends AdvancedCommand implements IPlayerTabExecutor {
                               <field>%s: <value>%s %s %s %s
                               %s
                               <field>Health Modifier: %s %s %s
-                              <field>%s: %s %s
+                              %s
                               <field>Damage Modifier: %s %s %s
-                              <field>%s: %s %s
+                              %s
                             """.stripIndent()
                             .formatted(
                                     // Mob name state
@@ -277,17 +277,18 @@ public class ManageMob extends AdvancedCommand implements IPlayerTabExecutor {
                                     // Drop amount
                                     changeableValueWithInput("field.dropAmount", entry.getDropAmount() == 0 ? escape("action.default") : entry.getDropAmount() + "x", cmd + "dropAmount "),
                                     // Drops
-                                    escape("field.drops"),
-                                    entry.getDrops().size() + " " + escape("field.drops"),
+                                    escape("field.drops"), entry.getDrops().size() + " " + escape("field.drops"),
                                     changeButton(cmd + "drops changeContent", "action.content", "change"),
                                     changeButton(cmd + "drops changeWeight", "action.weight", "weight"),
                                     changeButton(cmd + "drops clear", "action.clear", "delete"),
+                                    // default drops
                                     getBooleanField(entry.isOverrideDefaultDrops(), cmd + "overrideDefault {bool} " + page, "field.overrideDefaultDrops", "state.override", "state.combine"),
+                                    // health modifier
                                     getToggleField(entry.getHealthModifier() == MobValueModifier.DEFAULT, cmd + "healthModifier DEFAULT", "action.default"),
                                     getToggleField(entry.getHealthModifier() == MobValueModifier.MULTIPLY, cmd + "healthModifier MULTIPLY", "action.multiply"),
                                     getToggleField(entry.getHealthModifier() == MobValueModifier.VALUE, cmd + "healthModifier VALUE", "action.value"),
                                     changeableValueWithInput("field.health", healthModifier, cmd + "health "),
-                                    getToggleField(entry.getDamageModifier() == MobValueModifier.DEFAULT, cmd + "damageModifier DEFAULT", localizer().getMessage("action.default")),
+                                    getToggleField(entry.getDamageModifier() == MobValueModifier.DEFAULT, cmd + "damageModifier DEFAULT", "action.default"),
                                     getToggleField(entry.getDamageModifier() == MobValueModifier.MULTIPLY, cmd + "damageModifier MULTIPLY", "action.multiply"),
                                     getToggleField(entry.getDamageModifier() == MobValueModifier.VALUE, cmd + "damageModifier VALUE", "action.value"),
                                     changeableValueWithInput("field.damage", healthModifier, cmd + "damage ")
