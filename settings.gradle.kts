@@ -25,9 +25,18 @@ dependencyResolutionManagement {
             library("eldoutil.crossversion", "de.eldoria.util", "crossversion").versionRef("eldoutil")
             library("eldoutil.entities", "de.eldoria.util", "entities").versionRef("eldoutil")
             library("eldoutil.legacyserialization", "de.eldoria.util", "legacy-serialization").versionRef("eldoutil")
-            bundle("eldoutil", listOf("eldoutil.core", "eldoutil.updater", "eldoutil.messaging", "eldoutil.commands",
+            bundle(
+                "eldoutil", listOf(
+                    "eldoutil.core", "eldoutil.updater", "eldoutil.messaging", "eldoutil.commands",
                     "eldoutil.plugin", "eldoutil.metrics", "eldoutil.inventory", "eldoutil.conversation",
-                    "eldoutil.threading", "eldoutil.crossversion", "eldoutil.entities", "eldoutil.legacyserialization"))
+                    "eldoutil.threading", "eldoutil.crossversion", "eldoutil.entities", "eldoutil.legacyserialization"
+                )
+            )
+
+            plugin("publishdata", "de.chojo.publishdata").version("1.2.5")
+            plugin("spotless", "com.diffplug.spotless").version("6.25.0")
+            plugin("shadow", "io.github.goooler.shadow").version("8.1.7")
+            plugin("pluginyml", "net.minecrell.plugin-yml.bukkit").version("0.6.0")
         }
     }
 }
