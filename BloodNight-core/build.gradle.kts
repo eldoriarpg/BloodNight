@@ -5,6 +5,7 @@ plugins {
 
 dependencies {
     implementation(project(":BloodNight-api"))
+    implementation("org.bstats", "bstats-bukkit", "3.0.2")
     bukkitLibrary(libs.bundles.eldoutil)
     bukkitLibrary("net.kyori", "adventure-platform-bukkit", "4.3.3")
     testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.10.3")
@@ -49,6 +50,7 @@ publishing {
 
 tasks {
     shadowJar {
+        relocate("org.bstats", "de.eldoria.bloodnight.libs.bstats")
         mergeServiceFiles()
         archiveBaseName.set(project.parent?.name)
     }

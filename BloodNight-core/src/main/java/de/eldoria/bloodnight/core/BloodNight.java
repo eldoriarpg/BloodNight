@@ -42,9 +42,11 @@ import lombok.Getter;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.tag.Tag;
+import org.bstats.bukkit.Metrics;
 import org.bstats.charts.MultiLineChart;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -179,6 +181,7 @@ public class BloodNight extends EldoPlugin {
 
     @Override
     public List<Class<? extends ConfigurationSerializable>> getConfigSerialization() {
+        ConfigurationSerialization.registerClass(MapEntry.class);
         return Arrays.asList(GeneralSettings.class, NightSelection.class, NightSettings.class, MobSettings.class,
                 MobSetting.class, VanillaMobSettings.class, WorldSettings.class, Drop.class, BossBarSettings.class,
                 MobSettings.MobTypes.class, SoundSettings.class, SoundEntry.class, PotionEffectSettings.class,
@@ -187,8 +190,8 @@ public class BloodNight extends EldoPlugin {
     }
 
     private void enableMetrics() {
-        EldoMetrics metrics = new EldoMetrics(this, 9123);
-        if (metrics.isEnabled()) {
+        Metrics metrics = new Metrics(this, 9123);
+        if (EldoMetrics.isEnabled(this)) {
             logger().info("§2Metrics enabled. Thank you! (> ^_^ )>");
 
             metrics.addCustomChart(new MultiLineChart("update_settings", () -> {
