@@ -94,16 +94,17 @@ public class BloodNight extends EldoPlugin {
 
             configuration = new Configuration(this);
 
-            ILocalizer localizer = Localizer.create(this, "de_DE", "en_US", "es_ES", "tr", "zh_CN");
-
             Map<String, String> mobLocaleCodes = SpecialMobRegistry.getRegisteredMobs().stream()
                     .map(MobFactory::getMobName)
                     .collect(Collectors.toMap(
                             k -> "mob." + k,
                             k -> String.join(" ", k.split("(?<=.)(?=\\p{Lu})"))));
-            localizer.addLocaleCodes(mobLocaleCodes);
+            ILocalizer localizer = Localizer.builder(this, "de_DE")
+                    .setIncludedLocales("en_US", "es_ES", "tr", "zh_CN")
+                    .setUserLocale(p -> configuration.getGeneralSettings().language())
+                    .addLocaleCodes(mobLocaleCodes)
+                    .build();
 
-            localizer.setLocale(configuration.getGeneralSettings().language());
             MessageSender.builder(this)
                     .prefix(configuration.getGeneralSettings().prefix())
                     .messageColor(NamedTextColor.GREEN)
@@ -132,9 +133,9 @@ public class BloodNight extends EldoPlugin {
 
             if (configuration.getGeneralSettings().updateReminder()) {
                 Updater.lyna(LynaUpdateData.builder(this, 4)
-                        .notifyPermission(Permissions.Admin.RELOAD)
-                        .updateUrl("https://bn.discord.eldoria.de/")
-                        .notifyUpdate(true).build())
+                                .notifyPermission(Permissions.Admin.RELOAD)
+                                .updateUrl("https://bn.discord.eldoria.de/")
+                                .notifyUpdate(true).build())
                         .start();
             }
 

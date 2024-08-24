@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.shadow)
     alias(libs.plugins.pluginyml)
+    alias(libs.plugins.runpaper)
 }
 
 dependencies {
@@ -67,6 +68,10 @@ tasks {
         }
         from(shadowJar)
         destinationDir = File(path.toString())
+    }
+
+    runServer{
+        minecraftVersion("1.21.1")
     }
 }
 
