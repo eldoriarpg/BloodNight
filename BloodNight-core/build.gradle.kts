@@ -6,7 +6,7 @@ plugins {
 
 dependencies {
     implementation(project(":BloodNight-api"))
-    implementation("org.bstats", "bstats-bukkit", "3.0.3")
+    implementation("org.bstats", "bstats-bukkit", "3.1.0")
     bukkitLibrary(libs.bundles.eldoutil)
     bukkitLibrary("net.kyori", "adventure-platform-bukkit", "4.3.4")
     testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.11.0")
