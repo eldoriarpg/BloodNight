@@ -33,7 +33,7 @@ dependencyResolutionManagement {
                 )
             )
 
-            plugin("publishdata", "de.chojo.publishdata").version("1.2.5")
+            plugin("publishdata", "de.chojo.publishdata").version("1.4.0")
             plugin("spotless", "com.diffplug.spotless").version("6.25.0")
             plugin("shadow", "com.gradleup.shadow").version("8.3.3")
             plugin("pluginyml", "net.minecrell.plugin-yml.bukkit").version("0.6.0")
