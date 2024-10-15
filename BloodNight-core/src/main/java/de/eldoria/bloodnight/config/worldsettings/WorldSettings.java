@@ -19,8 +19,8 @@ import java.util.Map;
 public class WorldSettings implements ConfigurationSerializable {
 
     private String worldName;
-    private boolean enabled = false;
-    private boolean creeperBlockDamage = false;
+    private boolean enabled;
+    private boolean creeperBlockDamage;
     private boolean alwaysManageCreepers = true;
     private BossBarSettings bossBarSettings = new BossBarSettings();
     private NightSelection nightSelection = new NightSelection();

@@ -14,30 +14,42 @@ import de.eldoria.bloodnight.events.BloodNightBeginEvent;
 import de.eldoria.bloodnight.events.BloodNightEndEvent;
 import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
 import de.eldoria.bloodnight.util.C;
-import de.eldoria.eldoutilities.core.EldoUtilities;
 import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.messages.MessageSender;
+import de.eldoria.eldoutilities.scheduling.DelayedActions;
 import de.eldoria.eldoutilities.utils.ObjUtil;
+import net.kyori.adventure.bossbar.BossBar;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.Statistic;
 import org.bukkit.World;
-import org.bukkit.boss.BarStyle;
-import org.bukkit.boss.BossBar;
 import org.bukkit.boss.KeyedBossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerBedEnterEvent;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class NightManager extends BukkitRunnable implements Listener {
@@ -57,16 +69,18 @@ public class NightManager extends BukkitRunnable implements Listener {
     private final PluginManager pluginManager = Bukkit.getPluginManager();
     private final ILocalizer localizer;
     private final MessageSender messageSender;
+    private final DelayedActions delayedActions;
     private TimeManager timeManager;
     private SoundManager soundManager;
 
-    private boolean initialized = false;
+    private boolean initialized;
 
     public NightManager(Plugin plugin, Configuration configuration) {
         this.plugin = plugin;
         this.configuration = configuration;
         this.localizer = ILocalizer.getPluginLocalizer(BloodNight.class);
         this.messageSender = MessageSender.getPluginMessageSender(BloodNight.class);
+        this.delayedActions = DelayedActions.start(plugin);
         reload();
     }
 
@@ -166,7 +180,7 @@ public class NightManager extends BukkitRunnable implements Listener {
         BossBar bossBar = null;
         BossBarSettings bbS = settings.getBossBarSettings();
         if (bbS.isEnabled()) {
-            bossBar = Bukkit.createBossBar(C.getBossBarNamespace(world), bbS.getTitle(), bbS.getColor(), BarStyle.SOLID, bbS.getEffects());
+            bossBar = BossBar.bossBar(messageSender.serializeMessage(bbS.getTitle()), 1.0f, bbS.getColor(), BossBar.Overlay.PROGRESS, bbS.getEffects());
         }
 
         bloodWorlds.put(world, new BloodNightData(world, bossBar));
@@ -227,7 +241,7 @@ public class NightManager extends BukkitRunnable implements Listener {
         if (worldSettings.getMobSettings().isForcePhantoms()) {
             player.setStatistic(Statistic.TIME_SINCE_REST, 720000);
         }
-        if (configuration.getGeneralSettings().isBlindness()) {
+        if (configuration.getGeneralSettings().blindness()) {
             player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 5 * 20, 1, false, true));
         }
 
@@ -243,7 +257,7 @@ public class NightManager extends BukkitRunnable implements Listener {
 
         getBloodNightData(world).removePlayer(player);
 
-        if (configuration.getGeneralSettings().isBlindness()) {
+        if (configuration.getGeneralSettings().blindness()) {
             player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 5 * 20, 1, false, true));
         }
 
@@ -315,7 +329,7 @@ public class NightManager extends BukkitRunnable implements Listener {
             event.setDroppedExp(0);
         }
 
-        EldoUtilities.getDelayedActions().schedule(() -> {
+        delayedActions.schedule(() -> {
             for (String deathCommand : actions.getDeathCommands()) {
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), deathCommand.replace("{player}", event.getEntity().getName()));
             }
@@ -333,7 +347,7 @@ public class NightManager extends BukkitRunnable implements Listener {
                 .getDeathActionSettings()
                 .getPlayerDeathActions();
 
-        EldoUtilities.getDelayedActions().schedule(() -> {
+        delayedActions.schedule(() -> {
             for (PotionEffectSettings value : actions.getRespawnEffects().values()) {
                 player.addPotionEffect(new PotionEffect(value.getEffectType(), value.getDuration() * 20, 1, false));
             }

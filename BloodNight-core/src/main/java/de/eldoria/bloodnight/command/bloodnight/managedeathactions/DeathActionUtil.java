@@ -6,12 +6,13 @@ import de.eldoria.bloodnight.config.worldsettings.deathactions.subsettings.Light
 import de.eldoria.bloodnight.config.worldsettings.deathactions.subsettings.ShockwaveSettings;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.eldoutilities.builder.ItemStackBuilder;
-import de.eldoria.eldoutilities.core.EldoUtilities;
 import de.eldoria.eldoutilities.inventory.ActionConsumer;
 import de.eldoria.eldoutilities.inventory.ActionItem;
+import de.eldoria.eldoutilities.inventory.InventoryActionHandler;
 import de.eldoria.eldoutilities.inventory.InventoryActions;
 import de.eldoria.eldoutilities.localization.ILocalizer;
-import de.eldoria.eldoutilities.utils.DataContainerUtil;
+import de.eldoria.eldoutilities.pdc.DataContainerUtil;
+import de.eldoria.eldoutilities.scheduling.DelayedActions;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -33,13 +34,14 @@ public final class DeathActionUtil {
     private DeathActionUtil() {
     }
 
-    public static void buildShockwaveUI(ShockwaveSettings shockwave, Player player, Configuration configuration,
-                                        ILocalizer localizer, Runnable callback) {
+    public static void buildShockwaveUI(ShockwaveSettings shockwave, Player player, InventoryActionHandler inventoryAction,
+                                        DelayedActions delayedActions,
+                                        Configuration configuration, ILocalizer localizer, Runnable callback) {
 
         Inventory inventory = Bukkit.createInventory(player, 9,
                 localizer.getMessage("manageDeathActions.inventory.shockwave.title"));
 
-        InventoryActions actions = EldoUtilities.getInventoryActions().wrap(player, inventory, e -> {
+        InventoryActions actions = inventoryAction.wrap(player, inventory, e -> {
             configuration.save();
             callback.run();
         });
@@ -58,10 +60,10 @@ public final class DeathActionUtil {
                 2,
                 event -> {
                     player.closeInventory();
-                    EldoUtilities.getDelayedActions().schedule(() -> {
+                    delayedActions.schedule(() -> {
                         Inventory effectInventory = Bukkit.createInventory(player, 54,
                                 localizer.getMessage("manageDeathActions.inventory.shockwave.effects"));
-                        InventoryActions effectActions = EldoUtilities.getInventoryActions().wrap(player, effectInventory,
+                        InventoryActions effectActions = inventoryAction.wrap(player, effectInventory,
                                 e -> {
                                     configuration.save();
                                     callback.run();
@@ -167,12 +169,14 @@ public final class DeathActionUtil {
         );
     }
 
-    public static void buildLightningUI(LightningSettings lightningSettings, Player player, Configuration configuration,
+    public static void buildLightningUI(LightningSettings lightningSettings, Player player,
+                                        InventoryActionHandler inventoryActions,
+                                        Configuration configuration,
                                         ILocalizer localizer, Runnable callback) {
         Inventory inventory = Bukkit.createInventory(player, 18,
                 localizer.getMessage("manageDeathActions.inventory.lightning.title"));
 
-        InventoryActions actions = EldoUtilities.getInventoryActions().wrap(player, inventory, e -> {
+        InventoryActions actions = inventoryActions.wrap(player, inventory, e -> {
             configuration.save();
             callback.run();
         });

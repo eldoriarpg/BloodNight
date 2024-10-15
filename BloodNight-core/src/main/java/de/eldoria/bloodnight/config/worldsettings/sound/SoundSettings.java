@@ -1,6 +1,5 @@
 package de.eldoria.bloodnight.config.worldsettings.sound;
 
-import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.bloodnight.util.Sounds;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
