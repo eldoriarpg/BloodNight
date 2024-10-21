@@ -1,9 +1,9 @@
 package de.eldoria.bloodnight.config.generalsettings;
 
 import de.eldoria.bloodnight.core.BloodNight;
+import de.eldoria.eldoutilities.messages.conversion.MiniMessageConversion;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
-import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
@@ -14,12 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@Getter
 @Setter
 @SerializableAs("bloodNightGeneralSettings")
 public class GeneralSettings implements ConfigurationSerializable {
     private String language = "en_US";
-    private String prefix = "§4[BN]";
+    private String prefix = "<red>[BN]";
     private BroadcastLevel broadcastLevel = BroadcastLevel.SERVER;
     private BroadcastMethod broadcastMethod = BroadcastMethod.SUBTITLE;
     private BroadcastMethod messageMethod = BroadcastMethod.SUBTITLE;
@@ -27,10 +26,10 @@ public class GeneralSettings implements ConfigurationSerializable {
     private boolean blindness = true;
     private boolean joinWorldWarning = true;
     private boolean updateReminder = true;
-    private boolean autoUpdater = false;
-    private boolean beeFix = false;
+    private boolean autoUpdater;
+    private boolean beeFix;
     private boolean spawnerDropSuppression = true;
-    private boolean ignoreSpawnerMobs = false;
+    private boolean ignoreSpawnerMobs;
     private List<String> blockedCommands = new ArrayList<>();
     private List<EntityType> noVanillaDropIncrease = new ArrayList<>();
 
@@ -77,5 +76,65 @@ public class GeneralSettings implements ConfigurationSerializable {
                 .add("ignoreSpawnerMobs", ignoreSpawnerMobs)
                 .add("blockedCommands", blockedCommands)
                 .build();
+    }
+
+    public String language() {
+        return language;
+    }
+
+    public String prefix() {
+        return MiniMessageConversion.convertLegacyColorCodes(prefix);
+    }
+
+    public BroadcastLevel broadcastLevel() {
+        return broadcastLevel;
+    }
+
+    public BroadcastMethod broadcastMethod() {
+        return broadcastMethod;
+    }
+
+    public BroadcastMethod messageMethod() {
+        return messageMethod;
+    }
+
+    public int mobTick() {
+        return mobTick;
+    }
+
+    public boolean blindness() {
+        return blindness;
+    }
+
+    public boolean joinWorldWarning() {
+        return joinWorldWarning;
+    }
+
+    public boolean updateReminder() {
+        return updateReminder;
+    }
+
+    public boolean autoUpdater() {
+        return autoUpdater;
+    }
+
+    public boolean beeFix() {
+        return beeFix;
+    }
+
+    public boolean spawnerDropSuppression() {
+        return spawnerDropSuppression;
+    }
+
+    public boolean ignoreSpawnerMobs() {
+        return ignoreSpawnerMobs;
+    }
+
+    public List<String> blockedCommands() {
+        return blockedCommands;
+    }
+
+    public List<EntityType> noVanillaDropIncrease() {
+        return noVanillaDropIncrease;
     }
 }

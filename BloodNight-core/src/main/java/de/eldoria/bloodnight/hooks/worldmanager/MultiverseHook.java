@@ -5,7 +5,7 @@ import de.eldoria.bloodnight.hooks.AbstractHookService;
 import org.bukkit.World;
 
 public class MultiverseHook extends AbstractHookService<MultiverseCore> implements WorldManager {
-    private MultiverseCore plugin = null;
+    private MultiverseCore plugin;
 
     public MultiverseHook() {
         super("Multiverse-Core");

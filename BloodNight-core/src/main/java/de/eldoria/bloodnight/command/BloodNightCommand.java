@@ -1,33 +1,48 @@
 package de.eldoria.bloodnight.command;
 
-import de.eldoria.bloodnight.command.bloodnight.*;
+import de.eldoria.bloodnight.command.bloodnight.CancelNight;
+import de.eldoria.bloodnight.command.bloodnight.ForceNight;
+import de.eldoria.bloodnight.command.bloodnight.Help;
+import de.eldoria.bloodnight.command.bloodnight.ManageDeathActions;
+import de.eldoria.bloodnight.command.bloodnight.ManageMob;
+import de.eldoria.bloodnight.command.bloodnight.ManageMobs;
+import de.eldoria.bloodnight.command.bloodnight.ManageNight;
+import de.eldoria.bloodnight.command.bloodnight.ManageNightSelection;
+import de.eldoria.bloodnight.command.bloodnight.ManageWorlds;
+import de.eldoria.bloodnight.command.bloodnight.Reload;
+import de.eldoria.bloodnight.command.bloodnight.SpawnMob;
 import de.eldoria.bloodnight.config.Configuration;
 import de.eldoria.bloodnight.core.manager.mobmanager.MobManager;
 import de.eldoria.bloodnight.core.manager.nightmanager.NightManager;
 import de.eldoria.bloodnight.util.Permissions;
-import de.eldoria.eldoutilities.simplecommands.EldoCommand;
-import de.eldoria.eldoutilities.simplecommands.commands.DefaultDebug;
+import de.eldoria.eldoutilities.commands.command.AdvancedCommand;
+import de.eldoria.eldoutilities.commands.command.CommandMeta;
+import de.eldoria.eldoutilities.commands.defaultcommands.DefaultAbout;
+import de.eldoria.eldoutilities.commands.defaultcommands.DefaultDebug;
 import org.bukkit.plugin.Plugin;
 
-public class BloodNightCommand extends EldoCommand {
+public class BloodNightCommand extends AdvancedCommand {
 
     public BloodNightCommand(Configuration configuration, Plugin plugin,
                              NightManager nightManager, MobManager mobManager, InventoryListener inventoryListener) {
         super(plugin);
         Help help = new Help(plugin);
-        setDefaultCommand(help);
-        registerCommand("help", help);
-        registerCommand("about", new About(plugin));
-        registerCommand("spawnMob", new SpawnMob(plugin, nightManager, mobManager));
-        registerCommand("cancelNight", new CancelNight(plugin, nightManager, configuration));
-        registerCommand("forceNight", new ForceNight(plugin, nightManager, configuration));
-        registerCommand("manageWorlds", new ManageWorlds(plugin, configuration));
-        registerCommand("manageMob", new ManageMob(plugin, configuration, inventoryListener));
-        registerCommand("manageNight", new ManageNight(plugin, configuration));
-        registerCommand("manageMobs", new ManageMobs(plugin, configuration, inventoryListener));
-        registerCommand("nightSelection", new ManageNightSelection(plugin, configuration, inventoryListener));
-        registerCommand("deathActions", new ManageDeathActions(plugin, configuration));
-        registerCommand("reload", new Reload(plugin));
-        registerCommand("debug", new DefaultDebug(plugin, Permissions.Admin.RELOAD));
+        meta(CommandMeta.builder("bloodnight")
+                .withDefaultCommand(help)
+                .withSubCommand(help)
+                .withSubCommand(new DefaultAbout(plugin, "https://bn.discord.eldoria.de", "commands.about"))
+                .withSubCommand(new SpawnMob(plugin, nightManager, mobManager))
+                .withSubCommand(new CancelNight(plugin, nightManager, configuration))
+                .withSubCommand(new ForceNight(plugin, nightManager, configuration))
+                .withSubCommand(new ManageWorlds(plugin, configuration))
+                .withSubCommand(new ManageMob(plugin, configuration, inventoryListener))
+                .withSubCommand(new ManageNight(plugin, configuration))
+                .withSubCommand(new ManageMobs(plugin, configuration, inventoryListener))
+                .withSubCommand(new ManageNightSelection(plugin, configuration, inventoryListener))
+                .withSubCommand(new ManageDeathActions(plugin, configuration))
+                .withSubCommand(new Reload(plugin))
+                .withSubCommand(new DefaultDebug(plugin, Permissions.Admin.RELOAD))
+                .build()
+        );
     }
 }
