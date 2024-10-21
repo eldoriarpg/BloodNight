@@ -9,7 +9,7 @@ dependencies {
     implementation("org.bstats", "bstats-bukkit", "3.1.0")
     bukkitLibrary(libs.bundles.eldoutil)
     bukkitLibrary("net.kyori", "adventure-platform-bukkit", "4.3.4")
-    testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.11.2")
+    testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.11.3")
     testImplementation("junit", "junit", "4.13.2")
     testImplementation("org.mockito", "mockito-core", "5.14.2")
     compileOnly("io.lumine", "Mythic-Dist", "5.7.2")
