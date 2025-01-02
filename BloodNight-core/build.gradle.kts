@@ -11,7 +11,7 @@ dependencies {
     bukkitLibrary("net.kyori", "adventure-platform-bukkit", "4.3.4")
     testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.11.4")
     testImplementation("junit", "junit", "4.13.2")
-    testImplementation("org.mockito", "mockito-core", "5.14.2")
+    testImplementation("org.mockito", "mockito-core", "5.15.2")
     compileOnly("io.lumine", "Mythic-Dist", "5.7.2")
     compileOnly("me.clip", "placeholderapi", "2.11.6")
     compileOnly("com.onarandombox.multiversecore", "Multiverse-Core", "4.3.1")
