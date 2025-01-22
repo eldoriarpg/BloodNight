@@ -30,7 +30,7 @@ subprojects {
     dependencies {
         compileOnly("org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT")
         compileOnly("org.projectlombok:lombok:1.18.36")
-        compileOnly("org.jetbrains:annotations:26.0.1")
+        compileOnly("org.jetbrains:annotations:26.0.2")
         annotationProcessor("org.projectlombok:lombok:1.18.36")
     }
 
