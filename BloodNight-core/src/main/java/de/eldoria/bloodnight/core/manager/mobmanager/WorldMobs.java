@@ -3,14 +3,19 @@ package de.eldoria.bloodnight.core.manager.mobmanager;
 import de.eldoria.bloodnight.specialmobs.SpecialMob;
 import org.bukkit.entity.Entity;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 class WorldMobs {
     private final Map<UUID, SpecialMob<?>> mobs = new HashMap<>();
     private final Queue<SpecialMob<?>> tickQueue = new ArrayDeque<>();
 
-    private double entityTick = 0;
+    private double entityTick;
 
     public void invokeIfPresent(Entity entity, Consumer<SpecialMob<?>> invoke) {
         invokeIfPresent(entity.getUniqueId(), invoke);

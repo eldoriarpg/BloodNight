@@ -10,8 +10,8 @@ import de.eldoria.bloodnight.events.BloodNightEndEvent;
 import de.eldoria.bloodnight.hooks.mythicmobs.MythicMobUtil;
 import de.eldoria.bloodnight.specialmobs.SpecialMob;
 import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
-import de.eldoria.eldoutilities.entityutils.ProjectileSender;
-import de.eldoria.eldoutilities.entityutils.ProjectileUtil;
+import de.eldoria.eldoutilities.entities.projectiles.ProjectileSender;
+import de.eldoria.eldoutilities.entities.projectiles.ProjectileUtil;
 import de.eldoria.eldoutilities.threading.IteratingTask;
 import lombok.NonNull;
 import org.bukkit.World;
@@ -20,10 +20,23 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.*;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.EntityTargetEvent;
+import org.bukkit.event.entity.EntityTeleportEvent;
+import org.bukkit.event.entity.ExplosionPrimeEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.UUID;
 
 public class SpecialMobManager extends BukkitRunnable implements Listener {
     private final Map<String, WorldMobs> mobRegistry = new HashMap<>();
@@ -63,7 +76,7 @@ public class SpecialMobManager extends BukkitRunnable implements Listener {
     @Override
     public void run() {
         for (World bloodWorld : nightManager.getBloodWorldsSet()) {
-            getWorldMobs(bloodWorld).tick(configuration.getGeneralSettings().getMobTick());
+            getWorldMobs(bloodWorld).tick(configuration.getGeneralSettings().mobTick());
         }
 
         for (int i = 0; i < Math.min(lostEntities.size(), 10); i++) {

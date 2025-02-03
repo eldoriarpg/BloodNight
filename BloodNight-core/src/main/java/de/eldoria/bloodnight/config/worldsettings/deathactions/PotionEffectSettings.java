@@ -13,7 +13,7 @@ import java.util.Map;
 @Getter
 @SerializableAs("bloodNightPotionEffectSettings")
 public class PotionEffectSettings implements ConfigurationSerializable {
-    private PotionEffectType effectType;
+    private final PotionEffectType effectType;
     private int duration = 10;
 
     public PotionEffectSettings(PotionEffectType effectType, int duration) {

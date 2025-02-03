@@ -25,14 +25,14 @@ public class CommandBlocker implements Listener {
         if (!nightManager.isBloodNightActive(event.getPlayer().getWorld())) return;
 
         if (isBlocked(event.getMessage()) && !event.getPlayer().hasPermission(Permissions.Bypass.COMMAND_BLOCK)) {
-            sender.sendLocalizedError(event.getPlayer(), "error.commandBlocked");
+            sender.sendError(event.getPlayer(), "error.commandBlocked");
             event.setCancelled(true);
         }
     }
 
     private boolean isBlocked(String command) {
         String lowerCommand = command.toLowerCase().substring(1, command.length());
-        for (String blockedCommand : configuration.getGeneralSettings().getBlockedCommands()) {
+        for (String blockedCommand : configuration.getGeneralSettings().blockedCommands()) {
             if (lowerCommand.startsWith(blockedCommand.toLowerCase())) {
                 return true;
             }

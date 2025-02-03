@@ -63,7 +63,7 @@ public class Configuration extends EldoConfig {
             BloodNight.logger().info("§2Migration of config to v2 done.");
         }
 
-        generalSettings = getMainConfig().getConfig().getObject("generalSettings", GeneralSettings.class);
+        generalSettings = getMainConfig(plugin).getConfig().getObject("generalSettings", GeneralSettings.class);
 
         for (World world : Bukkit.getWorlds()) {
             loadWorldSettings(world.getName(), true);
@@ -82,8 +82,8 @@ public class Configuration extends EldoConfig {
 
     private void migrateToV2() {
         setVersion(2, false);
-        getMainConfig().getConfig().set("updateReminder", null);
-        List<WorldSettings> worldList = ObjUtil.nonNull((List<WorldSettings>) getMainConfig().getConfig().get("worldSettings", new ArrayList<>()), new ArrayList<>());
+        getMainConfig(plugin).getConfig().set("updateReminder", null);
+        List<WorldSettings> worldList = ObjUtil.nonNull((List<WorldSettings>) getMainConfig(plugin).getConfig().get("worldSettings", new ArrayList<>()), new ArrayList<>());
 
         Path worldSettings = Paths.get(plugin.getDataFolder().toPath().toString(), "worldSettings");
 
@@ -94,7 +94,7 @@ public class Configuration extends EldoConfig {
             }, true);
             BloodNight.logger().info("§2Migrated settings for " + settings.getWorldName());
         }
-        getMainConfig().getConfig().set("worldSettings", null);
+        getMainConfig(plugin).getConfig().set("worldSettings", null);
     }
 
     private @NotNull
@@ -119,7 +119,7 @@ public class Configuration extends EldoConfig {
 
     @Override
     protected void saveConfigs() {
-        getMainConfig().getConfig().set("generalSettings", generalSettings);
+        getMainConfig(plugin).getConfig().set("generalSettings", generalSettings);
 
         for (Map.Entry<String, WorldSettings> entry : worldSettings.entrySet()) {
             ObjUtil.nonNull(loadConfig(getWorldConfigPath(entry.getKey()), null, false),
