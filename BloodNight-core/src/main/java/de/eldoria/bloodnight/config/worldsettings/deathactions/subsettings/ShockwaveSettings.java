@@ -44,7 +44,7 @@ public class ShockwaveSettings implements ConfigurationSerializable {
      */
     protected double minDuration = 0.1;
     private Map<PotionEffectType, PotionEffectSettings> shockwaveEffects = new HashMap<>() {{
-        put(PotionEffectType.CONFUSION, new PotionEffectSettings(PotionEffectType.CONFUSION, 5));
+        put(PotionEffectType.NAUSEA, new PotionEffectSettings(PotionEffectType.NAUSEA, 5));
     }};
 
     public ShockwaveSettings(Map<String, Object> objectMap) {

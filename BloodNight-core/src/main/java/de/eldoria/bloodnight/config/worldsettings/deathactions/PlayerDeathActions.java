@@ -18,7 +18,7 @@ import java.util.Map;
 @SerializableAs("bloodNightPlayerDeathActions")
 public class PlayerDeathActions extends DeathActions {
     Map<PotionEffectType, PotionEffectSettings> respawnEffects = new HashMap<>() {{
-        put(PotionEffectType.CONFUSION, new PotionEffectSettings(PotionEffectType.CONFUSION, 5));
+        put(PotionEffectType.NAUSEA, new PotionEffectSettings(PotionEffectType.NAUSEA, 5));
     }};
     /**
      * Commands which will be executed when a player dies.

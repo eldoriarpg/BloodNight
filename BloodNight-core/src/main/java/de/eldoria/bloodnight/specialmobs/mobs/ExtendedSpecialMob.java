@@ -35,8 +35,8 @@ public class ExtendedSpecialMob<T extends Mob, U extends Mob> extends SpecialMob
 
         target.setCustomName(source.getCustomName());
         target.setCustomNameVisible(source.isCustomNameVisible());
-        AttributeUtil.syncAttributeValue(source, target, Attribute.GENERIC_ATTACK_DAMAGE);
-        AttributeUtil.syncAttributeValue(source, target, Attribute.GENERIC_MAX_HEALTH);
+        AttributeUtil.syncAttributeValue(source, target, Attribute.ATTACK_DAMAGE);
+        AttributeUtil.syncAttributeValue(source, target, Attribute.MAX_HEALTH);
     }
 
     /**

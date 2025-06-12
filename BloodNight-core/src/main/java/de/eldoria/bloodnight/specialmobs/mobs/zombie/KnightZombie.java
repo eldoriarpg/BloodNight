@@ -35,7 +35,7 @@ public class KnightZombie extends AbstractZombie {
             e.setCancelled(true);
             //pushes the player up into the air
             player.getVelocity().setY(Math.max(player.getVelocity().getY() + 1, 1));
-            player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 20, 2, true, true, true));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 20, 2, true, true, true));
             player.playSound(player.getLocation(), Sound.BLOCK_BUBBLE_COLUMN_BUBBLE_POP, 15, 3);
         }
     }

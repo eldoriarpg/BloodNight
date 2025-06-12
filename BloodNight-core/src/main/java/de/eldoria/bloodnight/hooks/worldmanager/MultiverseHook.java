@@ -1,8 +1,8 @@
 package de.eldoria.bloodnight.hooks.worldmanager;
 
-import com.onarandombox.MultiverseCore.MultiverseCore;
 import de.eldoria.bloodnight.hooks.AbstractHookService;
 import org.bukkit.World;
+import org.mvplugins.multiverse.core.MultiverseCore;
 
 public class MultiverseHook extends AbstractHookService<MultiverseCore> implements WorldManager {
     private MultiverseCore plugin;
@@ -32,7 +32,7 @@ public class MultiverseHook extends AbstractHookService<MultiverseCore> implemen
     @Override
     public String getAlias(World world) {
         try {
-            return getHook().getMVWorldManager().getMVWorld(world).getAlias();
+            return getHook().getApi().getWorldManager().getWorld(world).get().getAlias();
         } catch (ClassNotFoundException e) {
             return world.getName();
         }

@@ -7,6 +7,7 @@ import org.bukkit.entity.AreaEffectCloud;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.potion.PotionData;
+import org.bukkit.potion.PotionType;
 import org.bukkit.projectiles.ProjectileSource;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,8 +37,8 @@ public class PotionCloud extends ParticleCloud {
             entity.setDuration(10 * 20);
         }
 
-        public Builder setPotionType(PotionData potionType) {
-            entity.setBasePotionData(potionType);
+        public Builder setPotionType(PotionType potionType) {
+            entity.setBasePotionType(potionType);
             return this;
         }
 

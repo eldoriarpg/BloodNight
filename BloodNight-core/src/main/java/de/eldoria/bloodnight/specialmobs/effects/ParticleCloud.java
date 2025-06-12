@@ -40,7 +40,7 @@ public class ParticleCloud {
             entity.setDurationOnUse(0);
             entity.setDuration(60 * 20);
             entity.setColor(Color.WHITE);
-            entity.setParticle(Particle.SPELL);
+            entity.setParticle(Particle.WITCH);
             entity.setReapplicationDelay(20);
             entity.setDurationOnUse(0);
             entity.setRadiusOnUse(0);

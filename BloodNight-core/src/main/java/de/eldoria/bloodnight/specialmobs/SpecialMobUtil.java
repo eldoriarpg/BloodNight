@@ -342,7 +342,7 @@ public final class SpecialMobUtil {
             return;
         }
         other.setHealth(newHealth);
-        other.playEffect(EntityEffect.HURT);
+        other.playHurtAnimation(0);
     }
 
     /**
@@ -362,7 +362,7 @@ public final class SpecialMobUtil {
 
         for (Vector vector : randomVector) {
             vector.multiply(settings.getShockwaveRange());
-            world.spawnParticle(Particle.EXPLOSION_NORMAL, location, 0, vector.getX(), vector.getY(), vector.getZ(),
+            world.spawnParticle(Particle.EXPLOSION, location, 0, vector.getX(), vector.getY(), vector.getZ(),
                     settings.getShockwaveRange() / 100d);
         }
 

@@ -18,14 +18,14 @@ public class ToxicEnderman extends AbstractEnderman {
     @Override
     public void tick() {
         super.tick();
-        SpecialMobUtil.spawnParticlesAround(getBaseEntity().getLocation(), Particle.REDSTONE, new Particle.DustOptions(Color.GREEN, 2), 5);
+        SpecialMobUtil.spawnParticlesAround(getBaseEntity().getLocation(), Particle.DUST, new Particle.DustOptions(Color.GREEN, 2), 5);
     }
 
     @Override
     public void onTeleport(EntityTeleportEvent event) {
         Location from = event.getFrom();
         PotionCloud.builder(from.subtract(0, 1, 0))
-                .setPotionType(new PotionData(PotionType.POISON, false, true))
+                .setPotionType(PotionType.STRONG_POISON)
                 .ofColor(Color.GREEN)
                 .setDuration(10)
                 .withRadius(4)

@@ -14,7 +14,7 @@ dependencies {
     testImplementation("org.mockito", "mockito-core", "5.18.0")
     compileOnly("io.lumine", "Mythic-Dist", "5.9.0")
     compileOnly("me.clip", "placeholderapi", "2.11.6")
-    compileOnly("com.onarandombox.multiversecore", "Multiverse-Core", "4.3.1")
+    compileOnly("org.mvplugins.multiverse.core", "multiverse-core", "5.0.2")
     compileOnly("se.hyperver.hyperverse", "Core", "0.10.0")
 }
 
@@ -71,7 +71,7 @@ tasks {
     }
 
     runServer{
-        minecraftVersion("1.21.1")
+        minecraftVersion("1.21.4")
     }
 }
 
@@ -82,7 +82,7 @@ bukkit {
     version = publishData.getVersion(true)
     main = "de.eldoria.bloodnight.core.BloodNight"
     website = "https://www.spigotmc.org/resources/85095"
-    apiVersion = "1.16"
+    apiVersion = "1.21"
     softDepend = listOf("Multiverse-Core", "Hyperverse", "MythicMobs", "PlaceholderAPI")
 
     commands {

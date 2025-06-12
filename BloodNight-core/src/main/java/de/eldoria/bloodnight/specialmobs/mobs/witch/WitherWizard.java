@@ -19,7 +19,7 @@ public class WitherWizard extends AbstractWitch {
     public void tick() {
         EntityEquipment equipment = getBaseEntity().getEquipment();
         equipment.setItemInMainHand(new ItemStack(Material.WITHER_SKELETON_SKULL));
-        SpecialMobUtil.spawnParticlesAround(getBaseEntity(), Particle.SPELL_INSTANT, 15);
+        SpecialMobUtil.spawnParticlesAround(getBaseEntity(), Particle.INSTANT_EFFECT, 15);
         if (canShoot(5)) {
             SpecialMobUtil.launchProjectileOnTarget(getBaseEntity(), WitherSkull.class, 4);
             shot();

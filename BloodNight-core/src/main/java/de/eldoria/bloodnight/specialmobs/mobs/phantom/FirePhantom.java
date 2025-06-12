@@ -19,8 +19,8 @@ public class FirePhantom extends AbstractPhantom {
     public FirePhantom(Phantom phantom) {
         super(phantom);
         blaze = SpecialMobUtil.spawnAndMount(getBaseEntity(), EntityType.BLAZE);
-        AttributeUtil.syncAttributeValue(phantom, blaze, Attribute.GENERIC_ATTACK_DAMAGE);
-        AttributeUtil.syncAttributeValue(phantom, blaze, Attribute.GENERIC_MAX_HEALTH);
+        AttributeUtil.syncAttributeValue(phantom, blaze, Attribute.ATTACK_DAMAGE);
+        AttributeUtil.syncAttributeValue(phantom, blaze, Attribute.MAX_HEALTH);
     }
 
     @Override
