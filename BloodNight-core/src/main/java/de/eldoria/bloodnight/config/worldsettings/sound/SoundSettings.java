@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static java.util.Objects.requireNonNullElse;
+
 @SerializableAs("bloodNightSoundSetting")
 public class SoundSettings implements ConfigurationSerializable {
     private int minInterval = 10;
@@ -47,9 +49,9 @@ public class SoundSettings implements ConfigurationSerializable {
         maxInterval = map.getValueOrDefault("maxInterval", maxInterval);
         String channel = map.getValueOrDefault("channel", this.channel.name());
         this.channel = EnumUtil.parse(channel, SoundCategory.class).orElse(SoundCategory.AMBIENT);
-        startSounds = map.getValueOrDefault("startSounds", startSounds);
-        endSounds = map.getValueOrDefault("endSounds", endSounds);
-        randomSounds = map.getValueOrDefault("randomSounds", randomSounds);
+        startSounds = requireNonNullElse(map.getValueOrDefault("startSounds", startSounds), startSounds);
+        endSounds = requireNonNullElse(map.getValueOrDefault("endSounds", endSounds), endSounds);
+        randomSounds = requireNonNullElse(map.getValueOrDefault("randomSounds", randomSounds), randomSounds);
     }
 
     public SoundSettings() {
@@ -81,12 +83,12 @@ public class SoundSettings implements ConfigurationSerializable {
     @Override
     public @NotNull Map<String, Object> serialize() {
         return SerializationUtil.newBuilder()
-                .add("minInterval", minInterval)
-                .add("maxInterval", maxInterval)
-                .add("channel", channel.name())
-                .add("startSounds", startSounds)
-                .add("endSounds", endSounds)
-                .add("randomSounds", randomSounds)
-                .build();
+                                .add("minInterval", minInterval)
+                                .add("maxInterval", maxInterval)
+                                .add("channel", channel.name())
+                                .add("startSounds", startSounds)
+                                .add("endSounds", endSounds)
+                                .add("randomSounds", randomSounds)
+                                .build();
     }
 }
