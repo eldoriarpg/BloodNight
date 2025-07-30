@@ -8,7 +8,7 @@ dependencies {
     implementation(project(":BloodNight-api"))
     implementation("org.bstats", "bstats-bukkit", "3.1.0")
     bukkitLibrary(libs.bundles.eldoutil)
-    bukkitLibrary("net.kyori", "adventure-platform-bukkit", "4.4.0")
+    bukkitLibrary("net.kyori", "adventure-platform-bukkit", "4.4.1")
     testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.13.4")
     testImplementation("junit", "junit", "4.13.2")
     testImplementation("org.mockito", "mockito-core", "5.18.0")
