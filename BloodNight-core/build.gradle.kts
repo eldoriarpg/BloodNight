@@ -16,7 +16,7 @@ dependencies {
     testImplementation("org.mockito", "mockito-core", "5.18.0")
     compileOnly("io.lumine", "Mythic-Dist", "5.9.5")
     compileOnly("me.clip", "placeholderapi", "2.11.6")
-    compileOnly("org.mvplugins.multiverse.core", "multiverse-core", "5.2.0")
+    compileOnly("org.mvplugins.multiverse.core", "multiverse-core", "5.3.3")
     compileOnly("se.hyperver.hyperverse", "Core", "0.10.0")
 }
 
