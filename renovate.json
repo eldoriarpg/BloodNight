@@ -1,10 +1,20 @@
 {
-  "baseBranches": ["development"],
+  "baseBranchPatterns": [
+    "development"
+  ],
   "dependencyDashboard": true,
-  "labels": ["dependencies"],
-  "extends": ["config:base"],
-  "ignoreDeps": ["spigot-api"],
-  "reviewers": ["RainbowDashLabs"],
+  "labels": [
+    "dependencies"
+  ],
+  "extends": [
+    "config:recommended"
+  ],
+  "ignoreDeps": [
+    "spigot-api"
+  ],
+  "reviewers": [
+    "RainbowDashLabs"
+  ],
   "prConcurrentLimit": 3,
   "prHourlyLimit": 10,
   "automerge": true
