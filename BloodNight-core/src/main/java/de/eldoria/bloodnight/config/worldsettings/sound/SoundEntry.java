@@ -22,7 +22,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @SerializableAs("bloodNightSoundEntry")
 public class SoundEntry implements ConfigurationSerializable {
-    private Sound sound = Sound.UI_BUTTON_CLICK;
+    private static final Sound DEFAULT_SOUND = Sound.UI_BUTTON_CLICK;
+    private Sound sound = DEFAULT_SOUND;
     private List<Double> pitch = new ArrayList<>() {{
         add(1d);
     }};
@@ -33,7 +34,7 @@ public class SoundEntry implements ConfigurationSerializable {
     public SoundEntry(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
         String name = map.getValueOrDefault("sound", Registry.SOUNDS.getKey(this.sound).value());
-        this.sound = Objects.requireNonNullElse(Registry.SOUNDS.get(NamespacedKey.minecraft(name)), sound);
+        this.sound = Objects.requireNonNullElse(Registry.SOUNDS.get(NamespacedKey.minecraft(name)), DEFAULT_SOUND);
         pitch = map.getValueOrDefault("pitch", pitch);
         clampArray(pitch, 0.01f, 2);
         volume = map.getValueOrDefault("volume", volume);

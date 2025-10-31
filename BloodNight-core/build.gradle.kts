@@ -9,8 +9,10 @@ dependencies {
     implementation("org.bstats", "bstats-bukkit", "3.1.0")
     bukkitLibrary(libs.bundles.eldoutil)
     bukkitLibrary("net.kyori", "adventure-platform-bukkit", "4.4.1")
-    testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.13.4")
-    testImplementation("junit", "junit", "4.13.2")
+    testImplementation("org.junit.jupiter", "junit-jupiter", "6.0.0")
+    testImplementation("org.junit.jupiter", "junit-jupiter-api", "6.0.0")
+    testImplementation("org.junit.jupiter", "junit-jupiter-engine", "6.0.0")
+    testImplementation("org.junit.platform", "junit-platform-launcher", "6.0.0")
     testImplementation("org.mockito", "mockito-core", "5.18.0")
     compileOnly("io.lumine", "Mythic-Dist", "5.9.5")
     compileOnly("me.clip", "placeholderapi", "2.11.6")
@@ -70,8 +72,11 @@ tasks {
         destinationDir = File(path.toString())
     }
 
-    runServer{
+    runServer {
         minecraftVersion("1.21.4")
+    }
+    test {
+        useJUnitPlatform()
     }
 }
 
