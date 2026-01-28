@@ -52,7 +52,7 @@ public class SoundEntry implements ConfigurationSerializable {
     }
 
     public void play(Player player, Location location, SoundCategory channel) {
-        player.playSound(location, sound, channel, (float) getPitch(), (float) getVolume());
+        player.playSound(location, Objects.requireNonNullElse(sound, DEFAULT_SOUND), channel, (float) getPitch(), (float) getVolume());
     }
 
     private double getPitch() {

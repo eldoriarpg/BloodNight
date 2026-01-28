@@ -4,13 +4,17 @@ import de.eldoria.bloodnight.config.generalsettings.GeneralSettings;
 import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
 import de.eldoria.bloodnight.core.BloodNight;
 import de.eldoria.eldoutilities.configuration.EldoConfig;
+import de.eldoria.eldoutilities.debug.DebugDataProvider;
+import de.eldoria.eldoutilities.debug.data.EntryData;
 import de.eldoria.eldoutilities.utils.ObjUtil;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -19,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Configuration extends EldoConfig {
+public class Configuration extends EldoConfig implements DebugDataProvider {
     private Map<String, WorldSettings> worldSettings;
     @Getter
     private GeneralSettings generalSettings;
@@ -27,6 +31,13 @@ public class Configuration extends EldoConfig {
 
     public Configuration(Plugin plugin) {
         super(plugin);
+    }
+
+    @Override
+    public @NonNull @NotNull EntryData[] getDebugInformations() {
+        return getConfigs().entrySet().stream()
+                           .map(e -> new EntryData(e.getKey(), e.getValue().saveToString()))
+                           .toArray(EntryData[]::new);
     }
 
     @Override

@@ -30,6 +30,7 @@ import de.eldoria.bloodnight.core.mobfactory.MobFactory;
 import de.eldoria.bloodnight.core.mobfactory.SpecialMobRegistry;
 import de.eldoria.bloodnight.hooks.HookService;
 import de.eldoria.bloodnight.util.Permissions;
+import de.eldoria.eldoutilities.debug.DebugDataProvider;
 import de.eldoria.eldoutilities.localization.ILocalizer;
 import de.eldoria.eldoutilities.localization.Localizer;
 import de.eldoria.eldoutilities.messages.MessageSender;
@@ -47,6 +48,7 @@ import org.bstats.charts.MultiLineChart;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -79,6 +81,11 @@ public class BloodNight extends EldoPlugin {
 
     public static IBloodNightAPI getBloodNightAPI() {
         return instance.bloodNightAPI;
+    }
+
+    @Override
+    public @NotNull List<DebugDataProvider> getDebugProviders() {
+        return List.of(configuration);
     }
 
     @Override
