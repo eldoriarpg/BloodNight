@@ -14,7 +14,7 @@ dependencies {
     testImplementation("org.junit.jupiter", "junit-jupiter-engine", "6.0.3")
     testImplementation("org.junit.platform", "junit-platform-launcher", "6.0.3")
     testImplementation("org.mockito", "mockito-core", "5.23.0")
-    compileOnly("io.lumine", "Mythic-Dist", "5.11.2")
+    compileOnly("io.lumine", "Mythic-Dist", "5.12.0")
     compileOnly("me.clip", "placeholderapi", "2.12.2")
     compileOnly("org.mvplugins.multiverse.core", "multiverse-core", "5.6.1")
     compileOnly("se.hyperver.hyperverse", "Core", "0.10.0")
