@@ -37,7 +37,7 @@ dependencyResolutionManagement {
             plugin("spotless", "com.diffplug.spotless").version("8.9.0")
             plugin("shadow", "com.gradleup.shadow").version("9.6.1")
             plugin("pluginyml", "net.minecrell.plugin-yml.bukkit").version("0.6.0")
-            plugin("runpaper", "xyz.jpenilla.run-paper").version("3.0.2")
+            plugin("runpaper", "xyz.jpenilla.run-paper").version("3.1.0")
         }
     }
 }
