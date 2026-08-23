@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "de.eldoria"
-version = "0.12.0"
+version = "0.12.2"
 
 subprojects {
     apply {
@@ -28,10 +28,10 @@ subprojects {
     }
 
     dependencies {
-        compileOnly("org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT")
-        compileOnly("org.projectlombok:lombok:1.18.36")
-        compileOnly("org.jetbrains:annotations:26.0.2")
-        annotationProcessor("org.projectlombok:lombok:1.18.36")
+        compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
+        compileOnly("org.projectlombok:lombok:1.18.46")
+        compileOnly("org.jetbrains:annotations:26.1.0")
+        annotationProcessor("org.projectlombok:lombok:1.18.46")
     }
 
     java {

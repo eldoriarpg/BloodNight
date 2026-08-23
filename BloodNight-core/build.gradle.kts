@@ -6,15 +6,17 @@ plugins {
 
 dependencies {
     implementation(project(":BloodNight-api"))
-    implementation("org.bstats", "bstats-bukkit", "3.1.0")
+    implementation("org.bstats", "bstats-bukkit", "3.2.1")
     bukkitLibrary(libs.bundles.eldoutil)
-    bukkitLibrary("net.kyori", "adventure-platform-bukkit", "4.3.4")
-    testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.11.4")
-    testImplementation("junit", "junit", "4.13.2")
-    testImplementation("org.mockito", "mockito-core", "5.15.2")
-    compileOnly("io.lumine", "Mythic-Dist", "5.7.2")
-    compileOnly("me.clip", "placeholderapi", "2.11.6")
-    compileOnly("com.onarandombox.multiversecore", "Multiverse-Core", "4.3.1")
+    bukkitLibrary("net.kyori", "adventure-platform-bukkit", "4.4.1")
+    testImplementation("org.junit.jupiter", "junit-jupiter", "6.1.3")
+    testImplementation("org.junit.jupiter", "junit-jupiter-api", "6.1.3")
+    testImplementation("org.junit.jupiter", "junit-jupiter-engine", "6.1.3")
+    testImplementation("org.junit.platform", "junit-platform-launcher", "6.1.3")
+    testImplementation("org.mockito", "mockito-core", "5.23.0")
+    compileOnly("io.lumine", "Mythic-Dist", "5.13.0")
+    compileOnly("me.clip", "placeholderapi", "2.12.3")
+    compileOnly("org.mvplugins.multiverse.core", "multiverse-core", "5.8.0")
     compileOnly("se.hyperver.hyperverse", "Core", "0.10.0")
 }
 
@@ -70,8 +72,11 @@ tasks {
         destinationDir = File(path.toString())
     }
 
-    runServer{
-        minecraftVersion("1.21.1")
+    runServer {
+        minecraftVersion("1.21.4")
+    }
+    test {
+        useJUnitPlatform()
     }
 }
 
@@ -82,7 +87,7 @@ bukkit {
     version = publishData.getVersion(true)
     main = "de.eldoria.bloodnight.core.BloodNight"
     website = "https://www.spigotmc.org/resources/85095"
-    apiVersion = "1.16"
+    apiVersion = "1.21"
     softDepend = listOf("Multiverse-Core", "Hyperverse", "MythicMobs", "PlaceholderAPI")
 
     commands {

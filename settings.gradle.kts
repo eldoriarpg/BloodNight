@@ -12,7 +12,7 @@ pluginManagement {
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
-            version("eldoutil", "2.1.9")
+            version("eldoutil", "2.1.11")
             library("eldoutil.core", "de.eldoria.util", "core").versionRef("eldoutil")
             library("eldoutil.updater", "de.eldoria.util", "updater").versionRef("eldoutil")
             library("eldoutil.messaging", "de.eldoria.util", "messaging").versionRef("eldoutil")
@@ -33,11 +33,11 @@ dependencyResolutionManagement {
                 )
             )
 
-            plugin("publishdata", "de.chojo.publishdata").version("1.2.5")
-            plugin("spotless", "com.diffplug.spotless").version("7.0.2")
-            plugin("shadow", "com.gradleup.shadow").version("8.3.6")
+            plugin("publishdata", "de.chojo.publishdata").version("1.3.0")
+            plugin("spotless", "com.diffplug.spotless").version("8.10.0")
+            plugin("shadow", "com.gradleup.shadow").version("9.6.1")
             plugin("pluginyml", "net.minecrell.plugin-yml.bukkit").version("0.6.0")
-            plugin("runpaper", "xyz.jpenilla.run-paper").version("2.3.1")
+            plugin("runpaper", "xyz.jpenilla.run-paper").version("3.1.0")
         }
     }
 }

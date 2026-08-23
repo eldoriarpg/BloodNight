@@ -3,8 +3,9 @@ package de.eldoria.bloodnight.config.worldsettings.sound;
 import de.eldoria.eldoutilities.serialization.SerializationUtil;
 import de.eldoria.eldoutilities.serialization.TypeResolvingMap;
 import de.eldoria.eldoutilities.utils.EMath;
-import de.eldoria.eldoutilities.utils.EnumUtil;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -16,11 +17,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 @SerializableAs("bloodNightSoundEntry")
 public class SoundEntry implements ConfigurationSerializable {
-    private Sound sound = Sound.UI_BUTTON_CLICK;
+    private static final Sound DEFAULT_SOUND = Sound.UI_BUTTON_CLICK;
+    private Sound sound = DEFAULT_SOUND;
     private List<Double> pitch = new ArrayList<>() {{
         add(1d);
     }};
@@ -30,8 +33,8 @@ public class SoundEntry implements ConfigurationSerializable {
 
     public SoundEntry(Map<String, Object> objectMap) {
         TypeResolvingMap map = SerializationUtil.mapOf(objectMap);
-        String name = map.getValueOrDefault("sound", this.sound.name());
-        this.sound = EnumUtil.parse(name, Sound.class).orElse(Sound.UI_BUTTON_CLICK);
+        String name = map.getValueOrDefault("sound", Registry.SOUNDS.getKey(this.sound).value());
+        this.sound = Objects.requireNonNullElse(Registry.SOUNDS.get(NamespacedKey.minecraft(name)), DEFAULT_SOUND);
         pitch = map.getValueOrDefault("pitch", pitch);
         clampArray(pitch, 0.01f, 2);
         volume = map.getValueOrDefault("volume", volume);
@@ -49,7 +52,7 @@ public class SoundEntry implements ConfigurationSerializable {
     }
 
     public void play(Player player, Location location, SoundCategory channel) {
-        player.playSound(location, sound, channel, (float) getPitch(), (float) getVolume());
+        player.playSound(location, Objects.requireNonNullElse(sound, DEFAULT_SOUND), channel, (float) getPitch(), (float) getVolume());
     }
 
     private double getPitch() {
@@ -65,9 +68,9 @@ public class SoundEntry implements ConfigurationSerializable {
     @Override
     public @NotNull Map<String, Object> serialize() {
         return SerializationUtil.newBuilder()
-                .add("sound", sound.name())
-                .add("pitch", pitch)
-                .add("volume", volume)
-                .build();
+                                .add("sound", Registry.SOUNDS.getKey(sound).value())
+                                .add("pitch", pitch)
+                                .add("volume", volume)
+                                .build();
     }
 }
