@@ -28,7 +28,7 @@ subprojects {
     }
 
     dependencies {
-        compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
+        compileOnly("io.papermc.paper:paper-api:26.2.build.123-stable")
         compileOnly("org.projectlombok:lombok:1.18.46")
         compileOnly("org.jetbrains:annotations:26.1.0")
         annotationProcessor("org.projectlombok:lombok:1.18.46")
